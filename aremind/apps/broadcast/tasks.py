@@ -3,7 +3,7 @@ from threadless_router.router import Router
 from celery.task import Task
 from celery.registry import tasks
 
-from afrims.apps.broadcast.app import scheduler_callback
+from aremind.apps.broadcast.app import scheduler_callback
 
 
 class BroadcastCronTask(Task):

@@ -3,7 +3,7 @@ from threadless_router.router import Router
 from celery.task import Task
 from celery.registry import tasks
 
-from afrims.apps.reminders.app import scheduler_callback, daily_email_callback
+from aremind.apps.reminders.app import scheduler_callback, daily_email_callback
 
 
 class ReminderSchedulerTask(Task):

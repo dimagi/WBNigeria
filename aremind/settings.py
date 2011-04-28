@@ -227,15 +227,15 @@ from celery.schedules import crontab
 
 CELERYBEAT_SCHEDULE = {
     "broadcast-task": {
-        "task": "afrims.apps.broadcast.tasks.BroadcastCronTask",
+        "task": "aremind.apps.broadcast.tasks.BroadcastCronTask",
         "schedule": crontab(), # every minute
     },
     "reminder-scheduler": {
-        "task": "afrims.apps.reminders.tasks.ReminderSchedulerTask",
+        "task": "aremind.apps.reminders.tasks.ReminderSchedulerTask",
         "schedule": crontab(),
     },
     "reminder-email-task": {
-        "task": "afrims.apps.reminders.tasks.ReminderEmailTask",
+        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
         "schedule": crontab(hour=12, minute=0),
     },
 }

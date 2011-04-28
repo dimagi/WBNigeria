@@ -64,10 +64,8 @@ def production():
     env.sudo_user = 'aremind'
     env.environment = 'production'
     env.hosts = ['10.84.168.245']
-    env.settings_files=['kpp','cebu']
-    env.settings = ['aremind.localsettings_production_%s' % (env.settings_files[0]), 'aremind.localsettings_production_%s' % env.settings_files[1]]
     _setup_path()
-
+    raise NotImplementedError()
 
 def bootstrap():
     """ initialize remote host environment (virtualenv, deploy, update) """
@@ -144,15 +142,7 @@ def update_services():
     rsync_project(remote_dir=remote_dir, local_dir="services/", delete=True)
     sudo("rsync -av --delete %s %s" %
          (remote_dir, _join(env.home, 'services')), user=env.sudo_user)
-    if env.environment == 'staging':
-        # This command should work for both staging and production
-        # when supervisor is installed on prod.
-        upload_supervisor_conf()
-    else:
-        # copy the upstart script to /etc/init
-        # This would be removed if production is migrated from upstart to supervisor.
-        run("sudo cp %s /etc/init" % _join(env.home, 'services', env.environment,
-                                       'upstart', 'aremind-router.conf'))   
+    upload_supervisor_conf()
     apache_reload()
     router_start()
     netstat_plnt()
@@ -185,51 +175,25 @@ def netstat_plnt():
 def router_start():  
     """ start router on remote host """
     require('root', provided_by=('staging', 'production'))
-    if env.environment == 'staging':
-        # This command start the single router on staging and router group
-        # on production. No need for conditional if prod starts using supervisor.
-        _supervisor_command('start router')
-    else:
-        for i,j in enumerate(env.settings):
-            require('root', provided_by=('staging', 'production'))
-            run('sudo start aremind-router-%s' % env.settings_files[i])
+    _supervisor_command('start router')
 
 
 def router_stop():  
     """ stop router on remote host """
     require('root', provided_by=('staging', 'production'))
-    if env.environment == 'staging':
-        # This command stops the single router on staging and router group
-        # on production. No need for conditional if prod starts using supervisor.
-        _supervisor_command('stop router')
-    else:
-        for i,j in enumerate(env.settings):
-            require('root', provided_by=('staging', 'production'))
-            run('sudo stop aremind-router-%s' % env.settings_files[i])
+    _supervisor_command('stop router')
 
 
 def servers_start():
     ''' Start the gunicorn servers '''
     require('root', provided_by=('staging', 'production'))
-    if env.environment == 'production':
-        for i in env.settings_files:
-            run('sudo start aremind-%s' % i)
-    else:
-        # This command starts the single gunicorn server on staging and server group
-        # on production. No need for conditional if prod starts using supervisor.
-        _supervisor_command('start server')
+    _supervisor_command('start server')
 
 
 def servers_stop():
     ''' Stop the gunicorn servers '''
     require('root', provided_by=('staging', 'production'))
-    if env.environment == 'production':
-        for i in env.settings_files:
-            run('sudo stop aremind-%s' % i)
-    else:
-        # This command stops the single gunicorn server on staging and server group
-        # on production. No need for conditional if prod starts using supervisor.
-        _supervisor_command('stop server')
+    _supervisor_command('stop server')
 
 
 def migrate():

@@ -16,7 +16,7 @@ RSYNC_EXCLUDE = (
 )
 env.home = '/home/aremind'
 env.project = 'aremind'
-env.code_repo = 'git://github.com/aremind/aremind.git'
+env.code_repo = 'git://github.com/dimagi/aremind.git'
 
 
 def _join(*args):

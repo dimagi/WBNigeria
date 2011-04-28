@@ -22,9 +22,12 @@ INSTALLED_APPS = [
     "djtables",
     "rapidsms",
 
+    "djcelery",
+    "threadless_router.celery",
+
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
-    "rapidsms.contrib.ajax",
+    # "rapidsms.contrib.ajax",
 
     # enable the django admin using a little shim app (which includes
     # the required urlpatterns), and a bunch of undocumented apps that
@@ -34,11 +37,11 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.sessions",
     "django.contrib.contenttypes",
+    "django.contrib.staticfiles",
     
     "pagination",
     "django_sorting",
     "south",
-	"staticfiles",
     "rosetta",
     # "gunicorn",
     "afrims.apps.groups",
@@ -49,12 +52,12 @@ INSTALLED_APPS = [
 
     # the rapidsms contrib apps.
     # "rapidsms.contrib.export",
-    "rapidsms.contrib.httptester",
+    "threadless_router.backends.httptester",
     "rapidsms.contrib.locations",
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
-    "rapidsms.contrib.registration",
-    "rapidsms.contrib.scheduler",
+    # "rapidsms.contrib.registration",
+    # "rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
 
     # this app should be last, as it will always reply with a help message
@@ -219,6 +222,25 @@ TEST_MESSAGER_BACKEND = 'twilio'
 
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'))
+
+from celery.schedules import crontab
+
+CELERYBEAT_SCHEDULE = {
+    "broadcast-task": {
+        "task": "afrims.apps.broadcast.tasks.BroadcastCronTask",
+        "schedule": crontab(), # every minute
+    },
+    "reminder-scheduler": {
+        "task": "afrims.apps.reminders.tasks.ReminderSchedulerTask",
+        "schedule": crontab(),
+    },
+    "reminder-email-task": {
+        "task": "afrims.apps.reminders.tasks.ReminderEmailTask",
+        "schedule": crontab(hour=12, minute=0),
+    },
+}
+
+INSTALLED_BACKENDS = {}
 
 #STATICFILES_EXCLUDED_APPS = (
 #    'django.contrib.admin',

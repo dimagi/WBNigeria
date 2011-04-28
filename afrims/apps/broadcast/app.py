@@ -56,46 +56,11 @@ def usage_email_callback(router, *args, **kwargs):
 class BroadcastApp(AppBase):
     """ RapidSMS app to send broadcast messages """
 
-    cron_schedule = {'minutes': '*'}
-    cron_name = 'broadcast-cron-job'
-    cron_callback = 'afrims.apps.broadcast.app.scheduler_callback'
-    
     not_registered = _('Sorry, your mobile number is not registered in the '
                        'required group for this keyword.')
     thank_you = _('Thank you, your message has been queued for delivery.')
 
     def start(self):
-        """ setup event schedule to run cron job every minute """
-        try:
-            schedule = EventSchedule.objects.get(description=self.name)
-        except EventSchedule.DoesNotExist:
-            schedule = EventSchedule.objects.create(description=self.name,
-                                                    callback=self.cron_callback,
-                                                    minutes='*')
-        schedule.callback = self.cron_callback
-        for key, val in self.cron_schedule.iteritems():
-            if hasattr(schedule, key):
-                setattr(schedule, key, val)
-        schedule.save()
-        name = 'broadcast-monthly-email'
-        info = {
-            'callback': 'afrims.apps.broadcast.app.usage_email_callback',
-            'days_of_month': [1],
-            'hours': [12],
-            'minutes': [0],
-        }
-        schedule, created = EventSchedule.objects.get_or_create(description=name,
-            defaults=info
-        )
-        # Uncommenting these lines will reset the schedule every time the router
-        # is started.
-#        if not created:
-#            for key, val in info.iteritems():
-#                if hasattr(schedule, key):
-#                    setattr(schedule, key, val)  
-#        schedule.save()        
-        group_name = settings.DEFAULT_MONTHLY_REPORT_GROUP_NAME
-        group, _ = groups.Group.objects.get_or_create(name=group_name)
         self.info('started')
 
     def _forwarding_rules(self):
@@ -155,7 +120,7 @@ class BroadcastApp(AppBase):
                                   template=message.broadcast.body)
             success = True
             try:
-                msg.send()
+                self.router.outgoing(msg)
             except Exception, e:
                 self.exception(e)
                 success = False
@@ -169,7 +134,7 @@ class BroadcastApp(AppBase):
             message.save()
 
     def cronjob(self):
-        self.debug('{0} running'.format(self.cron_name))
+        self.debug('cron job running')
         # grab all broadcasts ready to go out and queue their messages
         self.queue_outgoing_messages()
         # send queued messages

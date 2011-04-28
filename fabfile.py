@@ -14,9 +14,9 @@ RSYNC_EXCLUDE = (
     '*.example',
     '*.db',
 )
-env.home = '/home/afrims'
-env.project = 'afrims'
-env.code_repo = 'git://github.com/afrims/afrims.git'
+env.home = '/home/aremind'
+env.project = 'aremind'
+env.code_repo = 'git://github.com/aremind/aremind.git'
 
 
 def _join(*args):
@@ -51,7 +51,7 @@ def setup_dirs():
 def staging():
     """ use staging environment on remote host"""
     env.code_branch = 'develop'
-    env.sudo_user = 'afrims'
+    env.sudo_user = 'aremind'
     env.environment = 'staging'
     env.hosts = ['173.203.221.48']
     env.settings = '%(project)s.localsettings' % env
@@ -61,11 +61,11 @@ def staging():
 def production():
     """ use production environment on remote host"""
     env.code_branch = 'master'
-    env.sudo_user = 'afrims'
+    env.sudo_user = 'aremind'
     env.environment = 'production'
     env.hosts = ['10.84.168.245']
     env.settings_files=['kpp','cebu']
-    env.settings = ['afrims.localsettings_production_%s' % (env.settings_files[0]), 'afrims.localsettings_production_%s' % env.settings_files[1]]
+    env.settings = ['aremind.localsettings_production_%s' % (env.settings_files[0]), 'aremind.localsettings_production_%s' % env.settings_files[1]]
     _setup_path()
 
 
@@ -139,7 +139,7 @@ def update_services():
     with settings(warn_only=True):
         router_stop()
     # use a two stage rsync process because we are not connecting as the
-    # afrims user
+    # aremind user
     remote_dir = 'tmp-services/'
     rsync_project(remote_dir=remote_dir, local_dir="services/", delete=True)
     sudo("rsync -av --delete %s %s" %
@@ -152,7 +152,7 @@ def update_services():
         # copy the upstart script to /etc/init
         # This would be removed if production is migrated from upstart to supervisor.
         run("sudo cp %s /etc/init" % _join(env.home, 'services', env.environment,
-                                       'upstart', 'afrims-router.conf'))   
+                                       'upstart', 'aremind-router.conf'))   
     apache_reload()
     router_start()
     netstat_plnt()
@@ -192,7 +192,7 @@ def router_start():
     else:
         for i,j in enumerate(env.settings):
             require('root', provided_by=('staging', 'production'))
-            run('sudo start afrims-router-%s' % env.settings_files[i])
+            run('sudo start aremind-router-%s' % env.settings_files[i])
 
 
 def router_stop():  
@@ -205,7 +205,7 @@ def router_stop():
     else:
         for i,j in enumerate(env.settings):
             require('root', provided_by=('staging', 'production'))
-            run('sudo stop afrims-router-%s' % env.settings_files[i])
+            run('sudo stop aremind-router-%s' % env.settings_files[i])
 
 
 def servers_start():
@@ -213,7 +213,7 @@ def servers_start():
     require('root', provided_by=('staging', 'production'))
     if env.environment == 'production':
         for i in env.settings_files:
-            run('sudo start afrims-%s' % i)
+            run('sudo start aremind-%s' % i)
     else:
         # This command starts the single gunicorn server on staging and server group
         # on production. No need for conditional if prod starts using supervisor.
@@ -225,7 +225,7 @@ def servers_stop():
     require('root', provided_by=('staging', 'production'))
     if env.environment == 'production':
         for i in env.settings_files:
-            run('sudo stop afrims-%s' % i)
+            run('sudo stop aremind-%s' % i)
     else:
         # This command stops the single gunicorn server on staging and server group
         # on production. No need for conditional if prod starts using supervisor.
@@ -269,29 +269,29 @@ def reset_local_db():
     if not console.confirm(question, default=False):
         utils.abort('Local database reset aborted.')
     if env.environment == 'staging':
-        from afrims.settings_staging import DATABASES as remote
+        from aremind.settings_staging import DATABASES as remote
     else:
-        from afrims.settings_production import DATABASES as remote
-    from afrims.localsettings import DATABASES as loc
+        from aremind.settings_production import DATABASES as remote
+    from aremind.localsettings import DATABASES as loc
     local_db = loc['default']['NAME']
     remote_db = remote['default']['NAME']
     with settings(warn_only=True):
         local('dropdb %s' % local_db)
     local('createdb %s' % local_db)
     host = '%s@%s' % (env.user, env.hosts[0])
-    local('ssh -C %s sudo -u afrims pg_dump -Ox %s | psql %s' % (host, remote_db, local_db))
+    local('ssh -C %s sudo -u aremind pg_dump -Ox %s | psql %s' % (host, remote_db, local_db))
 
 
 def setup_translation():
     """ Setup the git config for commiting .po files on the server """
-    run('sudo -H -u %s git config --global user.name "AFRIMS Translators"' % env.sudo_user)
-    run('sudo -H -u %s git config --global user.email "afrims-dev@dimagi.com"' % env.sudo_user)
+    run('sudo -H -u %s git config --global user.name "ARemind Translators"' % env.sudo_user)
+    run('sudo -H -u %s git config --global user.email "aremind-dev@dimagi.com"' % env.sudo_user)
 
 
 def fix_locale_perms():
     """ Fix the permissions on the locale directory """
-    locale_dir = '%s/afrims/locale/' % env.code_root
-    run('sudo chown -R afrims %s' % locale_dir)
+    locale_dir = '%s/aremind/locale/' % env.code_root
+    run('sudo chown -R aremind %s' % locale_dir)
     run('sudo chgrp -R www-data %s' % locale_dir)
     run('sudo chmod -R g+w %s' % locale_dir)
 
@@ -300,7 +300,7 @@ def commit_locale_changes():
     """ Commit locale changes on the remote server and pull them in locally """
     fix_locale_perms()
     with cd(env.code_root):
-        run('sudo -H -u %s git add afrims/locale' % env.sudo_user)
+        run('sudo -H -u %s git add aremind/locale' % env.sudo_user)
         run('sudo -H -u %s git commit -m "updating translation"' % env.sudo_user)
     local('git pull ssh://%s%s' % (env.host, env.code_root))
 

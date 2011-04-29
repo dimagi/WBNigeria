@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "aremind.apps.broadcast",
     "aremind.apps.reminders",
     "aremind.apps.patients",
+    "aremind.apps.adherence",
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
 
@@ -227,6 +228,10 @@ STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
 from celery.schedules import crontab
 
 CELERYBEAT_SCHEDULE = {
+    "adherence-reminder-scheduler": {
+        "task": "aremind.apps.adherence.tasks.ReminderSchedulerTask",
+        "schedule": crontab(),
+    },
     "broadcast-task": {
         "task": "aremind.apps.broadcast.tasks.BroadcastCronTask",
         "schedule": crontab(), # every minute
@@ -239,7 +244,14 @@ CELERYBEAT_SCHEDULE = {
         "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
         "schedule": crontab(hour=12, minute=0),
     },
+
 }
+
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+
+import djcelery
+djcelery.setup_loader()
+
 
 INSTALLED_BACKENDS = {}
 

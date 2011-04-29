@@ -210,6 +210,7 @@ class ImportTest(PatientsCreateDataTest):
         patient = payload.patients.all()[0]
         self.assertTrue(patient.contact is not None)
         self.assertEqual(patient.contact.phone, '12223334444')
+        self.assertEqual(patient.contact.pin, '4444')
 
     def test_update_contact_association(self):
         """ Test that contacts get updated for patients """

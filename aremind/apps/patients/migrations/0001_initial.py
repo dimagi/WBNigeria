@@ -9,37 +9,41 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         
         # Adding model 'PatientDataPayload'
-        db.create_table('patients_patientdatapayload', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('raw_data', self.gf('django.db.models.fields.TextField')()),
-            ('submit_date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('status', self.gf('django.db.models.fields.CharField')(default='received', max_length=16)),
-            ('error_message', self.gf('django.db.models.fields.TextField')(blank=True)),
-        ))
-        db.send_create_signal('patients', ['PatientDataPayload'])
+        db.rename_table('reminders_patientdatapayload', 'patients_patientdatapayload')
+#        db.create_table('patients_patientdatapayload', (
+#            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+#            ('raw_data', self.gf('django.db.models.fields.TextField')()),
+#            ('submit_date', self.gf('django.db.models.fields.DateTimeField')()),
+#            ('status', self.gf('django.db.models.fields.CharField')(default='received', max_length=16)),
+#            ('error_message', self.gf('django.db.models.fields.TextField')(blank=True)),
+#        ))
+#        db.send_create_signal('patients', ['PatientDataPayload'])
 
         # Adding model 'Patient'
-        db.create_table('patients_patient', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('raw_data', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='patients', null=True, to=orm['patients.PatientDataPayload'])),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='patients', unique=True, to=orm['rapidsms.Contact'])),
-            ('subject_number', self.gf('django.db.models.fields.CharField')(unique=True, max_length=20)),
-            ('date_enrolled', self.gf('django.db.models.fields.DateField')()),
-            ('mobile_number', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('pin', self.gf('django.db.models.fields.CharField')(max_length=4, blank=True)),
-            ('next_visit', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('reminder_time', self.gf('django.db.models.fields.TimeField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('patients', ['Patient'])
+        db.rename_table('reminders_patient', 'patients_patient')
+#        db.create_table('patients_patient', (
+#            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+#            ('raw_data', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='patients', null=True, to=orm['patients.PatientDataPayload'])),
+#            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(related_name='patients', unique=True, to=orm['rapidsms.Contact'])),
+#            ('subject_number', self.gf('django.db.models.fields.CharField')(unique=True, max_length=20)),
+#            ('date_enrolled', self.gf('django.db.models.fields.DateField')()),
+#            ('mobile_number', self.gf('django.db.models.fields.CharField')(max_length=30)),
+#            ('pin', self.gf('django.db.models.fields.CharField')(max_length=4, blank=True)),
+#            ('next_visit', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+#            ('reminder_time', self.gf('django.db.models.fields.TimeField')(null=True, blank=True)),
+#        ))
+#        db.send_create_signal('patients', ['Patient'])
 
 
     def backwards(self, orm):
-        
+
         # Deleting model 'PatientDataPayload'
-        db.delete_table('patients_patientdatapayload')
+        db.rename_table('patients_patientdatapayload', 'reminders_patientdatapayload')
+        #db.delete_table('patients_patientdatapayload')
 
         # Deleting model 'Patient'
-        db.delete_table('patients_patient')
+        db.rename_table('patients_patient', 'reminders_patient')
+        #db.delete_table('patients_patient')
 
 
     models = {

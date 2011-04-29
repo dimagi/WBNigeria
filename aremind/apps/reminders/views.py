@@ -13,14 +13,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from django.core.mail import mail_admins
 
 from rapidsms.models import Contact, Connection, Backend
 
-from aremind.decorators import has_perm_or_basicauth
 from aremind.apps.reminders import models as reminders
 from aremind.apps.reminders.forms import NotificationForm, ReportForm
-from aremind.apps.reminders.importer import parse_payload
 
 logger = logging.getLogger('aremind.apps.reminder')
 

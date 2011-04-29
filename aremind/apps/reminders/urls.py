@@ -9,5 +9,4 @@ urlpatterns = patterns('',
     url(r'^(?P<reminder_id>\d+)/confirm/$', views.manually_confirm, name='manually-confirm-patient'),
     url(r'^$', views.dashboard, name='reminders_dashboard'),
     url(r'report/$', views.report, name='reminders-report'),
-    url(r'post$', views.receive_patient_record, name='patient-import'),
 )

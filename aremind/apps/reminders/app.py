@@ -12,6 +12,7 @@ from rapidsms.messages.outgoing import OutgoingMessage
 
 from aremind.apps.broadcast.models import Broadcast
 from aremind.apps.groups import models as groups
+from aremind.apps.patients.models import Patient
 from aremind.apps.reminders import models as reminders
 
 # In RapidSMS, message translation is done in OutgoingMessage, so no need
@@ -40,8 +41,8 @@ def daily_email_callback(router, *args, **kwargs):
         days = 7
     today = datetime.date.today()
     appt_date = today + datetime.timedelta(days=days)
-    confirmed_patients = reminders.Patient.objects.confirmed_for_date(appt_date)
-    unconfirmed_patients = reminders.Patient.objects.unconfirmed_for_date(appt_date)
+    confirmed_patients = Patient.objects.confirmed_for_date(appt_date)
+    unconfirmed_patients = Patient.objects.unconfirmed_for_date(appt_date)
     context = {
         'appt_date': appt_date,
         'confirmed_patients': confirmed_patients,
@@ -164,7 +165,7 @@ class RemindersApp(AppBase):
             self.info('Scheduling notifications for %s' % notification)
             days_delta = datetime.timedelta(days=notification.num_days)
             appt_date = today + days_delta
-            patients = reminders.Patient.objects.filter(next_visit=appt_date,
+            patients = Patient.objects.filter(next_visit=appt_date,
                                                         contact__isnull=False,)
             already_sent = Q(contact__sent_notifications__appt_date=appt_date) &\
                            Q(contact__sent_notifications__notification=notification)

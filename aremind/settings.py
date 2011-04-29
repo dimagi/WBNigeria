@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "aremind.apps.groups",
     "aremind.apps.broadcast",
     "aremind.apps.reminders",
+    "aremind.apps.patients",
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
 

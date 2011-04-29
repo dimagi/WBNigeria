@@ -8,12 +8,12 @@ from django.conf import settings
 
 from rapidsms.models import Contact, Connection, Backend
 
-from aremind.apps.reminders import models as reminders
-from aremind.apps.reminders.forms import PatientForm
+from aremind.apps.patients import models as patients
+from aremind.apps.patients.forms import PatientForm
 from aremind.apps.groups.models import Group
 
 
-logger = logging.getLogger('aremind.apps.reminders.importer')
+logger = logging.getLogger('aremind.apps.patients.importer')
 
 
 def parse_payload(payload):
@@ -75,9 +75,9 @@ def parse_patient(node, payload):
     if subject:
         logger.debug('Parsed patient {0}'.format(subject))
         try:
-            instance = reminders.Patient.objects.get(subject_number=subject)
+            instance = patients.Patient.objects.get(subject_number=subject)
             logger.debug("{0} found in database".format(subject))
-        except reminders.Patient.DoesNotExist:
+        except patients.Patient.DoesNotExist:
             logger.debug("{0} doesn't exist in database".format(subject))
     # construct model form and see if data is valid
     form = PatientForm(data, instance=instance)

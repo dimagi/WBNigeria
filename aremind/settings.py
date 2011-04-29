@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "aremind.apps.groups",
     "aremind.apps.broadcast",
     "aremind.apps.reminders",
+    "aremind.apps.patients",
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
 
@@ -71,7 +72,7 @@ INSTALLED_APPS = [
 RAPIDSMS_TABS = [
     ("aremind.apps.broadcast.views.dashboard", "Dashboard"),    
     ("aremind.apps.broadcast.views.send_message", "Send a Message"),
-    ("aremind.apps.reminders.views.dashboard", "Appointment Reminders"),
+    #("aremind.apps.reminders.views.dashboard", "Appointment Reminders"),
     ("broadcast-forwarding", "Forwarding"),
     ("aremind.apps.groups.views.list_groups", "Groups"),
     ("aremind.apps.groups.views.list_contacts","People"),
@@ -230,14 +231,14 @@ CELERYBEAT_SCHEDULE = {
         "task": "aremind.apps.broadcast.tasks.BroadcastCronTask",
         "schedule": crontab(), # every minute
     },
-    "reminder-scheduler": {
-        "task": "aremind.apps.reminders.tasks.ReminderSchedulerTask",
-        "schedule": crontab(),
-    },
-    "reminder-email-task": {
-        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
-        "schedule": crontab(hour=12, minute=0),
-    },
+#    "reminder-scheduler": {
+#        "task": "aremind.apps.reminders.tasks.ReminderSchedulerTask",
+#        "schedule": crontab(),
+#    },
+#    "reminder-email-task": {
+#        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
+#        "schedule": crontab(hour=12, minute=0),
+#    },
 }
 
 INSTALLED_BACKENDS = {}

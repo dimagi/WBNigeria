@@ -45,27 +45,6 @@ def dashboard(request):
                               RequestContext(request))
 
 
-@csrf_exempt
-@require_http_methods(['POST'])
-@has_perm_or_basicauth('reminders.add_patientdatapayload', 'Reminders')
-def receive_patient_record(request):
-    ''' Accept data submissions from the the site via POST. '''
-    if request.META['CONTENT_TYPE'] != 'text/xml':
-        logger.warn('incoming post does not have text/xml content type')
-        logger.debug(request)
-    content = request.raw_post_data
-    if not content:
-        logger.error("No XML data appears to be attached.")
-        return HttpResponseServerError("No XML data appears to be attached.")
-    payload = reminders.PatientDataPayload.objects.create(raw_data=content)
-    try:
-        parse_payload(payload)
-    except Exception as e:
-        mail_admins(subject="Patient Import Failed", message=unicode(e))
-        return HttpResponseServerError(unicode(e))
-    return HttpResponse("Data submitted succesfully.")
-
-
 @login_required
 def create_edit_notification(request, notification_id=None):
     notification = None

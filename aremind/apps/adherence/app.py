@@ -14,11 +14,6 @@ from aremind.apps.adherence.models import Reminder, SendReminder
 _ = lambda s: s
 
 
-def scheduler_callback(router):
-    app = router.get_app("aremind.apps.adherence")
-    app.cronjob()
-
-
 class AdherenceApp(AppBase):
 
     def start(self):
@@ -58,7 +53,7 @@ class AdherenceApp(AppBase):
             message.save()
 
     def cronjob(self):
-        self.info('cron job running')
+        self.debug('cron job running')
         # grab all broadcasts ready to go out and queue their messages
         self.queue_outgoing_messages()
         # send queued messages

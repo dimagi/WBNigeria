@@ -10,6 +10,13 @@ from rapidsms import models as rapidsms
 logger = logging.getLogger('adherence.models')
 
 
+class ReminderReadyManager(models.Manager):
+    def ready(self):
+        qs = super(ReminderReadyManager, self).get_query_set()
+        qs = qs.filter(date__lt=datetime.datetime.now())
+        return qs
+
+
 class Reminder(models.Model):
     REPEAT_DAILY = 'daily'
     REPEAT_WEEKLY = 'weekly'
@@ -28,8 +35,16 @@ class Reminder(models.Model):
     date_last_notified = models.DateTimeField(null=True, blank=True)
     date = models.DateTimeField(db_index=True)
 
+    objects = ReminderReadyManager()
+
     def __unicode__(self):
         return u'{freq} reminder at {time}'.format(freq=self.frequency, time=self.formatted_time)
+
+    def save(self, *args, **kwargs):
+        today = datetime.date.today()
+        if not self.date:
+            self.date = datetime.datetime.combine(today, self.time_of_day)
+        super(Reminder, self).save(*args, **kwargs)
 
     @property
     def formatted_time(self):
@@ -46,8 +61,9 @@ class Reminder(models.Model):
             self.__class__.REPEAT_DAILY: rrule.DAILY,
             self.__class__.REPEAT_WEEKLY: rrule.WEEKLY,
         }
-        freq = freq_map.get(self.schedule_frequency)
-        kwargs = {'dtstart': self.date}
+        freq = freq_map.get(self.frequency)
+        start = datetime.datetime.combine(self.date.date(), self.time_of_day)
+        kwargs = {'dtstart': start}
         if freq == rrule.WEEKLY:
             try:
                 weekdays = map(int, self.weekdays.split(','))
@@ -74,6 +90,15 @@ class Reminder(models.Model):
         logger.debug('set_next_date end - {0}'.format(self))
         self.save()
 
+    def queue_outgoing_messages(self):
+        """ generate queued outgoing messages """
+
+        for contact in self.recipients:
+            self.adherence_reminders.create(
+                recipient=contact, date_queued=datetime.datetime.now()
+            )
+        return self.recipients.count()
+
 
 class SendReminder(models.Model):
     STATUS_QUEUED = 'queued'
@@ -97,13 +122,20 @@ class SendReminder(models.Model):
     date_to_send = models.DateTimeField(help_text='The date and time this reminder'
                                         ' is scheduled to be sent.')
     date_sent = models.DateTimeField(null=True, blank=True,
-                                     help_text='The date and time this '
-                                     'reminder was sent.')
-    message = models.CharField(max_length=160, help_text='The actual message '
-                               'that was sent to the user.')
+        help_text='The date and time this reminder was sent.')
+    message = models.CharField(max_length=160, null=True, blank=True, 
+        help_text='The actual message that was sent to the user.'
+    )
     
     def __unicode__(self):
         return u'{reminder} for {recipient} created on {date}'.format(
                                         reminder=self.reminder,
                                         recipient=self.recipient,
                                         date=self.date_queued)
+
+    def get_message(self):
+        # TODO: Retrive messages from the various streams
+        if not self.message:
+            self.message = u'Time to take your pills'
+        return self.message
+

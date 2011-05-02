@@ -1,0 +1,17 @@
+{% extends "adherence/base.html" %}
+
+{% block content %}
+<div class='module'>
+    <h2>{% if reminder.pk %}Edit{% else %}Create{% endif %} Reminder Schedule</h2>
+   <form action="." method="POST" class="buttons">
+        {% csrf_token %}
+        <table>
+            {{ form }}
+        </table>
+        <div class='form-action'>
+            <input type='button' name='cancel' value='Cancel' />
+            <input type='submit' name='submit' value="Save" />
+        </div>
+    </form>
+</div>
+{% endblock %}

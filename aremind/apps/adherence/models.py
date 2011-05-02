@@ -25,12 +25,23 @@ class Reminder(models.Model):
         (REPEAT_DAILY, 'Daily'),
         (REPEAT_WEEKLY, 'Weekly'),
     )
+
+    WEEKDAY_CHOICES = (
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    )
+
     frequency = models.CharField(max_length=16, choices=REPEAT_CHOICES,
         default=REPEAT_DAILY, db_index=True
     )
     weekdays = models.CommaSeparatedIntegerField(max_length=20, blank=True, null=True)
     time_of_day = models.TimeField()
-    recipients = models.ManyToManyField(rapidsms.Contact)
+    recipients = models.ManyToManyField(rapidsms.Contact, related_name='reminders')
 
     date_last_notified = models.DateTimeField(null=True, blank=True)
     date = models.DateTimeField(db_index=True)
@@ -49,6 +60,14 @@ class Reminder(models.Model):
     @property
     def formatted_time(self):
         return self.time_of_day.strftime('%I:%M %p')
+
+    @property
+    def formatted_frequency(self):
+        display = self.get_frequency_display()
+        if self.frequency == self.__class__.REPEAT_WEEKLY:
+            names = map(lambda x: self.__class__.WEEKDAY_CHOICES[x][1], map(int, self.weekdays.split(',')))
+            display = u'%s (%s)' % (display, u', '.join(names))
+        return display
 
     def get_next_date(self):
         """ calculate next date based on configured characteristics """

@@ -3,24 +3,29 @@
 
 {% block content %}
 <div class='module'>
-    <h2>Patient Reminders</h2>
-    {% autosort patients %}
-    {% autopaginate patients 15 %}
+    <h2>Reminder Schedules</h2>
+    {% autosort reminders %}
+    {% autopaginate reminders 15 %}
+    <p><a class='button add' title='Add Reminder Schedule' href="{% url adherence-create-reminder-schedule %}" >Add reminder schedule...</a></p>
     <table class='sortable pagination'>
         <thead>
             <tr>
-                <th>{% anchor subject_number ID %}</th>
-                <th>Reminders</th>
+                <th>{% anchor id ID %}</th>
+                <th>{% anchor frequency Frequency %}</th>
+                <th>{% anchor time_of_day Time %}</th>
+                <th># of Recipients</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for patient in patients %}
+            {% for reminder in reminders %}
                 <tr class="{% cycle 'odd' 'even' %}">
-                    <td>{{ patient.subject_number }}</td>
-                    <td>{% for reminder in patient.contact.reminders.all %}{{ reminder }}{% if not forloop.last %}, {% endif %}{% empty %}No reminders{% endfor %}</td>
+                    <td>{{ reminder.id }}</td>
+                    <td>{{ reminder.formatted_frequency }}</td>
+                    <td>{{ reminder.formatted_time }}</td>
+                    <td>{{ reminder.recipients.count }}</td>
                     <td class='actions'>
-                        <a class='button' title='Edit' href=''><span class='ui-icon ui-icon-pencil'></span></a>
+                        <a class='button' title='Edit' href='{% url adherence-edit-reminder-schedule reminder.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>
                     </td>
                 </tr>
             {% endfor %}

@@ -30,7 +30,7 @@ class Reminder(models.Model):
     )
     weekdays = models.CommaSeparatedIntegerField(max_length=20, blank=True, null=True)
     time_of_day = models.TimeField()
-    recipients = models.ManyToManyField(rapidsms.Contact)
+    recipients = models.ManyToManyField(rapidsms.Contact, related_name='reminders')
 
     date_last_notified = models.DateTimeField(null=True, blank=True)
     date = models.DateTimeField(db_index=True)

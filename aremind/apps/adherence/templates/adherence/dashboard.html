@@ -1,0 +1,39 @@
+{% extends "adherence/base.html" %}
+{% load pagination_tags sorting_tags %}
+
+{% block content %}
+<div class='module'>
+    <h2>Patient Reminders</h2>
+    {% autosort patients %}
+    {% autopaginate patients 15 %}
+    <table class='sortable pagination'>
+        <thead>
+            <tr>
+                <th>{% anchor subject_number ID %}</th>
+                <th>Reminders</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td>{{ patient.subject_number }}</td>
+                    <td>{% for reminder in patient.contact.reminders.all %}{{ reminder }}{% if not forloop.last %}, {% endif %}{% empty %}No reminders{% endfor %}</td>
+                    <td class='actions'>
+                        <a class='button' title='Edit' href=''><span class='ui-icon ui-icon-pencil'></span></a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if paginator.count > paginator.per_page %}
+            <tr>
+                <td colspan='2'>
+                    {% paginate %}
+                </td>
+            </tr>
+            {% endif %}
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

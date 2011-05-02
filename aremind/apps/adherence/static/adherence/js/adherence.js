@@ -17,4 +17,5 @@ $(document).ready(function() {
             toggle_weekdays();
         });
     }
+    $('#tabs li.app-reminders').addClass('active');
 });

@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 
 from aremind.apps.adherence.forms import ReminderForm
@@ -10,7 +11,7 @@ from aremind.apps.patients.models import Patient
 
 @login_required
 def dashboard(request):
-    reminders = Reminder.objects.all()
+    reminders = Reminder.objects.all().annotate(patient_count=Count('recipients'))
     context = {
         'reminders': reminders
     }

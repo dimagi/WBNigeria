@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
@@ -7,6 +9,8 @@ from aremind.apps.adherence.forms import ReminderForm
 from aremind.apps.adherence.models import Reminder
 from aremind.apps.patients.models import Patient
 
+
+logger = logging.getLogger('adherence.views')
 
 
 @login_required

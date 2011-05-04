@@ -30,11 +30,11 @@ class ReminderForm(forms.ModelForm):
         weekdays = self.cleaned_data.get('weekdays', [])
         return u','.join(weekdays)
 
-
     def clean(self):
         super(ReminderForm, self).clean()
-        
         frequency = self.cleaned_data.get('frequency', None)
         if frequency and frequency == Reminder.REPEAT_DAILY:
             self.cleaned_data['weekdays'] = None
+            if 'weekdays' in self._errors:
+                del self._errors['weekdays']
         return self.cleaned_data

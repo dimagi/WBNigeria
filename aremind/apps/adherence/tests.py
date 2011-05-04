@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from aremind.apps.adherence.models import Reminder, SendReminder
+from aremind.apps.adherence.models import Reminder, SendReminder, Feed, Entry
 from aremind.apps.patients.tests import PatientsCreateDataTest
 
 
@@ -25,6 +25,26 @@ class AdherenceCreateDataTest(PatientsCreateDataTest):
         }
         defaults.update(data)            
         return Reminder.objects.create(**defaults)
+
+    def create_feed(self, data=None):
+        data = data or {}
+        defaults = {
+            'name': self.random_string(length=50),
+            'active': True
+        }
+        defaults.update(data)            
+        return Feed.objects.create(**defaults)
+
+    def create_entry(self, data=None):
+        data = data or {}
+        defaults = {
+            'content': self.random_string(length=50),
+            'published': datetime.datetime.now(),
+        }
+        defaults.update(data)
+        if 'feed' not in defaults:
+            defaults['feed'] = self.create_feed()    
+        return Entry.objects.create(**defaults)
 
 
 class ReminderModelTest(AdherenceCreateDataTest):
@@ -54,6 +74,136 @@ class ReminderModelTest(AdherenceCreateDataTest):
         self.assertTrue(next_date.weekday() in [0, 2, 4])
         self.assertEqual(next_date.time().hour, reminder.time_of_day.hour)
         self.assertEqual(next_date.time().minute, reminder.time_of_day.minute)
+
+    def test_basic_reminder_queue(self):
+        test_patient = self.create_patient()
+        today = datetime.datetime.today()
+        yesterday = today - datetime.timedelta(days=1)
+        next_hour = (datetime.datetime.now() + datetime.timedelta(hours=1)).time()
+        reminder = self.create_reminder(data={
+            'date': yesterday, 'time_of_day': next_hour, 'frequency': Reminder.REPEAT_DAILY
+        })
+        reminder.recipients.add(test_patient.contact)
+        count = reminder.queue_outgoing_messages()
+        self.assertEqual(count, 1)
+        self.assertEqual(test_patient.contact.adherence_reminders.count(), 1)
+
+    def test_basic_reminder_messages(self):
+        """Send most recent entry from subscribed feeds."""
+
+        test_patient = self.create_patient()
+        
+        test_feed = self.create_feed()
+        test_feed.subscribers.add(test_patient.contact)
+        test_entry = self.create_entry(data={
+            'feed': test_feed,
+            'content': 'Test Message'
+        })
+
+        today = datetime.datetime.today()
+        yesterday = today - datetime.timedelta(days=1)
+        next_hour = (datetime.datetime.now() + datetime.timedelta(hours=1)).time()
+        reminder = self.create_reminder(data={
+            'date': yesterday, 'time_of_day': next_hour, 'frequency': Reminder.REPEAT_DAILY
+        })
+        reminder.recipients.add(test_patient.contact)
+        count = reminder.queue_outgoing_messages()
+        self.assertEqual(test_patient.contact.adherence_reminders.count(), 1)
+        message = test_patient.contact.adherence_reminders.all()[0]
+        self.assertEqual(message.message, test_entry.content)
+
+    def test_recent_reminder_messages(self):
+        """Send most recent entry from subscribed feeds."""
+
+        test_patient = self.create_patient()
+        
+        test_feed = self.create_feed()
+        test_feed.subscribers.add(test_patient.contact)
+        test_entry = self.create_entry(data={
+            'feed': test_feed,
+            'content': "Test Message"
+        })
+
+        other_feed = self.create_feed()
+        other_feed.subscribers.add(test_patient.contact)
+        other_entry = self.create_entry(data={
+            'feed': other_feed,
+            'content': "This message is newer"
+        })
+
+        today = datetime.datetime.today()
+        yesterday = today - datetime.timedelta(days=1)
+        next_hour = (datetime.datetime.now() + datetime.timedelta(hours=1)).time()
+        reminder = self.create_reminder(data={
+            'date': yesterday, 'time_of_day': next_hour, 'frequency': Reminder.REPEAT_DAILY
+        })
+        reminder.recipients.add(test_patient.contact)
+        count = reminder.queue_outgoing_messages()
+        self.assertEqual(test_patient.contact.adherence_reminders.count(), 1)
+        message = test_patient.contact.adherence_reminders.all()[0]
+        self.assertEqual(message.message, other_entry.content)
+
+    def test_not_subscribed_reminder_messages(self):
+        """Entries should be pulled from subscribed feeds."""
+
+        test_patient = self.create_patient()
+        
+        test_feed = self.create_feed()
+        test_feed.subscribers.add(test_patient.contact)
+        test_entry = self.create_entry(data={
+            'feed': test_feed,
+            'content': "Test Message"
+        })
+
+        other_feed = self.create_feed()
+        other_entry = self.create_entry(data={
+            'feed': other_feed,
+            'content': "Don't sent this message"
+        })
+
+        today = datetime.datetime.today()
+        yesterday = today - datetime.timedelta(days=1)
+        next_hour = (datetime.datetime.now() + datetime.timedelta(hours=1)).time()
+        reminder = self.create_reminder(data={
+            'date': yesterday, 'time_of_day': next_hour, 'frequency': Reminder.REPEAT_DAILY
+        })
+        reminder.recipients.add(test_patient.contact)
+        count = reminder.queue_outgoing_messages()
+        self.assertEqual(test_patient.contact.adherence_reminders.count(), 1)
+        message = test_patient.contact.adherence_reminders.all()[0]
+        self.assertEqual(message.message, test_entry.content)
+
+
+    def test_inactive_feeds(self):
+        """Entries from inactive feeds should not be used."""
+
+        test_patient = self.create_patient()
+        
+        test_feed = self.create_feed()
+        test_feed.subscribers.add(test_patient.contact)
+        test_entry = self.create_entry(data={
+            'feed': test_feed,
+            'content': 'Test Message'
+        })
+
+        inactive_feed = self.create_feed(data={'active': False})
+        inactive_feed.subscribers.add(test_patient.contact)
+        inactive_entry = self.create_entry(data={
+            'feed': inactive_feed,
+            'content': "Don't sent this message"
+        })
+
+        today = datetime.datetime.today()
+        yesterday = today - datetime.timedelta(days=1)
+        next_hour = (datetime.datetime.now() + datetime.timedelta(hours=1)).time()
+        reminder = self.create_reminder(data={
+            'date': yesterday, 'time_of_day': next_hour, 'frequency': Reminder.REPEAT_DAILY
+        })
+        reminder.recipients.add(test_patient.contact)
+        count = reminder.queue_outgoing_messages()
+        self.assertEqual(test_patient.contact.adherence_reminders.count(), 1)
+        message = test_patient.contact.adherence_reminders.all()[0]
+        self.assertEqual(message.message, test_entry.content)
 
 
 class AdherenceDashboardViewTest(AdherenceCreateDataTest):

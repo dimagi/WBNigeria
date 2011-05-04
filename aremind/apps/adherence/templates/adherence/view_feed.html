@@ -1,0 +1,48 @@
+{% extends "adherence/base.html" %}
+{% load i18n pagination_tags sorting_tags %}
+
+{% block title %}Reminder Message Feed - {{ feed.name }}{% endblock %}
+
+{% block content %}
+<div class='module'>
+    <h2>Reminder Message Feed - {{ feed.name }}</h2>
+    {% autosort entries %}
+    {% autopaginate entries 20 %}
+    <p>
+        Desciption: {{ feed.description|default:"[None given]" }}
+    </p>
+    <p>
+        <a class='button add' title='Add Reminder Message' href="{% url adherence-create-entry feed.pk %}" >Add a message...</a>
+        <a class='button add' title='Edit Feed' href="{% url adherence-edit-feed feed.pk %}" >Edit feed details...</a>
+    </p>
+    <table class='sortable pagination'>
+        <thead>
+            <tr>
+                <th>{% anchor id ID %}</th>
+                <th>Content</th>
+                <th>{% anchor published "Date Published" %}</th>
+                <th>{% anchor added "Date Added" %}</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in entries %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td>{{ entry.id }}</td>
+                    <td>{{ entry.content|truncatewords:"20" }}</td>
+                    <td>{{ entry.published }}</td>
+                    <td>{{ entry.added }}</td>
+                    <td class='actions'>
+                        <a class='button' title='Edit' href='{% url adherence-edit-entry entry.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>
+                        <a class='button' title='Delete' href='{% url adherence-delete-entry entry.pk %}'><span class='ui-icon ui-icon-closethick'></span></a>    
+                    </td>
+                </tr>
+            {% empty %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td colspan='5'>Currently no messages in this feed.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

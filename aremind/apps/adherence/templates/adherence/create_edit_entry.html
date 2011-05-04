@@ -1,10 +1,10 @@
 {% extends "adherence/base.html" %}
 
-{% block title %}{% if reminder.pk %}Edit{% else %}Create{% endif %} Reminder Schedule{% endblock %}
+{% block title %}{% if entry.pk %}Edit{% else %}Create{% endif %} Message for "{{ feed }}"{% endblock %}
 
 {% block content %}
 <div class='module'>
-    <h2>{% if reminder.pk %}Edit{% else %}Create{% endif %} Reminder Schedule</h2>
+    <h2>{% if entry.pk %}Edit{% else %}Create{% endif %} Message for "{{ feed }}"</h2>
    <form action="." method="POST" class="buttons">
         {% csrf_token %}
         <table>

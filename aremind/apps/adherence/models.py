@@ -1,5 +1,6 @@
 import datetime
 import logging
+import uuid
 
 from django.db import models
 
@@ -41,7 +42,7 @@ class Reminder(models.Model):
     )
     weekdays = models.CommaSeparatedIntegerField(max_length=20, blank=True, null=True)
     time_of_day = models.TimeField()
-    recipients = models.ManyToManyField(rapidsms.Contact, related_name='reminders')
+    recipients = models.ManyToManyField(rapidsms.Contact, related_name='reminders', blank=True)
 
     date_last_notified = models.DateTimeField(null=True, blank=True)
     date = models.DateTimeField(db_index=True)
@@ -111,10 +112,20 @@ class Reminder(models.Model):
 
     def queue_outgoing_messages(self):
         """ generate queued outgoing messages """
-
-        for contact in self.recipients:
+        for contact in self.recipients.all():
+            # Get feed entries to populate outgoing message
+            feeds = contact.feeds.filter(active=True)
+            try:
+                entry = Entry.objects.filter(
+                    feed__in=feeds,
+                    published__lte=datetime.datetime.now()
+                ).order_by('-published')[0]
+                message = entry.content[:160]
+            except IndexError:
+                message = ""
             self.adherence_reminders.create(
-                recipient=contact, date_queued=datetime.datetime.now()
+                recipient=contact, date_queued=datetime.datetime.now(),
+                date_to_send=self.date, message=message,
             )
         return self.recipients.count()
 
@@ -148,13 +159,51 @@ class SendReminder(models.Model):
     
     def __unicode__(self):
         return u'{reminder} for {recipient} created on {date}'.format(
-                                        reminder=self.reminder,
-                                        recipient=self.recipient,
-                                        date=self.date_queued)
+            reminder=self.reminder, recipient=self.recipient,
+            date=self.date_queued
+        )
 
-    def get_message(self):
-        # TODO: Retrive messages from the various streams
-        if not self.message:
-            self.message = u'Time to take your pills'
-        return self.message
+
+class Feed(models.Model):
+    TYPE_MANUAL = 'manual'
+    TYPE_TWIITER = 'twitter'
+    TYPE_RSS = 'rss'
+    TYPE_ATOM = 'atom'
+
+    TYPE_CHOICES = (
+        (TYPE_MANUAL, 'Manual Feed'),
+        (TYPE_TWIITER, 'Twitter Feed'),
+        (TYPE_RSS, 'RSS Feed'),
+        (TYPE_RSS, 'Atom Feed'),
+    )
+ 
+    name = models.CharField(max_length=100)
+    feed_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_MANUAL)
+    url = models.URLField(blank=True, null=True, verify_exists=False)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    subscribers = models.ManyToManyField(rapidsms.Contact, related_name='feeds', blank=True)
+    last_download = models.DateTimeField(blank=True, null=True)
+    active = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return u"{name} ({feed_type})".format(name=self.name, feed_type=self.get_feed_type_display())
+
+
+def default_uid():
+    return uuid.uuid4().hex
+
+
+class Entry(models.Model):
+    feed = models.ForeignKey(Feed, related_name='entries')
+    uid = models.CharField(max_length=255, default=default_uid)
+    content = models.TextField()
+    published = models.DateTimeField(default=datetime.datetime.now)
+    added = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+
+    class Meta(object):
+        unique_together = ('feed', 'uid', )
+        ordering = ('-published', )
+
+    def __unicode__(self):
+        return u"Entry {name} for ({feed})".format(name=self.uid, feed=self.feed)
 

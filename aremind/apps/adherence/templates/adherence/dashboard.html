@@ -4,16 +4,19 @@
 {% block content %}
 <div class='module'>
     <h2>Reminder Schedules</h2>
+    {% comment %}
+    {# Disable pagination/sorting for now. Multiple sorting paginators is not supported #}
     {% autosort reminders %}
     {% autopaginate reminders 15 %}
+    {% endcomment %}
     <p><a class='button add' title='Add Reminder Schedule' href="{% url adherence-create-reminder %}" >Add reminder schedule...</a></p>
     <table class='sortable pagination'>
         <thead>
             <tr>
-                <th>{% anchor id ID %}</th>
-                <th>{% anchor frequency Frequency %}</th>
-                <th>{% anchor time_of_day Time %}</th>
-                <th>{% anchor patient_count "# of Recipients" %}</th>
+                <th>ID{#% anchor id ID %#}</th>
+                <th>Frequency{#% anchor frequency Frequency %#}</th>
+                <th>Time{#% anchor time_of_day Time %#}</th>
+                <th># of Recipients{#% anchor patient_count "# of Recipients" %#}</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -31,15 +34,40 @@
                 </tr>
             {% endfor %}
         </tbody>
-        <tfoot>
-            {% if paginator.count > paginator.per_page %}
-            <tr>
-                <td colspan='5'>
-                    {% paginate %}
-                </td>
-            </tr>
-            {% endif %}
-        </tfoot>
     </table>
+</div>
+<div class='module'>
+    <h2>Message Feeds</h2>
+    <p><a class='button add' title='Add Message Feed' href="{% url adherence-create-feed %}" >Add message feed...</a></p>
+    <table class='sortable pagination'>
+        <thead>
+            <tr>
+                <th>ID{#% anchor id ID %#}</th>
+                <th>Name{#% anchor name Name %#}</th>
+                <th>Type{#% anchor feed_type Type %#}</th>
+                <th># of Recipients{#% anchor patient_count "# of Recipients" %#}</th>
+                <th>Active?{#% anchor active "Active?" %#}</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feed in feeds %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td>{{ feed.id }}</td>
+                    <td>{{ feed.name }}</td>
+                    <td>{{ feed.get_feed_type_display }}</td>
+                    <td>{{ feed.patient_count }}</td>
+                    <td>{{ feed.active|yesno|capfirst }}</td>
+                    <td class='actions'>
+                        <a class='button' title='Edit' href='{% url adherence-edit-feed feed.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>
+                        <a class='button' title='View Feed' href='{% url adherence-view-feed feed.pk %}'><span class='ui-icon ui-icon-search'></span></a>
+                        <a class='button' title='Add Message' href='{% url adherence-create-entry feed.pk %}'><span class='ui-icon ui-icon-plus'></span></a>
+                        <a class='button' title='Delete' href='{% url adherence-delete-feed feed.pk %}'><span class='ui-icon ui-icon-closethick'></span></a>    
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
 </div>
 {% endblock %}

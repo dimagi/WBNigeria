@@ -92,6 +92,7 @@ def delete_feed(request, feed_id):
     context = {'feed': feed}
     return render(request, 'adherence/delete_feed.html', context)
 
+
 @login_required
 def view_feed(request, feed_id):
     feed = get_object_or_404(Feed, pk=feed_id)

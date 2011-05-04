@@ -16,6 +16,8 @@ _ = lambda s: s
 
 class AdherenceApp(AppBase):
 
+    reminder = _('Time to take your medicine.')
+
     def start(self):
 		self.info('started')
 
@@ -36,7 +38,12 @@ class AdherenceApp(AppBase):
         self.info('found {0} reminder(s) to send'.format(messages.count()))
         for message in messages:
             connection = message.recipient.default_connection
-            msg = OutgoingMessage(connection=connection, template=message.get_message())
+            # TODO: This might exceed 160 characters
+            template = u'{reminder} {content}'.format(
+                reminder=self.reminder,
+                content=message.message or ""
+            )
+            msg = OutgoingMessage(connection=connection, template=template)
             success = True
             try:
                 self.router.outgoing(msg)

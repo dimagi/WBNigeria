@@ -60,7 +60,7 @@
                     <td>{{ feed.active|yesno|capfirst }}</td>
                     <td class='actions'>
                         <a class='button' title='Edit' href='{% url adherence-edit-feed feed.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>
-                        <a class='button' title='Delete' href='{% url adherence-delete-reminder feed.pk %}'><span class='ui-icon ui-icon-closethick'></span></a>    
+                        <a class='button' title='Delete' href='{% url adherence-delete-feed feed.pk %}'><span class='ui-icon ui-icon-closethick'></span></a>    
                     </td>
                 </tr>
             {% endfor %}

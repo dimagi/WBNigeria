@@ -1,5 +1,7 @@
 {% extends "adherence/base.html" %}
 
+{% block title %}{% if reminder.pk %}Edit{% else %}Create{% endif %} Reminder Schedule{% endblock %}
+
 {% block content %}
 <div class='module'>
     <h2>{% if reminder.pk %}Edit{% else %}Create{% endif %} Reminder Schedule</h2>

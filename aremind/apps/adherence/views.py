@@ -79,3 +79,14 @@ def create_edit_feed(request, feed_id=None):
         'form': form,
     }
     return render(request, 'adherence/create_edit_feed.html', context)
+
+
+@login_required
+def delete_feed(request, feed_id):
+    feed = get_object_or_404(Feed, pk=feed_id)
+    if request.method == 'POST':
+        feed.delete()
+        messages.info(request, 'Message Feed successfully deleted')
+        return redirect('adherence-dashboard')
+    context = {'feed': feed}
+    return render(request, 'adherence/delete_feed.html', context)

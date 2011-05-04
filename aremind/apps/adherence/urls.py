@@ -7,5 +7,6 @@ urlpatterns = patterns('aremind.apps.adherence.views',
     url(r'^schedules/delete/(?P<reminder_id>\d+)/$', 'delete_schedule', name='adherence-delete-reminder'),
     url(r'^feeds/create/$', 'create_edit_feed', name='adherence-create-feed'),
     url(r'^feeds/edit/(?P<feed_id>\d+)/$', 'create_edit_feed', name='adherence-edit-feed'),
+    url(r'^feeds/delete/(?P<feed_id>\d+)/$', 'delete_feed', name='adherence-delete-feed'),
     url(r'^$', 'dashboard', name='adherence-dashboard'),
 )

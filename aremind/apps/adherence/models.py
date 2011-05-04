@@ -1,11 +1,14 @@
 import datetime
+import locale
 import logging
+import time
 import uuid
 
 from django.db import models
 
 from dateutil import rrule
 from rapidsms import models as rapidsms
+import twitter
 
 
 logger = logging.getLogger('adherence.models')
@@ -177,7 +180,10 @@ class Feed(models.Model):
         (TYPE_RSS, 'Atom Feed'),
     )
  
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,
+        help_text=('Give a descriptive name for this feed. '
+        'For Twitter feeds this should be the user screen name.')
+    )
     feed_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_MANUAL)
     url = models.URLField(blank=True, null=True, verify_exists=False)
     description = models.CharField(max_length=255, blank=True, null=True)
@@ -187,6 +193,45 @@ class Feed(models.Model):
 
     def __unicode__(self):
         return u"{name} ({feed_type})".format(name=self.name, feed_type=self.get_feed_type_display())
+
+    def fetch_feed(self):
+        function_name = 'fetch_%s_feed' % self.feed_type
+        fetch_function = getattr(self, function_name, None)
+        if fetch_function:
+            fetch_function()
+        else:
+            raise NotImplementedError('%s has not been implemented yet.' % function_name)
+        
+    def fetch_manual_feed(self):
+        # Nothing to do here...
+        pass
+
+    def parse_twitter_date(self, string):
+        locale.setlocale(locale.LC_TIME, 'C')
+        date = datetime.datetime(*(time.strptime(string, '%a %b %d %H:%M:%S +0000 %Y')[0:6]))
+        locale.setlocale(locale.LC_TIME, '')
+        return date         
+
+    def fetch_twitter_feed(self):
+        api = twitter.Api()
+        try:
+            timeline = api.GetUserTimeline(self.name)
+        except TwitterError as e:
+            logger.error(e)
+            return None
+        for status in timeline:
+            if not self.description:
+                self.description = status.user.description
+            self.entries.get_or_create(
+                uid=status.id,
+                defaults={
+                    'content': status.text,
+                    'published': self.parse_twitter_date(status.created_at)
+                }
+            )
+        self.last_download = datetime.datetime.now()
+        self.save()
+        return len(timeline)
 
 
 def default_uid():

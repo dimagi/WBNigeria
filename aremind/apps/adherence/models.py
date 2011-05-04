@@ -198,6 +198,7 @@ class Entry(models.Model):
 
     class Meta(object):
         unique_together = ('feed', 'uid', )
+        ordering = ('-published', )
 
     def __unicode__(self):
         return u"Entry {name} for ({feed})".format(name=self.uid, feed=self.feed)

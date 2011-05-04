@@ -125,7 +125,8 @@ STATIC_ROOT = os.path.join(PROJECT_PATH, '..', 'static_files')
 # at top left for every tab
 LOGO_LEFT_URL = '%simages/trialconnect.png' % STATIC_URL
 LOGO_RIGHT_URL = '%simages/tatrc.png' % STATIC_URL
-
+SITE_TITLE = ""
+BASE_TEMPLATE = "layout.html"
 
 # this is required for the django.contrib.sites tests to run, but also
 # not included in global_settings.py, and is almost always ``1``.
@@ -136,7 +137,7 @@ SITE_ID = 1
 # these weird dependencies should be handled by their respective apps,
 # but they're not, so here they are. most of them are for django admin.
 TEMPLATE_CONTEXT_PROCESSORS = [
-    "django.core.context_processors.auth",
+    "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",

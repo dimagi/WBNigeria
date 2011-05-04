@@ -1,6 +1,7 @@
 $(document).ready(function() {
     jQuery.ajaxSettings.traditional = true;
     $('.timepicker').datetimepicker({timeOnly: true});
+    $('.datetimepicker').datetimepicker();
     $('.multiselect').multiselect();
     var frequency = $('#id_frequency');
     var weekdays_row = $(':input[name=weekdays]').parents('tr').addClass('weekdays-row');

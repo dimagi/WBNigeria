@@ -57,3 +57,15 @@ class FeedForm(forms.ModelForm):
 
     def label_from_instance(self, obj):
         return obj.patient_set.all()[0].subject_number
+
+
+class EntryForm(forms.ModelForm):
+
+    class Meta(object):
+        model = Entry
+        fields = ('content', 'published', )
+
+    def __init__(self, *args, **kwargs):
+        super(EntryForm, self).__init__(*args, **kwargs)
+        self.fields['published'].widget.attrs.update({'class': 'datetimepicker'})
+

@@ -8,5 +8,8 @@ urlpatterns = patterns('aremind.apps.adherence.views',
     url(r'^feeds/create/$', 'create_edit_feed', name='adherence-create-feed'),
     url(r'^feeds/edit/(?P<feed_id>\d+)/$', 'create_edit_feed', name='adherence-edit-feed'),
     url(r'^feeds/delete/(?P<feed_id>\d+)/$', 'delete_feed', name='adherence-delete-feed'),
+    url(r'^entries/create/(?P<feed_id>\d+)/$', 'create_edit_entry', name='adherence-create-entry'),
+    url(r'^entries/edit/(?P<entry_id>\d+)/$', 'create_edit_entry', name='adherence-edit-entry'),
+    url(r'^entries/delete/(?P<entry_id>\d+)/$', 'delete_entry', name='adherence-delete-entry'),
     url(r'^$', 'dashboard', name='adherence-dashboard'),
 )

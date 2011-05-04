@@ -42,7 +42,7 @@ class Reminder(models.Model):
     )
     weekdays = models.CommaSeparatedIntegerField(max_length=20, blank=True, null=True)
     time_of_day = models.TimeField()
-    recipients = models.ManyToManyField(rapidsms.Contact, related_name='reminders')
+    recipients = models.ManyToManyField(rapidsms.Contact, related_name='reminders', blank=True)
 
     date_last_notified = models.DateTimeField(null=True, blank=True)
     date = models.DateTimeField(db_index=True)
@@ -177,9 +177,12 @@ class Feed(models.Model):
     feed_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_MANUAL)
     url = models.URLField(blank=True, null=True, verify_exists=False)
     description = models.CharField(max_length=255, blank=True, null=True)
-    subscribers = models.ManyToManyField(rapidsms.Contact, related_name='feeds')
+    subscribers = models.ManyToManyField(rapidsms.Contact, related_name='feeds', blank=True)
     last_download = models.DateTimeField(blank=True, null=True)
     active = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return u"{name} ({feed_type})".format(name=self.name, feed_type=self.get_feed_type_display())
 
 
 def default_uid():
@@ -195,4 +198,7 @@ class Entry(models.Model):
 
     class Meta(object):
         unique_together = ('feed', 'uid', )
+
+    def __unicode__(self):
+        return u"Entry {name} for ({feed})".format(name=self.uid, feed=self.feed)
 

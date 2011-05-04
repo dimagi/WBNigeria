@@ -5,8 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 
-from aremind.apps.adherence.forms import ReminderForm
-from aremind.apps.adherence.models import Reminder
+from aremind.apps.adherence.forms import ReminderForm, FeedForm
+from aremind.apps.adherence.models import Reminder, Feed
 from aremind.apps.patients.models import Patient
 
 
@@ -16,8 +16,10 @@ logger = logging.getLogger('adherence.views')
 @login_required
 def dashboard(request):
     reminders = Reminder.objects.all().annotate(patient_count=Count('recipients'))
+    feeds = Feed.objects.all().annotate(patient_count=Count('subscribers'))
     context = {
-        'reminders': reminders
+        'reminders': reminders,
+        'feeds': feeds,
     }
     return render(request, 'adherence/dashboard.html', context)
 
@@ -54,3 +56,26 @@ def delete_schedule(request, reminder_id):
         return redirect('adherence-dashboard')
     context = {'reminder': reminder}
     return render(request, 'adherence/delete_reminder.html', context)
+
+
+@login_required
+def create_edit_feed(request, feed_id=None):
+    if feed_id:
+        feed = get_object_or_404(Feed, pk=feed_id)
+    else:
+        feed = Feed()
+    
+    if request.method == 'POST':
+        form = FeedForm(request.POST, instance=feed)
+        if form.is_valid():
+            feed = form.save()
+            messages.info(request, "Message Feed saved successfully")
+            return redirect('adherence-dashboard')
+    else:
+        form = FeedForm(instance=feed)
+
+    context = {
+        'feed': feed,
+        'form': form,
+    }
+    return render(request, 'adherence/create_edit_feed.html', context)

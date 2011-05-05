@@ -179,13 +179,11 @@ class Feed(models.Model):
     TYPE_MANUAL = 'manual'
     TYPE_TWIITER = 'twitter'
     TYPE_RSS = 'rss'
-    TYPE_ATOM = 'atom'
 
     TYPE_CHOICES = (
         (TYPE_MANUAL, 'Manual Feed'),
         (TYPE_TWIITER, 'Twitter Feed'),
-        (TYPE_RSS, 'RSS Feed'),
-        (TYPE_RSS, 'Atom Feed'),
+        (TYPE_RSS, 'RSS/Atom Feed'),
     )
  
     name = models.CharField(max_length=100,
@@ -244,6 +242,9 @@ class Feed(models.Model):
         self.last_download = datetime.datetime.now()
         self.save()
         return len(timeline)
+
+    def fetch_rss_feed(self):
+        pass
 
 
 def default_uid():

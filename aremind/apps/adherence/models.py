@@ -4,7 +4,7 @@ import logging
 import time
 import uuid
 
-from django.db import models
+from django.db import models, transaction
 
 from dateutil import rrule
 from rapidsms import models as rapidsms
@@ -167,6 +167,14 @@ class SendReminder(models.Model):
         )
 
 
+class FeedManager(models.Manager):
+
+    def fetch_feeds(self):
+        active_feeds = self.filter(active=True)
+        total_entries = sum(map(lambda f: f.fetch_feed() or 0, active_feeds))
+        return total_entries
+
+
 class Feed(models.Model):
     TYPE_MANUAL = 'manual'
     TYPE_TWIITER = 'twitter'
@@ -191,6 +199,8 @@ class Feed(models.Model):
     last_download = models.DateTimeField(blank=True, null=True)
     active = models.BooleanField(default=True)
 
+    objects = FeedManager()
+
     def __unicode__(self):
         return u"{name} ({feed_type})".format(name=self.name, feed_type=self.get_feed_type_display())
 
@@ -198,7 +208,9 @@ class Feed(models.Model):
         function_name = 'fetch_%s_feed' % self.feed_type
         fetch_function = getattr(self, function_name, None)
         if fetch_function:
-            fetch_function()
+            with transaction.commit_on_success():
+                count = fetch_function()
+            return count
         else:
             raise NotImplementedError('%s has not been implemented yet.' % function_name)
         
@@ -210,8 +222,8 @@ class Feed(models.Model):
         locale.setlocale(locale.LC_TIME, 'C')
         date = datetime.datetime(*(time.strptime(string, '%a %b %d %H:%M:%S +0000 %Y')[0:6]))
         locale.setlocale(locale.LC_TIME, '')
-        return date         
-
+        return date
+         
     def fetch_twitter_feed(self):
         api = twitter.Api()
         try:

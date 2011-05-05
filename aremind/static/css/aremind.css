@@ -113,3 +113,20 @@ table.sortable tbody tr.odd {
 table.sortable td.actions .ui-button-text-only .ui-button-text {
     padding: 2px;
 }
+
+dl.feed-details {
+    margin: 20px 0;
+}
+
+dl.feed-details dd {
+    margin: 0 5px 0 0;
+    padding: 0;
+    display: inline;
+}
+
+dl.feed-details dt {
+    font-weight: bold;
+    display: inline;
+    margin: 0 5px 0 0;
+    padding: 0;
+}

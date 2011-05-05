@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import locale
 import logging
 import time
@@ -7,6 +8,7 @@ import uuid
 from django.db import models, transaction
 
 from dateutil import rrule
+import feedparser
 from rapidsms import models as rapidsms
 import twitter
 
@@ -244,7 +246,57 @@ class Feed(models.Model):
         return len(timeline)
 
     def fetch_rss_feed(self):
-        pass
+        data = feedparser.parse(self.url)
+        if 'bozo' in data and data.bozo:
+            logger.error('Bad Rss/Atom feed: %s' % self.url)
+            return None
+        for entry in data:
+            if not self.description:
+                self.description = data.feed.description or None
+            pub_date = self._get_rss_pub_date(entry)    
+            uid = self._get_rss_uid(entry)
+            content = self._get_rss_content(entry)
+            self.entries.get_or_create(
+                uid=uid,
+                defaults={
+                    'content': content,
+                    'published': pub_date
+                }
+            )
+        self.last_download = datetime.datetime.now()
+        self.save()
+        return len(data)
+
+    def _get_rss_pub_date(self, item):
+        pub_date = None       
+        for attr in ['updated_parsed','published_parsed', 'date_parsed', 'created_parsed']:
+            if hasattr(item, attr):
+                pub_date = getattr(item, attr)
+                break
+        if pub_date:
+            try:
+                ts = time.mktime(pub_date)
+                pub_date = datetime.datetime.fromtimestamp(ts)
+            except TypeError:
+                pub_date = None
+        return pub_date or datetime.datetime.now()
+
+    def _get_rss_uid(self, item):
+        link = item.link
+        m = hashlib.md5()
+        m.update(link)
+        # Return the item id or the hashed link
+        return item.get("id", m.hexdigest())
+
+    def _get_rss_content(self, item):
+        content = ''
+        if hasattr(item, "summary"):
+            content = item.content
+        elif hasattr(item, "content"):
+            content = item.content[0].value
+        elif hasattr(item, "description"):
+            content = item.description
+        return content
 
 
 def default_uid():

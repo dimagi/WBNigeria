@@ -18,5 +18,20 @@ $(document).ready(function() {
             toggle_weekdays();
         });
     }
+    var feed_type = $('#id_feed_type');
+    var url_row = $(':input[name=url]').parents('tr').addClass('weekdays-row');
+    function toggle_url() {
+        if (feed_type.val() == 'rss' || feed_type.val() == 'atom') {
+            $(url_row).show();
+        } else {
+            $(url_row).hide();
+        }
+    }
+    if (feed_type.length && url_row.length) {
+        toggle_url();
+        feed_type.change(function() {
+            toggle_url();
+        });
+    }
     $('#tabs li.app-reminders').addClass('active');
 });

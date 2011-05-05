@@ -8,30 +8,32 @@
     <h2>Reminder Message Feed - {{ feed.name }}</h2>
     {% autosort entries %}
     {% autopaginate entries 20 %}
+    <dl class="feed-details">
+        <dt>Desciption:</dt><dd>{{ feed.description|default:"[None given]" }}</dd>
+        <dt>Active:</dt><dd>{{ feed.active|yesno|capfirst }}</dd>
+        {% if feed.last_download %}<dt>Last Updated:</dt><dd>{{ feed.last_download }}</dd>{% endif %}
+    </dl>
     <p>
-        Desciption: {{ feed.description|default:"[None given]" }}
-    </p>
-    <p>
-        <a class='button add' title='Add Reminder Message' href="{% url adherence-create-entry feed.pk %}" >Add a message...</a>
         <a class='button add' title='Edit Feed' href="{% url adherence-edit-feed feed.pk %}" >Edit feed details...</a>
+        {% if feed.feed_type|lower == 'manual' %}
+            <a class='button add' title='Add Reminder Message' href="{% url adherence-create-entry feed.pk %}" >Add a message...</a>
+        {% endif %}
     </p>
     <table class='sortable pagination'>
         <thead>
             <tr>
-                <th>{% anchor id ID %}</th>
-                <th>Content</th>
-                <th>{% anchor published "Date Published" %}</th>
                 <th>{% anchor added "Date Added" %}</th>
+                <th>{% anchor published "Date Published" %}</th>
+                <th>Content Preview</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for entry in entries %}
                 <tr class="{% cycle 'odd' 'even' %}">
-                    <td>{{ entry.id }}</td>
-                    <td>{{ entry.content|truncatewords:"20" }}</td>
-                    <td>{{ entry.published }}</td>
                     <td>{{ entry.added }}</td>
+                    <td>{{ entry.published }}</td>
+                    <td>{{ entry.content|truncatewords:"10" }}</td>
                     <td class='actions'>
                         <a class='button' title='Edit' href='{% url adherence-edit-entry entry.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>
                         <a class='button' title='Delete' href='{% url adherence-delete-entry entry.pk %}'><span class='ui-icon ui-icon-closethick'></span></a>    

@@ -233,6 +233,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "aremind.apps.adherence.tasks.ReminderSchedulerTask",
         "schedule": crontab(),
     },
+    "adherence-update-feeds": {
+        "task": "aremind.apps.adherence.tasks.FeedUpdatesTask",
+        "schedule": crontab(minute=15), # Quarter after every hour
+    },
     "broadcast-task": {
         "task": "aremind.apps.broadcast.tasks.BroadcastCronTask",
         "schedule": crontab(), # every minute

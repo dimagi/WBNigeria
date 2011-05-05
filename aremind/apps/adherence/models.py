@@ -6,6 +6,7 @@ import time
 import uuid
 
 from django.db import models, transaction
+from django.utils.html import strip_tags
 
 from dateutil import rrule
 import feedparser
@@ -250,7 +251,7 @@ class Feed(models.Model):
         if 'bozo' in data and data.bozo:
             logger.error('Bad Rss/Atom feed: %s' % self.url)
             return None
-        for entry in data:
+        for entry in data.entries:
             if not self.description:
                 self.description = data.feed.description or None
             pub_date = self._get_rss_pub_date(entry)    
@@ -291,12 +292,15 @@ class Feed(models.Model):
     def _get_rss_content(self, item):
         content = ''
         if hasattr(item, "summary"):
-            content = item.content
+            content = item.summary
         elif hasattr(item, "content"):
             content = item.content[0].value
         elif hasattr(item, "description"):
             content = item.description
-        return content
+        return self._clean_rss_content(content)
+
+    def _clean_rss_content(self, content):
+        return strip_tags(content)
 
 
 def default_uid():

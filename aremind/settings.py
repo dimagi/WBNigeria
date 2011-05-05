@@ -73,11 +73,12 @@ INSTALLED_APPS = [
 RAPIDSMS_TABS = [
     ("aremind.apps.broadcast.views.dashboard", "Dashboard"),    
     ("aremind.apps.broadcast.views.send_message", "Send a Message"),
-    ("aremind.apps.adherence.views.dashboard", "Reminders"),
+    ("aremind.apps.adherence.views.dashboard", "Adherence"),
+    ("aremind.apps.reminders.views.dashboard", "Appointments"),
     ("broadcast-forwarding", "Forwarding"),
     ("aremind.apps.groups.views.list_groups", "Groups"),
     ("aremind.apps.groups.views.list_contacts","People"),
-    ("settings", "Settings"),
+#    ("settings", "Settings"),
 #    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
 
 #    ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
@@ -241,6 +242,14 @@ CELERYBEAT_SCHEDULE = {
         "task": "aremind.apps.broadcast.tasks.BroadcastCronTask",
         "schedule": crontab(), # every minute
     },
+    "reminders-scheduler-task": {
+        "task": "aremind.apps.reminders.tasks.ReminderSchedulerTask",
+        "schedule": crontab(), # every minute
+    },
+#    "reminders-email-task": {
+#        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
+#        "schedule": crontab(hour=12, minute=0),
+#    },
 }
 
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'

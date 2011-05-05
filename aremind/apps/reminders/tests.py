@@ -51,7 +51,7 @@ class RemindersCreateDataTest(PatientsCreateDataTest):
             'appt_date': today,
             'date_queued': today,
             'date_to_send': today,
-            'message': self.random_string(),
+            'message': self.random_string(length=100),
         }
         defaults.update(data)
         if 'recipient' not in defaults:
@@ -242,7 +242,8 @@ class RemindersConfirmHandlerTest(RemindersCreateDataTest):
                                                   status='sent',
                                                   message='abc',
                                                   appt_date=now,
-                                                  date_to_send=now)
+                                                  date_to_send=now,
+                                                  date_queued=now)
         msg = self._send(self.reg_conn, '1')
         self.assertEqual(len(msg.responses), 1)
         self.assertEqual(msg.responses[0].text,
@@ -263,7 +264,8 @@ class RemindersConfirmHandlerTest(RemindersCreateDataTest):
                                                   status='sent',
                                                   message='abc',
                                                   appt_date=now,
-                                                  date_to_send=now)
+                                                  date_to_send=now,
+                                                  date_queued=now)
         msg = self._send(self.reg_conn, '1234')
         self.assertEqual(len(msg.responses), 1)
         self.assertEqual(msg.responses[0].text,
@@ -282,7 +284,8 @@ class RemindersConfirmHandlerTest(RemindersCreateDataTest):
                                                   status='sent',
                                                   message='abc',
                                                   appt_date=now,
-                                                  date_to_send=now)
+                                                  date_to_send=now,
+                                                  date_queued=now)
         msg = self._send(self.reg_conn, '1')
         group = Group.objects.get(name=settings.DEFAULT_CONFIRMATIONS_GROUP_NAME)
         broadcasts = group.broadcasts.filter(schedule_frequency='one-time')
@@ -468,11 +471,9 @@ class DailyReportTest(RemindersCreateDataTest):
         self.assertPatientNotInMessage(message, self.unrelated_patient)
 
     def test_skip_blank_emails(self):
-        """Test handling contacts with blank/null email addresses."""
+        """Test handling contacts with blank email addresses."""
         blank_contact = self.create_contact(data={'email': ''})
-        null_contact = self.create_contact(data={'email': None})
         self.group.contacts.add(blank_contact)
-        self.group.contacts.add(null_contact)
 
         # run email job
         from aremind.apps.reminders.app import daily_email_callback

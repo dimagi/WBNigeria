@@ -241,15 +241,6 @@ CELERYBEAT_SCHEDULE = {
         "task": "aremind.apps.broadcast.tasks.BroadcastCronTask",
         "schedule": crontab(), # every minute
     },
-    "reminder-scheduler": {
-        "task": "aremind.apps.reminders.tasks.ReminderSchedulerTask",
-        "schedule": crontab(),
-    },
-    "reminder-email-task": {
-        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
-        "schedule": crontab(hour=12, minute=0),
-    },
-
 }
 
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'

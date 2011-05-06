@@ -114,6 +114,12 @@ table.sortable td.actions .ui-button-text-only .ui-button-text {
     padding: 2px;
 }
 
+table.large {
+    width: 75%;
+}
+
+/* Feed details */
+
 dl.feed-details {
     margin: 20px 0;
 }
@@ -130,3 +136,19 @@ dl.feed-details dt {
     margin: 0 5px 0 0;
     padding: 0;
 }
+
+/* Selectable */
+
+.selectable-deck-item {
+    padding: 5px 0;
+    clear: both;
+}
+
+input.ui-combo-input {
+    padding-right: 0;
+    margin-right: 0;
+}
+.ui-combo-button .ui-button-text {
+    padding: 0.2em;
+}
+

@@ -16,7 +16,7 @@
     <h2>Patient - {{ patient.subject_number }}</h2>
     <form action="." method="POST" class="buttons">
         {% csrf_token %}
-        <table>
+        <table class="large">
             {{ form }}
         </table>
         <div class='form-action'>

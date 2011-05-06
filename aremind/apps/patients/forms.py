@@ -76,7 +76,7 @@ class PatientPayloadUploadForm(forms.ModelForm):
 
 class PatientRemindersForm(forms.ModelForm):
 
-    reminders = AutoComboboxSelectMultipleField(ReminderLookup, required=False)
+    reminders = AutoComboboxSelectMultipleField(ReminderLookup, label="Medicine Reminders", required=False)
     feeds = AutoComboboxSelectMultipleField(FeedLookup, required=False)
 
     class Meta(object):
@@ -87,6 +87,7 @@ class PatientRemindersForm(forms.ModelForm):
         super(PatientRemindersForm, self).__init__(*args, **kwargs)
         self.fields['next_visit'].widget.attrs.update({'class': 'datepicker'})
         self.fields['reminder_time'].widget.attrs.update({'class': 'timepicker'})
+        self.fields['reminder_time'].label = 'Appointment Reminder Time'
         if self.instance and self.instance.pk:
             self.initial['reminders'] = self.instance.contact.reminders.all()
             self.initial['feeds'] = self.instance.contact.feeds.all()

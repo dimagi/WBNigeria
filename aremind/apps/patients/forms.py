@@ -71,3 +71,16 @@ class PatientPayloadUploadForm(forms.ModelForm):
             self.cleaned_data['raw_data'] = data_file.read()
         return self.cleaned_data
 
+
+class PatientRemindersForm(forms.ModelForm):
+
+    class Meta(object):
+        model = patients.Patient
+        fields = ('next_visit', 'reminder_time', )
+
+    def __init__(self, *args, **kwargs):
+        super(PatientRemindersForm, self).__init__(*args, **kwargs)
+        self.fields['next_visit'].widget.attrs.update({'class': 'datepicker'})
+        self.fields['reminder_time'].widget.attrs.update({'class': 'timepicker'})
+
+

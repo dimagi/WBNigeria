@@ -75,6 +75,7 @@ RAPIDSMS_TABS = [
     ("aremind.apps.broadcast.views.send_message", "Send a Message"),
     ("aremind.apps.adherence.views.dashboard", "Adherence"),
     ("aremind.apps.reminders.views.dashboard", "Appointments"),
+    ("aremind.apps.patients.views.list_patients", "Patients"),
     ("broadcast-forwarding", "Forwarding"),
     ("aremind.apps.groups.views.list_groups", "Groups"),
     ("aremind.apps.groups.views.list_contacts","People"),

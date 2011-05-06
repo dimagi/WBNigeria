@@ -1,0 +1,45 @@
+{% extends "patients/base.html" %}
+{% load i18n pagination_tags sorting_tags %}
+
+{% block content %}
+<div class='module'>
+    <h2>Patient Listing</h2>
+    {% autosort patients %}
+    {% autopaginate patients 20 %}
+    <table class='sortable pagination'>
+        <thead>
+            <tr>
+                <th>{% anchor subject_number "Subject ID" %}</th>
+                <th>{% anchor date_enrolled "Date Enrolled" %}</th>
+                <th>{% anchor next_visit "Next Appointment" %}</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td>{{ patient.subject_number }}</td>
+                    <td>{{ patient.date_enrolled }}</td>
+                    <td>{{ patient.next_visit }}</td>
+                    <td class='actions'>
+                        <a class='button' title='View/Edit' href='{% url patient-detail patient.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>   
+                    </td>
+                </tr>
+            {% empty %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td colspan='4'>Currently no patients enrolled.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if paginator.count > paginator.per_page %}
+            <tr>
+                <td colspan='4'>
+                    {% paginate %}
+                </td>
+            </tr>
+            {% endif %}
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

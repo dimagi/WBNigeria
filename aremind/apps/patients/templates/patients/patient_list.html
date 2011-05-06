@@ -12,6 +12,8 @@
                 <th>{% anchor subject_number "Subject ID" %}</th>
                 <th>{% anchor date_enrolled "Date Enrolled" %}</th>
                 <th>{% anchor next_visit "Next Appointment" %}</th>
+                <th>{% anchor reminder_count "Medicine Reminders" %}</th>
+                <th>{% anchor feed_count "Feed Subscriptions" %}</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -21,6 +23,8 @@
                     <td>{{ patient.subject_number }}</td>
                     <td>{{ patient.date_enrolled }}</td>
                     <td>{{ patient.next_visit }}</td>
+                    <td>{{ patient.reminder_count }}</td>
+                    <td>{{ patient.feed_count }}</td>
                     <td class='actions'>
                         <a class='button' title='View/Edit' href='{% url patient-detail patient.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>   
                     </td>
@@ -34,7 +38,7 @@
         <tfoot>
             {% if paginator.count > paginator.per_page %}
             <tr>
-                <td colspan='4'>
+                <td colspan='6'>
                     {% paginate %}
                 </td>
             </tr>

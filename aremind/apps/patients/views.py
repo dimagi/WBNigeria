@@ -4,6 +4,7 @@ from django import http
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import mail_admins
+from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
@@ -40,7 +41,11 @@ def receive_patient_record(request):
 
 @login_required
 def list_patients(request):
-    context = {'patients': patients.Patient.objects.all()}
+    patients_list = patients.Patient.objects.all().annotate(
+        reminder_count=Count('contact__reminders', distinct=True),
+        feed_count=Count('contact__feeds', distinct=True)
+    )
+    context = {'patients': patients_list}
     return render(request, 'patients/patient_list.html', context)
 
 

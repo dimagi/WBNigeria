@@ -51,6 +51,7 @@ def view_patient(request, patient_id):
     if request.method == 'POST':
         form = PatientRemindersForm(request.POST, instance=patient)
         if form.is_valid():
+            form.save()
             messages.info(request, "Patient info saved.")
             return redirect('patient-list')
     else:

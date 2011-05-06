@@ -3,7 +3,9 @@ from django.conf import settings
 from django.forms.models import modelformset_factory
 
 from rapidsms.models import Contact
+from selectable.forms import AutoComboboxSelectMultipleField
 
+from aremind.apps.adherence.lookups import ReminderLookup
 from aremind.apps.groups.models import Group
 from aremind.apps.groups.validators import validate_phone
 from aremind.apps.groups.utils import normalize_number
@@ -74,6 +76,8 @@ class PatientPayloadUploadForm(forms.ModelForm):
 
 class PatientRemindersForm(forms.ModelForm):
 
+    reminders = AutoComboboxSelectMultipleField(ReminderLookup, required=False)
+
     class Meta(object):
         model = patients.Patient
         fields = ('next_visit', 'reminder_time', )
@@ -82,5 +86,20 @@ class PatientRemindersForm(forms.ModelForm):
         super(PatientRemindersForm, self).__init__(*args, **kwargs)
         self.fields['next_visit'].widget.attrs.update({'class': 'datepicker'})
         self.fields['reminder_time'].widget.attrs.update({'class': 'timepicker'})
+        if self.instance and self.instance.pk:
+            self.initial['reminders'] = self.instance.contact.reminders.all()
+
+    def save(self, *args, **kwargs):
+        patient = super(PatientRemindersForm, self).save(*args, **kwargs)
+        commit = kwargs.pop('commit', True)
+        print commit
+        if commit:
+            reminders = self.cleaned_data.get('reminders', [])
+            patient.contact.reminders.clear()
+            for r in reminders:
+                r.recipients.add(patient.contact)
+        return patient
+            
+
 
 

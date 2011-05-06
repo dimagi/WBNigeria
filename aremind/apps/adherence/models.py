@@ -56,7 +56,7 @@ class Reminder(models.Model):
     objects = ReminderReadyManager()
 
     def __unicode__(self):
-        return u'{freq} reminder at {time}'.format(freq=self.frequency, time=self.formatted_time)
+        return u'{freq} at {time}'.format(freq=self.formatted_frequency, time=self.formatted_time)
 
     def save(self, *args, **kwargs):
         today = datetime.date.today()

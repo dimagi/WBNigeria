@@ -40,6 +40,7 @@ urlpatterns = patterns('',
     (r'^test-messager/', include('aremind.apps.test_messager.urls')),
     (r'^crm/', include('aremind.apps.groups.urls')),
     (r'^rosetta/', include('rosetta.urls')),
+    (r'^selectable/', include('selectable.urls')),
 )
 
 if settings.DEBUG:

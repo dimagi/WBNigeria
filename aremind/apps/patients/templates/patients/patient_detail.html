@@ -3,6 +3,14 @@
 
 {% block title %}Patient - {{ patient.subject_number }}{% endblock %}
 
+{% block stylesheets %}{{ block.super }}
+    {{ form.media.css }}
+{% endblock %}
+
+{% block javascripts %}{{ block.super }}
+    {{ form.media.js }}
+{% endblock %}
+
 {% block content %}
 <div class='module'>
     <h2>Patient - {{ patient.subject_number }}</h2>

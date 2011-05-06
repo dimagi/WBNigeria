@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django_sorting",
     "south",
     "rosetta",
+    "selectable",
     # "gunicorn",
     "aremind.apps.groups",
     "aremind.apps.broadcast",

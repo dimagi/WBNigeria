@@ -3,7 +3,9 @@ from django.conf import settings
 from django.forms.models import modelformset_factory
 
 from rapidsms.models import Contact
+from selectable.forms import AutoComboboxSelectMultipleField
 
+from aremind.apps.adherence.lookups import ReminderLookup, FeedLookup
 from aremind.apps.groups.models import Group
 from aremind.apps.groups.validators import validate_phone
 from aremind.apps.groups.utils import normalize_number
@@ -70,4 +72,37 @@ class PatientPayloadUploadForm(forms.ModelForm):
         if data_file and not raw_data:
             self.cleaned_data['raw_data'] = data_file.read()
         return self.cleaned_data
+
+
+class PatientRemindersForm(forms.ModelForm):
+
+    reminders = AutoComboboxSelectMultipleField(ReminderLookup, label="Medicine Reminders", required=False)
+    feeds = AutoComboboxSelectMultipleField(FeedLookup, required=False)
+
+    class Meta(object):
+        model = patients.Patient
+        fields = ('next_visit', 'reminder_time', )
+
+    def __init__(self, *args, **kwargs):
+        super(PatientRemindersForm, self).__init__(*args, **kwargs)
+        self.fields['next_visit'].widget.attrs.update({'class': 'datepicker'})
+        self.fields['reminder_time'].widget.attrs.update({'class': 'timepicker'})
+        self.fields['reminder_time'].label = 'Appointment Reminder Time'
+        if self.instance and self.instance.pk:
+            self.initial['reminders'] = self.instance.contact.reminders.all()
+            self.initial['feeds'] = self.instance.contact.feeds.all()
+
+    def save(self, *args, **kwargs):
+        patient = super(PatientRemindersForm, self).save(*args, **kwargs)
+        commit = kwargs.pop('commit', True)
+        if commit:
+            reminders = self.cleaned_data.get('reminders', []) or []
+            patient.contact.reminders.clear()
+            for r in reminders:
+                r.recipients.add(patient.contact)
+            feeds = self.cleaned_data.get('feeds', []) or []
+            patient.contact.feeds.clear()
+            for f in feeds:
+                f.subscribers.add(patient.contact)
+        return patient
 

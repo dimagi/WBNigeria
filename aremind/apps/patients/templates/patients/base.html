@@ -1,0 +1,9 @@
+{% extends "aremind/layout.html" %}
+
+{% block title %}Patients{% endblock %}
+
+{% block javascripts %}{{ block.super }}
+    <script src="{{ STATIC_URL }}js/jquery-ui-timepicker-addon.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}js/forms.js" type="text/javascript"></script>    
+    <script src="{{ STATIC_URL }}patients/js/patients.js" type="text/javascript"></script>
+{% endblock %}

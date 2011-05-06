@@ -96,11 +96,11 @@ class PatientRemindersForm(forms.ModelForm):
         patient = super(PatientRemindersForm, self).save(*args, **kwargs)
         commit = kwargs.pop('commit', True)
         if commit:
-            reminders = self.cleaned_data.get('reminders', [])
+            reminders = self.cleaned_data.get('reminders', []) or []
             patient.contact.reminders.clear()
             for r in reminders:
                 r.recipients.add(patient.contact)
-            feeds = self.cleaned_data.get('feeds', [])
+            feeds = self.cleaned_data.get('feeds', []) or []
             patient.contact.feeds.clear()
             for f in feeds:
                 f.subscribers.add(patient.contact)

@@ -41,3 +41,9 @@ LOG_SIZE = 33554432 # 2^25
 LOG_BACKUPS = 10 # number of logs to keep
 
 COUNTRY_CODE = '1'
+
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_VHOST = "aremind_staging"
+BROKER_USER = "aremind"
+BROKER_PASSWORD = "" # In local settings

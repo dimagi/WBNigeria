@@ -164,7 +164,6 @@ def deploy():
             utils.abort('Production deployment aborted.')
     with settings(warn_only=True):
         stop()
-    fix_locale_perms()
     with cd(env.code_root):
         sudo('git pull', user=env.sudo_user)
         sudo('git checkout %(code_branch)s' % env, user=env.sudo_user)
@@ -229,18 +228,6 @@ def start():
     """ start server and celery on remote host """
     require('environment', provided_by=('staging', 'demo', 'production'))
     _supervisor_command('start %(environment)s:*' % env)
-
-
-def celery_start():  
-    """ start celery on remote host """
-    require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('start  %(environment)s-celery:*' % env)
-
-
-def celery_stop():  
-    """ stop celery on remote host """
-    require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('stop  %(environment)s-celery:*' % env)
 
 
 def servers_start():
@@ -323,7 +310,7 @@ def upload_supervisor_conf():
     require('environment', provided_by=('staging', 'demo', 'production'))
     template = os.path.join(os.path.dirname(__file__), 'services', 'templates', 'supervisor.conf')
     destination = '/var/tmp/supervisor.conf'
-    files.upload_template(template, destination, context=env)
+    files.upload_template(template, destination, context=env, use_sudo=True)
     enabled =  os.path.join(env.services, u'supervisor/%(environment)s.conf' % env)
     run('sudo chown -R %s %s' % (env.sudo_user, destination))
     run('sudo chgrp -R www-data %s' % destination)
@@ -337,7 +324,7 @@ def upload_apache_conf():
     require('environment', provided_by=('staging', 'demo', 'production'))
     template = os.path.join(os.path.dirname(__file__), 'services', 'templates', 'apache.conf')
     destination = '/var/tmp/apache.conf'
-    files.upload_template(template, destination, context=env)
+    files.upload_template(template, destination, context=env, use_sudo=True)
     enabled =  os.path.join(env.services, u'apache/%(environment)s.conf' % env)
     run('sudo chown -R %s %s' % (env.sudo_user, destination))
     run('sudo chgrp -R www-data %s' % destination)

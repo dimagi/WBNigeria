@@ -19,8 +19,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "aremind_staging",
-        "USER": "",
-        "PASSWORD": "",
+        "USER": "aremind",
+        "PASSWORD": "", # In local settings
         "HOST": "",
         "PORT": "",
     },

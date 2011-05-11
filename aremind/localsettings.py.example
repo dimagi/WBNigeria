@@ -3,24 +3,6 @@ from aremind.settings import *
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
-# for sqlite3:
-#DATABASES = {
-#    "default": {
-#        "ENGINE": "django.db.backends.sqlite3",
-#        "NAME": "db.sqlite3",
-#        "USER": "",
-#        "PASSWORD": "",
-#        "HOST": "",
-# since we might hit the database from any thread during testing, the
-# in-memory sqlite database isn't sufficient. it spawns a separate
-# virtual database for each thread, and syncdb is only called for the
-# first. this leads to confusing "no such table" errors. We create
-# a named temporary instance instead.
-#        "TEST_NAME": "test_db.sqlite3",
-#    }
-#}
-
-
 # for postgresql:
 DATABASES = {
     "default": {
@@ -40,39 +22,11 @@ TESTING_DATABASES= {
 }
 
 INSTALLED_BACKENDS = {
-    #"att": {
-    #    "ENGINE": "rapidsms.backends.gsm",
-    #    "PORT": "/dev/ttyUSB0"
-    #},
-    #"verizon": {
-    #    "ENGINE": "rapidsms.backends.gsm,
-    #    "PORT": "/dev/ttyUSB1"
-    #},
-	#"droid": {
-	#            "ENGINE": "rapidsms.backends.droid",
-	#            "AP_PORT": '9999',
-	#            "SERVER_PORT": '55625',
-	#    }
-	
-    "message_tester": {
-        "ENGINE": "rapidsms.backends.bucket",
-    },
-    "txtnation" : {"ENGINE":  "rapidsms.backends.http",
-                   "host":"0.0.0.0",
-            "port": 9088,
-            "gateway_url": "http://client.txtnation.com/mbill.php",
-            "params_outgoing": "reply=%(reply)s&id=%(id)s&network=%(network)s&number=%(phone_number)s&message=%(message)s&ekey=<SECRET_EKEY>&cc=dimagi&currency=THB&value=0&title=trialcnct",
-            "params_incoming": "action=action&id=%(id)s&number=%(phone_number)s&network=%(network)s&message=%(message)s&shortcode=%(sc)s&country=%(country_code)&billing=%(bill_code)s"
-    },
     "twilio": {
         "ENGINE": "rtwilio.backend",
         'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
         'config': {
-            'encoding' : 'UTF-8',
-            'account_sid': '*******',
-            'auth_token': '*******',
-            'number': '(XXX) XXX-XXXX',
-            #'callback': 'http://<public-django-instance>/twilio/status-callback/', # optional callback URL
+            'encoding' : 'UTF-8'
         }
     },
 }

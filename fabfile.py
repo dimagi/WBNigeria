@@ -170,7 +170,6 @@ def deploy():
         sudo('git checkout %(code_branch)s' % env, user=env.sudo_user)
     migrate()
     collectstatic()
-    touch()
     start()
 
 

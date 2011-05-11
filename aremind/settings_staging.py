@@ -6,27 +6,11 @@ ADMINS = (
 MANAGERS = ADMINS
 
 INSTALLED_BACKENDS = {
-    "message_tester": {
-        "ENGINE": "rapidsms.backends.bucket",
-    },
-    "txtnation" : {"ENGINE":  "aremind.backends.http",
-                   "host":"0.0.0.0",
-            "port": 9088,
-            "gateway_url": "http://client.txtnation.com/mbill.php",
-            "params_outgoing": "reply=%(reply)s&id=%(id)s&network=%(network)s&number=%(phone_number)s&message=%(message)s&ekey=<SECRET_EKEY>&cc=dimagi&currency=THB&value=0&title=trialcnct",
-            "params_incoming": "action=action&id=%(id)s&number=%(phone_number)s&network=%(network)s&message=%(message)s&shortcode=%(sc)s&country=%(country_code)&billing=%(bill_code)s"
-    },
     "twilio": {
         "ENGINE": "rtwilio.backend",
-        'host': '173.203.221.48', 'port': '8081',
-        'config': {'encoding': 'UTF-8'},
-    },
-    "mach": {
-        "ENGINE": "rmach.backend",
-        'host': 'localhost', 'port': '9090', # used for spawned backend WSGI server
+        'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
         'config': {
-            'encoding': 'UTF-8', # optional message encoding
-            'encoding_errors': 'ignore', # optional encoding handling 
+            'encoding' : 'UTF-8'
         }
     },
 }
@@ -34,19 +18,19 @@ INSTALLED_BACKENDS = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "areminddb",
-        "USER": "aremind",
-        "PASSWORD": "", # provided by localsettings.py
-        "HOST": "localhost",
-        "PORT": "5433",
+        "NAME": "aremind_staging",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "",
+        "PORT": "",
     },
 }
 
 #The default backend to be used when creating new patient contacts
 #on POST submission of patient data from their server
-DEFAULT_BACKEND_NAME = "mach"
+DEFAULT_BACKEND_NAME = "twilio"
 # unless overridden, all outgoing messages will be sent using this backend
-PRIMARY_BACKEND = "mach"
+PRIMARY_BACKEND = "twilio"
 
 DEBUG = True
 
@@ -57,3 +41,9 @@ LOG_SIZE = 33554432 # 2^25
 LOG_BACKUPS = 10 # number of logs to keep
 
 COUNTRY_CODE = '1'
+
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_VHOST = "aremind_staging"
+BROKER_USER = "aremind"
+BROKER_PASSWORD = "" # In local settings

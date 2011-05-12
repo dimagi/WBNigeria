@@ -6,14 +6,17 @@ ADMINS = (
 MANAGERS = ADMINS
 
 INSTALLED_BACKENDS = {
-    "twilio": {
-        "ENGINE": "rtwilio.backend",
-        'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
+    "tropo": {
+        "ENGINE": "rtropo.outgoing",
         'config': {
-            'encoding' : 'UTF-8'
+            'encoding' : 'UTF-8',
+            'number': '+1-919-500-7767',
+            'messaging_token': 'xxxx',
         }
     },
 }
+
+RAPIDSMS_HANDLERS_EXCLUDE_APPS = []
 
 DATABASES = {
     "default": {
@@ -28,9 +31,9 @@ DATABASES = {
 
 #The default backend to be used when creating new patient contacts
 #on POST submission of patient data from their server
-DEFAULT_BACKEND_NAME = "twilio"
+DEFAULT_BACKEND_NAME = "tropo"
 # unless overridden, all outgoing messages will be sent using this backend
-PRIMARY_BACKEND = "twilio"
+PRIMARY_BACKEND = "tropo"
 
 DEBUG = True
 

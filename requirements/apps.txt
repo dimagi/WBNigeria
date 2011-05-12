@@ -8,6 +8,8 @@ django-pagination==1.0.7
 lxml==2.3
 twilio==2.0.6
 -e git+http://github.com/caktus/rapidsms-twilio.git@feature/threadless#egg=rtwilio
+tropo-webapi-python==0.1.1
+-e git+http://github.com/caktus/rapidsms-tropo.git@develop#egg=rtropo
 -e git+http://github.com/caktus/rapidsms-threadless-router.git#egg=threadless_router
 django-sorting==0.1
 psycopg2==2.4

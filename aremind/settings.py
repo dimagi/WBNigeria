@@ -226,6 +226,8 @@ PRIMARY_BACKEND = 'twilio'
 # if set, the message tester app will always use this backend
 TEST_MESSAGER_BACKEND = 'twilio'
 
+RAPIDSMS_HANDLERS_EXCLUDE_APPS = []
+
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'))
 

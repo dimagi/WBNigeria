@@ -106,3 +106,6 @@ class PatientRemindersForm(forms.ModelForm):
                 f.subscribers.add(patient.contact)
         return patient
 
+class PatientOnetimeMessageForm(forms.Form):
+    message = forms.CharField(max_length=140)
+    

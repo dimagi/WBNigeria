@@ -107,5 +107,6 @@ class PatientRemindersForm(forms.ModelForm):
         return patient
 
 class PatientOnetimeMessageForm(forms.Form):
-    message = forms.CharField(max_length=140)
+    message = forms.CharField(label="Message", max_length=140,
+                           widget=forms.Textarea)
     

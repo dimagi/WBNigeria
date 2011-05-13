@@ -10,8 +10,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
+from rapidsms.messages import OutgoingMessage
+from threadless_router.router import Router
+
 from aremind.decorators import has_perm_or_basicauth
-from aremind.apps.adherence.models import Entry
+from aremind.apps.adherence.models import get_contact_message
 from aremind.apps.patients import models as patients
 from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm
 from aremind.apps.patients.importer import parse_payload
@@ -66,63 +69,34 @@ def view_patient(request, patient_id):
     context = {'patient': patient, 'form': form}
     return render(request, 'patients/patient_detail.html', context)
 
-# FIXME: refactor this so test_messager and we use common code
-def _get_backend():
-    from django.conf import settings
-    from rapidsms.models import Backend
-    from threadless_router.router import Router
-    
-    if hasattr(settings, 'TEST_MESSAGER_BACKEND'):
-        backend_name = settings.TEST_MESSAGER_BACKEND
-        try:
-            backend = Backend.objects.get(name=backend_name)
-        except Backend.DoesNotExist:
-            backend = None
-        if backend:
-            return backend
-    # pick one at 'random' - whichever one's key is first returned by keys()
-    # FIXME: handle case of no backends
-    router = Router()
-    backend_name = router.backends.keys()[0]
-    backend = Backend.objects.get(name=backend_name)
-    return backend
-
 @login_required
 def patient_onetime_message(request, patient_id):
-    from rapidsms.models import Connection
-    from rapidsms.messages import OutgoingMessage
-    from threadless_router.router import Router
+    """Send a onetime message to a patient.
+    Default to getting it from their feeds but allow editing that."""
 
     patient = get_object_or_404(patients.Patient, pk=patient_id)
     if request.method == 'POST':
         form = PatientOnetimeMessageForm(request.POST)
         if form.is_valid():
             message = form.cleaned_data['message']
-            number = patient.mobile_number
-            backend = _get_backend()
-
-            connection, _ = Connection.objects.get_or_create(backend=backend,
-                                                             identity=number)
+            connection = patient.contact.default_connection
             msg = OutgoingMessage(connection, message)
             router = Router()
-            if router.backends[backend.name].send(msg):
+            success = True
+            try:
+                router.outgoing(msg)
+            except Exception, e:
+                logger.exception(e)
+                success = False
+            if success:
                 messages.success(request, "Message sent to patient %s" % patient.subject_number)
             else:
                 messages.error(request, "An error occurred while trying to send the message to patient %s" % patient.subject_number)
 
             return redirect('patient-list')
     else:
-        # FIXME - this code copied from apps/adherence/models.py Reminder.queue_outgoing_messages
         # Set default message
-        feeds = patient.contact.feeds.filter(active=True)
-        try:
-            entry = Entry.objects.filter(
-                feed__in=feeds,
-                published__lte=datetime.datetime.now()
-            ).order_by('-published')[0]
-            message = entry.content[:160]
-        except IndexError:
-            message = ""
+        message = get_contact_message(patient.contact)
         form = PatientOnetimeMessageForm(initial={'message': message})
     context = { 'patient': patient, 'form': form }
     return render(request, 'patients/patient_onetime_message.html', context)

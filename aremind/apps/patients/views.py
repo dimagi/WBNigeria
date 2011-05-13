@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 from django import http
@@ -9,9 +10,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
+from rapidsms.messages import OutgoingMessage
+from threadless_router.router import Router
+
 from aremind.decorators import has_perm_or_basicauth
+from aremind.apps.adherence.models import get_contact_message
 from aremind.apps.patients import models as patients
-from aremind.apps.patients.forms import PatientRemindersForm
+from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm
 from aremind.apps.patients.importer import parse_payload
 
 
@@ -64,3 +69,34 @@ def view_patient(request, patient_id):
     context = {'patient': patient, 'form': form}
     return render(request, 'patients/patient_detail.html', context)
 
+@login_required
+def patient_onetime_message(request, patient_id):
+    """Send a onetime message to a patient.
+    Default to getting it from their feeds but allow editing that."""
+
+    patient = get_object_or_404(patients.Patient, pk=patient_id)
+    if request.method == 'POST':
+        form = PatientOnetimeMessageForm(request.POST)
+        if form.is_valid():
+            message = form.cleaned_data['message']
+            connection = patient.contact.default_connection
+            msg = OutgoingMessage(connection, message)
+            router = Router()
+            success = True
+            try:
+                router.outgoing(msg)
+            except Exception, e:
+                logger.exception(e)
+                success = False
+            if success:
+                messages.success(request, "Message sent to patient %s" % patient.subject_number)
+            else:
+                messages.error(request, "An error occurred while trying to send the message to patient %s" % patient.subject_number)
+
+            return redirect('patient-list')
+    else:
+        # Set default message
+        message = get_contact_message(patient.contact)
+        form = PatientOnetimeMessageForm(initial={'message': message})
+    context = { 'patient': patient, 'form': form }
+    return render(request, 'patients/patient_onetime_message.html', context)

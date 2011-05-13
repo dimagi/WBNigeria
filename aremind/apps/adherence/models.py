@@ -119,16 +119,7 @@ class Reminder(models.Model):
     def queue_outgoing_messages(self):
         """ generate queued outgoing messages """
         for contact in self.recipients.all():
-            # Get feed entries to populate outgoing message
-            feeds = contact.feeds.filter(active=True)
-            try:
-                entry = Entry.objects.filter(
-                    feed__in=feeds,
-                    published__lte=datetime.datetime.now()
-                ).order_by('-published')[0]
-                message = entry.content[:160]
-            except IndexError:
-                message = ""
+            message = get_contact_message(contact)
             self.adherence_reminders.create(
                 recipient=contact, date_queued=datetime.datetime.now(),
                 date_to_send=self.date, message=message,
@@ -321,3 +312,18 @@ class Entry(models.Model):
     def __unicode__(self):
         return u"Entry {name} for ({feed})".format(name=self.uid, feed=self.feed)
 
+def get_contact_message(contact):
+    """Construct a message for the contact
+    by grabbing the newest published entry from their feeds.
+    Otherwise returns an empty string."""
+
+    feeds = contact.feeds.filter(active=True)
+    try:
+        entry = Entry.objects.filter(
+            feed__in=feeds,
+            published__lte=datetime.datetime.now()
+        ).order_by('-published')[0]
+        message = entry.content[:160]
+    except IndexError:
+        message = ""
+    return message

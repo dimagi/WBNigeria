@@ -27,7 +27,7 @@
                     <td>{{ patient.feed_count }}</td>
                     <td class='actions'>
                         <a class='button' title='View/Edit' href='{% url patient-detail patient.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>   
-                        <a class='button' title='Onetime message' href='{% url patient-onetime-message patient.pk %}'>Onetime message</a>
+                        <a class='button' title='Onetime message' href='{% url patient-onetime-message patient.pk %}'><span class='ui-icon ui-icon-mail-closed'></span></a>
                     </td>
                 </tr>
             {% empty %}

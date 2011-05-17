@@ -1,10 +1,12 @@
 import datetime
 
 from django.db import models
+from django.dispatch import receiver
 
 from rapidsms import models as rapidsms
 
 from aremind.apps.groups.utils import format_number
+from decisiontree.app import session_end_signal
 
 
 class PatientDataPayload(models.Model):
@@ -55,3 +57,45 @@ class Patient(models.Model):
     def formatted_phone(self):
         return format_number(self.mobile_number)
 
+class PatientPillsTaken(models.Model):
+    """# of pills a patient took on a particular date"""
+    patient = models.ForeignKey(Patient)
+    date = models.DateField()
+    num_pills = models.IntegerField()
+
+    def __unicode__(self):
+        msg = u'Patient {id} took {num} pills on {date}'
+        return msg.format(id=self.patient.subject_number,
+                          date=self.date,
+                          num=self.num_pills)
+
+# When we complete an adherence survey, update patientpillstaken
+
+@receiver(session_end_signal)
+def session_end(sender, **kwargs):
+    session = kwargs['session']
+    canceled = kwargs['canceled']
+
+    if canceled:
+        return # don't save data
+
+    connection = session.connection
+    tree = session.tree
+    start_date = session.start_date
+    entries = session.entries
+
+    # find the patient
+    patient = Patient.objects.get(contact = connection.contact)
+
+    for entry in entries.all():
+        num_pills = int(entry.text)
+        # the sequence # is the number of days ago we asked about
+        date = start_date - datetime.timedelta(days=entry.sequence_id)
+        # get_or_create the pills taken record for this patient and date
+        # so that if we get newer data for the same day, we just
+        # overwrite the previous data
+        taken,x = PatientPillsTaken.objects.get_or_create(patient=patient,
+                                                          date=date,
+                                                          defaults={'num_pills':num_pills})
+        taken.num_pills = num_pills
+        taken.save()

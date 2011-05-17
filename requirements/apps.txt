@@ -19,3 +19,4 @@ django-celery==2.2.4
 python-twitter==0.8.2
 feedparser==5.0.1
 -e hg+https://bitbucket.org/mlavin/django-selectable#egg=django-selectable
+-e git+git@github.com:caktus/rapidsms-decisiontree-app.git@develop#egg=decisiontree

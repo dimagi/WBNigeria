@@ -16,7 +16,7 @@ _ = lambda s: s
 
 class AdherenceApp(AppBase):
 
-    reminder = _('Time to take your medicine.')
+    reminder = _('ARemind:')
 
     def start(self):
 		self.info('started')

@@ -71,12 +71,14 @@ class PatientPayloadUploadForm(forms.ModelForm):
 
 class PatientRemindersForm(forms.ModelForm):
 
+    first_name = forms.CharField(max_length=64, required=False)
+    last_name = forms.CharField(max_length=64, required=False)
     reminders = AutoComboboxSelectMultipleField(ReminderLookup, label="Medicine Reminders", required=False)
     feeds = AutoComboboxSelectMultipleField(FeedLookup, required=False)
 
     class Meta(object):
         model = patients.Patient
-        fields = ('subject_number', 'mobile_number', 'pin', 'next_visit', 'reminder_time', )
+        fields = ('subject_number', 'first_name', 'last_name', 'mobile_number', 'pin', 'next_visit', 'reminder_time', )
 
     def __init__(self, *args, **kwargs):
         super(PatientRemindersForm, self).__init__(*args, **kwargs)
@@ -87,12 +89,20 @@ class PatientRemindersForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             self.initial['reminders'] = self.instance.contact.reminders.all()
             self.initial['feeds'] = self.instance.contact.feeds.all()
+            self.initial['first_name'] = self.instance.contact.first_name
+            self.initial['last_name'] = self.instance.contact.last_name
 
     def save(self, *args, **kwargs):
         patient = super(PatientRemindersForm, self).save(commit=False)
         if not patient.contact_id:            
             contact, _ = Contact.objects.get_or_create(name=patient.subject_number)
             patient.contact = contact
+        first_name = self.cleaned_data.get('first_name', '')
+        if first_name:
+            patient.contact.first_name = first_name
+        last_name = self.cleaned_data.get('last_name', '')
+        if last_name:
+            patient.contact.last_name = last_name
         patient.contact.phone = patient.mobile_number
         patient.contact.pin = patient.pin
         commit = kwargs.pop('commit', True)

@@ -69,8 +69,6 @@ def add_to_patient_group(sender, instance, created, **kwargs):
             name=group_name, defaults={'is_editable': False}
         )
         instance.contact.groups.add(group)
-    if not instance.contact.name.strip():
-        instance.contact.name = instance.subject_number
-        instance.contact.save()
-
+    instance.contact.name = instance.subject_number
+    instance.contact.save()
 

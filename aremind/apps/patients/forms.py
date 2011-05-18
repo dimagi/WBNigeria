@@ -5,6 +5,7 @@ from rapidsms.models import Contact
 from selectable.forms import AutoComboboxSelectMultipleField
 
 from aremind.apps.adherence.lookups import ReminderLookup, FeedLookup
+from aremind.apps.groups.forms import FancyPhoneInput
 from aremind.apps.groups.validators import validate_phone
 from aremind.apps.groups.utils import normalize_number
 from aremind.apps.patients import models as patients
@@ -75,10 +76,11 @@ class PatientRemindersForm(forms.ModelForm):
 
     class Meta(object):
         model = patients.Patient
-        fields = ('next_visit', 'reminder_time', )
+        fields = ('subject_number', 'mobile_number', 'pin', 'next_visit', 'reminder_time', )
 
     def __init__(self, *args, **kwargs):
         super(PatientRemindersForm, self).__init__(*args, **kwargs)
+        self.fields['mobile_number'].widget = FancyPhoneInput()
         self.fields['next_visit'].widget.attrs.update({'class': 'datepicker'})
         self.fields['reminder_time'].widget.attrs.update({'class': 'timepicker'})
         self.fields['reminder_time'].label = 'Appointment Reminder Time'
@@ -87,7 +89,12 @@ class PatientRemindersForm(forms.ModelForm):
             self.initial['feeds'] = self.instance.contact.feeds.all()
 
     def save(self, *args, **kwargs):
-        patient = super(PatientRemindersForm, self).save(*args, **kwargs)
+        patient = super(PatientRemindersForm, self).save(commit=False)
+        if not patient.contact_id:            
+            contact, _ = Contact.objects.get_or_create(name=patient.subject_number)
+            patient.contact = contact
+        patient.contact.phone = patient.mobile_number
+        patient.contact.pin = patient.pin
         commit = kwargs.pop('commit', True)
         if commit:
             reminders = self.cleaned_data.get('reminders', []) or []
@@ -98,7 +105,10 @@ class PatientRemindersForm(forms.ModelForm):
             patient.contact.feeds.clear()
             for f in feeds:
                 f.subscribers.add(patient.contact)
+            patient.contact.save()
+            patient.save()
         return patient
+
 
 class PatientOnetimeMessageForm(forms.Form):
     message = forms.CharField(label="Message", max_length=140, min_length=1, 

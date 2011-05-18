@@ -42,7 +42,7 @@ class Patient(models.Model):
                                  related_name='patients')
     contact = models.ForeignKey(rapidsms.Contact, unique=True)
     subject_number = models.CharField(max_length=20, unique=True)
-    date_enrolled = models.DateField()
+    date_enrolled = models.DateField(default=datetime.date.today())
     mobile_number = models.CharField(max_length=30)
     pin = models.CharField(max_length=4, blank=True,
                            help_text="A 4-digit pin code for sms "
@@ -69,4 +69,8 @@ def add_to_patient_group(sender, instance, created, **kwargs):
             name=group_name, defaults={'is_editable': False}
         )
         instance.contact.groups.add(group)
+    if not instance.contact.name.strip():
+        instance.contact.name = instance.subject_number
+        instance.contact.save()
+
 

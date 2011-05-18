@@ -17,7 +17,8 @@ class ContactExtra(models.Model):
     title = models.CharField(max_length=64, blank=True)
 
     def save(self, **kwargs):
-        self.name = "%s %s" % (self.first_name, self.last_name)
+        if self.first_name and self.last_name:
+            self.name = "%s %s" % (self.first_name, self.last_name)
         super(ContactExtra, self).save(**kwargs)
 
     class Meta:

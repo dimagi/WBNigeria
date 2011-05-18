@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 from aremind.apps.adherence.forms import ReminderForm, FeedForm, EntryForm
 from aremind.apps.adherence.models import Reminder, Feed, Entry
@@ -142,3 +143,16 @@ def delete_entry(request, entry_id):
         return redirect('adherence-dashboard')
     context = {'entry': entry}
     return render(request, 'adherence/entry_feed.html', context)
+
+
+@csrf_exempt
+def ivr_callback(request):
+    """Callback from tropo at end of an IVR dialog.
+    (We asked tropo to call someone on the phone, talk to them, and
+    get some answers, then visit this URL to give us the result.)
+    """
+    if request.GET['status'] == 'good':
+        logger.info("Good IVR result: patient %s, answer %s" % (request.GET['patient_id'],request.GET['answer']))
+    else:
+        logger.info("Bad IVR result: patient %s" % request.GET['patient_id'])
+    return http.HttpResponse('')

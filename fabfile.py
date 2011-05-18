@@ -62,14 +62,14 @@ def setup_dirs():
 def local():
     """ use staging environment on remote host"""
     env.code_branch = 'develop'
-    env.sudo_user = 'hqbuilder'
+    env.sudo_user = 'dimagivm'
     env.environment = 'test'
     env.server_port = '9002'
     env.server_name = 'noneset'
     env.hosts = ['127.0.0.1']
     env.settings = '%(project)s.localsettings' % env
     env.db = '%s_%s' % (env.project, env.environment)
-    env.home = '/home/hqbuilder'
+    env.home = '/home/dimagivm'
     _setup_path()
 
 def staging():

@@ -4,6 +4,7 @@
 {% block content %}
 <div class='module'>
     <h2>Patient Listing</h2>
+    <p><a class='button add' title='Add a New Patient' href="{% url patient-create %}" >Add a patient...</a></p>
     {% autosort patients %}
     {% autopaginate patients 20 %}
     <table class='sortable pagination'>

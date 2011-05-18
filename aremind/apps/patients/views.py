@@ -56,8 +56,11 @@ def list_patients(request):
 
 
 @login_required
-def view_patient(request, patient_id):
-    patient = get_object_or_404(patients.Patient, pk=patient_id)
+def create_edit_patient(request, patient_id=None):
+    if patient_id:
+        patient = get_object_or_404(patients.Patient, pk=patient_id)
+    else:
+        patient = patients.Patient()
     if request.method == 'POST':
         form = PatientRemindersForm(request.POST, instance=patient)
         if form.is_valid():
@@ -67,7 +70,8 @@ def view_patient(request, patient_id):
     else:
         form = PatientRemindersForm(instance=patient)
     context = {'patient': patient, 'form': form}
-    return render(request, 'patients/patient_detail.html', context)
+    return render(request, 'patients/create_edit_patient.html', context)
+
 
 @login_required
 def patient_onetime_message(request, patient_id):

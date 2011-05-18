@@ -1,9 +1,13 @@
 import datetime
 
+from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from rapidsms import models as rapidsms
 
+from aremind.apps.groups.models import Group
 from aremind.apps.groups.utils import format_number
 
 
@@ -54,4 +58,15 @@ class Patient(models.Model):
     @property
     def formatted_phone(self):
         return format_number(self.mobile_number)
+
+
+@receiver(post_save, sender=Patient)
+def add_to_patient_group(sender, instance, created, **kwargs):
+    if created:
+        # add to subject group
+        group_name = settings.DEFAULT_SUBJECT_GROUP_NAME
+        group, _ = Group.objects.get_or_create(
+            name=group_name, defaults={'is_editable': False}
+        )
+        instance.contact.groups.add(group)
 

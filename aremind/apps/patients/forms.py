@@ -1,12 +1,10 @@
 from django import forms
-from django.conf import settings
 from django.forms.models import modelformset_factory
 
 from rapidsms.models import Contact
 from selectable.forms import AutoComboboxSelectMultipleField
 
 from aremind.apps.adherence.lookups import ReminderLookup, FeedLookup
-from aremind.apps.groups.models import Group
 from aremind.apps.groups.validators import validate_phone
 from aremind.apps.groups.utils import normalize_number
 from aremind.apps.patients import models as patients
@@ -46,10 +44,6 @@ class PatientForm(forms.ModelForm):
         instance.contact.pin = instance.pin
         instance.contact.save()
         instance.save()
-        # add to subject group
-        group_name = settings.DEFAULT_SUBJECT_GROUP_NAME
-        group, _ = Group.objects.get_or_create(name=group_name)
-        instance.contact.groups.add(group)
         return instance
 
 

@@ -1,9 +1,13 @@
 import datetime
 
+from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from rapidsms import models as rapidsms
 
+from aremind.apps.groups.models import Group
 from aremind.apps.groups.utils import format_number
 
 
@@ -38,7 +42,7 @@ class Patient(models.Model):
                                  related_name='patients')
     contact = models.ForeignKey(rapidsms.Contact, unique=True)
     subject_number = models.CharField(max_length=20, unique=True)
-    date_enrolled = models.DateField()
+    date_enrolled = models.DateField(default=datetime.date.today())
     mobile_number = models.CharField(max_length=30)
     pin = models.CharField(max_length=4, blank=True,
                            help_text="A 4-digit pin code for sms "
@@ -54,4 +58,17 @@ class Patient(models.Model):
     @property
     def formatted_phone(self):
         return format_number(self.mobile_number)
+
+
+@receiver(post_save, sender=Patient)
+def add_to_patient_group(sender, instance, created, **kwargs):
+    if created:
+        # add to subject group
+        group_name = settings.DEFAULT_SUBJECT_GROUP_NAME
+        group, _ = Group.objects.get_or_create(
+            name=group_name, defaults={'is_editable': False}
+        )
+        instance.contact.groups.add(group)
+    instance.contact.name = instance.subject_number
+    instance.contact.save()
 

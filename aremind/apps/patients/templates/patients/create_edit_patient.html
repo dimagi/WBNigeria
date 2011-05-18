@@ -1,7 +1,7 @@
 {% extends "patients/base.html" %}
 {% load i18n %}
 
-{% block title %}Patient - {{ patient.subject_number }}{% endblock %}
+{% block title %}{% if patient.pk %}Edit{% else %}Create{% endif %} Patient{% endblock %}
 
 {% block stylesheets %}{{ block.super }}
     {{ form.media.css }}
@@ -13,7 +13,7 @@
 
 {% block content %}
 <div class='module'>
-    <h2>Patient - {{ patient.subject_number }}</h2>
+    <h2>{% if patient.pk %}Patient - {{ patient.subject_number }}{% else %}New Patient {% endif %}</h2>
     <form action="." method="POST" class="buttons">
         {% csrf_token %}
         <table class="large">

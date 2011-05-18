@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     # "rapidsms.contrib.registration",
     # "rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
-
+ 
     # this app should be last, as it will always reply with a help message
     "aremind.apps.catch_all",
 ]
@@ -213,7 +213,7 @@ SOUTH_MIGRATION_MODULES = {
 
 #The default group subjects are added to when their information
 #is POSTed to us
-DEFAULT_SUBJECT_GROUP_NAME = 'Subjects'
+DEFAULT_SUBJECT_GROUP_NAME = 'Patients'
 DEFAULT_DAILY_REPORT_GROUP_NAME = 'Daily Report Recipients'
 DEFAULT_MONTHLY_REPORT_GROUP_NAME = 'Monthly Report Recipients'
 DEFAULT_CONFIRMATIONS_GROUP_NAME = 'Confirmation Recipients'

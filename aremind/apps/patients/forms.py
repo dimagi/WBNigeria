@@ -1,3 +1,6 @@
+import random
+import string
+
 from django import forms
 from django.forms.models import modelformset_factory
 
@@ -91,6 +94,23 @@ class PatientRemindersForm(forms.ModelForm):
             self.initial['feeds'] = self.instance.contact.feeds.all()
             self.initial['first_name'] = self.instance.contact.first_name
             self.initial['last_name'] = self.instance.contact.last_name
+        else:
+            # Generate subject ID and pin
+            self.initial['subject_number'] = self.generate_new_subject_id()
+            self.initial['pin'] = self.generate_new_pin()
+
+    def generate_new_subject_id(self):
+        valid = False
+        while not valid:
+            start = ''.join([random.choice(string.digits) for i in range(3)])
+            end = ''.join([random.choice(string.digits) for i in range(5)])
+            test = '%s-%s' % (start, end)
+            valid = not patients.Patient.objects.filter(subject_number=test).exists()
+        return test
+
+    def generate_new_pin(self):
+        return ''.join([random.choice(string.digits) for i in range(4)])
+         
 
     def save(self, *args, **kwargs):
         patient = super(PatientRemindersForm, self).save(commit=False)

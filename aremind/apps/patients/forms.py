@@ -1,12 +1,14 @@
+import random
+import string
+
 from django import forms
-from django.conf import settings
 from django.forms.models import modelformset_factory
 
 from rapidsms.models import Contact
 from selectable.forms import AutoComboboxSelectMultipleField
 
 from aremind.apps.adherence.lookups import ReminderLookup, FeedLookup
-from aremind.apps.groups.models import Group
+from aremind.apps.groups.forms import FancyPhoneInput
 from aremind.apps.groups.validators import validate_phone
 from aremind.apps.groups.utils import normalize_number
 from aremind.apps.patients import models as patients
@@ -46,10 +48,6 @@ class PatientForm(forms.ModelForm):
         instance.contact.pin = instance.pin
         instance.contact.save()
         instance.save()
-        # add to subject group
-        group_name = settings.DEFAULT_SUBJECT_GROUP_NAME
-        group, _ = Group.objects.get_or_create(name=group_name)
-        instance.contact.groups.add(group)
         return instance
 
 
@@ -76,24 +74,57 @@ class PatientPayloadUploadForm(forms.ModelForm):
 
 class PatientRemindersForm(forms.ModelForm):
 
+    first_name = forms.CharField(max_length=64, required=False)
+    last_name = forms.CharField(max_length=64, required=False)
     reminders = AutoComboboxSelectMultipleField(ReminderLookup, label="Medicine Reminders", required=False)
     feeds = AutoComboboxSelectMultipleField(FeedLookup, required=False)
 
     class Meta(object):
         model = patients.Patient
-        fields = ('next_visit', 'reminder_time', )
+        fields = ('subject_number', 'first_name', 'last_name', 'mobile_number', 'pin', 'next_visit', 'reminder_time', )
 
     def __init__(self, *args, **kwargs):
         super(PatientRemindersForm, self).__init__(*args, **kwargs)
+        self.fields['mobile_number'].widget = FancyPhoneInput()
         self.fields['next_visit'].widget.attrs.update({'class': 'datepicker'})
         self.fields['reminder_time'].widget.attrs.update({'class': 'timepicker'})
         self.fields['reminder_time'].label = 'Appointment Reminder Time'
         if self.instance and self.instance.pk:
             self.initial['reminders'] = self.instance.contact.reminders.all()
             self.initial['feeds'] = self.instance.contact.feeds.all()
+            self.initial['first_name'] = self.instance.contact.first_name
+            self.initial['last_name'] = self.instance.contact.last_name
+        else:
+            # Generate subject ID and pin
+            self.initial['subject_number'] = self.generate_new_subject_id()
+            self.initial['pin'] = self.generate_new_pin()
+
+    def generate_new_subject_id(self):
+        valid = False
+        while not valid:
+            start = ''.join([random.choice(string.digits) for i in range(3)])
+            end = ''.join([random.choice(string.digits) for i in range(5)])
+            test = '%s-%s' % (start, end)
+            valid = not patients.Patient.objects.filter(subject_number=test).exists()
+        return test
+
+    def generate_new_pin(self):
+        return ''.join([random.choice(string.digits) for i in range(4)])
+         
 
     def save(self, *args, **kwargs):
-        patient = super(PatientRemindersForm, self).save(*args, **kwargs)
+        patient = super(PatientRemindersForm, self).save(commit=False)
+        if not patient.contact_id:            
+            contact, _ = Contact.objects.get_or_create(name=patient.subject_number)
+            patient.contact = contact
+        first_name = self.cleaned_data.get('first_name', '')
+        if first_name:
+            patient.contact.first_name = first_name
+        last_name = self.cleaned_data.get('last_name', '')
+        if last_name:
+            patient.contact.last_name = last_name
+        patient.contact.phone = patient.mobile_number
+        patient.contact.pin = patient.pin
         commit = kwargs.pop('commit', True)
         if commit:
             reminders = self.cleaned_data.get('reminders', []) or []
@@ -104,7 +135,10 @@ class PatientRemindersForm(forms.ModelForm):
             patient.contact.feeds.clear()
             for f in feeds:
                 f.subscribers.add(patient.contact)
+            patient.contact.save()
+            patient.save()
         return patient
+
 
 class PatientOnetimeMessageForm(forms.Form):
     message = forms.CharField(label="Message", max_length=140, min_length=1, 

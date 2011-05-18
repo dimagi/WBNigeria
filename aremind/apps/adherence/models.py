@@ -2,9 +2,11 @@ import datetime
 import hashlib
 import locale
 import logging
+import random
 import time
 import uuid
 
+from django.conf import settings
 from django.db import models, transaction
 from django.utils.html import strip_tags
 
@@ -13,6 +15,7 @@ import feedparser
 from rapidsms import models as rapidsms
 import twitter
 
+from aremind.apps.patients.models import Patient
 
 logger = logging.getLogger('adherence.models')
 
@@ -311,19 +314,79 @@ class Entry(models.Model):
 
     def __unicode__(self):
         return u"Entry {name} for ({feed})".format(name=self.uid, feed=self.feed)
+    def seen_by(self, patient):
+        EntrySeen.objects.get_or_create(entry=self, patient=patient)
+        
+class EntrySeen(models.Model):
+    """Track that a particular patient has seen a particular entry"""
+    entry = models.ForeignKey(Entry)
+    patient = models.ForeignKey(Patient, related_name='entries_seen')
+
+    class Meta(object):
+        unique_together = ('entry','patient')
+
+    def __unicode__(self):
+        return u"Patient {name} has seen entry {feed}.{uid}".format(name=self.patient.subject_number, feed=self.entry.feed, uid=self.entry.uid)
+
+
+def get_next_unseen_entry_for_patient(feeds, patient):
+    try:
+       entry = Entry.objects.filter(
+            feed__in=feeds,
+            published__lte=datetime.datetime.now()
+        ).exclude(entryseen__patient=patient
+        ).order_by('-published')[0]
+       return entry
+    except IndexError:
+        return None
+
+def forget_entries(feeds, patient):
+    """Forget that the patient has seen any entries in these feeds"""
+    EntrySeen.objects.filter(entry__feed__in=feeds,
+                             patient=patient).delete()
 
 def get_contact_message(contact):
     """Construct a message for the contact
     by grabbing the newest published entry from their feeds.
     Otherwise returns an empty string."""
 
+    patient = Patient.objects.get(contact=contact)
     feeds = contact.feeds.filter(active=True)
-    try:
-        entry = Entry.objects.filter(
-            feed__in=feeds,
-            published__lte=datetime.datetime.now()
-        ).order_by('-published')[0]
+    manual_feeds = feeds.filter(feed_type=Feed.TYPE_MANUAL)
+    auto_feeds = feeds.exclude(feed_type=Feed.TYPE_MANUAL)
+
+    logging.info("get message for %s.  %d manual feeds, %d auto feeds" % (patient,len(manual_feeds),len(auto_feeds)))
+
+    manual_percent = getattr(settings, 'FEED_PERCENT_MANUAL', 25)
+    prefer_manual = random.randrange(0,100) < manual_percent
+    logging.info("manual percent = %d, prefer_manual=%s" % (manual_percent,prefer_manual))
+
+    entry = None
+    if prefer_manual:
+        entry = get_next_unseen_entry_for_patient(manual_feeds, patient)
+        if entry is None:
+            # no unseen manual entries, forget they've seen them and try again
+            forget_entries(manual_feeds, patient)
+            entry = get_next_unseen_entry_for_patient(manual_feeds, patient)
+        logging.info("got manual entry: %s" % entry)
+    else:
+        entry = get_next_unseen_entry_for_patient(auto_feeds, patient)
+        logging.info("got auto entry: %s" % entry)
+        
+    if entry is None:
+        # No luck so far, try any feed
+        entry = get_next_unseen_entry_for_patient(feeds, patient)
+        logging.info("got any entry: %s" % entry)
+
+    if entry is None:
+        # still no luck, forget they've seen anything and try again
+        forget_entries(feeds, patient)
+        entry = get_next_unseen_entry_for_patient(feeds, patient)
+        logging.info("forgot all, got %s" % entry)
+
+    if entry:
+        entry.seen_by(patient)
         message = entry.content[:160]
-    except IndexError:
+    else:
         message = ""
     return message

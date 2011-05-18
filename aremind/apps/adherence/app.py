@@ -38,11 +38,15 @@ class AdherenceApp(AppBase):
         self.info('found {0} reminder(s) to send'.format(messages.count()))
         for message in messages:
             connection = message.recipient.default_connection
-            # TODO: This might exceed 160 characters
             template = u'{reminder} {content}'.format(
                 reminder=self.reminder,
                 content=message.message or ""
             )
+            if len(template) > 160:
+                # Truncate at 160 characters but keeping whole words
+                template = template[:160]
+                words = template.split(' ')[:-1]
+                template = u' '.join(words) + u'...'
             msg = OutgoingMessage(connection=connection, template=template)
             success = True
             try:

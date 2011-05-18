@@ -59,6 +59,18 @@ def setup_dirs():
     sudo('mkdir -p %(services)s/apache' % env, user=env.sudo_user)
     sudo('mkdir -p %(services)s/supervisor' % env, user=env.sudo_user)
 
+def local():
+    """ use staging environment on remote host"""
+    env.code_branch = 'develop'
+    env.sudo_user = 'hqbuilder'
+    env.environment = 'test'
+    env.server_port = '9002'
+    env.server_name = 'noneset'
+    env.hosts = ['127.0.0.1']
+    env.settings = '%(project)s.localsettings' % env
+    env.db = '%s_%s' % (env.project, env.environment)
+    env.home = '/home/hqbuilder'
+    _setup_path()
 
 def staging():
     """ use staging environment on remote host"""
@@ -141,10 +153,24 @@ def bootstrap():
     setup_translation()
     fix_locale_perms()
 
-
+def test():
+    """ set up environment and run scripts """
+    require('root', provided_by=('staging', 'production', 'local'))
+    sudo('mkdir -p %(root)s' % env, user=env.sudo_user)
+    clone_repo()
+    setup_dirs()
+    create_virtualenv()
+    update_requirements()
+    #fix_locale_perms()
+    with cd(env.code_root):
+        run("cp aremind/test_localsettings.py.example aremind/test_localsettings.py")
+        run("python aremind/manage.py test")
+    with cd(env.home):
+        run("rm -rf *")
+    
 def create_virtualenv():
     """ setup virtualenv on remote host """
-    require('virtualenv_root', provided_by=('staging', 'production'))
+    require('virtualenv_root', provided_by=('staging', 'production', 'local'))
     args = '--clear --distribute --no-site-packages'
     sudo('virtualenv %s %s' % (args, env.virtualenv_root), user=env.sudo_user)
 
@@ -175,7 +201,7 @@ def deploy():
 
 def update_requirements():
     """ update external dependencies on remote host """
-    require('code_root', provided_by=('staging', 'production'))
+    require('code_root', provided_by=('staging', 'production', 'local'))
     requirements = os.path.join(env.code_root, 'requirements')
     with cd(requirements):
         cmd = ['sudo -u %s -H pip install' % env.sudo_user]

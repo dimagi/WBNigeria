@@ -1,4 +1,5 @@
 python2.6
+python-dev
 python-all-dev
 python-psycopg2
 python-setuptools
@@ -19,4 +20,5 @@ libevent-1.4-2
 libevent-core-1.4-2
 libevent-extra-1.4-2
 libevent-dev
+libpq-dev
 rabbitmq-server

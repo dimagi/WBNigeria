@@ -9,7 +9,7 @@
     {% autosort entries %}
     {% autopaginate entries 20 %}
     <dl class="feed-details">
-        <dt>Desciption:</dt><dd>{{ feed.description|default:"[None given]" }}</dd>
+        <dt>Description:</dt><dd>{{ feed.description|default:"[None given]" }}</dd>
         <dt>Active:</dt><dd>{{ feed.active|yesno|capfirst }}</dd>
         {% if feed.last_download %}<dt>Last Updated:</dt><dd>{{ feed.last_download }}</dd>{% endif %}
     </dl>

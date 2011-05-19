@@ -63,7 +63,7 @@ INSTALLED_APPS = [
     # "rapidsms.contrib.registration",
     "rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
-
+ 
     # this app should be last, as it will always reply with a help message
     "aremind.apps.catch_all",
 ]
@@ -127,9 +127,9 @@ STATIC_ROOT = os.path.join(PROJECT_PATH, '..', 'static_files')
 
 # Specify a logo URL for the dashboard layout.html. This logo will show up
 # at top left for every tab
-LOGO_LEFT_URL = '%simages/trialconnect.png' % STATIC_URL
-LOGO_RIGHT_URL = '%simages/tatrc.png' % STATIC_URL
-SITE_TITLE = " "
+LOGO_LEFT_URL = " "
+LOGO_RIGHT_URL = " "
+SITE_TITLE = "ARemind"
 BASE_TEMPLATE = "layout.html"
 
 # this is required for the django.contrib.sites tests to run, but also
@@ -146,7 +146,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
-    "staticfiles.context_processors.static",
 
     #this is for a custom logo on the dashboard (see LOGO_*_URL in settings, above)
     "rapidsms.context_processors.logo",
@@ -214,7 +213,7 @@ SOUTH_MIGRATION_MODULES = {
 
 #The default group subjects are added to when their information
 #is POSTed to us
-DEFAULT_SUBJECT_GROUP_NAME = 'Subjects'
+DEFAULT_SUBJECT_GROUP_NAME = 'Patients'
 DEFAULT_DAILY_REPORT_GROUP_NAME = 'Daily Report Recipients'
 DEFAULT_MONTHLY_REPORT_GROUP_NAME = 'Monthly Report Recipients'
 DEFAULT_CONFIRMATIONS_GROUP_NAME = 'Confirmation Recipients'

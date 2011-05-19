@@ -143,8 +143,3 @@ def create_edit_pill_history(request, patient_id, pill_id=None):
         form = PillHistoryForm(instance=pill)
     context = {'patient': patient, 'pill': pill, 'form': form}
     return render(request, 'patients/create_edit_pill_history.html', context)
-
-
-@login_required
-def pill_history_data(request, patient_id):
-    pass

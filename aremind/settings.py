@@ -126,9 +126,9 @@ STATIC_ROOT = os.path.join(PROJECT_PATH, '..', 'static_files')
 
 # Specify a logo URL for the dashboard layout.html. This logo will show up
 # at top left for every tab
-LOGO_LEFT_URL = '%simages/trialconnect.png' % STATIC_URL
-LOGO_RIGHT_URL = '%simages/tatrc.png' % STATIC_URL
-SITE_TITLE = " "
+LOGO_LEFT_URL = " "
+LOGO_RIGHT_URL = " "
+SITE_TITLE = "ARemind"
 BASE_TEMPLATE = "layout.html"
 
 # this is required for the django.contrib.sites tests to run, but also
@@ -145,7 +145,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
-    "staticfiles.context_processors.static",
 
     #this is for a custom logo on the dashboard (see LOGO_*_URL in settings, above)
     "rapidsms.context_processors.logo",

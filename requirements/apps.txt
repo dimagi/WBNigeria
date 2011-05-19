@@ -12,6 +12,8 @@ django-rosetta==0.6.0
 django-celery==2.2.4
 python-twitter==0.8.2
 feedparser==5.0.1
+gevent==0.13.6
+greenlet==0.3.1
 -e hg+https://bitbucket.org/mlavin/django-selectable#egg=django-selectable
 -e git+http://github.com/caktus/rapidsms-twilio.git@feature/threadless#egg=rtwilio
 -e git+http://github.com/caktus/rapidsms-tropo.git@develop#egg=rtropo

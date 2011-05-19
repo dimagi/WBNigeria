@@ -234,13 +234,19 @@ def start():
 def servers_start():
     ''' Start the gunicorn servers '''
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('start  %(environment)s-server' % env)
+    _supervisor_command('start  %(environment)s:%(environment)s-server' % env)
 
 
 def servers_stop():
     ''' Stop the gunicorn servers '''
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('stop  %(environment)s-server' % env)
+    _supervisor_command('stop  %(environment)s:%(environment)s-server' % env)
+
+
+def servers_restart():
+    ''' Start the gunicorn servers '''
+    require('environment', provided_by=('staging', 'demo', 'production'))
+    _supervisor_command('restart  %(environment)s:%(environment)s-server' % env)
 
 
 def migrate():

@@ -24,6 +24,7 @@ INSTALLED_APPS = [
 
     "djcelery",
     "threadless_router.celery",
+    "decisiontree",
 
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
@@ -60,7 +61,7 @@ INSTALLED_APPS = [
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     # "rapidsms.contrib.registration",
-    # "rapidsms.contrib.scheduler",
+    "rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
  
     # this app should be last, as it will always reply with a help message
@@ -89,7 +90,7 @@ RAPIDSMS_TABS = [
  #   ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 
 #    ("aremind.apps.reminder.views.dashboard", "Reminder"),
-
+    ("decisiontree.views.index", "Tree"),
 ]
 
 
@@ -126,9 +127,9 @@ STATIC_ROOT = os.path.join(PROJECT_PATH, '..', 'static_files')
 
 # Specify a logo URL for the dashboard layout.html. This logo will show up
 # at top left for every tab
-LOGO_LEFT_URL = '%simages/trialconnect.png' % STATIC_URL
-LOGO_RIGHT_URL = '%simages/tatrc.png' % STATIC_URL
-SITE_TITLE = " "
+LOGO_LEFT_URL = " "
+LOGO_RIGHT_URL = " "
+SITE_TITLE = "ARemind"
 BASE_TEMPLATE = "layout.html"
 
 # this is required for the django.contrib.sites tests to run, but also
@@ -145,7 +146,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
-    "staticfiles.context_processors.static",
 
     #this is for a custom logo on the dashboard (see LOGO_*_URL in settings, above)
     "rapidsms.context_processors.logo",
@@ -232,6 +232,7 @@ STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'))
 
 from celery.schedules import crontab
+from apps.utils.schedule import EveryFourDays
 
 CELERYBEAT_SCHEDULE = {
     "adherence-reminder-scheduler": {
@@ -254,6 +255,11 @@ CELERYBEAT_SCHEDULE = {
 #        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
 #        "schedule": crontab(hour=12, minute=0),
 #    },
+    "adherence-survey-kickoff": {
+        "task": "aremind.apps.adherence.tasks.KickoffAdherenceSurveysTask",
+        "schedule": EveryFourDays(hour=12),
+        #"schedule": crontab(minute=7), # that many minutes after each hour
+    },
 }
 
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'

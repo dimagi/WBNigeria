@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     (r'^admin/', include(admin.site.urls)),
+    (r'^', include('decisiontree.urls')),
     
     # RapidSMS core URLs
     (r'^account/', include('rapidsms.urls.login_logout')),
@@ -57,3 +58,12 @@ if settings.DEBUG:
         )
     )
 
+    # For testing
+    urlpatterns += patterns('',
+        # ...
+        url(r'^httptester/$',
+            'threadless_router.backends.httptester.views.generate_identity',
+            {'backend_name': 'httptester'}, name='httptester-index'),
+        (r'^httptester/', include('threadless_router.backends.httptester.urls')),
+        # ...
+    )

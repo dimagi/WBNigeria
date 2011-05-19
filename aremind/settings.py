@@ -145,6 +145,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
+    "django.core.context_processors.static",
     "django.core.context_processors.request",
 
     #this is for a custom logo on the dashboard (see LOGO_*_URL in settings, above)
@@ -227,6 +228,11 @@ PRIMARY_BACKEND = 'twilio'
 TEST_MESSAGER_BACKEND = 'twilio'
 
 RAPIDSMS_HANDLERS_EXCLUDE_APPS = []
+
+STATICFILES_FINDERS =(
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+)
 
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'))

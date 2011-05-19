@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "aremind.apps.patients",
     "aremind.apps.adherence",
     "aremind.apps.test_messager",
+    "aremind.apps.wisepill",
     "aremind.apps.default_connection",
 
     # the rapidsms contrib apps.

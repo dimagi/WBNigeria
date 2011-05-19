@@ -106,6 +106,7 @@ def patient_onetime_message(request, patient_id):
     context = { 'patient': patient, 'form': form }
     return render(request, 'patients/patient_onetime_message.html', context)
 
+
 # FIXME: This might just be for testing - take out later?
 @login_required
 def patient_start_adherence_tree(request, patient_id):
@@ -114,3 +115,11 @@ def patient_start_adherence_tree(request, patient_id):
     tree = make_tree_for_day(datetime.date.today())
     start_tree_for_patient(tree, patient)
     return redirect('/httptester/httptester/%s/' % patient.contact.default_connection.identity)
+
+
+@login_required
+def patient_pill_report(request, patient_id):
+    patient = get_object_or_404(patients.Patient, pk=patient_id)
+    pills = patients.PatientPillsTaken.objects.filter(patient=patient).order_by('-date')
+    context = { 'patient': patient, 'pills': pills}
+    return render(request, 'patients/patient_pill_report.html', context)

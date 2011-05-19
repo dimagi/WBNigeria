@@ -1,0 +1,40 @@
+{% extends "patients/base.html" %}
+{% load i18n pagination_tags sorting_tags %}
+
+{% block title %}Pill History for Patient {{ patient.subject_number }}{% endblock %}
+
+{% block content %}
+<div class='module'>
+    <h2>Pill History for Patient {{ patient.subject_number }}</h2>
+    {% autopaginate pills 20 %}
+    <table class='sortable pagination'>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Pills Taken</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pill in pills %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td>{{ pill.date }}</td>
+                    <td>{{ pill.num_pills }}</td>
+                </tr>
+            {% empty %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td colspan='2'>No pill history for {{ patient.subject_number }}.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if paginator.count > paginator.per_page %}
+            <tr>
+                <td colspan='2'>
+                    {% paginate %}
+                </td>
+            </tr>
+            {% endif %}
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

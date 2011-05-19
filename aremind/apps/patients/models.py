@@ -60,6 +60,7 @@ class Patient(models.Model):
     def formatted_phone(self):
         return format_number(self.mobile_number)
 
+
 class PatientPillsTaken(models.Model):
     """# of pills a patient took on a particular date"""
     patient = models.ForeignKey(Patient)

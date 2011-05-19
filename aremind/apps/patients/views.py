@@ -17,7 +17,7 @@ from aremind.decorators import has_perm_or_basicauth
 from aremind.apps.adherence.app import make_tree_for_day, start_tree_for_patient
 from aremind.apps.adherence.models import get_contact_message
 from aremind.apps.patients import models as patients
-from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm
+from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm, PillHistoryForm
 from aremind.apps.patients.importer import parse_payload
 
 
@@ -123,3 +123,24 @@ def patient_pill_report(request, patient_id):
     pills = patients.PatientPillsTaken.objects.filter(patient=patient).order_by('-date')
     context = { 'patient': patient, 'pills': pills}
     return render(request, 'patients/patient_pill_report.html', context)
+
+
+@login_required
+def create_edit_pill_history(request, patient_id, pill_id=None):
+    if pill_id:
+        pill = get_object_or_404(patients.PatientPillsTaken, pk=pill_id, patient=patient_id)
+        patient = pill.patient
+    else:
+        patient = get_object_or_404(patients.Patient, pk=patient_id)
+        pill = patients.PatientPillsTaken(patient=patient)
+    if request.method == 'POST':
+        form = PillHistoryForm(request.POST, instance=pill)
+        if form.is_valid():
+            pill = form.save()
+            messages.success(request, "Pill history saved.")
+            return redirect('patient-report', patient_id)
+    else:
+        form = PillHistoryForm(instance=pill)
+    context = {'patient': patient, 'pill': pill, 'form': form}
+    return render(request, 'patients/create_edit_pill_history.html', context)
+

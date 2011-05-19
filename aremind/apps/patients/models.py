@@ -65,7 +65,7 @@ class PatientPillsTaken(models.Model):
     """# of pills a patient took on a particular date"""
     patient = models.ForeignKey(Patient)
     date = models.DateField()
-    num_pills = models.IntegerField()
+    num_pills = models.IntegerField(verbose_name="Number of Pills")
 
     def __unicode__(self):
         msg = u'Patient {id} took {num} pills on {date}'

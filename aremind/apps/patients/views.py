@@ -121,7 +121,7 @@ def patient_start_adherence_tree(request, patient_id):
 def patient_pill_report(request, patient_id):
     patient = get_object_or_404(patients.Patient, pk=patient_id)
     pills = patients.PatientPillsTaken.objects.filter(patient=patient).order_by('-date')
-    context = { 'patient': patient, 'pills': pills}
+    context = {'patient': patient, 'pills': pills}
     return render(request, 'patients/patient_pill_report.html', context)
 
 
@@ -144,3 +144,7 @@ def create_edit_pill_history(request, patient_id, pill_id=None):
     context = {'patient': patient, 'pill': pill, 'form': form}
     return render(request, 'patients/create_edit_pill_history.html', context)
 
+
+@login_required
+def pill_history_data(request, patient_id):
+    pass

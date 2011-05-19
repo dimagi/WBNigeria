@@ -32,7 +32,7 @@
                         <a class='button' title="Edit Patient Info" href='{% url patient-detail patient.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>   
                         <a class='button' title="Send One Time Reminder" href='{% url patient-onetime-message patient.pk %}'><span class='ui-icon ui-icon-mail-closed'></span></a>
                         <a class='button' title="View Patient Pill History" href='{% url patient-report patient.pk %}'><span class='ui-icon ui-icon-note'></span></a>
-                        <a class='button' title="Start tree" href='{% url patient-start-adherence-tree patient.pk %}'>Start tree (test)</a>
+                        <a class='button' title="Start Adherence Report Tree (for testing only)" href='{% url patient-start-adherence-tree patient.pk %}'><span class='ui-icon ui-icon-circle-triangle-e'></span></a>
                     </td>
                 </tr>
             {% empty %}

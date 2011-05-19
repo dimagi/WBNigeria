@@ -48,7 +48,8 @@ def receive_patient_record(request):
 def list_patients(request):
     patients_list = patients.Patient.objects.all().annotate(
         reminder_count=Count('contact__reminders', distinct=True),
-        feed_count=Count('contact__feeds', distinct=True)
+        feed_count=Count('contact__feeds', distinct=True),
+        message_count=Count('wisepill_messages', distinct=True),
     )
     context = {'patients': patients_list}
     return render(request, 'patients/patient_list.html', context)

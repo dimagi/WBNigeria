@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from django.db import models
+from apps.patients.models import Patient
 
 logger = logging.getLogger('wisepill.models')
 
@@ -27,12 +28,15 @@ class WisepillMessage(models.Model):
     # the timestamp that was in the message
     timestamp = models.DateTimeField(blank=True)
 
+    # the patient who has this device, if known
+    patient = models.ForeignKey(Patient, related_name='wisepill_messages', blank=True,null=True)
+
     def __unicode__(self):
         return u"%s %s" % (self.timestamp, self.msisdn)
 
     def is_delayed(self):
         """Whether this was a delayed message"""
-        return self.message_type == DELAYED_EVENT
+        return self.message_type == WisepillMessage.DELAYED_EVENT
 
     def save(self, *args, **kwargs):
         self._parse_message()
@@ -70,3 +74,9 @@ CR/LF
         (dd,mm,yy,hh,mm,ss) = [int(x) for x in (t[0:2],t[2:4],t[4:6],t[6:8],t[8:10],t[10:12])]
         yy += 2000  # Y2K!
         self.timestamp = datetime.datetime(yy,mm,dd,hh,mm,ss)
+        # try to find the patient
+        patients = Patient.objects.filter(wisepill_msisdn = self.msisdn)
+        if len(patients) == 1:
+            self.patient = patients[0]
+        else:
+            logger.debug("Unable to find patient for MSISDN %s" % self.msisdn)

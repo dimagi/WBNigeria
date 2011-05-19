@@ -14,9 +14,12 @@ class WisepillApp(AppBase):
 
     def handle(self, msg):
         """Handle message that look like Wisepill messages"""
+        self.critical('handle called')
         if not looks_like_wisepill_message(msg.text):
+            self.info("does not look like a wisepill message, returning")
             return False
 
+        self.info("got a wisepill message")
         wisepill_message = WisepillMessage(sms_message = msg.text)
         wisepill_message.save()
         return True # handled

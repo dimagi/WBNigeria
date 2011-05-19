@@ -16,6 +16,7 @@ BROADCAST_SENDER_BACKEND='message_tester'
 # to help you get started quickly, many django/rapidsms apps are enabled
 # by default. you may wish to remove some and/or add your own.
 INSTALLED_APPS = [
+    "aremind.apps.wisepill",
 
     # the essentials.
     "django_nose",
@@ -51,7 +52,6 @@ INSTALLED_APPS = [
     "aremind.apps.patients",
     "aremind.apps.adherence",
     "aremind.apps.test_messager",
-    "aremind.apps.wisepill",
     "aremind.apps.default_connection",
 
     # the rapidsms contrib apps.
@@ -81,6 +81,7 @@ RAPIDSMS_TABS = [
     ("broadcast-forwarding", "Forwarding"),
     ("aremind.apps.groups.views.list_groups", "Groups"),
     ("aremind.apps.groups.views.list_contacts","People"),
+    ("aremind.apps.wisepill.views.index","Wisepill"),
 #    ("settings", "Settings"),
 #    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
 

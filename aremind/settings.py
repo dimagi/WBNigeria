@@ -24,6 +24,7 @@ INSTALLED_APPS = [
 
     "djcelery",
     "threadless_router.celery",
+    "decisiontree",
 
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
@@ -60,7 +61,7 @@ INSTALLED_APPS = [
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     # "rapidsms.contrib.registration",
-    # "rapidsms.contrib.scheduler",
+    "rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
  
     # this app should be last, as it will always reply with a help message
@@ -89,7 +90,7 @@ RAPIDSMS_TABS = [
  #   ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 
 #    ("aremind.apps.reminder.views.dashboard", "Reminder"),
-
+    ("decisiontree.views.index", "Tree"),
 ]
 
 
@@ -231,6 +232,7 @@ STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'))
 
 from celery.schedules import crontab
+from apps.utils.schedule import EveryFourDays
 
 CELERYBEAT_SCHEDULE = {
     "adherence-reminder-scheduler": {
@@ -253,6 +255,11 @@ CELERYBEAT_SCHEDULE = {
 #        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
 #        "schedule": crontab(hour=12, minute=0),
 #    },
+    "adherence-survey-kickoff": {
+        "task": "aremind.apps.adherence.tasks.KickoffAdherenceSurveysTask",
+        "schedule": EveryFourDays(hour=12),
+        #"schedule": crontab(minute=7), # that many minutes after each hour
+    },
 }
 
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'

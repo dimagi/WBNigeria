@@ -15,6 +15,7 @@ feedparser==5.0.1
 gevent==0.13.6
 greenlet==0.3.1
 -e hg+https://bitbucket.org/mlavin/django-selectable#egg=django-selectable
+-e git+git@github.com:caktus/rapidsms-decisiontree-app.git@develop#egg=decisiontree
 -e git+http://github.com/caktus/rapidsms-twilio.git@feature/threadless#egg=rtwilio
 -e git+http://github.com/caktus/rapidsms-tropo.git@develop#egg=rtropo
 -e git+http://github.com/caktus/rapidsms-threadless-router.git#egg=threadless_router

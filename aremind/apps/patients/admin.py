@@ -54,3 +54,5 @@ class PatientDataPayloadAdmin(admin.ModelAdmin):
         except Exception as e:
             messages.error(request, u"Error parsing patient data: %s" % unicode(e))
 admin.site.register(patients.PatientDataPayload, PatientDataPayloadAdmin)
+
+admin.site.register(patients.PatientPillsTaken)

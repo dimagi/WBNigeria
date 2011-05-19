@@ -14,6 +14,7 @@ from rapidsms.messages import OutgoingMessage
 from threadless_router.router import Router
 
 from aremind.decorators import has_perm_or_basicauth
+from aremind.apps.adherence.app import make_tree_for_day, start_tree_for_patient
 from aremind.apps.adherence.models import get_contact_message
 from aremind.apps.patients import models as patients
 from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm
@@ -104,3 +105,12 @@ def patient_onetime_message(request, patient_id):
         form = PatientOnetimeMessageForm(initial={'message': message})
     context = { 'patient': patient, 'form': form }
     return render(request, 'patients/patient_onetime_message.html', context)
+
+# FIXME: This might just be for testing - take out later?
+@login_required
+def patient_start_adherence_tree(request, patient_id):
+    """Start adherence tree interaction with patient."""
+    patient = get_object_or_404(patients.Patient, pk=patient_id)
+    tree = make_tree_for_day(datetime.date.today())
+    start_tree_for_patient(tree, patient)
+    return redirect('/httptester/httptester/%s/' % patient.contact.default_connection.identity)

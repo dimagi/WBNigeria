@@ -11,5 +11,7 @@ urlpatterns = patterns('aremind.apps.patients.views',
     url(r'^onetime/(?P<patient_id>\d+)/$', 'patient_onetime_message', name='patient-onetime-message'),
     url(r'^starttree/(?P<patient_id>\d+)/$', 'patient_start_adherence_tree', name='patient-start-adherence-tree'),
     url(r'^startivr/(?P<patient_id>\d+)/$', 'patient_start_ivr', name='patient-start-ivr'),
+    url(r'^ivrcallback/(?P<patient_id>\d)/$', 'patient_ivr_callback', name='patient-ivr-callback'),
+    url(r'^ivrcomplete/(?P<patient_id>\d)$', 'patient_ivr_complete', name='patient-ivr-complete'),
     url(r'^$', 'list_patients', name='patient-list'),
 )

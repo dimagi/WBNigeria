@@ -1,10 +1,12 @@
 import datetime
+import json
 import logging
 
 from django import http
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import mail_admins
+from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
@@ -119,24 +121,68 @@ def patient_start_adherence_tree(request, patient_id):
 @login_required
 def patient_start_ivr(request, patient_id):
     """Start interactive voice interaction with patient."""
+    # what's our callback URL?
+    url = reverse('patient-ivr-callback', kwargs={'patient_id':patient_id})
     backend = Router().backends['tropo']
-    backend.call_tropo(tropo_ivr_callback, message_type='voice', data=patient_id)
+    backend.call_tropo(url, message_type='voice')
     # tropo will POST and our callback will be invoked, below
     return redirect('patient-list')
 
-def tropo_ivr_callback(request,data):
+@csrf_exempt
+def patient_ivr_complete(request, patient_id):
+    """
+    We tell tropo to call us back at this view's URL with the results
+    (good or bad) of running an IVR.
+    """
+
+    patient = get_object_or_404(patients.Patient, pk=patient_id)
+
+    try:
+        logger.debug("##%s" % request.raw_post_data)
+        postdata = json.loads(request.raw_post_data)
+        
+        if 'result' in postdata:
+            # Survey result
+            result = postdata['result']
+            logger.debug("## Results=%r" % result)
+            if 'error' in result and result['error'] is not None:
+                logger.error("## Error from phone survey: %s" % result['error'])
+            actions = result['actions']
+            for item in actions:
+                if item['name'].startswith('question'):
+                    if item['disposition'] == 'SUCCESS':
+                        # Got an answer, yay
+                        # last char is a digit with question #
+                        question_num = int(item['name'][-1])
+                        # date would be today minus that many days
+                        date = datetime.date.today()
+                        date -= datetime.timedelta(days=question_num)
+                        answer = item['value']
+                        num_pills = int(answer)
+                        # remember result
+                        patients.remember_patient_pills_taken(patient,date,num_pills,"IVR")
+                    else:
+                        logger.debug("## Error on question %s for patient: disposition %s" % (item['name'],item['disposition']))
+            return http.HttpResponse()
+        # whoops
+        logger.error("patient_ivr_complete called with no result data!!")
+        return http.HttpServerErrorResponse()
+    except Exception,e:
+        logger.exception(e)
+        return http.HttpServerErrorResponse()
+
+@csrf_exempt
+def patient_ivr_callback(request, patient_id):
     """
     When we start a patient IVR interaction, we tell the tropo
     backend to call us back at this function when tropo makes a
     http call to us about it.  The data we pass is the patient_id.
     """
     
-    patient_id = data
     patient = get_object_or_404(patients.Patient, pk=patient_id)
 
     # Got POST from Tropo wanting to know what to do
     try:
-        import json
         logger.debug("##%s" % request.raw_post_data)
         postdata = json.loads(request.raw_post_data)
         
@@ -166,27 +212,30 @@ def tropo_ivr_callback(request,data):
             return http.HttpResponse()
 
         # New call, tell Tropo to run the survey
+        our_callback_url = reverse('patient-ivr-complete', kwargs={'patient_id':patient_id})
+
         session = postdata['session']
         # Tell Tropo to call, ask questions, hang up
-        call = { 'call': {
-            'to': patient.contact.default_connection.identity,
-            'channel': 'VOICE',
-            }}
-        # if call works, talk to them
 
         # Need to tell Tropo explicitly that we want results back
         on1 = { 'on': {
-            "next":"/tropo/",
+            "next": our_callback_url,
             "event":"continue"}}
         on2 = { 'on': {
-            "next":"/tropo/",
+            "next": our_callback_url,
             "event":"error"}}
         on3 = { 'on': {
-            "next":"/tropo/",
+            "next": our_callback_url,
             "event":"hangup"}}
         on4 = { 'on': {
-            "next":"/tropo/",
+            "next": our_callback_url,
             "event":"incomplete"}}
+        call = { 'call': {
+            'to': patient.contact.default_connection.identity,
+            'channel': 'VOICE',
+            'name': patient_id,  # so we can correlate later
+            }}
+        # if call works, talk to them
         welcome = { 'say': {
             'value': "This is ARemind calling to see how you're doing."
             }}

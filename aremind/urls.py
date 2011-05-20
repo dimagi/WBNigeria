@@ -43,7 +43,7 @@ urlpatterns = patterns('',
     (r'^rosetta/', include('rosetta.urls')),
     (r'^selectable/', include('selectable.urls')),
 
-    url(r'^tropo.py', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),                       
+    url(r'^tropo/$', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),                       
 )
 
 if settings.DEBUG:

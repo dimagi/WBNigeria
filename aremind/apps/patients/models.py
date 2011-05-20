@@ -72,8 +72,20 @@ class PatientPillsTaken(models.Model):
                           date=self.date,
                           num=self.num_pills)
 
-# When we complete an adherence survey, update patientpillstaken
 
+def remember_patient_pills_taken(patient,date,num_pills,origin):
+    # FIXME: record the origin too (the source of the data)
+
+    # get_or_create the pills taken record for this patient and date
+    # so that if we get newer data for the same day, we just
+    # overwrite the previous data
+    taken,x = PatientPillsTaken.objects.get_or_create(patient=patient,
+                                                      date=date,
+                                                      defaults={'num_pills':num_pills})
+    taken.num_pills = num_pills
+    taken.save()
+
+# When we complete an adherence survey, update patientpillstaken
 @receiver(session_end_signal)
 def session_end(sender, **kwargs):
     session = kwargs['session']
@@ -94,14 +106,7 @@ def session_end(sender, **kwargs):
         num_pills = int(entry.text)
         # the sequence # is the number of days ago we asked about
         date = start_date - datetime.timedelta(days=entry.sequence_id)
-        # get_or_create the pills taken record for this patient and date
-        # so that if we get newer data for the same day, we just
-        # overwrite the previous data
-        taken,x = PatientPillsTaken.objects.get_or_create(patient=patient,
-                                                          date=date,
-                                                          defaults={'num_pills':num_pills})
-        taken.num_pills = num_pills
-        taken.save()
+        remember_patient_pills_taken(patient, date, num_pills, "SMS")
 
 @receiver(post_save, sender=Patient)
 def add_to_patient_group(sender, instance, created, **kwargs):

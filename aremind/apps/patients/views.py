@@ -22,7 +22,7 @@ from aremind.apps.patients.importer import parse_payload
 
 
 logger = logging.getLogger('aremind.apps.patients')
-
+logger.setLevel(logging.DEBUG)
 
 @csrf_exempt
 @require_http_methods(['POST'])
@@ -114,3 +114,119 @@ def patient_start_adherence_tree(request, patient_id):
     tree = make_tree_for_day(datetime.date.today())
     start_tree_for_patient(tree, patient)
     return redirect('/httptester/httptester/%s/' % patient.contact.default_connection.identity)
+
+# FIXME: This might just be for testing - take out later?
+@login_required
+def patient_start_ivr(request, patient_id):
+    """Start interactive voice interaction with patient."""
+    backend = Router().backends['tropo']
+    backend.call_tropo(tropo_ivr_callback, message_type='voice', data=patient_id)
+    # tropo will POST and our callback will be invoked, below
+    return redirect('patient-list')
+
+def tropo_ivr_callback(request,data):
+    """
+    When we start a patient IVR interaction, we tell the tropo
+    backend to call us back at this function when tropo makes a
+    http call to us about it.  The data we pass is the patient_id.
+    """
+    
+    patient_id = data
+    patient = get_object_or_404(patients.Patient, pk=patient_id)
+
+    # Got POST from Tropo wanting to know what to do
+    try:
+        import json
+        logger.debug("##%s" % request.raw_post_data)
+        postdata = json.loads(request.raw_post_data)
+        
+        if 'result' in postdata:
+            # Survey result
+            result = postdata['result']
+            logger.debug("## Results=%r" % result)
+            if 'error' in result and result['error'] is not None:
+                logger.error("## Error from phone survey: %s" % result['error'])
+            actions = result['actions']
+            for item in actions:
+                if item['name'].startswith('question'):
+                    if item['disposition'] == 'SUCCESS':
+                        # Got an answer, yay
+                        # last char is a digit with question #
+                        question_num = int(item['name'][-1])
+                        # date would be today minus that many days
+                        date = datetime.date.today()
+                        date -= datetime.timedelta(days=question_num)
+                        answer = item['value']
+                        num_pills = int(answer)
+                        # remember result
+                        patients.remember_patient_pills_taken(patient,date,num_pills,"IVR")
+                    else:
+                        logger.debug("## Error on question %s for patient: disposition %s" % (item['name'],item['disposition']))
+
+            return http.HttpResponse()
+
+        # New call, tell Tropo to run the survey
+        session = postdata['session']
+        # Tell Tropo to call, ask questions, hang up
+        call = { 'call': {
+            'to': patient.contact.default_connection.identity,
+            'channel': 'VOICE',
+            }}
+        # if call works, talk to them
+
+        # Need to tell Tropo explicitly that we want results back
+        on1 = { 'on': {
+            "next":"/tropo/",
+            "event":"continue"}}
+        on2 = { 'on': {
+            "next":"/tropo/",
+            "event":"error"}}
+        on3 = { 'on': {
+            "next":"/tropo/",
+            "event":"hangup"}}
+        on4 = { 'on': {
+            "next":"/tropo/",
+            "event":"incomplete"}}
+        welcome = { 'say': {
+            'value': "This is ARemind calling to see how you're doing."
+            }}
+        ask1 = { 'ask': {
+            'say': { 'value': 'How many pills did you take yesterday?  Please enter the number.' },
+            'choices': { 'value': '[1DIGIT]', 'mode': 'dtmf',},
+            'attempts': 3,
+            'name': 'question1',
+            }}
+        ask2 = { 'ask': {
+            'say': { 'value': 'How many pills did you take the day before yesterday?  Please enter the number.' },
+            'choices': { 'value': '[1DIGIT]', 'mode': 'dtmf',},
+            'attempts': 3,
+            'name': 'question2',
+            }}
+        ask3 = { 'ask': {
+            'say': { 'value': 'How many pills did you take the day before the day before yesterday?  Please enter the number.' },
+            'choices': { 'value': '[1DIGIT]', 'mode': 'dtmf',},
+            'attempts': 3,
+            'name': 'question3',
+            }}
+        ask4 = { 'ask': {
+            'say': { 'value': 'How many pills did you take four days ago?  Please enter the number.' },
+            'choices': { 'value': '[1DIGIT]', 'mode': 'dtmf',},
+            'attempts': 3,
+            'name': 'question4',
+            }}
+        thankyou = { 'say': {
+            'value': "Thank you."
+            }}
+        hangup = { 'hangup': None }
+
+        to_return = { 'tropo': [ on1, on2, on3, on4,
+                                 call, welcome,
+                                 ask1, ask2, ask3, ask4,
+                                 thankyou, hangup ] }
+        logger.debug("##Returning %s" % to_return)
+        return http.HttpResponse(json.dumps(to_return))
+    except Exception,e:
+        logger.exception(e)
+        return http.HttpServerErrorResponse()
+        
+

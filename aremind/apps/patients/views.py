@@ -106,7 +106,6 @@ def patient_onetime_message(request, patient_id):
     context = { 'patient': patient, 'form': form }
     return render(request, 'patients/patient_onetime_message.html', context)
 
-
 # FIXME: This might just be for testing - take out later?
 @login_required
 def patient_start_adherence_tree(request, patient_id):

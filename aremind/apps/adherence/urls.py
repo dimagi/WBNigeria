@@ -13,5 +13,6 @@ urlpatterns = patterns('aremind.apps.adherence.views',
     url(r'^entries/edit/(?P<entry_id>\d+)/$', 'create_edit_entry', name='adherence-edit-entry'),
     url(r'^entries/delete/(?P<entry_id>\d+)/$', 'delete_entry', name='adherence-delete-entry'),
     url(r'^ivr/callback/$', 'ivr_callback', name='adherence-ivr-callback'),
+    url(r'^query_results/$', 'query_results', name='adherence-query-results'),
     url(r'^$', 'dashboard', name='adherence-dashboard'),
 )

@@ -221,11 +221,11 @@ DEFAULT_CONFIRMATIONS_GROUP_NAME = 'Confirmation Recipients'
 
 #The default backend to be used when creating new patient contacts
 #on POST submission of patient data from their server
-DEFAULT_BACKEND_NAME = "twilio"
+DEFAULT_BACKEND_NAME = "tropo"
 # unless overridden, all outgoing messages will be sent using this backend
-PRIMARY_BACKEND = 'twilio'
+PRIMARY_BACKEND = 'tropo'
 # if set, the message tester app will always use this backend
-TEST_MESSAGER_BACKEND = 'twilio'
+TEST_MESSAGER_BACKEND = 'tropo'
 
 RAPIDSMS_HANDLERS_EXCLUDE_APPS = []
 

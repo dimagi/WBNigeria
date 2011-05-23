@@ -22,11 +22,13 @@ TESTING_DATABASES= {
 }
 
 INSTALLED_BACKENDS = {
-    "twilio": {
-        "ENGINE": "rtwilio.backend",
-        'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
+    "tropo": {
+        "ENGINE": "rtropo.outgoing",
         'config': {
             'encoding' : 'UTF-8'
+            'number': '+1-xxx-yyy-zzzz',
+            'messaging_token': 'longhexstring',
+            'voice_token': 'anotherlonghexstring',
         }
     },
 }

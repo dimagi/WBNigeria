@@ -193,7 +193,7 @@ def patient_ivr_complete(request, patient_id):
             elif incomplete:
                 status = patients.PatientQueryResult.STATUS_INCOMPLETE
             else:
-                status = patients.PatientQueryResult.STATUS_NOT_COMPLETED
+                status = patients.PatientQueryResult.STATUS_COMPLETE
             patients.remember_query_result(patient,
                                   patients.ADHERENCE_SOURCE_IVR,
                                   status)

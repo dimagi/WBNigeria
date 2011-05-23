@@ -142,7 +142,7 @@ def session_end(sender, **kwargs):
     if canceled:
         remember_query_result(patient,
                               ADHERENCE_SOURCE_SMS,
-                              PatientQueryResult.STATUS_INCOMPLETE)
+                              PatientQueryResult.STATUS_NOT_COMPLETED)
         return # don't save data
 
     tree = session.tree

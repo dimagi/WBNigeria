@@ -1,0 +1,33 @@
+{% extends "adherence/base.html" %}
+{% load pagination_tags sorting_tags %}
+
+{% block right %}
+<h1>Adherence Query Results Report</h1>
+<div class="module">
+{% autosort results %}
+{% autopaginate results 20 %}
+<table class="pagination sortable adherence-report">
+<thead>
+  <tr>
+    <th>{% anchor patient__subject_number "Patient ID"%}</th>
+    <th>{% anchor datetime "Date" %}</th>
+    <th>{% anchor result_status "Status" %}</th>
+    <th>{% anchor adherence_source "Source" %}</th>
+  </tr>
+</thead>
+<tbody>
+{% for result in results %}
+<tr class="{% cycle 'odd' 'even' %}">
+  <td>{{ result.patient.subject_number }}</td>
+  <td>{{ result.datetime }}</td>
+  <td>{{ result.get_result_status_display }}</td>
+  <td>{{ result.get_adherence_source_display }}</td>
+</tr>
+{% endfor %}
+</tbody>
+<tfoot>
+  <tr><td colspan="4">{% paginate %}</td>
+</tfoot>
+</table>
+</div>
+{% endblock %}

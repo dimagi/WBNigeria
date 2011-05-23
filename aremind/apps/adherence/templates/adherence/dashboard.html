@@ -1,7 +1,7 @@
 {% extends "adherence/base.html" %}
 {% load pagination_tags sorting_tags %}
 
-{% block content %}
+{% block right %}
 <div class='module'>
     <h2>Reminder Schedules</h2>
     {% comment %}
@@ -10,7 +10,7 @@
     {% autopaginate reminders 15 %}
     {% endcomment %}
     <p><a class='button add' title='Add Reminder Schedule' href="{% url adherence-create-reminder %}" >Add reminder schedule...</a></p>
-    <table class='sortable pagination'>
+    <table class='sortable pagination patient-adherence'>
         <thead>
             <tr>
                 <th>ID{#% anchor id ID %#}</th>
@@ -39,7 +39,7 @@
 <div class='module'>
     <h2>Message Feeds</h2>
     <p><a class='button add' title='Add Message Feed' href="{% url adherence-create-feed %}" >Add message feed...</a></p>
-    <table class='sortable pagination'>
+    <table class='sortable pagination patient-adherence'>
         <thead>
             <tr>
                 <th>ID{#% anchor id ID %#}</th>

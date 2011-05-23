@@ -90,7 +90,6 @@ RAPIDSMS_TABS = [
  #   ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 
 #    ("aremind.apps.reminder.views.dashboard", "Reminder"),
-    ("decisiontree.views.index", "Tree"),
 ]
 
 

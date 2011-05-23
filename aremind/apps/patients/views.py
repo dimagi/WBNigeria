@@ -147,7 +147,26 @@ def patient_ivr_complete(request, patient_id):
             logger.debug("## Results=%r" % result)
             if 'error' in result and result['error'] is not None:
                 logger.error("## Error from phone survey: %s" % result['error'])
+                patients.remember_query_result(patient,
+                                      patients.ADHERENCE_SOURCE_IVR,
+                                      patients.PatientQueryResult.STATUS_ERROR)
+                return http.HttpResponse()
+
+            if result['complete'] == False:
+                patients.remember_query_result(patient,
+                                      patients.ADHERENCE_SOURCE_IVR,
+                                      patients.PatientQueryResult.STATUS_NO_ANSWER)
+                return http.HttpResponse()
+                                      
             actions = result['actions']
+            # actions can be either an array of dictionaries or a single
+            # dictionary, sigh.  Figure out if it's a single dictionary
+            # and wrap it in an array to avoid insanity.
+            if isinstance(actions, dict):
+                actions = [actions,]
+            num_questions_answered = 0
+            incomplete = False
+            error = False
             for item in actions:
                 if item['name'].startswith('question'):
                     if item['disposition'] == 'SUCCESS':
@@ -161,15 +180,36 @@ def patient_ivr_complete(request, patient_id):
                         num_pills = int(answer)
                         # remember result
                         patients.remember_patient_pills_taken(patient,date,num_pills,"IVR")
+                        num_questions_answered += 1
+                    elif item['disposition'] == 'TIMEOUT':
+                        incomplete = True
                     else:
                         logger.debug("## Error on question %s for patient: disposition %s" % (item['name'],item['disposition']))
+                        error = True
+            if num_questions_answered < 4:
+                incomplete = True
+            if error:
+                status = patients.PatientQueryResult.STATUS_ERROR
+            elif incomplete:
+                status = patients.PatientQueryResult.STATUS_INCOMPLETE
+            else:
+                status = patients.PatientQueryResult.STATUS_NOT_COMPLETED
+            patients.remember_query_result(patient,
+                                  patients.ADHERENCE_SOURCE_IVR,
+                                  status)
             return http.HttpResponse()
         # whoops
         logger.error("patient_ivr_complete called with no result data!!")
-        return http.HttpServerErrorResponse()
+        patients.remember_query_result(patient,
+                              patients.ADHERENCE_SOURCE_IVR,
+                              patients.PatientQueryResult.STATUS_ERROR)
+        return http.HttpResponseServerError()
     except Exception,e:
         logger.exception(e)
-        return http.HttpServerErrorResponse()
+        patients.remember_query_result(patient,
+                              patients.ADHERENCE_SOURCE_IVR,
+                              patients.PatientQueryResult.STATUS_ERROR)
+        return http.HttpResponseServerError()
 
 @csrf_exempt
 def patient_ivr_callback(request, patient_id):
@@ -276,7 +316,7 @@ def patient_ivr_callback(request, patient_id):
         return http.HttpResponse(json.dumps(to_return))
     except Exception,e:
         logger.exception(e)
-        return http.HttpServerErrorResponse()
+        return http.HttpResponseServerError()
         
 @login_required
 def patient_pill_report(request, patient_id):

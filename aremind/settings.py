@@ -237,6 +237,9 @@ STATICFILES_FINDERS =(
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'))
 
+import djcelery
+djcelery.setup_loader()
+
 from celery.schedules import crontab
 from apps.utils.schedule import EveryFourDays
 
@@ -270,9 +273,7 @@ CELERYBEAT_SCHEDULE = {
 
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
-import djcelery
-djcelery.setup_loader()
-
+CELERYD_MAX_TASKS_PER_CHILD = 2
 
 INSTALLED_BACKENDS = {}
 

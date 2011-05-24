@@ -54,3 +54,10 @@ class PatientDataPayloadAdmin(admin.ModelAdmin):
         except Exception as e:
             messages.error(request, u"Error parsing patient data: %s" % unicode(e))
 admin.site.register(patients.PatientDataPayload, PatientDataPayloadAdmin)
+
+admin.site.register(patients.PatientPillsTaken)
+
+class PatientQueryResultAdmin(admin.ModelAdmin):
+    list_display = ('datetime','patient','result_status','adherence_source')
+    ordering = ('-datetime',)
+admin.site.register(patients.PatientQueryResult, PatientQueryResultAdmin)

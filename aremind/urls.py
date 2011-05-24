@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     (r'^admin/', include(admin.site.urls)),
+    (r'^', include('decisiontree.urls')),
     
     # RapidSMS core URLs
     (r'^account/', include('rapidsms.urls.login_logout')),
@@ -32,7 +33,7 @@ urlpatterns = patterns('',
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
     (r'^registration/', include('rapidsms.contrib.registration.urls')),
-    (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
+#    (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^broadcast/', include('aremind.apps.broadcast.urls')),
     (r'^adherence/', include('aremind.apps.adherence.urls')),
     (r'^appointments/', include('aremind.apps.reminders.urls')),
@@ -43,7 +44,7 @@ urlpatterns = patterns('',
     (r'^rosetta/', include('rosetta.urls')),
     (r'^selectable/', include('selectable.urls')),
 
-    url(r'^tropo.py', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),                       
+    url(r'^tropo/$', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),                       
 )
 
 if settings.DEBUG:
@@ -58,3 +59,12 @@ if settings.DEBUG:
         )
     )
 
+    # For testing
+    urlpatterns += patterns('',
+        # ...
+        url(r'^httptester/$',
+            'threadless_router.backends.httptester.views.generate_identity',
+            {'backend_name': 'httptester'}, name='httptester-index'),
+        (r'^httptester/', include('threadless_router.backends.httptester.urls')),
+        # ...
+    )

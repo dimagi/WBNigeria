@@ -1,0 +1,24 @@
+#inner .col-1 { width: 35%; }
+#inner .col-2 { width: 65%; }
+
+table#adherence_report {
+    width: 100%
+}
+
+table#adherence_report th {
+    font-weight: bold;
+}
+
+table.patient-adherence {
+    width: 100%
+}
+
+ul#adherence-nav {
+    margin-left: 0;
+    padding: 0;
+}
+
+ul#adherence-nav li {
+    list-style: none outside none;
+    margin-bottom: 5px;
+}

@@ -143,4 +143,14 @@ class PatientRemindersForm(forms.ModelForm):
 class PatientOnetimeMessageForm(forms.Form):
     message = forms.CharField(label="Message", max_length=140, min_length=1, 
                               widget=forms.Textarea)
+
+
+class PillHistoryForm(forms.ModelForm):
     
+    class Meta(object):
+        model = patients.PatientPillsTaken
+        fields = ('date', 'num_pills', )
+
+    def __init__(self, *args, **kwargs):
+        super(PillHistoryForm, self).__init__(*args, **kwargs)
+        self.fields['date'].widget.attrs.update({'class': 'datepicker'})

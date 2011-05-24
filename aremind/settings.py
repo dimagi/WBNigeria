@@ -19,12 +19,12 @@ INSTALLED_APPS = [
     "aremind.apps.wisepill",
 
     # the essentials.
-    "django_nose",
     "djtables",
     "rapidsms",
 
     "djcelery",
     "threadless_router.celery",
+    "decisiontree",
 
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "pagination",
     "django_sorting",
     "south",
+    "django_nose",
     "rosetta",
     "selectable",
     # "gunicorn",
@@ -61,7 +62,7 @@ INSTALLED_APPS = [
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     # "rapidsms.contrib.registration",
-    # "rapidsms.contrib.scheduler",
+    #"rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
  
     # this app should be last, as it will always reply with a help message
@@ -91,7 +92,6 @@ RAPIDSMS_TABS = [
  #   ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 
 #    ("aremind.apps.reminder.views.dashboard", "Reminder"),
-
 ]
 
 
@@ -128,9 +128,9 @@ STATIC_ROOT = os.path.join(PROJECT_PATH, '..', 'static_files')
 
 # Specify a logo URL for the dashboard layout.html. This logo will show up
 # at top left for every tab
-LOGO_LEFT_URL = '%simages/trialconnect.png' % STATIC_URL
-LOGO_RIGHT_URL = '%simages/tatrc.png' % STATIC_URL
-SITE_TITLE = " "
+LOGO_LEFT_URL = " "
+LOGO_RIGHT_URL = " "
+SITE_TITLE = "ARemind"
 BASE_TEMPLATE = "layout.html"
 
 # this is required for the django.contrib.sites tests to run, but also
@@ -146,8 +146,8 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
+    "django.core.context_processors.static",
     "django.core.context_processors.request",
-    "staticfiles.context_processors.static",
 
     #this is for a custom logo on the dashboard (see LOGO_*_URL in settings, above)
     "rapidsms.context_processors.logo",
@@ -222,18 +222,27 @@ DEFAULT_CONFIRMATIONS_GROUP_NAME = 'Confirmation Recipients'
 
 #The default backend to be used when creating new patient contacts
 #on POST submission of patient data from their server
-DEFAULT_BACKEND_NAME = "twilio"
+DEFAULT_BACKEND_NAME = "tropo"
 # unless overridden, all outgoing messages will be sent using this backend
-PRIMARY_BACKEND = 'twilio'
+PRIMARY_BACKEND = 'tropo'
 # if set, the message tester app will always use this backend
-TEST_MESSAGER_BACKEND = 'twilio'
+TEST_MESSAGER_BACKEND = 'tropo'
 
 RAPIDSMS_HANDLERS_EXCLUDE_APPS = []
+
+STATICFILES_FINDERS =(
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+)
 
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'))
 
+import djcelery
+djcelery.setup_loader()
+
 from celery.schedules import crontab
+from apps.utils.schedule import EveryFourDays
 
 CELERYBEAT_SCHEDULE = {
     "adherence-reminder-scheduler": {
@@ -256,13 +265,20 @@ CELERYBEAT_SCHEDULE = {
 #        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
 #        "schedule": crontab(hour=12, minute=0),
 #    },
+    "adherence-survey-kickoff": {
+        "task": "aremind.apps.adherence.tasks.KickoffAdherenceSurveysTask",
+        "schedule": EveryFourDays(hour=12),
+        #"schedule": crontab(minute=7), # that many minutes after each hour
+    },
+    "decisiontree-tick": {
+        "task": "decisiontree.tasks.PeriodicTask",
+        "schedule": crontab(),  # every minute
+    },
 }
 
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
-import djcelery
-djcelery.setup_loader()
-
+CELERYD_MAX_TASKS_PER_CHILD = 2
 
 INSTALLED_BACKENDS = {}
 

@@ -10,8 +10,12 @@ INSTALLED_BACKENDS = {
         "ENGINE": "rtropo.outgoing",
         'config': {
             'encoding' : 'UTF-8',
+            # Tropo application:
+            #   account 'aremind'
+            #   app 'aremind_staging'
             'number': '+1-919-500-7767',
-            'messaging_token': 'xxxx',
+            'messaging_token': '01ebb5bed919a94f8edd5978adf3766b78c0e260765778034d83dc087ff2c0ad302ed22a19359e56889a8e6e',
+            'voice_token': '01eb83b87acdbd459e55e777bf482ff39b3b7e7ea7b071737131e19669b99e7ea0eefa4ec2443e86ca31f143',
         }
     },
 }

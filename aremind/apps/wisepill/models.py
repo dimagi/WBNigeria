@@ -44,6 +44,7 @@ class WisepillMessage(models.Model):
 
     def _parse_message(self):
         """Parse the raw message into the other fields.
+        (Only the other fields that we currently care about.)
 
 Example message:
 
@@ -71,9 +72,9 @@ CR/LF
         self.msisdn = values['CN']
         # datetime format=DDMMYYHHMMSS
         t = values['T']
-        (dd,mm,yy,hh,mm,ss) = [int(x) for x in (t[0:2],t[2:4],t[4:6],t[6:8],t[8:10],t[10:12])]
+        (dd,month,yy,hh,minute,ss) = [int(x) for x in (t[0:2],t[2:4],t[4:6],t[6:8],t[8:10],t[10:12])]
         yy += 2000  # Y2K!
-        self.timestamp = datetime.datetime(yy,mm,dd,hh,mm,ss)
+        self.timestamp = datetime.datetime(yy,month,dd,hh,minute,ss)
         # try to find the patient
         patients = Patient.objects.filter(wisepill_msisdn = self.msisdn)
         if len(patients) == 1:

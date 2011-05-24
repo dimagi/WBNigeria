@@ -1,6 +1,7 @@
 $(document).ready(function() {
     jQuery.ajaxSettings.traditional = true;
     $('.timepicker').datetimepicker({timeOnly: true});
+    $('.datepicker').datepicker();
     $('.datetimepicker').datetimepicker();
     $('.multiselect').multiselect();
     var frequency = $('#id_frequency');

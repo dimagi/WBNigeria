@@ -71,5 +71,41 @@
         </tbody>
     </table>
 
+    <h2>Query Schedules</h2>
+    <p>Queries are scheduled every four days at the specified time of day,
+      starting on the specified start day.</p>
+    {% autosort query_schedules %}
+    {% autopaginate query_schedules 15 %}
+    <p><a class='button add' title='Add Query Schedule' href="{% url adherence-create-query-schedule %}" >Add query schedule...</a></p>
+    <table class='sortable pagination patient-adherence'>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Start date</th>
+          <th>Time of day</th>
+          <th>Last run</th>
+          <th>Active</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+        <tbody>
+          {% for schedule in query_schedules %}
+          <tr class="{% cycle 'odd' 'even' %}">
+            <td>{{ schedule.id }}</td>
+            <td>{{ schedule.start_date }}</td>
+            <td>{{ schedule.time_of_day }}</td>
+            <td>{{ schedule.last_run }}</td>
+            <td>{{ schedule.active|yesno|capfirst }}</td>
+            <td class='actions'>
+              <a class='button' title='Edit' href='{% url adherence-edit-query-schedule schedule.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>
+              <a class='button' title='Force query' href='{% url adherence-force-query-schedule schedule.pk %}'><span class='ui-icon ui-icon-mail-closed'></span></a>
+              <a class='button' title='Delete' href='{% url adherence-delete-query-schedule schedule.pk %}'><span class='ui-icon ui-icon-closethick'></span></a>    
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot><tr><td colspan="6">{% paginate %}</td></tr></tfoot>
+    </table>
 </div>
 {% endblock %}

@@ -240,7 +240,6 @@ import djcelery
 djcelery.setup_loader()
 
 from celery.schedules import crontab
-from apps.utils.schedule import EveryFourDays
 
 CELERYBEAT_SCHEDULE = {
     "adherence-reminder-scheduler": {
@@ -263,17 +262,13 @@ CELERYBEAT_SCHEDULE = {
 #        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
 #        "schedule": crontab(hour=12, minute=0),
 #    },
-    "adherence-survey-kickoff": {
-        "task": "aremind.apps.adherence.tasks.KickoffAdherenceSurveysTask",
-        "schedule": EveryFourDays(hour=12),
-        #"schedule": crontab(minute=7), # that many minutes after each hour
-    },
     "decisiontree-tick": {
         "task": "decisiontree.tasks.PeriodicTask",
         "schedule": crontab(),  # every minute
     },
 }
 
+# Store the schedule in the Django database
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 CELERYD_MAX_TASKS_PER_CHILD = 2

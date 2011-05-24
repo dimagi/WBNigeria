@@ -6,7 +6,7 @@ import logging
 from rapidsms.apps.base import AppBase
 from rapidsms.messages import OutgoingMessage
 
-from aremind.apps.adherence.models import Reminder, SendReminder
+from aremind.apps.adherence.models import Reminder, SendReminder, QuerySchedule
 from aremind.apps.patients.models import Patient
 from decisiontree.models import Question, Answer, Tree, TreeState, Transition
 
@@ -73,6 +73,9 @@ class AdherenceApp(AppBase):
         self.queue_outgoing_messages()
         # send queued messages
         self.send_messages()
+        # Start any adherence queries
+        for query_schedule in QuerySchedule.objects.filter(active=True):
+            query_schedule.start_scheduled_queries()
 
 def make_tree_for_day(date):
     """Create a decisiontree Tree in the database for the given date.

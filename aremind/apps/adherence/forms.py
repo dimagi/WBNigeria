@@ -2,7 +2,7 @@ from django import forms
 
 from rapidsms.models import Contact
 
-from aremind.apps.adherence.models import Reminder, Feed, Entry
+from aremind.apps.adherence.models import Reminder, Feed, Entry, QuerySchedule
 
 
 class ReminderForm(forms.ModelForm):
@@ -69,3 +69,13 @@ class EntryForm(forms.ModelForm):
         super(EntryForm, self).__init__(*args, **kwargs)
         self.fields['published'].widget.attrs.update({'class': 'datetimepicker'})
 
+class QueryScheduleForm(forms.ModelForm):
+    class Meta(object):
+        model = QuerySchedule
+
+    def __init__(self, *args, **kwargs):
+        super(QueryScheduleForm, self).__init__(*args, **kwargs)
+        self.fields['start_date'].label = 'Start date'
+        self.fields['start_date'].required = True
+        self.fields['start_date'].widget.attrs['class'] = 'datepicker'
+        self.fields['time_of_day'].widget.attrs['class'] = 'timepicker'

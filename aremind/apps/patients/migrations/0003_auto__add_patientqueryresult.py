@@ -36,7 +36,8 @@ class Migration(SchemaMigration):
             'pin': ('django.db.models.fields.CharField', [], {'max_length': '4', 'blank': 'True'}),
             'raw_data': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'patients'", 'null': 'True', 'to': "orm['patients.PatientDataPayload']"}),
             'reminder_time': ('django.db.models.fields.TimeField', [], {'null': 'True', 'blank': 'True'}),
-            'subject_number': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '20'})
+            'subject_number': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '20'}),
+            'wisepill_msisdn': ('django.db.models.fields.CharField', [], {'max_length': '12', 'blank': 'True'})
         },
         'patients.patientdatapayload': {
             'Meta': {'object_name': 'PatientDataPayload'},

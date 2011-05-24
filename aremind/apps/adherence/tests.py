@@ -1,9 +1,11 @@
 import datetime
 
+from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from aremind.apps.adherence.models import Reminder, SendReminder, Feed, Entry
+from aremind.apps.adherence.models import (Reminder, SendReminder, Feed, Entry,
+                                           QuerySchedule)
 from aremind.apps.patients.tests import PatientsCreateDataTest
 
 
@@ -13,6 +15,7 @@ __all__ = (
     'CreateReminderViewTest',
     'EditReminderViewTest',
     'DeleteReminderViewTest',
+    'QueryScheduleTest',
 )
 
 
@@ -311,3 +314,66 @@ class DeleteReminderViewTest(AdherenceCreateDataTest):
         self.assertRedirects(response, reverse('adherence-dashboard'))
         self.assertRaises(Reminder.DoesNotExist, Reminder.objects.get, pk=self.test_reminder.pk)
 
+class QueryScheduleTest(TestCase):
+
+    def setUp(self):
+        super(QueryScheduleTest, self).setUp()
+        self.user = User.objects.create_user('test', 'a@b.com', 'abc')
+        self.assertTrue(self.client.login(username='test', password='abc'),
+                        "User login failed")
+
+    def test_start_five_days_ago_never_run(self):
+        schedule = QuerySchedule(start_date = datetime.date.today() -
+                                       datetime.timedelta(days=5),
+                                 time_of_day = datetime.time(hour=0),
+                                 last_run = None)
+        schedule.save()
+        self.assertTrue(schedule.should_run(force=False))
+        self.assertTrue(schedule.should_run(force=True))
+
+    def test_start_five_days_ago_run_two_days_ago(self):
+        schedule = QuerySchedule(start_date = datetime.date.today() -
+                                     datetime.timedelta(days=5),
+                                 time_of_day = datetime.time(hour=0),
+                                 last_run = datetime.datetime.now() -
+                                     datetime.timedelta(days=3))
+        schedule.save()
+        self.assertFalse(schedule.should_run(force=False))
+        self.assertTrue(schedule.should_run(force=True))
+
+    def test_brand_new(self):
+        schedule = QuerySchedule(start_date = datetime.date.today(),
+                                 time_of_day = datetime.time(hour=0),
+                                 last_run = None)
+        schedule.save()
+        self.assertTrue(schedule.should_run(force=False))
+        self.assertTrue(schedule.should_run(force=True))
+
+    def test_not_active(self):
+        """Test that inactive schedules don't want to run"""
+        schedule = QuerySchedule(start_date = datetime.date.today(),
+                                 time_of_day = datetime.time(hour=0),
+                                 last_run = None,
+                                 active = False)
+        schedule.save()
+        self.assertFalse(schedule.should_run(force=False))
+        self.assertTrue(schedule.should_run(force=True))
+        
+    def test_delete_view(self):
+        """Test using the delete view"""
+        # need a schedule, content not important
+        schedule = QuerySchedule(start_date = datetime.date.today(),
+                                 time_of_day = datetime.time(hour=0),
+                                 last_run = None,
+                                 active = False)
+        schedule.save()
+        response = self.client.get(reverse('adherence-delete-query-schedule',
+                                           args=(schedule.pk,)),
+                                   follow=False)
+        self.assertContains(response, 'Are you sure')
+        response = self.client.post(reverse('adherence-delete-query-schedule',
+                                           args=(schedule.pk,)))
+        self.assertRedirects(response, reverse('adherence-dashboard'))
+        # our schedule should no longer exist
+        self.assertRaises(QuerySchedule.DoesNotExist, QuerySchedule.objects.get,
+                          pk=schedule.pk)

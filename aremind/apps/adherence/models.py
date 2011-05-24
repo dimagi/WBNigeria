@@ -411,25 +411,29 @@ class QuerySchedule(models.Model):
         return msg.format(start_date=self.start_date, time_of_day=self.time_of_day,
                           query_type=self.get_query_type_display())
 
-    def start_scheduled_queries(self, force=False):
-        """Start any queries that are scheduled to start now."""
-        if not self.active and not force:
-            return
+    def should_run(self, force=False):
+        """Return True if it's time to run this scheduled query."""
+        if force:
+            return True
+        if not self.active:
+            return False
         today = datetime.date.today()
         time_of_day = datetime.datetime.now().time()
-        if time_of_day < self.time_of_day and not force:
+        if time_of_day < self.time_of_day:
             # too early in the day for this one
-            return
+            return False
         schedule_it = False
-        if force:
-            schedule_it = True
-        elif self.last_run is None:
+        if self.last_run is None:
             schedule_it = True
         else:
             days_since = today - self.last_run.date()
             if days_since >= datetime.timedelta(days=4):
                 schedule_it = True
-        if schedule_it:
+        return schedule_it
+
+    def start_scheduled_queries(self, force=False):
+        """Start any queries that are scheduled to start now."""
+        if self.should_run(force):
             logger.debug("Starting query from schedule %s" % self)
             from aremind.apps.patients.views import (start_patient_ivr,
                                                      start_patient_sms)

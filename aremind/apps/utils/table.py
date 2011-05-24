@@ -5,9 +5,8 @@ from django.template.context import RequestContext
 from rapidsms.models import Contact
 from django.http import HttpResponse
 from django.core import serializers
-from apps.reminder.models import Group
+from apps.groups.models import Group
 from django.db.models.query_utils import Q
-from aremind.apps.reminder.forms import ReminderForm
 
 
 #    Example response:

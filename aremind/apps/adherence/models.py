@@ -197,6 +197,7 @@ class Feed(models.Model):
     objects = FeedManager()
 
     def __unicode__(self):
+        # pylint: disable=E1101
         return u"{name} ({feed_type})".format(name=self.name, feed_type=self.get_feed_type_display())
 
     def fetch_feed(self):
@@ -223,12 +224,13 @@ class Feed(models.Model):
         api = twitter.Api()
         try:
             timeline = api.GetUserTimeline(self.name)
-        except TwitterError as e:
+        except twitter.TwitterError as e:
             logger.error(e)
             return None
         for status in timeline:
             if not self.description:
                 self.description = status.user.description
+            # pylint: disable=E1101
             self.entries.get_or_create(
                 uid=status.id,
                 defaults={
@@ -251,6 +253,7 @@ class Feed(models.Model):
             pub_date = self._get_rss_pub_date(entry)    
             uid = self._get_rss_uid(entry)
             content = self._get_rss_content(entry)
+            # pylint: disable=E1101
             self.entries.get_or_create(
                 uid=uid,
                 defaults={

@@ -68,6 +68,7 @@ class BroadcastForm(forms.ModelForm):
             broadcast.date = datetime.datetime.now()
         if commit:
             broadcast.save()
+            # pylint: disable=E1101
             self.save_m2m()
             frequency = self.cleaned_data['schedule_frequency']
             if frequency != 'weekly':

@@ -106,6 +106,7 @@ class PatientQueryResult(models.Model):
 
     def __unicode__(self):
         msg = u'Patient {id} query by {adherence_source} on {datetime} result was {status}'
+        # pylint: disable=E1101
         return msg.format(id=self.patient.subject_number,
                           datetime=self.datetime,
                           adherence_source=self.get_adherence_source_display(),

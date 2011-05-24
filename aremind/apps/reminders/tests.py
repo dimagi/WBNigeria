@@ -3,35 +3,29 @@ Tests for the appointment reminders app.
 """
 
 import datetime
-import logging
 import random
-import re
-from lxml import etree
 
-from django.test import TestCase
 from django.conf import settings
 from django.core import mail
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User, Permission
-from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
-from rapidsms.tests.harness import MockRouter, MockBackend
+from rapidsms.tests.harness import MockRouter
 from rapidsms.messages.incoming import IncomingMessage
-from rapidsms.messages.outgoing import OutgoingMessage
 
 from aremind.apps.groups.models import Group
 from aremind.apps.patients.models import Patient
 from aremind.apps.patients.tests import PatientsCreateDataTest
 from aremind.apps.reminders import models as reminders
-from aremind.tests.testcases import (CreateDataTest, FlushTestScript,
-                                    patch_settings)
-from aremind.apps.reminders.app import RemindersApp
+from aremind.apps.reminders.app import RemindersApp, scheduler_callback
+from aremind.apps.reminders.app import daily_email_callback
 
 from threadless_router.router import Router
 from threadless_router.tests.base import SimpleRouterMixin
 
 
 class RemindersCreateDataTest(PatientsCreateDataTest):
+    """Test creating reminder data"""
 
     def create_notification(self, data=None):
         data = data or {}
@@ -82,6 +76,7 @@ class RemindersCreateDataTest(PatientsCreateDataTest):
 
 
 class ViewsTest(RemindersCreateDataTest):
+    """Test views"""
 
     def setUp(self):
         self.user = User.objects.create_user('test', 'a@b.com', 'abc')
@@ -275,7 +270,8 @@ class RemindersConfirmHandlerTest(RemindersCreateDataTest):
         self.assertEqual(sent_notif[0].status, 'confirmed')
 
     def test_forward_broadcast(self):
-        """Confirmations should be forwarded to DEFAULT_CONFIRMATIONS_GROUP_NAME"""
+        """Confirmations should be forwarded to
+        DEFAULT_CONFIRMATIONS_GROUP_NAME"""
         now = datetime.datetime.now()
         notification = reminders.Notification.objects.create(num_days=1,
                                                              time_of_day=now)
@@ -286,22 +282,24 @@ class RemindersConfirmHandlerTest(RemindersCreateDataTest):
                                                   appt_date=now,
                                                   date_to_send=now,
                                                   date_queued=now)
-        msg = self._send(self.reg_conn, '1')
-        group = Group.objects.get(name=settings.DEFAULT_CONFIRMATIONS_GROUP_NAME)
+        self._send(self.reg_conn, '1')
+        group = Group.objects.get(name=settings.
+                                  DEFAULT_CONFIRMATIONS_GROUP_NAME)
         broadcasts = group.broadcasts.filter(schedule_frequency='one-time')
         self.assertEqual(broadcasts.count(), 1)
 
 
 class RemindersScriptedTest(SimpleRouterMixin, RemindersCreateDataTest):
+    """Test scripted reminders"""
 
     def test_scheduler(self):
         contact = self.create_contact({'pin': '1234'})
         backend = self.create_backend(data={'name': 'mockbackend'})
-        connection = self.create_connection({'contact': contact,
+        self.create_connection({'contact': contact,
                                              'backend': backend})
         now = datetime.datetime.now()
-        notification = reminders.Notification.objects.create(num_days=1,
-                                                             time_of_day=now)
+        reminders.Notification.objects.create(num_days=1,
+                                              time_of_day=now)
         tomorrow = datetime.date.today() + datetime.timedelta(days=1)
         Patient.objects.create(contact=contact,
                                          date_enrolled=datetime.date.today(),
@@ -309,7 +307,6 @@ class RemindersScriptedTest(SimpleRouterMixin, RemindersCreateDataTest):
                                          mobile_number='tester',
                                          next_visit=tomorrow)
         # run cronjob
-        from aremind.apps.reminders.app import scheduler_callback
         scheduler_callback(self.router)
         queued = contact.sent_notifications.filter(status='queued').count()
         sent = contact.sent_notifications.filter(status='sent').count()
@@ -323,10 +320,10 @@ class RemindersScriptedTest(SimpleRouterMixin, RemindersCreateDataTest):
     def test_patient_reminder_time(self):
         contact = self.create_contact({'pin': '1234'})
         backend = self.create_backend(data={'name': 'mockbackend'})
-        connection = self.create_connection({'contact': contact,
+        self.create_connection({'contact': contact,
                                              'backend': backend})
         now = datetime.datetime.now()
-        notification = reminders.Notification.objects.create(num_days=1,
+        reminders.Notification.objects.create(num_days=1,
                                                              time_of_day=now)
         tomorrow = datetime.date.today() + datetime.timedelta(days=1)
         next_hour = now + + datetime.timedelta(hours=1)
@@ -337,17 +334,18 @@ class RemindersScriptedTest(SimpleRouterMixin, RemindersCreateDataTest):
                                          next_visit=tomorrow,
                                          reminder_time=next_hour.time())
         # run cronjob
-        from aremind.apps.reminders.app import scheduler_callback
         scheduler_callback(self.router)
         queued = contact.sent_notifications.filter(status='queued').count()
         sent = contact.sent_notifications.filter(status='sent').count()
-        # patient message should be queued since they have asked for a later time
+        # patient message should be queued since they have
+        # asked for a later time
         self.assertEqual(queued, 1)
         # no messages ready to be sent
         self.assertEqual(sent, 0)
         message = contact.sent_notifications.filter(status='queued')[0]
         self.assertTrue(message.date_sent is None)
-        self.assertEqual(message.date_to_send, datetime.datetime.combine(now, patient.reminder_time))
+        self.assertEqual(message.date_to_send,
+                         datetime.datetime.combine(now, patient.reminder_time))
 
 
 class PatientManagerTest(RemindersCreateDataTest):
@@ -362,8 +360,8 @@ class PatientManagerTest(RemindersCreateDataTest):
     def test_simple_confirmed(self):
         """Basic confirmed query test."""
         appt_date = datetime.date.today()
-        confirmed = self.create_confirmed_notification(self.test_patient, appt_date)
-        unconfirmed = self.create_unconfirmed_notification(self.other_patient, appt_date)
+        self.create_confirmed_notification(self.test_patient, appt_date)
+        self.create_unconfirmed_notification(self.other_patient, appt_date)
         qs = Patient.objects.confirmed_for_date(appt_date)
         self.assertTrue(self.test_patient in qs)
         self.assertFalse(self.other_patient in qs)
@@ -372,8 +370,8 @@ class PatientManagerTest(RemindersCreateDataTest):
     def test_simple_unconfirmed(self):
         """Basic unconfirmed query test."""
         appt_date = datetime.date.today()
-        confirmed = self.create_confirmed_notification(self.test_patient, appt_date)
-        unconfirmed = self.create_unconfirmed_notification(self.other_patient, appt_date)
+        self.create_confirmed_notification(self.test_patient, appt_date)
+        self.create_unconfirmed_notification(self.other_patient, appt_date)
         qs = Patient.objects.unconfirmed_for_date(appt_date)
         self.assertFalse(self.test_patient in qs)
         self.assertTrue(self.other_patient in qs)
@@ -382,8 +380,8 @@ class PatientManagerTest(RemindersCreateDataTest):
     def test_multiple_notifications_confirmed(self):
         """Confirmed patients returned should be distinct."""
         appt_date = datetime.date.today()
-        confirmed = self.create_confirmed_notification(self.test_patient, appt_date)
-        confirmed_again = self.create_confirmed_notification(self.test_patient, appt_date)
+        self.create_confirmed_notification(self.test_patient, appt_date)
+        self.create_confirmed_notification(self.test_patient, appt_date)
         qs = Patient.objects.confirmed_for_date(appt_date)
         self.assertTrue(self.test_patient in qs)
         self.assertTrue(qs.count(), 1)
@@ -391,8 +389,8 @@ class PatientManagerTest(RemindersCreateDataTest):
     def test_multiple_notifications_unconfirmed(self):
         """Unconfirmed patients returned should be distinct."""
         appt_date = datetime.date.today()
-        notified = self.create_unconfirmed_notification(self.test_patient, appt_date)
-        notified_again = self.create_unconfirmed_notification(self.test_patient, appt_date)
+        self.create_unconfirmed_notification(self.test_patient, appt_date)
+        self.create_unconfirmed_notification(self.test_patient, appt_date)
         qs = Patient.objects.unconfirmed_for_date(appt_date)
         self.assertTrue(self.test_patient in qs)
         self.assertTrue(qs.count(), 1)
@@ -400,9 +398,9 @@ class PatientManagerTest(RemindersCreateDataTest):
     def test_mixed_messages_confirmed(self):
         """Only need to confirm once to be considered confirmed."""
         appt_date = datetime.date.today()
-        notified = self.create_unconfirmed_notification(self.test_patient, appt_date)
-        confirmed = self.create_confirmed_notification(self.test_patient, appt_date)
-        notified_again = self.create_unconfirmed_notification(self.test_patient, appt_date)
+        self.create_unconfirmed_notification(self.test_patient, appt_date)
+        self.create_confirmed_notification(self.test_patient, appt_date)
+        self.create_unconfirmed_notification(self.test_patient, appt_date)
         qs = Patient.objects.confirmed_for_date(appt_date)
         self.assertTrue(self.test_patient in qs)
         self.assertTrue(qs.count(), 1)
@@ -414,7 +412,8 @@ class DailyReportTest(RemindersCreateDataTest):
         super(DailyReportTest, self).setUp()
         group_name = settings.DEFAULT_DAILY_REPORT_GROUP_NAME
         self.group = self.create_group(data={'name': group_name})
-        self.test_contact = self.create_contact(data={'email': 'test@example.com'})
+        self.test_contact = self.create_contact(data={'email':
+                                                      'test@example.com'})
         self.group.contacts.add(self.test_contact)
         self.test_patient = self.create_patient()
         self.other_patient = self.create_patient()
@@ -430,7 +429,6 @@ class DailyReportTest(RemindersCreateDataTest):
     def test_sending_mail(self):
         """Test email goes out the contacts in the daily report group."""
         # run email job
-        from aremind.apps.reminders.app import daily_email_callback
         daily_email_callback(self.router)
 
         self.assertEqual(len(mail.outbox), 1)
@@ -439,9 +437,10 @@ class DailyReportTest(RemindersCreateDataTest):
 
     def test_appointment_date(self):
         """Test email contains info for the appointment date."""
-        appt_date = datetime.date.today() + datetime.timedelta(days=7) # Default for email
-        confirmed = self.create_confirmed_notification(self.test_patient, appt_date)
-        unconfirmed = self.create_unconfirmed_notification(self.other_patient, appt_date)
+        # Default for email
+        appt_date = datetime.date.today() + datetime.timedelta(days=7) 
+        self.create_confirmed_notification(self.test_patient, appt_date)
+        self.create_unconfirmed_notification(self.other_patient, appt_date)
 
         # run email job
         from aremind.apps.reminders.app import daily_email_callback
@@ -457,8 +456,10 @@ class DailyReportTest(RemindersCreateDataTest):
         """Test changing appointment date via callback kwarg."""
         days = 2
         appt_date = datetime.date.today() + datetime.timedelta(days=days)
-        confirmed = self.create_confirmed_notification(self.test_patient, appt_date)
-        unconfirmed = self.create_unconfirmed_notification(self.other_patient, appt_date)
+        confirmed = self.create_confirmed_notification(self.test_patient,
+                                                       appt_date)
+        unconfirmed = self.create_unconfirmed_notification(self.other_patient,
+                                                           appt_date)
 
         # run email job
         from aremind.apps.reminders.app import daily_email_callback
@@ -493,7 +494,8 @@ class ManualConfirmationTest(RemindersCreateDataTest):
         self.test_patient = self.create_patient()
         self.appt_date = datetime.date.today()
         self.unconfirmed = self.create_unconfirmed_notification(self.test_patient, self.appt_date)
-        self.url = reverse('manually-confirm-patient', args=[self.unconfirmed.pk])
+        self.url = reverse('manually-confirm-patient',
+                           args=[self.unconfirmed.pk])
 
     def test_get_page(self):
         """Get manual confirmation page."""

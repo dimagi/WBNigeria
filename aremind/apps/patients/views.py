@@ -192,7 +192,7 @@ def patient_ivr_complete(request, patient_id):
             if error:
                 status = patients.PatientQueryResult.STATUS_ERROR
             elif incomplete:
-                status = patients.PatientQueryResult.STATUS_INCOMPLETE
+                status = patients.PatientQueryResult.STATUS_NOT_COMPLETED
             else:
                 status = patients.PatientQueryResult.STATUS_COMPLETE
             patients.remember_query_result(patient,

@@ -61,7 +61,7 @@ INSTALLED_APPS = [
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     # "rapidsms.contrib.registration",
-    "rapidsms.contrib.scheduler",
+    #"rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
  
     # this app should be last, as it will always reply with a help message
@@ -267,6 +267,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "aremind.apps.adherence.tasks.KickoffAdherenceSurveysTask",
         "schedule": EveryFourDays(hour=12),
         #"schedule": crontab(minute=7), # that many minutes after each hour
+    },
+    "decisiontree-tick": {
+        "task": "decisiontree.tasks.PeriodicTask",
+        "schedule": crontab(),  # every minute
     },
 }
 

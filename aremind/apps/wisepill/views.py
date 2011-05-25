@@ -30,7 +30,7 @@ def index(request):
 def make_fake_message(request, patient_id):
     """Make up a message for the patient's wisepill device
     and fake it coming in"""
-    logger.critical('make_fake_message')
+    logger.debug('make_fake_message')
     patient = get_object_or_404(Patient, pk=patient_id)
     msisdn = patient.wisepill_msisdn
     timestamp = datetime.datetime.now()
@@ -43,12 +43,12 @@ def make_fake_message(request, patient_id):
     # DDMMYYHHMMSS
     time_value = timestamp.strftime("%d%m%y%H%M%S")
 
-    text = "@{delay_value},CN={msisdn},SN=fake,T={time_value},S=20,B=3800,PC=1,U=fake,M=1,CE=0".format(**locals())
+    text = "@={delay_value},CN={msisdn},SN=fake,T={time_value},S=20,B=3800,PC=1,U=fake,M=1,CE=0".format(**locals())
 
     connection = patient.contact.default_connection
 
     msg = IncomingMessage(connection=connection,
                           text=text)
-    return redirect('patient-list')
     router = Router()
     router.incoming(msg)    
+    return redirect('patient-list')

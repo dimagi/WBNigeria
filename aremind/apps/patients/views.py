@@ -109,24 +109,31 @@ def patient_onetime_message(request, patient_id):
     context = { 'patient': patient, 'form': form }
     return render(request, 'patients/patient_onetime_message.html', context)
 
-# FIXME: This might just be for testing - take out later?
-@login_required
-def patient_start_adherence_tree(request, patient_id):
-    """Start adherence tree interaction with patient."""
+# Utility to start SMS query with a patient, possible outside the
+# context of a request
+def start_patient_sms(patient_id):
     patient = get_object_or_404(patients.Patient, pk=patient_id)
     tree = make_tree_for_day(datetime.date.today())
     start_tree_for_patient(tree, patient)
+
+@login_required
+def patient_start_adherence_tree(request, patient_id):
+    """Start adherence tree interaction with patient."""
+    start_patient_sms(patient_id)
     return redirect('/httptester/httptester/%s/' % patient.contact.default_connection.identity)
 
-# FIXME: This might just be for testing - take out later?
-@login_required
-def patient_start_ivr(request, patient_id):
-    """Start interactive voice interaction with patient."""
+# Utility to start IVR with a patient, possibly outside the context of a request
+def start_patient_ivr(patient_id):
     # what's our callback URL?
     url = reverse('patient-ivr-callback', kwargs={'patient_id':patient_id})
     backend = Router().backends['tropo']
     backend.call_tropo(url, message_type='voice')
     # tropo will POST and our callback will be invoked, below
+
+@login_required
+def patient_start_ivr(request, patient_id):
+    """Start interactive voice interaction with patient."""
+    start_patient_ivr(patient_id)
     return redirect('patient-list')
 
 @csrf_exempt

@@ -7,8 +7,9 @@ from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
-from aremind.apps.adherence.forms import ReminderForm, FeedForm, EntryForm
-from aremind.apps.adherence.models import Reminder, Feed, Entry
+from aremind.apps.adherence.forms import (ReminderForm, FeedForm, EntryForm,
+                                          QueryScheduleForm)
+from aremind.apps.adherence.models import Reminder, Feed, Entry, QuerySchedule
 from aremind.apps.patients.models import PatientQueryResult
 
 
@@ -19,9 +20,11 @@ logger = logging.getLogger('adherence.views')
 def dashboard(request):
     reminders = Reminder.objects.all().annotate(patient_count=Count('recipients'))
     feeds = Feed.objects.all().annotate(patient_count=Count('subscribers'))
+    query_schedules = QuerySchedule.objects.all()
     context = {
         'reminders': reminders,
         'feeds': feeds,
+        'query_schedules': query_schedules,
     }
     return render(request, 'adherence/dashboard.html', context)
 
@@ -165,3 +168,38 @@ def query_results(request):
     return render(request, 'adherence/query_results_report.html',
                   context)
     
+@login_required
+def create_edit_query_schedule(request, schedule_id=None):
+    if schedule_id:
+        schedule = get_object_or_404(QuerySchedule, pk=schedule_id)
+    else:
+        schedule = QuerySchedule()
+    if request.method == 'POST':
+        form = QueryScheduleForm(request.POST, instance=schedule)
+        if form.is_valid():
+            form.save()
+            messages.info(request, "Query schedule saved successfully")
+            return redirect('adherence-dashboard')
+    else:
+        form = QueryScheduleForm(instance=schedule)
+
+    context = {
+        'form': form,
+        'schedule': schedule,
+    }
+    return render(request, 'adherence/create_edit_query_schedule.html', context)
+
+@login_required
+def force_query_schedule(request, schedule_id):
+    schedule = get_object_or_404(QuerySchedule, pk=schedule_id)
+    schedule.start_scheduled_queries(force=True)
+
+@login_required
+def delete_query_schedule(request, schedule_id):
+    schedule = get_object_or_404(QuerySchedule, pk=schedule_id)
+    if request.method == 'POST':
+        schedule.delete()
+        messages.info(request, 'Query schedule successfully deleted')
+        return redirect('adherence-dashboard')
+    context = {'schedule':schedule}
+    return render(request, 'adherence/delete_query_schedule.html', context)

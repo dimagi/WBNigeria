@@ -15,8 +15,10 @@ import feedparser
 from rapidsms import models as rapidsms
 import twitter
 
+from aremind.apps.groups.models import Group
 from aremind.apps.patients.models import Patient
-
+from aremind.apps.patients.models import (ADHERENCE_SOURCE, ADHERENCE_SOURCE_SMS,
+                                          ADHERENCE_SOURCE_IVR)
 logger = logging.getLogger('adherence.models')
 
 
@@ -393,3 +395,58 @@ def get_contact_message(contact):
     else:
         message = ""
     return message
+
+class QuerySchedule(models.Model):
+    start_date = models.DateField()
+    time_of_day = models.TimeField()
+    recipients = models.ManyToManyField(Group,
+                                        related_name='adherence_query_schedules')
+    query_type = models.IntegerField(choices=ADHERENCE_SOURCE)
+    last_run = models.DateTimeField(null=True,blank=True,editable=False)
+    active = models.BooleanField(default=True)
+    days_between = models.IntegerField()
+
+    def __unicode__(self):
+        msg = u"Schedule adherence queries starting on {start_date} "
+        msg = msg + u"every {days_between} days "
+        msg = msg + u"at {time_of_day} of type {query_type}"
+        return msg.format(start_date=self.start_date,
+                          time_of_day=self.time_of_day,
+                          query_type=self.get_query_type_display(),
+                          days_between=self.days_between)
+
+    def should_run(self, force=False):
+        """Return True if it's time to run this scheduled query."""
+        if force:
+            return True
+        if not self.active:
+            return False
+        today = datetime.date.today()
+        time_of_day = datetime.datetime.now().time()
+        if time_of_day < self.time_of_day:
+            # too early in the day for this one
+            return False
+        schedule_it = False
+        if self.last_run is None:
+            schedule_it = True
+        else:
+            days_since = today - self.last_run.date()
+            if days_since >= datetime.timedelta(days=self.days_between):
+                schedule_it = True
+        return schedule_it
+
+    def start_scheduled_queries(self, force=False):
+        """Start any queries that are scheduled to start now."""
+        if self.should_run(force):
+            logger.debug("Starting query from schedule %s" % self)
+            from aremind.apps.patients.views import (start_patient_ivr,
+                                                     start_patient_sms)
+            for group in self.recipients.all():
+                for contact in group.contacts.all():
+                    patient = Patient.objects.get(contact=contact)
+                    if self.query_type == ADHERENCE_SOURCE_SMS:
+                        start_patient_sms(patient.id)
+                    elif self.query_type == ADHERENCE_SOURCE_IVR:
+                        start_patient_ivr(patient.id)
+            self.last_run = datetime.datetime.now()
+            self.save()

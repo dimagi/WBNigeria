@@ -39,12 +39,25 @@ class WisepillMessage(models.Model):
         return self.message_type == WisepillMessage.DELAYED_EVENT
 
     def save(self, *args, **kwargs):
-        self._parse_message()
+        if self.sms_message is not None and self.sms_message != '':
+            self._parse_message()
+        self.set_patient()
         super(WisepillMessage,self).save(*args,**kwargs)
+
+    def set_patient(self):
+        """Point the patient field at the right patient, if possible.
+        (Does not save)"""
+        # try to find the patient
+        patients = Patient.objects.filter(wisepill_msisdn = self.msisdn)
+        if patients.count() == 1:
+            self.patient = patients[0]
+        else:
+            logger.debug("Unable to find patient for MSISDN %s" % self.msisdn)
 
     def _parse_message(self):
         """Parse the raw message into the other fields.
         (Only the other fields that we currently care about.)
+        (Does not save.)
 
 Example message:
 
@@ -75,9 +88,3 @@ CR/LF
         (dd,month,yy,hh,minute,ss) = [int(x) for x in (t[0:2],t[2:4],t[4:6],t[6:8],t[8:10],t[10:12])]
         yy += 2000  # Y2K!
         self.timestamp = datetime.datetime(yy,month,dd,hh,minute,ss)
-        # try to find the patient
-        patients = Patient.objects.filter(wisepill_msisdn = self.msisdn)
-        if len(patients) == 1:
-            self.patient = patients[0]
-        else:
-            logger.debug("Unable to find patient for MSISDN %s" % self.msisdn)

@@ -95,7 +95,7 @@ good-names=i,j,k,v,qs,urlpatterns,register,p,a,t,r,u,x,f,e,setUp,tearDown
 bad-names=foo,bar,baz,toto,tutu,tata
 
 # List of builtins function names that should not be used, separated by a comma
-bad-functions=map,filter,apply,input
+bad-functions=filter,apply,input
 
 
 # try to find bugs in the code using type inference

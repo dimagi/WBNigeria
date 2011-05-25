@@ -39,9 +39,12 @@ class WisepillMessage(models.Model):
         return self.message_type == WisepillMessage.DELAYED_EVENT
 
     def save(self, *args, **kwargs):
-        if self.sms_message is not None and self.sms_message != '':
+        # First time only, if we have the raw message, parse it out
+        # into the other fields
+        if not self.pk and self.sms_message is not None and self.sms_message != '':
             self._parse_message()
-        self.set_patient()
+            # and set the patient field based on the msisdn
+            self.set_patient()
         super(WisepillMessage,self).save(*args,**kwargs)
 
     def set_patient(self):

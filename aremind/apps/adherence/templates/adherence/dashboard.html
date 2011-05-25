@@ -82,6 +82,7 @@
         <tr>
           <th>ID</th>
           <th>Start date</th>
+          <th>Days between</th>
           <th>Time of day</th>
           <th>Last run</th>
           <th>Active</th>
@@ -93,6 +94,7 @@
           <tr class="{% cycle 'odd' 'even' %}">
             <td>{{ schedule.id }}</td>
             <td>{{ schedule.start_date }}</td>
+            <td>{{ schedule.days_between }}</td>
             <td>{{ schedule.time_of_day }}</td>
             <td>{{ schedule.last_run }}</td>
             <td>{{ schedule.active|yesno|capfirst }}</td>
@@ -105,7 +107,7 @@
           </tr>
           {% endfor %}
         </tbody>
-        <tfoot><tr><td colspan="6">{% paginate %}</td></tr></tfoot>
+        <tfoot><tr><td colspan="7">{% paginate %}</td></tr></tfoot>
     </table>
 </div>
 {% endblock %}

@@ -404,12 +404,16 @@ class QuerySchedule(models.Model):
     query_type = models.IntegerField(choices=ADHERENCE_SOURCE)
     last_run = models.DateTimeField(null=True,blank=True,editable=False)
     active = models.BooleanField(default=True)
+    days_between = models.IntegerField()
 
     def __unicode__(self):
         msg = u"Schedule adherence queries starting on {start_date} "
+        msg = msg + u"every {days_between} days "
         msg = msg + u"at {time_of_day} of type {query_type}"
-        return msg.format(start_date=self.start_date, time_of_day=self.time_of_day,
-                          query_type=self.get_query_type_display())
+        return msg.format(start_date=self.start_date,
+                          time_of_day=self.time_of_day,
+                          query_type=self.get_query_type_display(),
+                          days_between=self.days_between)
 
     def should_run(self, force=False):
         """Return True if it's time to run this scheduled query."""
@@ -427,7 +431,7 @@ class QuerySchedule(models.Model):
             schedule_it = True
         else:
             days_since = today - self.last_run.date()
-            if days_since >= datetime.timedelta(days=4):
+            if days_since >= datetime.timedelta(days=self.days_between):
                 schedule_it = True
         return schedule_it
 

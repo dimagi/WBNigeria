@@ -326,7 +326,8 @@ class QueryScheduleTest(TestCase):
         schedule = QuerySchedule(start_date = datetime.date.today() -
                                        datetime.timedelta(days=5),
                                  time_of_day = datetime.time(hour=0),
-                                 last_run = None)
+                                 last_run = None,
+                                 days_between = 4)
         schedule.save()
         self.assertTrue(schedule.should_run(force=False))
         self.assertTrue(schedule.should_run(force=True))
@@ -336,7 +337,8 @@ class QueryScheduleTest(TestCase):
                                      datetime.timedelta(days=5),
                                  time_of_day = datetime.time(hour=0),
                                  last_run = datetime.datetime.now() -
-                                     datetime.timedelta(days=3))
+                                     datetime.timedelta(days=3),
+                                 days_between = 4)
         schedule.save()
         self.assertFalse(schedule.should_run(force=False))
         self.assertTrue(schedule.should_run(force=True))
@@ -344,7 +346,8 @@ class QueryScheduleTest(TestCase):
     def test_brand_new(self):
         schedule = QuerySchedule(start_date = datetime.date.today(),
                                  time_of_day = datetime.time(hour=0),
-                                 last_run = None)
+                                 last_run = None,
+                                 days_between = 4)
         schedule.save()
         self.assertTrue(schedule.should_run(force=False))
         self.assertTrue(schedule.should_run(force=True))
@@ -354,7 +357,20 @@ class QueryScheduleTest(TestCase):
         schedule = QuerySchedule(start_date = datetime.date.today(),
                                  time_of_day = datetime.time(hour=0),
                                  last_run = None,
-                                 active = False)
+                                 active = False,
+                                 days_between = 4)
+        schedule.save()
+        self.assertFalse(schedule.should_run(force=False))
+        self.assertTrue(schedule.should_run(force=True))
+
+    def test_eight_day_schedule(self):
+        """Make sure the days_between field is honored"""
+        schedule = QuerySchedule(start_date = datetime.date.today() -
+                                     datetime.timedelta(days=9),
+                                 time_of_day = datetime.time(hour=0),
+                                 last_run = datetime.datetime.now() -
+                                     datetime.timedelta(days=7),
+                                 days_between = 8)
         schedule.save()
         self.assertFalse(schedule.should_run(force=False))
         self.assertTrue(schedule.should_run(force=True))
@@ -365,7 +381,8 @@ class QueryScheduleTest(TestCase):
         schedule = QuerySchedule(start_date = datetime.date.today(),
                                  time_of_day = datetime.time(hour=0),
                                  last_run = None,
-                                 active = False)
+                                 active = False,
+                                 days_between = 4)
         schedule.save()
         response = self.client.get(reverse('adherence-delete-query-schedule',
                                            args=(schedule.pk,)),

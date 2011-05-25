@@ -17,6 +17,9 @@
                 <th>{% anchor next_visit "Next Appointment" %}</th>
                 <th>{% anchor reminder_count "Medicine Reminders" %}</th>
                 <th>{% anchor feed_count "Feed Subscriptions" %}</th>
+                <th>{% anchor daily_doses "Daily Doses" %}</th>
+                <th>{% anchor adherence "Adherence" %}</th>
+                <th>{% anchor message_count "Wisepill messages" %}</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -28,6 +31,11 @@
                     <td>{{ patient.next_visit }}</td>
                     <td>{{ patient.reminder_count }}</td>
                     <td>{{ patient.feed_count }}</td>
+                    <td>{{ patient.daily_doses }}</td>
+                    <td>{{ patient.adherence }}</td>
+                    <td><a href='{% url wisepill-list-messages-for-patient patient.pk %}'>{{ patient.message_count }}</a>
+                      (<a href='{% url wisepill-fake-message patient.pk %}'>fake</a>)
+</td>
                     <td class='actions'>
                         <a class='button' title="Edit Patient Info" href='{% url patient-detail patient.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>   
                         <a class='button' title="Send One Time Reminder" href='{% url patient-onetime-message patient.pk %}'><span class='ui-icon ui-icon-mail-closed'></span></a>
@@ -38,14 +46,14 @@
                 </tr>
             {% empty %}
                 <tr class="{% cycle 'odd' 'even' %}">
-                    <td colspan='6'>Currently no patients enrolled.</td>
+                    <td colspan='9'>Currently no patients enrolled.</td>
                 </tr>
             {% endfor %}
         </tbody>
         <tfoot>
             {% if paginator.count > paginator.per_page %}
             <tr>
-                <td colspan='6'>
+                <td colspan='9'>
                     {% paginate %}
                 </td>
             </tr>

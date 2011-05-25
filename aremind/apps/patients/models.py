@@ -52,6 +52,9 @@ class Patient(models.Model):
                                      "authentication workflows.")
     next_visit = models.DateField(blank=True, null=True)
     reminder_time = models.TimeField(blank=True, null=True)
+    wisepill_msisdn = models.CharField(max_length=12,blank=True)
+    # How many doses per day this patient is supposed to take
+    daily_doses = models.IntegerField(default=0)
 
     def __unicode__(self):
         msg = u'Patient, Subject ID:{id}, Enrollment Date:{date_enrolled}'
@@ -61,6 +64,66 @@ class Patient(models.Model):
     @property
     def formatted_phone(self):
         return format_number(self.mobile_number)
+
+    def adherence(self):
+        """Return adherence percent (integer, 0-100)
+        based on Wisepill indication of doses taken in the
+        last 7 days.
+        This is simply the number of doses taken divided
+        by the number supposed to have been taken over
+        the period.
+
+        Today doesn't count, since we can't know whether they've
+        taken all the doses they're supposed to have taken by
+        this time of day.
+
+        Also looks to see what the oldest message we've ever
+        received from this patient was. If it was less than 7
+        days ago, assume they just got the device that long
+        ago and only compute over that many days.
+
+        If we've never received a message from them before today,
+        report adherence = 0; as far as we know, they've never taken
+        a dose (since today doesn't count).
+
+        If their daily_doses is 0, report 100; their
+        adherence is perfect.
+
+        """
+        today = datetime.date.today()
+        beginning_of_today = datetime.datetime(today.year,
+                                               today.month,
+                                               today.day)
+
+        # Messages we've gotten (today doesn't count)
+        msgs = self.wisepill_messages.filter(timestamp__lt=beginning_of_today)
+
+        # Are they supposed to take any?
+        if self.daily_doses == 0:
+            return 100 # perfect!
+
+        # Have we ever gotten a message before today?
+        if msgs.count() == 0:
+            return 0  # never taken a dose...
+
+        # When was our first message (ever)?
+        first_message = msgs.order_by('timestamp')[0]
+        days_to_first_message = (today - first_message.timestamp.date()).days
+        if days_to_first_message < 7:
+            days_to_count = days_to_first_message
+        else:
+            days_to_count = 7
+
+        # compute adherence
+        first_day_to_count = today - datetime.timedelta(days=days_to_count)
+        num_wisepill_doses = msgs.filter(timestamp__gte=first_day_to_count). \
+                                  count()
+        supposed_to_take = days_to_count * self.daily_doses
+        percent = int((100 * num_wisepill_doses) / supposed_to_take)
+        if percent > 100:
+            percent = 100  # 100 is the max
+        return percent
+        
 
 ADHERENCE_SOURCE_SMS = 0
 ADHERENCE_SOURCE_IVR = 1

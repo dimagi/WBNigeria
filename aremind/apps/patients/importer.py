@@ -63,6 +63,7 @@ def parse_patient(node, payload):
         "Pin_Code": 'pin',
         "Next_Visit": 'next_visit',
         "Reminder_Time": 'reminder_time',
+        "Daily_Doses": 'daily_doses',
     }
     # convert XML structure into POST-like dictionary
     data = {}

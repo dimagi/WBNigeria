@@ -8,28 +8,21 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding model 'PatientQueryResult'
-        db.create_table('patients_patientqueryresult', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('patient', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['patients.Patient'])),
-            ('datetime', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('result_status', self.gf('django.db.models.fields.IntegerField')()),
-            ('adherence_source', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('patients', ['PatientQueryResult'])
+        # Adding field 'Patient.wisepill_msisdn'
+        db.add_column('patients_patient', 'wisepill_msisdn', self.gf('django.db.models.fields.CharField')(default='', max_length=12, blank=True), keep_default=False)
 
 
     def backwards(self, orm):
         
-        # Deleting model 'PatientQueryResult'
-        db.delete_table('patients_patientqueryresult')
+        # Deleting field 'Patient.wisepill_msisdn'
+        db.delete_column('patients_patient', 'wisepill_msisdn')
 
 
     models = {
         'patients.patient': {
             'Meta': {'object_name': 'Patient'},
             'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Contact']", 'unique': 'True'}),
-            'date_enrolled': ('django.db.models.fields.DateField', [], {'default': 'datetime.date(2011, 5, 23)'}),
+            'date_enrolled': ('django.db.models.fields.DateField', [], {'default': 'datetime.date(2011, 5, 19)'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'mobile_number': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'next_visit': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
@@ -46,21 +39,6 @@ class Migration(SchemaMigration):
             'raw_data': ('django.db.models.fields.TextField', [], {}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'received'", 'max_length': '16'}),
             'submit_date': ('django.db.models.fields.DateTimeField', [], {})
-        },
-        'patients.patientpillstaken': {
-            'Meta': {'object_name': 'PatientPillsTaken'},
-            'date': ('django.db.models.fields.DateField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'num_pills': ('django.db.models.fields.IntegerField', [], {}),
-            'patient': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['patients.Patient']"})
-        },
-        'patients.patientqueryresult': {
-            'Meta': {'object_name': 'PatientQueryResult'},
-            'adherence_source': ('django.db.models.fields.IntegerField', [], {}),
-            'datetime': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'patient': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['patients.Patient']"}),
-            'result_status': ('django.db.models.fields.IntegerField', [], {})
         },
         'rapidsms.backend': {
             'Meta': {'object_name': 'Backend'},

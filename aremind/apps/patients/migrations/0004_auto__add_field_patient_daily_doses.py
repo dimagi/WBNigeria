@@ -8,28 +8,25 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding model 'PatientQueryResult'
-        db.create_table('patients_patientqueryresult', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('patient', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['patients.Patient'])),
-            ('datetime', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('result_status', self.gf('django.db.models.fields.IntegerField')()),
-            ('adherence_source', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('patients', ['PatientQueryResult'])
+        # Adding field 'Patient.daily_doses'
+        db.add_column('patients_patient', 'daily_doses', self.gf('django.db.models.fields.IntegerField')(default=0), keep_default=False)
+        for patient in orm.Patient.objects.all():
+            patient.daily_doses = 0
+            patient.save()
 
 
     def backwards(self, orm):
         
-        # Deleting model 'PatientQueryResult'
-        db.delete_table('patients_patientqueryresult')
+        # Deleting field 'Patient.daily_doses'
+        db.delete_column('patients_patient', 'daily_doses')
 
 
     models = {
         'patients.patient': {
             'Meta': {'object_name': 'Patient'},
             'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Contact']", 'unique': 'True'}),
-            'date_enrolled': ('django.db.models.fields.DateField', [], {'default': 'datetime.date(2011, 5, 23)'}),
+            'daily_doses': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'date_enrolled': ('django.db.models.fields.DateField', [], {'default': 'datetime.date(2011, 5, 25)'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'mobile_number': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'next_visit': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),

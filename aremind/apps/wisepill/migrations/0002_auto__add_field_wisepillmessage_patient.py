@@ -8,28 +8,21 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding model 'PatientQueryResult'
-        db.create_table('patients_patientqueryresult', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('patient', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['patients.Patient'])),
-            ('datetime', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('result_status', self.gf('django.db.models.fields.IntegerField')()),
-            ('adherence_source', self.gf('django.db.models.fields.IntegerField')()),
-        ))
-        db.send_create_signal('patients', ['PatientQueryResult'])
+        # Adding field 'WisepillMessage.patient'
+        db.add_column('wisepill_wisepillmessage', 'patient', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='wisepill_messages', null=True, to=orm['patients.Patient']), keep_default=False)
 
 
     def backwards(self, orm):
         
-        # Deleting model 'PatientQueryResult'
-        db.delete_table('patients_patientqueryresult')
+        # Deleting field 'WisepillMessage.patient'
+        db.delete_column('wisepill_wisepillmessage', 'patient_id')
 
 
     models = {
         'patients.patient': {
             'Meta': {'object_name': 'Patient'},
             'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Contact']", 'unique': 'True'}),
-            'date_enrolled': ('django.db.models.fields.DateField', [], {'default': 'datetime.date(2011, 5, 23)'}),
+            'date_enrolled': ('django.db.models.fields.DateField', [], {'default': 'datetime.date(2011, 5, 19)'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'mobile_number': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'next_visit': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
@@ -46,21 +39,6 @@ class Migration(SchemaMigration):
             'raw_data': ('django.db.models.fields.TextField', [], {}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'received'", 'max_length': '16'}),
             'submit_date': ('django.db.models.fields.DateTimeField', [], {})
-        },
-        'patients.patientpillstaken': {
-            'Meta': {'object_name': 'PatientPillsTaken'},
-            'date': ('django.db.models.fields.DateField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'num_pills': ('django.db.models.fields.IntegerField', [], {}),
-            'patient': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['patients.Patient']"})
-        },
-        'patients.patientqueryresult': {
-            'Meta': {'object_name': 'PatientQueryResult'},
-            'adherence_source': ('django.db.models.fields.IntegerField', [], {}),
-            'datetime': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'patient': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['patients.Patient']"}),
-            'result_status': ('django.db.models.fields.IntegerField', [], {})
         },
         'rapidsms.backend': {
             'Meta': {'object_name': 'Backend'},
@@ -79,7 +57,17 @@ class Migration(SchemaMigration):
             'pin': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
             'primary_backend': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'contact_primary'", 'null': 'True', 'to': "orm['rapidsms.Backend']"}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '64', 'blank': 'True'})
+        },
+        'wisepill.wisepillmessage': {
+            'Meta': {'object_name': 'WisepillMessage'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'message_type': ('django.db.models.fields.SmallIntegerField', [], {'blank': 'True'}),
+            'msisdn': ('django.db.models.fields.CharField', [], {'max_length': '12', 'blank': 'True'}),
+            'patient': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'wisepill_messages'", 'null': 'True', 'to': "orm['patients.Patient']"}),
+            'sms_message': ('django.db.models.fields.CharField', [], {'max_length': '160'}),
+            'time_received': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'blank': 'True'})
         }
     }
 
-    complete_apps = ['patients']
+    complete_apps = ['wisepill']

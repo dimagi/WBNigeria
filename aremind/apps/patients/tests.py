@@ -24,6 +24,7 @@ from aremind.apps.patients import models as patients
 from aremind.tests.testcases import (CreateDataTest, FlushTestScript,
                                     patch_settings)
 from aremind.apps.patients.importer import parse_payload, parse_patient
+from aremind.apps.wisepill.models import WisepillMessage
 
 from threadless_router.router import Router
 from threadless_router.tests.base import SimpleRouterMixin
@@ -47,6 +48,7 @@ class PatientsCreateDataTest(CreateDataTest):
             <Pin_Code>1234</Pin_Code>
             <Next_Visit>Apr  7 2011 </Next_Visit>
             <Reminder_Time>12:00</Reminder_Time>
+            <Daily_Doses>0</DailyDoses>
         </Table>
         """
         data = data or {}
@@ -61,6 +63,7 @@ class PatientsCreateDataTest(CreateDataTest):
             'Date_Enrolled': enrolled.strftime('%b  %d %Y '),
             'Next_Visit': next_visit.strftime('%b  %d %Y '),
             'Mobile_Number': '12223334444',
+            'Daily_Doses': '0',
         }
         defaults.update(data)
         empty_items = [k for k, v in defaults.iteritems() if not v]
@@ -278,3 +281,81 @@ class ImportTest(PatientsCreateDataTest):
         self.assertEqual(payload.patients.count(), 1)
         patient = payload.patients.all()[0]
         self.assertFalse(patient.reminder_time)
+
+class WisepillAdherenceTest(PatientsCreateDataTest):
+
+    def setUp(self):
+        self.patient = self.create_patient()
+        self.patient.msisdn = self.random_string(12)
+        self.patient.daily_doses = 1
+        self.patient.save()
+
+    def create_message_for_patient(self, timestamp):
+        msg = WisepillMessage(sms_message='', # ignore
+                              timestamp = timestamp,
+                              msisdn = self.patient.wisepill_msisdn,
+                              patient = self.patient)
+        msg.save()
+
+    def days_ago(self, n):
+        """Return a datetime object from N days ago"""
+        return datetime.datetime.now() - datetime.timedelta(days=n)
+
+    def test_adherence_doseless(self):
+        """If patient is not required to take any doses,
+        then their adherence is 100% by definition"""
+        self.patient.daily_doses = 0
+        self.patient.save()
+        self.assertEqual(self.patient.adherence(), 100)
+
+    def test_adherence_no_messages(self):
+        """If patient is supposed to take doses, but we've
+        never seen a message from them (before today),
+        adherence is 0."""
+        self.assertEqual(self.patient.adherence(), 0)
+
+    def test_adherence_one_day(self):
+        """If we only have one day's data, work with that"""
+        self.create_message_for_patient(self.days_ago(1))
+        self.assertEqual(self.patient.adherence(), 100)
+
+    def test_adherence_eight_day(self):
+        for n in range(9):
+            print "Creating message for %d days ago" % n
+            self.create_message_for_patient(self.days_ago(n))
+        self.assertEqual(self.patient.adherence(), 100)
+
+    def test_today_doesnt_count(self):
+        self.create_message_for_patient(self.days_ago(0))
+        self.assertEqual(self.patient.adherence(), 0)
+
+    def test_max_is_100(self):
+        """2 doses per day is not 200% adherence"""
+        for n in range(9):
+            print "Creating message for %d days ago" % n
+            self.create_message_for_patient(self.days_ago(n))
+            self.create_message_for_patient(self.days_ago(n))
+        self.assertEqual(self.patient.adherence(), 100)
+
+    def test_adherence_cheating(self):
+        """For now, cheating works; waiting for answer from Rowena
+        on whether to close that hole, but for now, make the behavior
+        explicit and test for it.
+
+        (By cheating, I mean opening the box many times on one day
+        to 'make up' for missing doses on other days.)"""
+
+        # establish they've had the box a while
+        self.create_message_for_patient(self.days_ago(20))
+        # do a whole bunch of doses on the same day, yesterday
+        for n in range(7):
+            self.create_message_for_patient(self.days_ago(1))
+        self.assertEqual(self.patient.adherence(), 100)
+
+    def test_rounding(self):
+        """Adherence is rounded to nearest integer"""
+        self.create_message_for_patient(self.days_ago(7))
+        self.create_message_for_patient(self.days_ago(5))
+        self.create_message_for_patient(self.days_ago(3))
+        self.create_message_for_patient(self.days_ago(1))
+        self.assertEqual(self.patient.adherence(), 57)

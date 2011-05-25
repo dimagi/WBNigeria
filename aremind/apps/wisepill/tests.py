@@ -45,7 +45,7 @@ class WisepillTest(TestCase):
             testmsg['patient'] = patient
             self.assertEquals(patient.wisepill_msisdn,testmsg['msisdn'])
 
-    def testMessageParsing(self):
+    def test_message_parsing(self):
         for testmsg in self.testmsgs:
             obj = WisepillMessage(sms_message = testmsg['raw'])
             now = datetime.datetime.now()
@@ -61,3 +61,17 @@ class WisepillTest(TestCase):
             # make sure we found a matching patient
             self.assertEquals(testmsg['patient'], obj.patient)
             self.assertEquals(testmsg['msisdn'], obj.patient.wisepill_msisdn)
+
+    def test_only_parsed_on_creation(self):
+        """Test that the raw message is only parsed into the other
+        fields when we create the object, so we can edit the object
+        later and not have our changes reverted every time we
+        save it."""
+        obj = WisepillMessage(sms_message = self.testmsgs[0]['raw'])
+        obj.save()
+
+        # now change the the sms message and save again
+        # other values should not change
+        obj.sms_message = self.testmsgs[1]['raw']
+        obj.save()
+        self.assertEquals(obj.msisdn, self.testmsgs[0]['msisdn'])

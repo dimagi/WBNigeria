@@ -6,6 +6,10 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("patients", "0002_auto__add_field_patient_wisepill_msisdn"),
+    )
+
     def forwards(self, orm):
         
         # Adding model 'PatientPillsTaken'

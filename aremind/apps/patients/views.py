@@ -16,7 +16,8 @@ from rapidsms.messages import OutgoingMessage
 from threadless_router.router import Router
 
 from aremind.decorators import has_perm_or_basicauth
-from aremind.apps.adherence.models import get_contact_message, PatientSurvey
+from aremind.apps.adherence.models import (get_contact_message, PatientSurvey,
+                                           PillsMissed)
 from aremind.apps.adherence.types import *
 from aremind.apps.patients import models as patients
 from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm, PillHistoryForm
@@ -166,33 +167,28 @@ def patient_ivr_complete(request, patient_id):
             if isinstance(actions, dict):
                 actions = [actions, ]
             num_questions_answered = 0
-            incomplete = False
+            complete = False
             error = False
             for item in actions:
-                if item['name'].startswith('question'):
-                    if item['disposition'] == 'SUCCESS':
+                logger.debug("## action=%s", item)
+                if item['name'] == 'question1' and \
+                       item['disposition'] == 'SUCCESS':
                         # Got an answer, yay
-                        # last char is a digit with question #
-                        question_num = int(item['name'][-1])
-                        # date would be today minus that many days
-                        date = datetime.date.today()
-                        date -= datetime.timedelta(days=question_num)
                         answer = item['value']
                         num_pills = int(answer)
                         # remember result
-                        patients.remember_patient_pills_taken(patient, date,
-                                                              num_pills, "IVR")
-                        num_questions_answered += 1
-                    elif item['disposition'] == 'TIMEOUT':
-                        incomplete = True
-                    else:
-                        logger.debug("## Error on question %s for patient: disposition %s" % (item['name'], item['disposition']))
-                        error = True
-            if num_questions_answered < 4:
-                incomplete = True
+                        PillsMissed(patient=patient,
+                                    num_missed=num_pills,
+                                    source=QUERY_TYPE_IVR).save()
+                        complete = True
+                elif item['disposition'] == 'TIMEOUT':
+                    pass #incomplete = True
+                else:
+                    logger.debug("## Error on question %s for patient: disposition %s" % (item['name'], item['disposition']))
+                    error = True
             if error:
                 status = PatientSurvey.STATUS_ERROR
-            elif incomplete:
+            elif not complete:
                 status = PatientSurvey.STATUS_NOT_COMPLETED
             else:
                 status = PatientSurvey.STATUS_COMPLETE
@@ -277,28 +273,12 @@ def patient_ivr_callback(request, patient_id):
             'value': "This is ARemind calling to see how you're doing."
             }}
         ask1 = { 'ask': {
-            'say': { 'value': 'How many pills did you take yesterday?  Please enter the number.' },
-            'choices': { 'value': '[1DIGIT]', 'mode': 'dtmf',},
+            'say': { 'value': 'How many pills did you miss in the last four days?  Please enter the number, then press pound.' },
+            'choices': { 'value': '[1-3 DIGITS]',
+                         'mode': 'dtmf',
+                         'terminator': '#'},
             'attempts': 3,
             'name': 'question1',
-            }}
-        ask2 = { 'ask': {
-            'say': { 'value': 'How many pills did you take the day before yesterday?  Please enter the number.' },
-            'choices': { 'value': '[1DIGIT]', 'mode': 'dtmf',},
-            'attempts': 3,
-            'name': 'question2',
-            }}
-        ask3 = { 'ask': {
-            'say': { 'value': 'How many pills did you take the day before the day before yesterday?  Please enter the number.' },
-            'choices': { 'value': '[1DIGIT]', 'mode': 'dtmf',},
-            'attempts': 3,
-            'name': 'question3',
-            }}
-        ask4 = { 'ask': {
-            'say': { 'value': 'How many pills did you take four days ago?  Please enter the number.' },
-            'choices': { 'value': '[1DIGIT]', 'mode': 'dtmf',},
-            'attempts': 3,
-            'name': 'question4',
             }}
         thankyou = { 'say': {
             'value': "Thank you."
@@ -307,7 +287,7 @@ def patient_ivr_callback(request, patient_id):
 
         to_return = { 'tropo': [ on1, on2, on3, on4,
                                  call, welcome,
-                                 ask1, ask2, ask3, ask4,
+                                 ask1,
                                  thankyou, hangup ] }
         logger.debug("##Returning %s" % to_return)
         return http.HttpResponse(json.dumps(to_return))

@@ -6,6 +6,13 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        # reminders migration assumes reminders_patient is still around,
+        # but we rename it in this migration, so make sure that runs
+        # first        
+        ("reminders", "0012_auto__del_patientdatapayload__del_patient"),
+    )
+
     def forwards(self, orm):
         
         # Adding model 'PatientDataPayload'

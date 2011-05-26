@@ -6,6 +6,11 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    # Can't add this until we've at least created the Patient model
+    depends_on = (
+        ("patients", "0001_initial"),
+    )
+
     def forwards(self, orm):
         
         # Adding field 'WisepillMessage.patient'

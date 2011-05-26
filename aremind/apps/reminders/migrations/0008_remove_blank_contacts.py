@@ -6,6 +6,10 @@ from django.db import models
 
 class Migration(DataMigration):
 
+    depends_on = (
+        ("rapidsms", "0005_auto__add_field_contact_primary_backend"),
+    )
+
     def forwards(self, orm):
         "Write your forwards methods here."
         orm['rapidsms.Contact'].objects.filter(name=' ').delete()

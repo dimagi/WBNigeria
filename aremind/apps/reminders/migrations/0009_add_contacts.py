@@ -6,6 +6,10 @@ from django.db import models
 
 class Migration(DataMigration):
 
+    depends_on = (
+        ("groups", "0003_auto__add_field_group_is_editable"),
+    )
+
     def forwards(self, orm):
         "Write your forwards methods here."
         group, _ = orm['groups.Group'].objects.get_or_create(name='Subjects')

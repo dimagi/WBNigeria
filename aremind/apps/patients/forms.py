@@ -82,7 +82,8 @@ class PatientRemindersForm(forms.ModelForm):
     class Meta(object):
         model = patients.Patient
         fields = ('subject_number', 'first_name', 'last_name', 'mobile_number',
-                  'pin', 'next_visit', 'reminder_time', 'daily_doses')
+                  'pin', 'next_visit', 'reminder_time', 'daily_doses',
+                  'wisepill_msisdn')
 
     def __init__(self, *args, **kwargs):
         super(PatientRemindersForm, self).__init__(*args, **kwargs)

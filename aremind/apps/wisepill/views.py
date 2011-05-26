@@ -3,6 +3,7 @@ import logging
 import random
 
 from django import http
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -27,6 +28,10 @@ def make_fake_message(request, patient_id):
     logger.debug('make_fake_message')
     patient = get_object_or_404(Patient, pk=patient_id)
     msisdn = patient.wisepill_msisdn
+    if not msisdn:
+        messages.error(request, "Must set patient's MSISDN before we can fake a wisepill message from them")
+        return redirect('patient-list')
+
     timestamp = datetime.datetime.now()
     # 50-50 whether to make a delayed message
     is_delayed = random.randint(0,99) > 50
@@ -44,5 +49,6 @@ def make_fake_message(request, patient_id):
     msg = IncomingMessage(connection=connection,
                           text=text)
     router = Router()
-    router.incoming(msg)    
+    router.incoming(msg)
+    messages.info(request, "Sent fake wisepill message from %s" % patient)
     return redirect('patient-list')

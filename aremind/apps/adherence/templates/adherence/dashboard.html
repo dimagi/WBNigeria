@@ -72,8 +72,6 @@
     </table>
 
     <h2>Query Schedules</h2>
-    <p>Queries are scheduled every four days at the specified time of day,
-      starting on the specified start day.</p>
     {% autosort query_schedules %}
     {% autopaginate query_schedules 15 %}
     <p><a class='button add' title='Add Query Schedule' href="{% url adherence-create-query-schedule %}" >Add query schedule...</a></p>

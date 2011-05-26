@@ -7,9 +7,9 @@ from django.dispatch import receiver
 
 from rapidsms import models as rapidsms
 
+from aremind.apps.adherence.types import *
 from aremind.apps.groups.models import Group
 from aremind.apps.groups.utils import format_number
-from decisiontree.app import session_end_signal
 
 import logging
 logger = logging.getLogger('patients.models')
@@ -52,7 +52,7 @@ class Patient(models.Model):
                                      "authentication workflows.")
     next_visit = models.DateField(blank=True, null=True)
     reminder_time = models.TimeField(blank=True, null=True)
-    wisepill_msisdn = models.CharField(max_length=12,blank=True)
+    wisepill_msisdn = models.CharField(max_length=12, blank=True)
     # How many doses per day this patient is supposed to take
     daily_doses = models.IntegerField(default=0)
 
@@ -96,6 +96,7 @@ class Patient(models.Model):
                                                today.day)
 
         # Messages we've gotten (today doesn't count)
+        # pylint: disable-msg=E1101
         msgs = self.wisepill_messages.filter(timestamp__lt=beginning_of_today)
 
         # Are they supposed to take any?
@@ -125,15 +126,6 @@ class Patient(models.Model):
         return percent
         
 
-ADHERENCE_SOURCE_SMS = 0
-ADHERENCE_SOURCE_IVR = 1
-ADHERENCE_SOURCE_WISEPILL = 2
-ADHERENCE_SOURCE = (
-    (ADHERENCE_SOURCE_SMS, "SMS"),
-    (ADHERENCE_SOURCE_IVR, "IVR"),
-    (ADHERENCE_SOURCE_WISEPILL, "Wisepill"),
-    )
-
 class PatientPillsTaken(models.Model):
     """# of pills a patient took on a particular date"""
     patient = models.ForeignKey(Patient)
@@ -142,38 +134,10 @@ class PatientPillsTaken(models.Model):
 
     def __unicode__(self):
         msg = u'Patient {id} took {num} pills on {date}'
+        # pylint: disable-msg=E1101
         return msg.format(id=self.patient.subject_number,
                           date=self.date,
                           num=self.num_pills)
-
-
-class PatientQueryResult(models.Model):
-    """Whether an attempt to ask a patient about their
-    adherence was completely successfully."""
-    patient = models.ForeignKey(Patient)
-    datetime = models.DateTimeField(auto_now_add=True)
-
-    STATUS_COMPLETE = 0
-    STATUS_NO_ANSWER = 1
-    STATUS_NOT_COMPLETED = 2
-    STATUS_ERROR = 3
-    RESULT_STATUS = (
-        (STATUS_COMPLETE, "Complete"),
-        (STATUS_NO_ANSWER, "No answer"),
-        (STATUS_NOT_COMPLETED, "Not completed"),
-        (STATUS_ERROR, "Error"),
-        )
-
-    result_status = models.IntegerField(choices=RESULT_STATUS)
-    adherence_source = models.IntegerField(choices=ADHERENCE_SOURCE)
-
-    def __unicode__(self):
-        msg = u'Patient {id} query by {adherence_source} on {datetime} result was {status}'
-        # pylint: disable=E1101
-        return msg.format(id=self.patient.subject_number,
-                          datetime=self.datetime,
-                          adherence_source=self.get_adherence_source_display(),
-                          status=self.get_result_status_display())
 
 def remember_patient_pills_taken(patient,date,num_pills,origin):
     # FIXME: record the origin too (the source of the data)
@@ -186,50 +150,6 @@ def remember_patient_pills_taken(patient,date,num_pills,origin):
                                                       defaults={'num_pills':num_pills})
     taken.num_pills = num_pills
     taken.save()
-
-def remember_query_result(patient, adherence_source, status):
-    result = PatientQueryResult(patient=patient,
-                                result_status=status,
-                                adherence_source=adherence_source)
-    result.save()
-
-# When we complete an adherence survey, update patientpillstaken
-@receiver(session_end_signal)
-def session_end(sender, **kwargs):
-    session = kwargs['session']
-    canceled = kwargs['canceled']
-
-    # find the patient
-    connection = session.connection
-    patient = Patient.objects.get(contact = connection.contact)
-
-    if canceled:
-        remember_query_result(patient,
-                              ADHERENCE_SOURCE_SMS,
-                              PatientQueryResult.STATUS_NOT_COMPLETED)
-        return # don't save data
-
-    tree = session.tree
-    start_date = session.start_date
-    entries = session.entries
-
-    num_questions = 0
-    for entry in entries.all():
-        num_pills = int(entry.text)
-        # the sequence # is the number of days ago we asked about
-        date = start_date - datetime.timedelta(days=entry.sequence_id)
-        remember_patient_pills_taken(patient, date, num_pills, "SMS")
-        num_questions += 1
-    if num_questions == 4:
-        logger.debug('Got answers to 4 questions, recording complete')
-        remember_query_result(patient,
-                              ADHERENCE_SOURCE_SMS,
-                              PatientQueryResult.STATUS_COMPLETE)
-    else:
-        logger.debug('Only got answers to %d questions, survey was not complete' % num_questions)
-        remember_query_result(patient,
-                              ADHERENCE_SOURCE_SMS,
-                              PatientQueryResult.STATUS_NOT_COMPLETED)
 
 @receiver(post_save, sender=Patient)
 def add_to_patient_group(sender, instance, created, **kwargs):

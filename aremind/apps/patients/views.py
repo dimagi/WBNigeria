@@ -16,8 +16,8 @@ from rapidsms.messages import OutgoingMessage
 from threadless_router.router import Router
 
 from aremind.decorators import has_perm_or_basicauth
-from aremind.apps.adherence.app import make_tree_for_day, start_tree_for_patient
-from aremind.apps.adherence.models import get_contact_message
+from aremind.apps.adherence.models import get_contact_message, PatientSurvey
+from aremind.apps.adherence.types import *
 from aremind.apps.patients import models as patients
 from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm, PillHistoryForm
 from aremind.apps.patients.importer import parse_payload
@@ -109,31 +109,20 @@ def patient_onetime_message(request, patient_id):
     context = { 'patient': patient, 'form': form }
     return render(request, 'patients/patient_onetime_message.html', context)
 
-# Utility to start SMS query with a patient, possible outside the
-# context of a request
-def start_patient_sms(patient_id):
-    patient = get_object_or_404(patients.Patient, pk=patient_id)
-    tree = make_tree_for_day(datetime.date.today())
-    start_tree_for_patient(tree, patient)
-
 @login_required
 def patient_start_adherence_tree(request, patient_id):
     """Start adherence tree interaction with patient."""
-    start_patient_sms(patient_id)
+    patient = get_object_or_404(patients.Patient, pk=patient_id)
+    survey = PatientSurvey(patient=patient, query_type=QUERY_TYPE_SMS)
+    survey.start()
     return redirect('/httptester/httptester/%s/' % patient.contact.default_connection.identity)
-
-# Utility to start IVR with a patient, possibly outside the context of a request
-def start_patient_ivr(patient_id):
-    # what's our callback URL?
-    url = reverse('patient-ivr-callback', kwargs={'patient_id':patient_id})
-    backend = Router().backends['tropo']
-    backend.call_tropo(url, message_type='voice')
-    # tropo will POST and our callback will be invoked, below
 
 @login_required
 def patient_start_ivr(request, patient_id):
     """Start interactive voice interaction with patient."""
-    start_patient_ivr(patient_id)
+    patient = get_object_or_404(patients.Patient, pk=patient_id)
+    survey = PatientSurvey(patient=patient, query_type=QUERY_TYPE_IVR)
+    survey.start()
     return redirect('patient-list')
 
 @csrf_exempt
@@ -143,10 +132,18 @@ def patient_ivr_complete(request, patient_id):
     (good or bad) of running an IVR.
     """
 
+    logger.debug("##%s" % request.raw_post_data)
+
     patient = get_object_or_404(patients.Patient, pk=patient_id)
+    survey = PatientSurvey.find_active(patient, QUERY_TYPE_IVR)
+
+        
 
     try:
-        logger.debug("##%s" % request.raw_post_data)
+        if not survey:
+            logger.error("Could not find an IVR survey in progress for patient %s" % patient)
+            return http.HttpResponseServerError()
+
         postdata = json.loads(request.raw_post_data)
         
         if 'result' in postdata:
@@ -155,15 +152,11 @@ def patient_ivr_complete(request, patient_id):
             logger.debug("## Results=%r" % result)
             if 'error' in result and result['error'] is not None:
                 logger.error("## Error from phone survey: %s" % result['error'])
-                patients.remember_query_result(patient,
-                                      patients.ADHERENCE_SOURCE_IVR,
-                                      patients.PatientQueryResult.STATUS_ERROR)
+                survey.completed(PatientSurvey.STATUS_ERROR)
                 return http.HttpResponse()
 
             if result['complete'] == False:
-                patients.remember_query_result(patient,
-                                      patients.ADHERENCE_SOURCE_IVR,
-                                      patients.PatientQueryResult.STATUS_NO_ANSWER)
+                survey.completed(PatientSurvey.STATUS_NO_ANSWER)
                 return http.HttpResponse()
                                       
             actions = result['actions']
@@ -171,7 +164,7 @@ def patient_ivr_complete(request, patient_id):
             # dictionary, sigh.  Figure out if it's a single dictionary
             # and wrap it in an array to avoid insanity.
             if isinstance(actions, dict):
-                actions = [actions,]
+                actions = [actions, ]
             num_questions_answered = 0
             incomplete = False
             error = False
@@ -187,36 +180,31 @@ def patient_ivr_complete(request, patient_id):
                         answer = item['value']
                         num_pills = int(answer)
                         # remember result
-                        patients.remember_patient_pills_taken(patient,date,num_pills,"IVR")
+                        patients.remember_patient_pills_taken(patient, date,
+                                                              num_pills, "IVR")
                         num_questions_answered += 1
                     elif item['disposition'] == 'TIMEOUT':
                         incomplete = True
                     else:
-                        logger.debug("## Error on question %s for patient: disposition %s" % (item['name'],item['disposition']))
+                        logger.debug("## Error on question %s for patient: disposition %s" % (item['name'], item['disposition']))
                         error = True
             if num_questions_answered < 4:
                 incomplete = True
             if error:
-                status = patients.PatientQueryResult.STATUS_ERROR
+                status = PatientSurvey.STATUS_ERROR
             elif incomplete:
-                status = patients.PatientQueryResult.STATUS_NOT_COMPLETED
+                status = PatientSurvey.STATUS_NOT_COMPLETED
             else:
-                status = patients.PatientQueryResult.STATUS_COMPLETE
-            patients.remember_query_result(patient,
-                                  patients.ADHERENCE_SOURCE_IVR,
-                                  status)
+                status = PatientSurvey.STATUS_COMPLETE
+            survey.completed(status)
             return http.HttpResponse()
         # whoops
         logger.error("patient_ivr_complete called with no result data!!")
-        patients.remember_query_result(patient,
-                              patients.ADHERENCE_SOURCE_IVR,
-                              patients.PatientQueryResult.STATUS_ERROR)
+        survey.completed(PatientSurvey.STATUS_ERROR)
         return http.HttpResponseServerError()
     except Exception,e:
         logger.exception(e)
-        patients.remember_query_result(patient,
-                              patients.ADHERENCE_SOURCE_IVR,
-                              patients.PatientQueryResult.STATUS_ERROR)
+        survey.completed(PatientSurvey.STATUS_ERROR)
         return http.HttpResponseServerError()
 
 @csrf_exempt
@@ -253,7 +241,8 @@ def patient_ivr_callback(request, patient_id):
                         answer = item['value']
                         num_pills = int(answer)
                         # remember result
-                        patients.remember_patient_pills_taken(patient,date,num_pills,"IVR")
+                        patients.remember_patient_pills_taken(patient, date,
+                                                              num_pills, "IVR")
                     else:
                         logger.debug("## Error on question %s for patient: disposition %s" % (item['name'],item['disposition']))
 

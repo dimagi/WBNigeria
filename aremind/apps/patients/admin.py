@@ -57,8 +57,3 @@ class PatientDataPayloadAdmin(admin.ModelAdmin):
 admin.site.register(patients.PatientDataPayload, PatientDataPayloadAdmin)
 
 admin.site.register(patients.PatientPillsTaken)
-
-class PatientQueryResultAdmin(admin.ModelAdmin):
-    list_display = ('datetime','patient','result_status','adherence_source')
-    ordering = ('-datetime',)
-admin.site.register(patients.PatientQueryResult, PatientQueryResultAdmin)

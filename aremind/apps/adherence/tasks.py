@@ -4,7 +4,6 @@ from celery.registry import tasks
 from threadless_router.router import Router
 
 from aremind.apps.adherence.models import Feed
-from aremind.apps.adherence.app import start_tree_for_all_patients
 
 
 class ReminderSchedulerTask(Task):
@@ -23,9 +22,3 @@ class FeedUpdatesTask(Task):
         
 
 tasks.register(FeedUpdatesTask)
-
-class KickoffAdherenceSurveysTask(Task):
-    def run(self):
-        start_tree_for_all_patients()
-
-tasks.register(KickoffAdherenceSurveysTask)

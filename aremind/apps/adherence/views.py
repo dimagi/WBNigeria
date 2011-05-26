@@ -9,8 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from aremind.apps.adherence.forms import (ReminderForm, FeedForm, EntryForm,
                                           QueryScheduleForm)
-from aremind.apps.adherence.models import Reminder, Feed, Entry, QuerySchedule
-from aremind.apps.patients.models import PatientQueryResult
+from aremind.apps.adherence.models import (Reminder, Feed, Entry,
+                                           QuerySchedule, PatientSurvey)
 
 
 logger = logging.getLogger('adherence.views')
@@ -164,7 +164,7 @@ def ivr_callback(request):
 @login_required
 def query_results(request):
     context = {}
-    context['results'] = PatientQueryResult.objects.all().order_by('-datetime')
+    context['results'] = PatientSurvey.objects.all().order_by('-last_modified')
     return render(request, 'adherence/query_results_report.html',
                   context)
     

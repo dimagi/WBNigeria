@@ -7,6 +7,7 @@ import time
 import uuid
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models, transaction
 from django.utils.html import strip_tags
 
@@ -15,10 +16,12 @@ import feedparser
 from rapidsms import models as rapidsms
 import twitter
 
+from threadless_router.router import Router
+
+import aremind.apps.adherence.sms
+from aremind.apps.adherence.types import *
 from aremind.apps.groups.models import Group
 from aremind.apps.patients.models import Patient
-from aremind.apps.patients.models import (ADHERENCE_SOURCE, ADHERENCE_SOURCE_SMS,
-                                          ADHERENCE_SOURCE_IVR)
 logger = logging.getLogger('adherence.models')
 
 
@@ -199,7 +202,7 @@ class Feed(models.Model):
     objects = FeedManager()
 
     def __unicode__(self):
-        # pylint: disable=E1101
+        # pylint: disable-msg=E1101
         return u"{name} ({feed_type})".format(name=self.name, feed_type=self.get_feed_type_display())
 
     def fetch_feed(self):
@@ -232,7 +235,7 @@ class Feed(models.Model):
         for status in timeline:
             if not self.description:
                 self.description = status.user.description
-            # pylint: disable=E1101
+            # pylint: disable-msg=E1101
             self.entries.get_or_create(
                 uid=status.id,
                 defaults={
@@ -255,7 +258,7 @@ class Feed(models.Model):
             pub_date = self._get_rss_pub_date(entry)    
             uid = self._get_rss_uid(entry)
             content = self._get_rss_content(entry)
-            # pylint: disable=E1101
+            # pylint: disable-msg=E1101
             self.entries.get_or_create(
                 uid=uid,
                 defaults={
@@ -336,12 +339,12 @@ class EntrySeen(models.Model):
 
 def get_next_unseen_entry_for_patient(feeds, patient):
     try:
-       entry = Entry.objects.filter(
+        entry = Entry.objects.filter(
             feed__in=feeds,
             published__lte=datetime.datetime.now()
         ).exclude(entryseen__patient=patient
         ).order_by('-published')[0]
-       return entry
+        return entry
     except IndexError:
         return None
 
@@ -397,12 +400,13 @@ def get_contact_message(contact):
     return message
 
 class QuerySchedule(models.Model):
+    """Schedule for starting queries to patients about adherence"""
     start_date = models.DateField()
     time_of_day = models.TimeField()
     recipients = models.ManyToManyField(Group,
                                         related_name='adherence_query_schedules')
     query_type = models.IntegerField(choices=ADHERENCE_SOURCE)
-    last_run = models.DateTimeField(null=True,blank=True,editable=False)
+    last_run = models.DateTimeField(null=True, blank=True, editable=False)
     active = models.BooleanField(default=True)
     days_between = models.IntegerField()
 
@@ -439,14 +443,87 @@ class QuerySchedule(models.Model):
         """Start any queries that are scheduled to start now."""
         if self.should_run(force):
             logger.debug("Starting query from schedule %s" % self)
-            from aremind.apps.patients.views import (start_patient_ivr,
-                                                     start_patient_sms)
             for group in self.recipients.all():
                 for contact in group.contacts.all():
                     patient = Patient.objects.get(contact=contact)
-                    if self.query_type == ADHERENCE_SOURCE_SMS:
-                        start_patient_sms(patient.id)
-                    elif self.query_type == ADHERENCE_SOURCE_IVR:
-                        start_patient_ivr(patient.id)
+                    survey = PatientSurvey(patient=patient,
+                                           query_type=self.query_type)
+                    survey.start()
             self.last_run = datetime.datetime.now()
             self.save()
+
+class PatientSurveyException(Exception):
+    pass
+class SurveyAlreadyStartedException(PatientSurveyException):
+    pass
+class SurveyUnknownQueryTypeException(PatientSurveyException):
+    pass
+
+class PatientSurvey(models.Model):
+    """One instance of asking a patient about their adherence, however
+    we do it."""
+    patient = models.ForeignKey(Patient, related_name='surveys')
+    query_type = models.IntegerField(choices=QUERY_TYPES)
+    last_modified = models.DateTimeField(auto_now=True)
+    
+    STATUS_CREATED = -2
+    STATUS_STARTED = -1
+    STATUS_COMPLETE = 0
+    STATUS_NO_ANSWER = 1
+    STATUS_NOT_COMPLETED = 2
+    STATUS_ERROR = 3
+    RESULT_STATUS = (
+        (STATUS_CREATED, "Created"),
+        (STATUS_STARTED, "Started"),
+        (STATUS_COMPLETE, "Complete"),
+        (STATUS_NO_ANSWER, "No answer"),
+        (STATUS_NOT_COMPLETED, "Not completed"),
+        (STATUS_ERROR, "Error"),
+        )
+
+    status = models.IntegerField(choices=RESULT_STATUS,
+                                 default=STATUS_CREATED)
+
+    def __unicode__(self):
+        msg = u"PatientSurvey {id} for {patient} using {query_type} is {status}"
+        return msg.format(id=self.pk,
+                          patient=self.patient.subject_number,
+                          query_type=self.get_query_type_display(),
+                          status=self.get_status_display())
+
+    @staticmethod
+    def find_active(patient, query_type):
+        """Find an active survey for this patient and query type.
+        Return the survey object.  If multiple found, return one
+        of them. If not found, return None."""
+        surveys = PatientSurvey.objects.filter(patient=patient,
+                                               query_type=query_type,
+                                               status=PatientSurvey.STATUS_STARTED)
+        if len(surveys) == 0:
+            return None
+        return surveys[0]
+
+    def start(self):
+        logger.debug("PatientSurvey.start")
+        if self.status != self.STATUS_CREATED:
+            raise SurveyAlreadyStartedException()
+
+        if self.query_type == QUERY_TYPE_SMS:
+            tree = aremind.apps.adherence.sms.make_tree_for_day(datetime.date.today())
+            aremind.apps.adherence.sms.start_tree_for_patient(tree, self.patient)
+        elif self.query_type == QUERY_TYPE_IVR:
+            url = reverse('patient-ivr-callback',
+                          kwargs={'patient_id': self.patient.pk})
+            backend = Router().backends['tropo']
+            backend.call_tropo(url, message_type='voice')
+            # tropo will POST to our callback which will continue things
+        else:
+            raise SurveyUnknownQueryTypeException()
+
+        self.status = self.STATUS_STARTED
+        self.save()
+
+    def completed(self, status):
+        self.status = status
+        logger.debug("PatientSurvey completed: %s" % self)
+        self.save()

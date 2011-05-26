@@ -509,7 +509,7 @@ class PatientSurvey(models.Model):
             raise SurveyAlreadyStartedException()
 
         if self.query_type == QUERY_TYPE_SMS:
-            tree = aremind.apps.adherence.sms.make_tree_for_day(datetime.date.today())
+            tree = aremind.apps.adherence.sms.make_tree()
             aremind.apps.adherence.sms.start_tree_for_patient(tree, self.patient)
         elif self.query_type == QUERY_TYPE_IVR:
             url = reverse('patient-ivr-callback',
@@ -527,3 +527,23 @@ class PatientSurvey(models.Model):
         self.status = status
         logger.debug("PatientSurvey completed: %s" % self)
         self.save()
+
+class PillsMissed(models.Model):
+    """Pills patient says they missed in the four days before
+    a given date"""
+    patient = models.ForeignKey(Patient)
+    date = models.DateTimeField(auto_now=True)
+    num_missed = models.IntegerField()
+    source = models.IntegerField(choices=QUERY_TYPES)
+
+    class Meta:
+        verbose_name_plural = "Pills missed"
+
+    def __unicode__(self):
+        msg = u"Patient {patient} missed {num_missed} pills "
+        msg = msg + u"in the four days before {date} "
+        msg = msg + u"according to {source}."
+        return msg.format(patient=self.patient,
+                          num_missed=self.num_missed,
+                          date=self.date,
+                          source=self.get_source_display())

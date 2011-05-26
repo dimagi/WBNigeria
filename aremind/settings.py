@@ -82,7 +82,6 @@ RAPIDSMS_TABS = [
     ("broadcast-forwarding", "Forwarding"),
     ("aremind.apps.groups.views.list_groups", "Groups"),
     ("aremind.apps.groups.views.list_contacts","People"),
-    ("aremind.apps.wisepill.views.index","Wisepill"),
 #    ("settings", "Settings"),
 #    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
 

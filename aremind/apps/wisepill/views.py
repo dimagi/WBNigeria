@@ -13,18 +13,12 @@ from apps.patients.models import Patient
 
 logger = logging.getLogger('wisepill.views')
 
-#  url(r'^list_messages/(?p<patient_id>\d+)/$', 'list_messages_for_patient', name='wisepill-list-messages-for-patient'),
-
 @login_required
 def list_messages_for_patient(request, patient_id):
     patient = get_object_or_404(Patient, pk=patient_id)
     context = { 'patient': patient,
                 'wisepill_messages': patient.wisepill_messages.all() }
     return render(request, 'wisepill/list_messages_for_patient.html', context)
-
-@login_required
-def index(request):
-    return http.HttpResponse('')
 
 @login_required
 def make_fake_message(request, patient_id):

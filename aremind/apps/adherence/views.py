@@ -10,7 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from aremind.apps.adherence.forms import (ReminderForm, FeedForm, EntryForm,
                                           QueryScheduleForm)
 from aremind.apps.adherence.models import (Reminder, Feed, Entry,
-                                           QuerySchedule, PatientSurvey)
+                                           QuerySchedule, PatientSurvey,
+                                           PillsMissed)
 
 
 logger = logging.getLogger('adherence.views')
@@ -203,3 +204,9 @@ def delete_query_schedule(request, schedule_id):
         return redirect('adherence-dashboard')
     context = {'schedule':schedule}
     return render(request, 'adherence/delete_query_schedule.html', context)
+
+@login_required
+def pills_missed_report(request):
+    pills_missed = PillsMissed.objects.order_by('-date')
+    context = {'pills_missed': pills_missed }
+    return render(request, 'adherence/pills_missed_report.html', context)

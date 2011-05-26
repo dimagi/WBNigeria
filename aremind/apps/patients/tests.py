@@ -49,6 +49,7 @@ class PatientsCreateDataTest(CreateDataTest):
             <Next_Visit>Apr  7 2011 </Next_Visit>
             <Reminder_Time>12:00</Reminder_Time>
             <Daily_Doses>0</DailyDoses>
+            <Manual_Adherence>19</ManualAdherence>
         </Table>
         """
         data = data or {}
@@ -64,6 +65,7 @@ class PatientsCreateDataTest(CreateDataTest):
             'Next_Visit': next_visit.strftime('%b  %d %Y '),
             'Mobile_Number': '12223334444',
             'Daily_Doses': '0',
+            'Manual_Adherence': '19',
         }
         defaults.update(data)
         empty_items = [k for k, v in defaults.iteritems() if not v]
@@ -93,6 +95,8 @@ class PatientsCreateDataTest(CreateDataTest):
             'pin': self.random_number_string(4),
             'date_enrolled': today,
             'next_visit': today + datetime.timedelta(weeks=1),
+            'daily_doses': 2,
+            'manual_adherence': 19,
         }
         defaults.update(data)
         if 'contact' not in defaults:
@@ -288,6 +292,7 @@ class WisepillAdherenceTest(PatientsCreateDataTest):
         self.patient = self.create_patient()
         self.patient.msisdn = self.random_string(12)
         self.patient.daily_doses = 1
+        self.patient.manual_adherence = 19
         self.patient.save()
 
     def create_message_for_patient(self, timestamp):
@@ -311,13 +316,15 @@ class WisepillAdherenceTest(PatientsCreateDataTest):
     def test_adherence_no_messages(self):
         """If patient is supposed to take doses, but we've
         never seen a message from them (before today),
-        adherence is 0."""
-        self.assertEqual(self.patient.adherence(), 0)
+        adherence is whatever manual says."""
+        self.assertEqual(self.patient.adherence(),
+                         self.patient.manual_adherence)
 
     def test_adherence_one_day(self):
-        """If we only have one day's data, work with that"""
+        """If we only have one day's data, use manual number"""
         self.create_message_for_patient(self.days_ago(1))
-        self.assertEqual(self.patient.adherence(), 100)
+        self.assertEqual(self.patient.adherence(),
+                         self.patient.manual_adherence)
 
     def test_adherence_eight_day(self):
         for n in range(9):
@@ -327,7 +334,8 @@ class WisepillAdherenceTest(PatientsCreateDataTest):
 
     def test_today_doesnt_count(self):
         self.create_message_for_patient(self.days_ago(0))
-        self.assertEqual(self.patient.adherence(), 0)
+        self.assertEqual(self.patient.adherence(),
+                         self.patient.manual_adherence)
 
     def test_max_is_100(self):
         """2 doses per day is not 200% adherence"""
@@ -359,3 +367,18 @@ class WisepillAdherenceTest(PatientsCreateDataTest):
         self.create_message_for_patient(self.days_ago(3))
         self.create_message_for_patient(self.days_ago(1))
         self.assertEqual(self.patient.adherence(), 57)
+
+
+    def test_validate_manual_adherence(self):
+        self.patient.manual_adherence = -1
+        self.assertRaises(ValidationError, _validate_patient, self.patient)
+        self.patient.manual_adherence = 0
+        _validate_patient(self.patient)
+        self.patient.manual_adherence = 100
+        _validate_patient(self.patient)
+        self.patient.manual_adherence = 101
+        self.assertRaises(ValidationError, _validate_patient, self.patient)
+
+def _validate_patient(patient):
+    patient.full_clean()
+                          

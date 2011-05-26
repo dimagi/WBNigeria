@@ -1,6 +1,7 @@
 import datetime
 
 from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -56,6 +57,12 @@ class Patient(models.Model):
     # How many doses per day this patient is supposed to take
     daily_doses = models.IntegerField(default=0)
 
+    manual_adherence = models.IntegerField(default=0,
+                                           help_text="Adherence to show for this patient until we have enough days' data to compute it",
+                                           blank=True,
+                                           validators=[MinValueValidator(0),
+                                                       MaxValueValidator(100)])
+
     def __unicode__(self):
         msg = u'Patient, Subject ID:{id}, Enrollment Date:{date_enrolled}'
         return msg.format(id=self.subject_number,
@@ -79,8 +86,8 @@ class Patient(models.Model):
 
         Also looks to see what the oldest message we've ever
         received from this patient was. If it was less than 7
-        days ago, assume they just got the device that long
-        ago and only compute over that many days.
+        days ago, use the patient's 'manual_adherence' instead
+        of trying to compute a number.
 
         If we've never received a message from them before today,
         report adherence = 0; as far as we know, they've never taken
@@ -105,15 +112,15 @@ class Patient(models.Model):
 
         # Have we ever gotten a message before today?
         if msgs.count() == 0:
-            return 0  # never taken a dose...
+            return self.manual_adherence
 
         # When was our first message (ever)?
         first_message = msgs.order_by('timestamp')[0]
         days_to_first_message = (today - first_message.timestamp.date()).days
         if days_to_first_message < 7:
-            days_to_count = days_to_first_message
-        else:
-            days_to_count = 7
+            return self.manual_adherence
+
+        days_to_count = 7
 
         # compute adherence
         first_day_to_count = today - datetime.timedelta(days=days_to_count)

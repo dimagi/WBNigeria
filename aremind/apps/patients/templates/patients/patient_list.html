@@ -32,14 +32,13 @@
                     <td>{{ patient.reminder_count }}</td>
                     <td>{{ patient.feed_count }}</td>
                     <td>{{ patient.daily_doses }}</td>
-                    <td>{{ patient.adherence }}</td>
+                    <td>{{ patient.adherence }}%</td>
                     <td><a href='{% url wisepill-list-messages-for-patient patient.pk %}'>{{ patient.message_count }}</a>
                       (<a href='{% url wisepill-fake-message patient.pk %}'>fake</a>)
 </td>
                     <td class='actions'>
                         <a class='button' title="Edit Patient Info" href='{% url patient-detail patient.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>   
                         <a class='button' title="Send One Time Reminder" href='{% url patient-onetime-message patient.pk %}'><span class='ui-icon ui-icon-mail-closed'></span></a>
-                        <a class='button' title="View Patient Pill History" href='{% url patient-report patient.pk %}'><span class='ui-icon ui-icon-note'></span></a>
                         <a class='button' title="Start Adherence Report Tree (for testing only)" href='{% url patient-start-adherence-tree patient.pk %}'><span class='ui-icon ui-icon-circle-triangle-e'></span></a>
                         <a class='button' title='Start Adherence Report Voice Survey (IVR) (for testing only)' href='{% url patient-start-ivr patient.pk %}'><span class='ui-icon ui-icon-arrowthick-2-e-w'></span></a>
                     </td>

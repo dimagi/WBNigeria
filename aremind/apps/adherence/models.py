@@ -405,7 +405,7 @@ class QuerySchedule(models.Model):
     time_of_day = models.TimeField()
     recipients = models.ManyToManyField(Group,
                                         related_name='adherence_query_schedules')
-    query_type = models.IntegerField(choices=ADHERENCE_SOURCE)
+    query_type = models.IntegerField(choices=QUERY_TYPES)
     last_run = models.DateTimeField(null=True, blank=True, editable=False)
     active = models.BooleanField(default=True)
     days_between = models.IntegerField()

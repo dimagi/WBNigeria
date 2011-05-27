@@ -160,6 +160,13 @@ def patient_ivr_complete(request, patient_id):
                 survey.completed(PatientSurvey.STATUS_NO_ANSWER)
                 return http.HttpResponse()
                                       
+            if 'actions' not in result:
+                # Some kind of error
+                if result['state'] == 'DISCONNECTED':
+                    # seem to get this if we hang up in the middle
+                    survey.completed(PatientSurvey.STATUS_NOT_COMPLETED)
+                    return http.HttpResponse()
+
             actions = result['actions']
             # actions can be either an array of dictionaries or a single
             # dictionary, sigh.  Figure out if it's a single dictionary

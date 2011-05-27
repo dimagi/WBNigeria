@@ -42,7 +42,14 @@ def make_fake_message(request, patient_id):
     # DDMMYYHHMMSS
     time_value = timestamp.strftime("%d%m%y%H%M%S")
 
-    text = "@={delay_value},CN={msisdn},SN=fake,T={time_value},S=20,B=3800,PC=1,U=fake,M=1,CE=0".format(**locals())
+    # 50-50 old format or new format
+    new_format = random.randint(0,99) > 50
+    if new_format:
+        start = "AT={delay_value},".format(**locals())
+    else:
+        start = "@={delay_value},".format(**locals())
+
+    text = start + "CN={msisdn},SN=fake,T={time_value},S=20,B=3800,PC=1,U=fake,M=1,CE=0".format(**locals())
 
     connection = patient.contact.default_connection
 

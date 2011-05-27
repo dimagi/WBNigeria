@@ -27,6 +27,12 @@ class WisepillTest(TestCase):
           'message_type': WisepillMessage.DELAYED_EVENT,
           'subject_number': 'yyy-nnnnn',  # for fake patient
           },
+        { 'raw': 'AT=03,CN=256123453470,SN=357077005471753,T=010199060959,S=20,B=3800,PC=1,U= balance is UGX 15893. Yo,M=1,CE=0',
+          'msisdn': '256123453470',
+          'timestamp': datetime.datetime(2099,1,1, 6,9,59),  # yy,mm,dd, hh,mm,ss
+          'message_type': WisepillMessage.DELAYED_EVENT,
+          'subject_number': 'yyy-nnnnn',  # for fake patient
+          },
         ]
 
     def setUp(self):
@@ -75,3 +81,17 @@ class WisepillTest(TestCase):
         obj.sms_message = self.testmsgs[1]['raw']
         obj.save()
         self.assertEquals(obj.msisdn, self.testmsgs[0]['msisdn'])
+
+    def test_wisepill_message_recognition(self):
+        from apps.wisepill.app import WisepillApp
+        app = WisepillApp(None)
+        class fakemsg(object):
+            def __init__(self,text):
+                self.text = text
+        for testmsg in self.testmsgs:
+            msg = fakemsg(testmsg['raw'])
+            rc = app.handle(msg)
+            self.assertTrue(rc)
+            obj = WisepillMessage.objects.get(sms_message = testmsg['raw'])
+            obj.delete()
+        

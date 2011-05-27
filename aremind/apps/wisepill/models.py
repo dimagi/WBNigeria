@@ -77,6 +77,9 @@ U=<USSD Response: Network response to configured USSD command>,
 M=<Medication compartment: Value= 1 for Wisepill portable dispenser>,
 CE=<Parameter Not used: value = 0>
 CR/LF
+
+Newer devices seem to change @= to AT=.
+
 """
         parts = self.sms_message.split(",")
         values = {}
@@ -84,7 +87,10 @@ CR/LF
             key,value = part.split("=",1)
             values[key] = value
         # grab the parts we want
-        self.message_type = int(values['@'])
+        if '@' in values:
+            self.message_type = int(values['@'])
+        elif 'AT' in values:
+            self.message_type = int(values['AT'])
         self.msisdn = values['CN']
         # datetime format=DDMMYYHHMMSS
         t = values['T']

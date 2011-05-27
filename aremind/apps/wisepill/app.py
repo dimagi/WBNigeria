@@ -4,7 +4,8 @@ from apps.wisepill.models import WisepillMessage
 
 def looks_like_wisepill_message(text):
     # 
-    return text.startswith("@=") and "SN=" in text \
+    return (text.startswith("@=") or text.startswith("AT=")) \
+           and "SN=" in text \
            and "T=" in text \
            and "PC=" in text
 

@@ -465,6 +465,7 @@ class PatientSurvey(models.Model):
     patient = models.ForeignKey(Patient, related_name='surveys')
     query_type = models.IntegerField(choices=QUERY_TYPES)
     last_modified = models.DateTimeField(auto_now=True)
+    is_test = models.BooleanField(default=False)
     
     STATUS_CREATED = -2
     STATUS_STARTED = -1

@@ -23,7 +23,7 @@ class WisepillMessage(models.Model):
         (LIVE_EVENT, 'Live event'),
         (DELAYED_EVENT, 'Delayed event'),
         )
-    message_type = models.SmallIntegerField(choices=MESSAGE_TYPE_CHOICES,blank=True)
+    message_type = models.SmallIntegerField(choices=MESSAGE_TYPE_CHOICES, default=LIVE_EVENT)
     msisdn = models.CharField(max_length=12,blank=True)
     # the timestamp that was in the message
     timestamp = models.DateTimeField(blank=True)

@@ -94,7 +94,8 @@ def session_end(sender, **kwargs):
 
     entry = entries.all()[0]
     num_pills = int(entry.text)
-    aremind.apps.adherence.models.PillsMissed(patient=patient,
-                                              num_missed=num_pills,
-                                              source=QUERY_TYPE_SMS).save()
+    if not survey.is_test:
+        aremind.apps.adherence.models.PillsMissed(patient=patient,
+                                                  num_missed=num_pills,
+                                                  source=QUERY_TYPE_SMS).save()
     survey.completed(PatientSurvey.STATUS_COMPLETE)

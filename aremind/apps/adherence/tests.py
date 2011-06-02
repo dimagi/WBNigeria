@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 
 from aremind.apps.adherence.models import (Reminder, SendReminder, Feed, Entry,
                                            QuerySchedule)
+from aremind.apps.adherence.types import QUERY_TYPES, QUERY_TYPE_SMS, QUERY_TYPE_IVR
 from aremind.apps.patients.tests import PatientsCreateDataTest
 
 
@@ -327,7 +328,8 @@ class QueryScheduleTest(TestCase):
                                        datetime.timedelta(days=5),
                                  time_of_day = datetime.time(hour=0),
                                  last_run = None,
-                                 days_between = 4)
+                                 days_between = 4,
+                                 query_type = QUERY_TYPE_SMS)
         schedule.save()
         self.assertTrue(schedule.should_run(force=False))
         self.assertTrue(schedule.should_run(force=True))
@@ -338,7 +340,8 @@ class QueryScheduleTest(TestCase):
                                  time_of_day = datetime.time(hour=0),
                                  last_run = datetime.datetime.now() -
                                      datetime.timedelta(days=3),
-                                 days_between = 4)
+                                 days_between = 4,
+                                 query_type = QUERY_TYPE_SMS)
         schedule.save()
         self.assertFalse(schedule.should_run(force=False))
         self.assertTrue(schedule.should_run(force=True))
@@ -347,7 +350,8 @@ class QueryScheduleTest(TestCase):
         schedule = QuerySchedule(start_date = datetime.date.today(),
                                  time_of_day = datetime.time(hour=0),
                                  last_run = None,
-                                 days_between = 4)
+                                 days_between = 4,
+                                 query_type = QUERY_TYPE_SMS)
         schedule.save()
         self.assertTrue(schedule.should_run(force=False))
         self.assertTrue(schedule.should_run(force=True))
@@ -358,7 +362,8 @@ class QueryScheduleTest(TestCase):
                                  time_of_day = datetime.time(hour=0),
                                  last_run = None,
                                  active = False,
-                                 days_between = 4)
+                                 days_between = 4,
+                                 query_type = QUERY_TYPE_SMS)
         schedule.save()
         self.assertFalse(schedule.should_run(force=False))
         self.assertTrue(schedule.should_run(force=True))
@@ -370,7 +375,8 @@ class QueryScheduleTest(TestCase):
                                  time_of_day = datetime.time(hour=0),
                                  last_run = datetime.datetime.now() -
                                      datetime.timedelta(days=7),
-                                 days_between = 8)
+                                 days_between = 8,
+                                 query_type = QUERY_TYPE_SMS)
         schedule.save()
         self.assertFalse(schedule.should_run(force=False))
         self.assertTrue(schedule.should_run(force=True))
@@ -382,7 +388,8 @@ class QueryScheduleTest(TestCase):
                                  time_of_day = datetime.time(hour=0),
                                  last_run = None,
                                  active = False,
-                                 days_between = 4)
+                                 days_between = 4,
+                                 query_type = QUERY_TYPE_SMS)
         schedule.save()
         response = self.client.get(reverse('adherence-delete-query-schedule',
                                            args=(schedule.pk,)),

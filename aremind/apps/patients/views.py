@@ -114,7 +114,7 @@ def patient_onetime_message(request, patient_id):
 def patient_start_adherence_tree(request, patient_id):
     """Start adherence tree interaction with patient."""
     patient = get_object_or_404(patients.Patient, pk=patient_id)
-    survey = PatientSurvey(patient=patient, query_type=QUERY_TYPE_SMS)
+    survey = PatientSurvey(patient=patient, query_type=QUERY_TYPE_SMS, is_test=True)
     survey.start()
     return redirect('/httptester/httptester/%s/' % patient.contact.default_connection.identity)
 
@@ -122,7 +122,7 @@ def patient_start_adherence_tree(request, patient_id):
 def patient_start_ivr(request, patient_id):
     """Start interactive voice interaction with patient."""
     patient = get_object_or_404(patients.Patient, pk=patient_id)
-    survey = PatientSurvey(patient=patient, query_type=QUERY_TYPE_IVR)
+    survey = PatientSurvey(patient=patient, query_type=QUERY_TYPE_IVR, is_test=True)
     survey.start()
     return redirect('patient-list')
 
@@ -183,10 +183,11 @@ def patient_ivr_complete(request, patient_id):
                         # Got an answer, yay
                         answer = item['value']
                         num_pills = int(answer)
-                        # remember result
-                        PillsMissed(patient=patient,
-                                    num_missed=num_pills,
-                                    source=QUERY_TYPE_IVR).save()
+                        if not survey.is_test:
+                            # remember result
+                            PillsMissed(patient=patient,
+                                        num_missed=num_pills,
+                                        source=QUERY_TYPE_IVR).save()
                         complete = True
                 elif item['disposition'] == 'TIMEOUT':
                     pass #incomplete = True

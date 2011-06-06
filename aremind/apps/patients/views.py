@@ -289,7 +289,7 @@ def patient_ivr_callback(request, patient_id):
             'name': 'question1',
             }}
         thankyou = { 'say': {
-            'value': "Thank you."
+            'value': "Thank you.  Your adherence is %d percent." % patient.adherence(),
             }}
         hangup = { 'hangup': None }
 

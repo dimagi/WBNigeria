@@ -7,6 +7,8 @@ from django.dispatch import receiver
 from decisiontree.app import session_end_signal
 from decisiontree.models import Question, Answer, Tree, TreeState, Transition
 from threadless_router.base import incoming
+from threadless_router.router import Router
+from rapidsms.messages import OutgoingMessage
 import aremind.apps.adherence.models
 from aremind.apps.adherence.types import *
 from aremind.apps.patients.models import Patient, remember_patient_pills_taken
@@ -23,7 +25,6 @@ def make_tree():
     Returns the Tree object."""
 
     q1_text = _("How many pills did you miss in the last four days?")
-    end_text = _("Thank you.")
     err_text = _("Sorry, please respond with a number. ")
 
     q1, x = Question.objects.get_or_create(text = q1_text,
@@ -46,7 +47,7 @@ def make_tree():
 
     tree,x = Tree.objects.get_or_create(trigger = trigger.lower(),
                                         root_state = state1,
-                                        completion_text = end_text)
+                                        completion_text = '')
 
     return tree
 
@@ -99,3 +100,12 @@ def session_end(sender, **kwargs):
                                                   num_missed=num_pills,
                                                   source=QUERY_TYPE_SMS).save()
     survey.completed(PatientSurvey.STATUS_COMPLETE)
+
+    # After completing survey, tell patient what their current adherence is
+    connection = patient.contact.default_connection
+    adherence = patient.adherence()  # integer percentage
+    msg = OutgoingMessage(connection,
+                          _("Thank you. Your adherence is %(adherence)s%%"),
+                          adherence=adherence)
+    router = Router()
+    router.outgoing(msg)

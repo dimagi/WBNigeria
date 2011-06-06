@@ -428,6 +428,10 @@ class DailyReportTest(RemindersCreateDataTest):
 
     def test_sending_mail(self):
         """Test email goes out the contacts in the daily report group."""
+
+        appt_date = datetime.date.today() + datetime.timedelta(days=7) # Default for email
+        confirmed = self.create_confirmed_notification(self.test_patient, appt_date)
+
         # run email job
         daily_email_callback(self.router)
 
@@ -473,6 +477,9 @@ class DailyReportTest(RemindersCreateDataTest):
 
     def test_skip_blank_emails(self):
         """Test handling contacts with blank email addresses."""
+        appt_date = datetime.date.today() + datetime.timedelta(days=7) # Default for email
+        confirmed = self.create_confirmed_notification(self.test_patient, appt_date)
+
         blank_contact = self.create_contact(data={'email': ''})
         self.group.contacts.add(blank_contact)
 
@@ -483,6 +490,19 @@ class DailyReportTest(RemindersCreateDataTest):
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
         self.assertEqual(len(message.to), 1)
+
+
+    def test_skip_if_no_patients(self):
+        """Skip sending the email if there are not patients for this date."""
+
+        appt_date = datetime.date.today() + datetime.timedelta(days=5)
+        confirmed = self.create_confirmed_notification(self.test_patient, appt_date)
+
+        # run email job
+        from aremind.apps.reminders.app import daily_email_callback
+        daily_email_callback(self.router)
+
+        self.assertEqual(len(mail.outbox), 0)
 
 
 class ManualConfirmationTest(RemindersCreateDataTest):

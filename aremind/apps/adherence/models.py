@@ -445,10 +445,13 @@ class QuerySchedule(models.Model):
             logger.debug("Starting query from schedule %s" % self)
             for group in self.recipients.all():
                 for contact in group.contacts.all():
-                    patient = Patient.objects.get(contact=contact)
-                    survey = PatientSurvey(patient=patient,
-                                           query_type=self.query_type)
-                    survey.start()
+                    try:
+                        patient = Patient.objects.get(contact=contact)
+                        survey = PatientSurvey(patient=patient,
+                                               query_type=self.query_type)
+                        survey.start()
+                    except Patient.DoesNotExist:
+                        pass # no patient for that contact
             self.last_run = datetime.datetime.now()
             self.save()
 

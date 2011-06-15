@@ -194,6 +194,7 @@ def create_edit_query_schedule(request, schedule_id=None):
 def force_query_schedule(request, schedule_id):
     schedule = get_object_or_404(QuerySchedule, pk=schedule_id)
     schedule.start_scheduled_queries(force=True)
+    return redirect('adherence-dashboard')
 
 @login_required
 def delete_query_schedule(request, schedule_id):

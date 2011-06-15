@@ -55,9 +55,13 @@ def start_tree_for_patient(tree, patient):
     """Trigger tree for a given patient.
     Will result in our sending them the first question in the tree."""
 
+    connection = patient.contact.default_connection
+
+    # if one is in progress, end it
+    Router().get_app('decisiontree').end_sessions(connection)
+
     # fake an incoming message from our patient that triggers the tree
 
-    connection = patient.contact.default_connection
     backend_name = connection.backend.name
     address = connection.identity
     incoming(backend_name, address, tree.trigger)

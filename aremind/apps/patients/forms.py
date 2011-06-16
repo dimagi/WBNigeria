@@ -101,6 +101,11 @@ class PatientRemindersForm(forms.ModelForm):
             self.initial['subject_number'] = self.generate_new_subject_id()
             self.initial['pin'] = self.generate_new_pin()
 
+    def clean_mobile_number(self):
+        mobile_number = normalize_number(self.cleaned_data['mobile_number'])
+        validate_phone(mobile_number)
+        return mobile_number
+
     def generate_new_subject_id(self):
         valid = False
         while not valid:

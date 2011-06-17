@@ -3,8 +3,10 @@ import json
 import logging
 
 from django import http
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
 from django.db.models import Count
@@ -211,6 +213,20 @@ def patient_ivr_complete(request, patient_id):
         survey.completed(PatientSurvey.STATUS_ERROR)
         return http.HttpResponseServerError()
 
+def audio_file_url(filename):
+    """Given a filename, work out the URL that tropo needs to use
+    to download it from us.  Tropo apparently needs the full URL,
+    at least otherwise it reads out the filename instead of
+    downloading and playing it :-(
+    We're going to end up with something like
+    http://example.com:8000/static/audio/01-Intro.mp3
+    """
+    root = settings.STATIC_URL  # ends in '/'
+    return "http://%s%saudio/%s" % (Site.objects.get_current().domain, root, filename)
+
+# Maybe this should be a setting
+USE_RECORDED_VOICE = True
+
 @csrf_exempt
 def patient_ivr_callback(request, patient_id):
     """
@@ -276,27 +292,39 @@ def patient_ivr_callback(request, patient_id):
             'channel': 'VOICE',
             'name': patient_id,  # so we can correlate later
             }}
+
+        if USE_RECORDED_VOICE:
+            welcome_value = audio_file_url('01-Intro.mp3')
+            ask_value = audio_file_url('02-HowManyDoses.mp3')
+            thankyou_values = (audio_file_url('03-ThankYou.mp3'),
+                              audio_file_url('04-YourAdherenceScoreIs.mp3'),
+                              (u"%d" % patient.adherence()))
+        else:
+            welcome_value = "This is ARemind calling to see how you're doing."
+            ask_value = 'How many pills did you miss in the last four days?  Please enter the number, then press pound.'
+            thankyou_values = ("Thank you.  Your adherence is %d percent." % patient.adherence(),)
+
         # if call works, talk to them
-        welcome = { 'say': {
-            'value': "This is ARemind calling to see how you're doing."
-            }}
-        ask1 = { 'ask': {
-            'say': { 'value': 'How many pills did you miss in the last four days?  Please enter the number, then press pound.' },
+        commands = [ on1, on2, on3, on4, call ]
+        commands.append({ 'say': {
+            'value': welcome_value,
+            }})
+        commands.append({ 'ask': {
+            'say': { 'value': ask_value,
+                     },
             'choices': { 'value': '[1-3 DIGITS]',
                          'mode': 'dtmf',
                          'terminator': '#'},
             'attempts': 3,
             'name': 'question1',
-            }}
-        thankyou = { 'say': {
-            'value': "Thank you.  Your adherence is %d percent." % patient.adherence(),
-            }}
-        hangup = { 'hangup': None }
+            }})
+        for val in thankyou_values:
+            commands.append({ 'say': {
+            'value': val,
+            }})
+        commands.append({ 'hangup': None })
 
-        to_return = { 'tropo': [ on1, on2, on3, on4,
-                                 call, welcome,
-                                 ask1,
-                                 thankyou, hangup ] }
+        to_return = { 'tropo': commands }
         logger.debug("##Returning %s" % to_return)
         return http.HttpResponse(json.dumps(to_return))
     except Exception,e:

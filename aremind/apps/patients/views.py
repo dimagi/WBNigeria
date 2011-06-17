@@ -116,7 +116,7 @@ def patient_start_adherence_tree(request, patient_id):
     patient = get_object_or_404(patients.Patient, pk=patient_id)
     survey = PatientSurvey(patient=patient, query_type=QUERY_TYPE_SMS, is_test=True)
     survey.start()
-    return redirect('/httptester/httptester/%s/' % patient.contact.default_connection.identity)
+    return redirect('patient-list')
 
 @login_required
 def patient_start_ivr(request, patient_id):

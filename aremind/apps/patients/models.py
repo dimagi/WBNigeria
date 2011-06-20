@@ -150,16 +150,17 @@ class Patient(models.Model):
         data = {}
         # Track how many pills were taken X days ago
         for m in msgs:
-            days = (today - m.timestamp.date())
+            days = (today - m.timestamp.date()).days
             count = data.get(days, 0)
             data[days] = count + 1
         # Max number of days to get back is the number of days counted
         days_needed = days_to_count
         for i in range(1, days_to_count):
             doses = 0
-            for days, count in data.items():
+            for j in range(0, days_to_count):
                 # Drop the count from the end of the period
-                if (days + i) < days_to_count:
+                if (j + i) < days_to_count:
+                    count = data.get(j + i, 0)
                     doses += count
                 else:
                     # Assume they will take all of their pills

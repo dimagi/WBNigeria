@@ -315,6 +315,8 @@ class Entry(models.Model):
     content = models.TextField()
     published = models.DateTimeField(default=datetime.datetime.now)
     added = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    percent_max = models.IntegerField(blank=True, null=True)
+    percent_min = models.IntegerField(blank=True, null=True)
 
     class Meta(object):
         unique_together = ('feed', 'uid', )

@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models, transaction
 from django.db.models import Q
+from django.template import Context, Template
 from django.utils.html import strip_tags
 
 from dateutil import rrule
@@ -401,7 +402,13 @@ def get_contact_message(contact):
 
     if entry:
         entry.seen_by(patient)
-        message = entry.content[:160]
+        content = entry.content
+        if entry.feed.feed_type == Feed.TYPE_MANUAL:
+            # Include adherence/days info to content
+            template = Template(content)
+            context = Context({'adherence': adherence})
+            content = template.render(context)
+        message = content[:160]
     else:
         message = ""
     return message

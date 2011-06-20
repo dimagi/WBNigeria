@@ -406,7 +406,8 @@ def get_contact_message(contact):
         if entry.feed.feed_type == Feed.TYPE_MANUAL:
             # Include adherence/days info to content
             template = Template(content)
-            context = Context({'adherence': adherence})
+            days = patient.days_to_reach_level(95)
+            context = Context({'adherence': adherence, 'days': days})
             content = template.render(context)
         message = content[:160]
     else:

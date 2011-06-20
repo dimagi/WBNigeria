@@ -80,8 +80,14 @@ class EntryForm(forms.ModelForm):
         if self.instance and self.instance.feed:
             feed = self.instance.feed
             if feed.feed_type != Feed.TYPE_MANUAL:
+                # Drop percentage fields
                 del self.fields['percent_max']
                 del self.fields['percent_min']
+            else:
+                # Add help text for manual entries
+                self.fields['content'].help_text = ("Enter a message for the patient. " + 
+                "You message can include the patient's current adherence percentage as {{ adherence }} or " +
+                "the number of days to get back to 95% adherence as {{ days }}.")
 
     def clean(self):
         super(EntryForm, self).clean()

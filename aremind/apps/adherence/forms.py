@@ -61,13 +61,36 @@ class FeedForm(forms.ModelForm):
 
 class EntryForm(forms.ModelForm):
 
+    percent_max = forms.IntegerField(required=False, max_value=100, min_value=0)
+    percent_min = forms.IntegerField(required=False, max_value=100, min_value=0)
+
+
     class Meta(object):
         model = Entry
-        fields = ('content', 'published', )
+        fields = ('content', 'published', 'percent_max', 'percent_min', )
 
     def __init__(self, *args, **kwargs):
         super(EntryForm, self).__init__(*args, **kwargs)
         self.fields['published'].widget.attrs.update({'class': 'datetimepicker'})
+        if self.instance and self.instance.feed:
+            feed = self.instance.feed
+            if feed.feed_type != Feed.TYPE_MANUAL:
+                del self.fields['percent_max']
+                del self.fields['percent_min']
+
+    def clean(self):
+        super(EntryForm, self).clean()
+        if self.instance and self.instance.feed:
+            feed = self.instance.feed
+            if feed.feed_type != Feed.TYPE_MANUAL:
+                self.cleaned_data['percent_max'] = None 
+                self.cleaned_data['percent_min'] = None
+        percent_max = self.cleaned_data.get('percent_max', None)
+        percent_min = self.cleaned_data.get('percent_min', None)
+        if percent_max and percent_min and percent_min > percent_max:
+            raise forms.ValidationError('Max adherence percentage much be greater than min.')
+        return self.cleaned_data
+            
 
 class QueryScheduleForm(forms.ModelForm):
     class Meta(object):

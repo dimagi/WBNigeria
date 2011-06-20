@@ -61,9 +61,14 @@ class FeedForm(forms.ModelForm):
 
 class EntryForm(forms.ModelForm):
 
-    percent_max = forms.IntegerField(required=False, max_value=100, min_value=0)
-    percent_min = forms.IntegerField(required=False, max_value=100, min_value=0)
-
+    percent_max = forms.IntegerField(
+        required=False, max_value=100, min_value=0,
+        help_text="The max adherence percentage to be shown this message."
+    )
+    percent_min = forms.IntegerField(
+        required=False, max_value=100, min_value=0,
+        help_text="The min adherence percentage to be shown this message."
+    )
 
     class Meta(object):
         model = Entry

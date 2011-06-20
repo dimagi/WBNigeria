@@ -379,6 +379,60 @@ class WisepillAdherenceTest(PatientsCreateDataTest):
         self.patient.manual_adherence = 101
         self.assertRaises(ValidationError, _validate_patient, self.patient)
 
+    def test_one_day_to_reach_level(self):
+        """Test calculating the number of days to get back to 95% adherence"""
+
+        # Missed 7 days ago. 
+        # If they take tomorrow's dose they will be 100% for the week
+        for n in range(7):
+            self.create_message_for_patient(self.days_ago(n))
+        for n in range(8, 10):
+            self.create_message_for_patient(self.days_ago(n))
+        self.assertEqual(self.patient.adherence(), 85)
+        days = self.patient.days_to_reach_level()
+        self.assertEqual(days, 1)
+
+    def test_no_more_than_seven_days(self):
+        """Test patient at 0 adherence"""
+        self.create_message_for_patient(self.days_ago(10))
+        days = self.patient.days_to_reach_level()
+        self.assertEqual(days, 7)
+
+    def test_no_doses_to_reach_level(self):
+        """Test patient with no doses"""
+        self.patient.daily_doses = 0
+        self.patient.save()
+        days = self.patient.days_to_reach_level()
+        self.assertEqual(days, 0)
+
+    def test_already_above_level(self):
+        """Test patient already above 95%"""
+        for n in range(9):
+            self.create_message_for_patient(self.days_ago(n))
+        days = self.patient.days_to_reach_level()
+        self.assertEqual(days, 0)
+
+    def test_days_to_reach_level_multiple_doses(self):
+        """
+        Test calculating the number of days to get back to 95% adherence
+        when patient takes multiple doses a day
+        """
+
+        self.patient.daily_doses = 3
+        self.patient.save()
+
+        # Take two pills every third other day and otherwise 3
+        for n in range(9):
+            if n % 3 != 2:
+                self.create_message_for_patient(self.days_ago(n))
+            self.create_message_for_patient(self.days_ago(n))
+            self.create_message_for_patient(self.days_ago(n))
+        self.assertEqual(self.patient.adherence(), 90)
+        days = self.patient.days_to_reach_level()
+        # It will take 3 days for the first miss day to drop out
+        self.assertEqual(days, 3)
+        
+
 def _validate_patient(patient):
     patient.full_clean()
                           

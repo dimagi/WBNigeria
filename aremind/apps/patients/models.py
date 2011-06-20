@@ -97,41 +97,81 @@ class Patient(models.Model):
         adherence is perfect.
 
         """
-        today = datetime.date.today()
-        beginning_of_today = datetime.datetime(today.year,
-                                               today.month,
-                                               today.day)
+    
+        if not hasattr(self, '_percent'):
+            today = datetime.date.today()
+            beginning_of_today = datetime.datetime(today.year,
+                                                   today.month,
+                                                   today.day)
 
-        # Messages we've gotten (today doesn't count)
-        # pylint: disable-msg=E1101
-        msgs = self.wisepill_messages.filter(timestamp__lt=beginning_of_today)
+            # Messages we've gotten (today doesn't count)
+            # pylint: disable-msg=E1101
+            msgs = self.wisepill_messages.filter(timestamp__lt=beginning_of_today)
 
-        # Are they supposed to take any?
-        if self.daily_doses == 0:
-            return 100 # perfect!
+            # Are they supposed to take any?
+            if self.daily_doses == 0:
+                return 100 # perfect!
 
-        # Have we ever gotten a message before today?
-        if msgs.count() == 0:
-            return self.manual_adherence
+            # Have we ever gotten a message before today?
+            if msgs.count() == 0:
+                return self.manual_adherence
 
-        # When was our first message (ever)?
-        first_message = msgs.order_by('timestamp')[0]
-        days_to_first_message = (today - first_message.timestamp.date()).days
-        if days_to_first_message < 7:
-            return self.manual_adherence
+            # When was our first message (ever)?
+            first_message = msgs.order_by('timestamp')[0]
+            days_to_first_message = (today - first_message.timestamp.date()).days
+            if days_to_first_message < 7:
+                return self.manual_adherence
 
-        days_to_count = 7
+            days_to_count = 7
 
-        # compute adherence
-        first_day_to_count = today - datetime.timedelta(days=days_to_count)
-        num_wisepill_doses = msgs.filter(timestamp__gte=first_day_to_count). \
-                                  count()
-        supposed_to_take = days_to_count * self.daily_doses
-        percent = int((100 * num_wisepill_doses) / supposed_to_take)
-        if percent > 100:
-            percent = 100  # 100 is the max
-        return percent
+            # compute adherence
+            first_day_to_count = today - datetime.timedelta(days=days_to_count)
+            num_wisepill_doses = msgs.filter(timestamp__gte=first_day_to_count). \
+                                      count()
+            supposed_to_take = days_to_count * self.daily_doses
+            percent = int((100 * num_wisepill_doses) / supposed_to_take)
+            if percent > 100:
+                percent = 100  # 100 is the max
+            self._percent = percent
+        return self._percent
         
+    def days_to_reach_level(self, level=95):
+        days_to_count = 7
+        current_percent = self.adherence()
+        supposed_to_take = days_to_count * self.daily_doses        
+        if current_percent > level or supposed_to_take == 0:
+            return 0
+        today = datetime.date.today()
+        beginning_of_today = datetime.datetime(today.year, today.month, today.day)
+        first_day_to_count = today - datetime.timedelta(days=days_to_count)
+        msgs = self.wisepill_messages.filter(
+            timestamp__lt=beginning_of_today, timestamp__gte=first_day_to_count
+        )
+        data = {}
+        # Track how many pills were taken X days ago
+        for m in msgs:
+            days = (today - m.timestamp.date()).days
+            count = data.get(days, 0)
+            data[days] = count + 1
+        # Max number of days to get back is the number of days counted
+        days_needed = days_to_count
+        for i in range(1, days_to_count):
+            doses = 0
+            for j in range(0, days_to_count):
+                # Drop the count from the end of the period
+                if (j + i) < days_to_count:
+                    count = data.get(j + i, 0)
+                    doses += count
+                else:
+                    # Assume they will take all of their pills
+                    doses += self.daily_doses
+            # Calculate hypothetical adherence
+            percent = int((100 * doses) / supposed_to_take)
+            if percent >= level:
+                days_needed = i
+                break
+        return days_needed
+
 
 class PatientPillsTaken(models.Model):
     """# of pills a patient took on a particular date"""

@@ -9,6 +9,8 @@ import uuid
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models, transaction
+from django.db.models import Q
+from django.template import Context, Template
 from django.utils.html import strip_tags
 
 from dateutil import rrule
@@ -315,6 +317,8 @@ class Entry(models.Model):
     content = models.TextField()
     published = models.DateTimeField(default=datetime.datetime.now)
     added = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now)
+    percent_max = models.IntegerField(blank=True, null=True)
+    percent_min = models.IntegerField(blank=True, null=True)
 
     class Meta(object):
         unique_together = ('feed', 'uid', )
@@ -337,12 +341,15 @@ class EntrySeen(models.Model):
         return u"Patient {name} has seen entry {feed}.{uid}".format(name=self.patient.subject_number, feed=self.entry.feed, uid=self.entry.uid)
 
 
-def get_next_unseen_entry_for_patient(feeds, patient):
+def get_next_unseen_entry_for_patient(feeds, patient, adherence):
     try:
         entry = Entry.objects.filter(
+            Q(Q(percent_max__gte=adherence) | Q(percent_max__isnull=True)),
+            Q(Q(percent_min__lte=adherence) | Q(percent_min__isnull=True)),
             feed__in=feeds,
             published__lte=datetime.datetime.now()
-        ).exclude(entryseen__patient=patient
+        ).exclude(
+            entryseen__patient=patient
         ).order_by('-published')[0]
         return entry
     except IndexError:
@@ -370,31 +377,39 @@ def get_contact_message(contact):
     logging.info("manual percent = %d, prefer_manual=%s" % (manual_percent,prefer_manual))
 
     entry = None
+    adherence = patient.adherence()
     if prefer_manual:
-        entry = get_next_unseen_entry_for_patient(manual_feeds, patient)
+        entry = get_next_unseen_entry_for_patient(manual_feeds, patient, adherence)
         if entry is None:
             # no unseen manual entries, forget they've seen them and try again
             forget_entries(manual_feeds, patient)
-            entry = get_next_unseen_entry_for_patient(manual_feeds, patient)
+            entry = get_next_unseen_entry_for_patient(manual_feeds, patient, adherence)
         logging.info("got manual entry: %s" % entry)
     else:
-        entry = get_next_unseen_entry_for_patient(auto_feeds, patient)
+        entry = get_next_unseen_entry_for_patient(auto_feeds, patient, adherence)
         logging.info("got auto entry: %s" % entry)
         
     if entry is None:
         # No luck so far, try any feed
-        entry = get_next_unseen_entry_for_patient(feeds, patient)
+        entry = get_next_unseen_entry_for_patient(feeds, patient, adherence)
         logging.info("got any entry: %s" % entry)
 
     if entry is None:
         # still no luck, forget they've seen anything and try again
         forget_entries(feeds, patient)
-        entry = get_next_unseen_entry_for_patient(feeds, patient)
+        entry = get_next_unseen_entry_for_patient(feeds, patient, adherence)
         logging.info("forgot all, got %s" % entry)
 
     if entry:
         entry.seen_by(patient)
-        message = entry.content[:160]
+        content = entry.content
+        if entry.feed.feed_type == Feed.TYPE_MANUAL:
+            # Include adherence/days info to content
+            template = Template(content)
+            days = patient.days_to_reach_level(95)
+            context = Context({'adherence': adherence, 'days': days})
+            content = template.render(context)
+        message = content[:160]
     else:
         message = ""
     return message

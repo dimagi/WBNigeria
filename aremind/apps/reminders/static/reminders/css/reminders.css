@@ -1,0 +1,49 @@
+#inner .col-1 { width: 35%; }
+#inner .col-2 { width: 65%; }
+
+table#reminder_report {
+    width: 100%
+}
+
+table#reminder_report th {
+    font-weight: bold;
+}
+
+table#notification_schedule {
+    width: 100%;
+}
+table#notification_schedule tr.one {
+    background-color: #fff;
+}
+
+table#notification_schedule tr.two {
+    background-color: #eee;
+}
+
+table#notification_schedule ul {
+	list-style-type: none;
+}
+
+table#notification_schedule input.hasDatepicker {
+	width: 80px;
+}
+
+div#reminder_sample_message {
+    border: 1px solid #ddd;
+    padding: 0.5em;
+    font-size: 110%;
+}
+
+table.patient-reminders {
+    width: 100%
+}
+
+ul#reminder-nav {
+    margin-left: 0;
+    padding: 0;
+}
+
+ul#reminder-nav li {
+    list-style: none outside none;
+    margin-bottom: 5px;
+}

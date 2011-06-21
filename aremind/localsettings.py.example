@@ -1,0 +1,50 @@
+from aremind.settings import *
+
+# you should configure your database here before doing any real work.
+# see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
+
+# for postgresql:
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "aremind",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "",
+    }
+}
+
+TESTING_DATABASES= {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",#
+        "NAME": "aremind.sqlite3",
+    }
+}
+
+INSTALLED_BACKENDS = {
+    "tropo": {
+        "ENGINE": "rtropo.outgoing",
+        'config': {
+            'encoding' : 'UTF-8'
+            'number': '+1-xxx-yyy-zzzz',
+            'messaging_token': 'longhexstring',
+            'voice_token': 'anotherlonghexstring',
+        }
+    },
+}
+
+DJANGO_LOG_FILE = "aremind.django.log"
+LOG_SIZE = 1000000
+LOG_LEVEL   = "DEBUG"
+LOG_FILE    = "aremind.router.log"
+LOG_FORMAT  = "%(asctime)s - [%(levelname)s]\t[%(name)s]: %(message)s"
+LOG_BACKUPS = 256 # number of logs to keep
+
+COUNTRY_CODE = '1'
+
+# MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
+# MIDDLEWARE_CLASSES.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+# INTERNAL_IPS = ('127.0.0.1',)
+# INSTALLED_APPS = list(INSTALLED_APPS)
+# INSTALLED_APPS.append('debug_toolbar')
+# DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}

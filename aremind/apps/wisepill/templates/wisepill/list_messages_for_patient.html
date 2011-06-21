@@ -1,0 +1,47 @@
+{% extends "aremind/layout.html" %}
+
+{% load i18n pagination_tags sorting_tags %}
+
+{% block title %}Patient wisepill messages{% endblock %}
+
+{% block content %}
+<div class='module'>
+  <h2>Patient wisepill messages</h2>
+  <p>Patient: {{ patient.subject_number }}</p>
+{% autosort wisepill_messages %}
+{% autopaginate wisepill_messages 20 %}
+<table class='sortable pagination'>
+<thead>
+<tr>
+<th>{% anchor timestamp "Timestamp in message" %}</th>
+<th>{% anchor is_delayed "Delayed" %}</th>
+<th>{% anchor time_received "Time received" %}</th>
+<th>Raw message</th>
+</tr>
+</thead>
+<tbody>
+{% for wisepill_message in wisepill_messages %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td>{{ wisepill_message.timestamp }} </td>
+<td>{{ wisepill_message.is_delayed }} </td>
+<td>{{ wisepill_message.time_received }} </td>
+<td>{{ wisepill_message.sms_message }} </td>
+</tr>
+{% empty %}
+    <tr class="{% cycle 'odd' 'even' %}">
+        <td colspan='2'>Currently no Wisepill messages received.</td>
+    </tr>
+{% endfor %}
+</tbody>
+<tfoot>
+    {% if paginator.count > paginator.per_page %}
+    <tr>
+        <td colspan='2'>
+            {% paginate %}
+        </td>
+    </tr>
+    {% endif %}
+</tfoot>
+</table>
+</div>
+{% endblock %}

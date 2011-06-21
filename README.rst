@@ -1,7 +1,8 @@
-AFRIMS
-======
+ARemind
+=======
 
-The RapidSMS AFRIMS project...
+
+The RapidSMS ARemind project...
 
 Development Workflow
 ====================
@@ -48,15 +49,15 @@ Developer Setup
 #. Clone the code from git, checkout the ``develop`` branch, and initialize
    git-flow::
 
-    git clone git@github.com:afrims/afrims.git
-    cd afrims
+    git clone git@github.com:dimagi/aremind.git
+    cd aremind
     git checkout develop
     git flow init # just accept all the default answers
   
 #. Create a Python virtual environment for this project::
 
-    mkvirtualenv --distribute afrims-dev
-    workon afrims-dev
+    mkvirtualenv --distribute aremind-dev
+    workon aremind-dev
 
 #. Install the project dependencies into the virtual environment::
 
@@ -65,7 +66,7 @@ Developer Setup
 #. Create local settings file and initialize a development database::
 
     cp localsettings.py.example localsettings.py
-    createdb afrims_devel
+    createdb aremind_devel
     ./manage.py syncdb
 
 #. In one terminal, start RapidSMS router::

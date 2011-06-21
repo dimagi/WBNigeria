@@ -1,0 +1,91 @@
+{% extends "reminders/base.html" %}
+
+{% block right %}
+{% load pagination_tags sorting_tags %}
+<div class="module">
+    <h2>Unconfirmed Reminders For Appointments on {{ appt_date }}</h2>
+    <table class="pagination sortable patient-reminders">
+        <thead>
+            <tr>
+                <th>Study ID</th>                
+                <th>Number</th>
+                <th>Time of Last Reminder</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        {% for patient in unconfirmed_patients|slice:":20" %}
+        <tr class="{% cycle 'odd' 'even' %}">
+            <td>{{ patient.subject_number }}</td>
+            <td>{{ patient.formatted_phone }}</td>
+            <td>{{ patient.last_reminder_time }}</td>
+            <td class='actions'>
+                <a class='button' title='Manually confirm patient #{{ patient.subject_number}}' href='{% url manually-confirm-patient patient.reminder_id %}'><span class='ui-icon ui-icon-check'></span></a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan='4'>No pending reminders</td>
+        </tr>
+        {% endfor %}
+        <tfoot>
+            <tr>
+                <td colspan='4'>
+                    <a href="{% url reminders-report %}?status=unconfirmed">See all unconfirmed appointments</a>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<div class="module">
+    <form class="date-form buttons" action="{% url reminders_dashboard %}" method="get">
+        <div class='form-action'>
+            {{ report_form }}
+            <input type='submit' value="Change Report Date" />
+        </div>
+    </form>
+</div>
+{% autosort notifications %}
+{% autopaginate notifications 15 %}
+<div class="module">
+    <h2>Notification Schedule</h2>
+    <p><a class='button add' title='Add Notification Schedule' href="{% url create-notification %}" >Add notification schedule...</a></p>
+    <table id='notifications' class="pagination sortable">
+        <thead>
+            <tr>
+                <th>{% anchor id "ID" %}</th>                
+                <th>{% anchor num_days "Reminder Schedule" %}</th>
+                <th>{% anchor time_of_day "Time of Day" %}</th>
+                <th>{% anchor recipients "Recipients" %}</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        {% for notification in notifications %}
+        <tr class="{% cycle 'odd' 'even' %}">
+            <td>{{ notification.id }}</td>
+            <td>{{ notification.get_num_days_display }}</td>
+            <td>{{ notification.formatted_time }}</td>
+            <td>
+                {{ notification.get_recipients_display }}
+            </td>
+            <td class='actions'>
+                <a class='button' title='Edit notification #{{ notification.pk }}' href='{% url edit-notification notification.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>
+                <a class='button' title='Delete notification #{{ notification.pk }}' href='{% url delete-notification notification.pk %}'><span class='ui-icon ui-icon-closethick'></span></a>    
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan='6'>No notification schedules</td>
+        </tr>
+        {% endfor %}
+        <tfoot>
+            {% if paginator.count > paginator.per_page %}
+            <tr>
+                <td colspan='5'>
+                    {% paginate %}
+                </td>
+            </tr>
+            {% endif %}
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

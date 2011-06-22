@@ -23,6 +23,7 @@ from fabric.contrib import files, console
 from fabric.contrib.project import rsync_project
 from fabric import utils
 from fabric.decorators import hosts
+import posixpath
 
 
 PROJECT_ROOT = os.path.dirname(__file__)
@@ -39,14 +40,15 @@ env.code_repo = 'git://github.com/dimagi/aremind.git'
 
 
 def _setup_path():
-    env.root = os.path.join(env.home, 'www', env.environment)
-    env.log_dir = os.path.join(env.home, 'www', env.environment, 'log')
-    env.code_root = os.path.join(env.root, 'code_root')
-    env.project_root = os.path.join(env.code_root, env.project)
-    env.project_media = os.path.join(env.code_root, 'media')
-    env.project_static = os.path.join(env.project_root, 'static')
-    env.virtualenv_root = os.path.join(env.root, 'python_env')
-    env.services = os.path.join(env.home, 'services')
+    # using posixpath to ensure unix style slashes. See bug-ticket: http://code.fabfile.org/attachments/61/posixpath.patch
+    env.root = posixpath.join(env.home, 'www', env.environment)
+    env.log_dir = posixpath.join(env.home, 'www', env.environment, 'log')
+    env.code_root = posixpath.join(env.root, 'code_root')
+    env.project_root = posixpath.join(env.code_root, env.project)
+    env.project_media = posixpath.join(env.code_root, 'media')
+    env.project_static = posixpath.join(env.project_root, 'static')
+    env.virtualenv_root = posixpath.join(env.root, 'python_env')
+    env.services = posixpath.join(env.home, 'services')
 
 
 def setup_dirs():
@@ -78,15 +80,25 @@ def production():
     env.code_branch = 'master'
     env.sudo_user = 'aremind'
     env.environment = 'production'
-    env.hosts = []
-    raise NotImplementedError()
+    env.server_port = '9002'
+    env.server_name = 'aremind-production'
+    env.hosts = ['204.232.207.248']
+    env.settings = '%(project)s.localsettings' % env
+    env.db = '%s_%s' % (env.project, env.environment)
+    _setup_path()
+
+#    env.code_branch = 'master'
+#    env.sudo_user = 'aremind'
+#    env.environment = 'production'
+#    env.hosts = []
+#    raise NotImplementedError()
 
 
 def install_packages():
     """Install packages, given a list of package names"""
 
     require('environment', provided_by=('staging', 'production'))
-    packages_file = os.path.join(PROJECT_ROOT, 'requirements', 'apt-packages.txt')
+    packages_file = posixpath.join(PROJECT_ROOT, 'requirements', 'apt-packages.txt')
     with open(packages_file) as f:
         packages = f.readlines()
     sudo("apt-get install -y %s" % " ".join(map(lambda x: x.strip('\n\r'), packages)))
@@ -176,11 +188,11 @@ def deploy():
 def update_requirements():
     """ update external dependencies on remote host """
     require('code_root', provided_by=('staging', 'production'))
-    requirements = os.path.join(env.code_root, 'requirements')
+    requirements = posixpath.join(env.code_root, 'requirements')
     with cd(requirements):
         cmd = ['sudo -u %s -H pip install' % env.sudo_user]
         cmd += ['-q -E %(virtualenv_root)s' % env]
-        cmd += ['--requirement %s' % os.path.join(requirements, 'apps.txt')]
+        cmd += ['--requirement %s' % posixpath.join(requirements, 'apps.txt')]
         run(' '.join(cmd))
 
 
@@ -315,10 +327,10 @@ def commit_locale_changes():
 def upload_supervisor_conf():
     """Upload and link Supervisor configuration from the template."""
     require('environment', provided_by=('staging', 'demo', 'production'))
-    template = os.path.join(os.path.dirname(__file__), 'services', 'templates', 'supervisor.conf')
+    template = posixpath.join(os.path.dirname(__file__), 'services', 'templates', 'supervisor.conf')
     destination = '/var/tmp/supervisor.conf'
     files.upload_template(template, destination, context=env, use_sudo=True)
-    enabled =  os.path.join(env.services, u'supervisor/%(environment)s.conf' % env)
+    enabled =  posixpath.join(env.services, u'supervisor/%(environment)s.conf' % env)
     run('sudo chown -R %s %s' % (env.sudo_user, destination))
     run('sudo chgrp -R www-data %s' % destination)
     run('sudo chmod -R g+w %s' % destination)
@@ -329,10 +341,10 @@ def upload_supervisor_conf():
 def upload_apache_conf():
     """Upload and link Supervisor configuration from the template."""
     require('environment', provided_by=('staging', 'demo', 'production'))
-    template = os.path.join(os.path.dirname(__file__), 'services', 'templates', 'apache.conf')
+    template = posixpath.join(os.path.dirname(__file__), 'services', 'templates', 'apache.conf')
     destination = '/var/tmp/apache.conf'
     files.upload_template(template, destination, context=env, use_sudo=True)
-    enabled =  os.path.join(env.services, u'apache/%(environment)s.conf' % env)
+    enabled =  posixpath.join(env.services, u'apache/%(environment)s.conf' % env)
     run('sudo chown -R %s %s' % (env.sudo_user, destination))
     run('sudo chgrp -R www-data %s' % destination)
     run('sudo chmod -R g+w %s' % destination)

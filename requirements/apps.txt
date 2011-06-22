@@ -14,7 +14,7 @@ python-twitter==0.8.2
 feedparser==5.0.1
 gevent==0.13.6
 greenlet==0.3.1
-distribute>=0.6.16
+distribute>=0.6.19
 -e hg+https://bitbucket.org/mlavin/django-selectable#egg=django-selectable
 -e git+https://github.com/caktus/rapidsms-decisiontree-app.git@develop#egg=decisiontree
 -e git+https://github.com/caktus/rapidsms-tropo.git@develop#egg=rtropo

@@ -127,8 +127,8 @@ STATIC_ROOT = os.path.join(PROJECT_PATH, '..', 'static_files')
 
 # Specify a logo URL for the dashboard layout.html. This logo will show up
 # at top left for every tab
-LOGO_LEFT_URL = " "
-LOGO_RIGHT_URL = " "
+LOGO_LEFT_URL = '%simages/blank.png' % STATIC_URL
+LOGO_RIGHT_URL = '%simages/blank.png' % STATIC_URL
 SITE_TITLE = "ARemind"
 BASE_TEMPLATE = "layout.html"
 

@@ -146,7 +146,7 @@ def delete_entry(request, entry_id):
         messages.info(request, 'Message successfully deleted')
         return redirect('adherence-dashboard')
     context = {'entry': entry}
-    return render(request, 'adherence/entry_feed.html', context)
+    return render(request, 'adherence/delete_entry.html', context)
 
 
 @csrf_exempt

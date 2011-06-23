@@ -24,7 +24,7 @@ def make_tree():
     """Create a decisiontree Tree in the database.
     Returns the Tree object."""
 
-    q1_text = _("How many pills did you miss in the last four days?")
+    q1_text = _("How many doses did you miss in the last four days?")
     err_text = _("Sorry, please respond with a number. ")
 
     q1, x = Question.objects.get_or_create(text = q1_text,
@@ -109,7 +109,7 @@ def session_end(sender, **kwargs):
     connection = patient.contact.default_connection
     adherence = patient.adherence()  # integer percentage
     msg = OutgoingMessage(connection,
-                          _("Thank you. Your adherence is %(adherence)s%%"),
+                          _("Thank you. Your adherence is %(adherence)s%%, as measured by the black study pillbox."),
                           adherence=adherence)
     router = Router()
     router.outgoing(msg)

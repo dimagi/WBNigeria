@@ -109,7 +109,7 @@ def session_end(sender, **kwargs):
     connection = patient.contact.default_connection
     adherence = patient.adherence()  # integer percentage
     msg = OutgoingMessage(connection,
-                          _("Thank you. Your adherence is %(adherence)s%%"),
+                          _("Thank you. Your adherence is %(adherence)s%%, as measured by the black study pillbox."),
                           adherence=adherence)
     router = Router()
     router.outgoing(msg)

@@ -294,10 +294,10 @@ def patient_ivr_callback(request, patient_id):
             }}
 
         if USE_RECORDED_VOICE:
-            welcome_value = audio_file_url('01-Intro.mp3')
-            ask_value = audio_file_url('02-HowManyDoses.mp3')
-            thankyou_values = (audio_file_url('03-ThankYou.mp3'),
-                              audio_file_url('04-YourAdherenceScoreIs.mp3'),
+            welcome_value = audio_file_url('01-Intro.wav')
+            ask_value = audio_file_url('02-HowManyDoses.wav')
+            thankyou_values = (audio_file_url('03-ThankYou.wav'),
+                              audio_file_url('04-YourAdherenceScoreIs.wav'),
                               (u"%d" % patient.adherence()))
         else:
             welcome_value = "This is ARemind calling to see how you're doing."

@@ -27,6 +27,13 @@ class WisepillMessage(models.Model):
     msisdn = models.CharField(max_length=12,blank=True)
     # the timestamp that was in the message
     timestamp = models.DateTimeField(blank=True)
+    serialnumber = models.CharField(max_length=40,blank=True)
+    signalstrength = models.IntegerField(blank=True,default=-1)
+    batterystrength = models.IntegerField(blank=True,default=-1)
+    puffcount = models.IntegerField(blank=True,default=-1)
+    ussdresponse = models.CharField(max_length=160,blank=True,default='')
+    medicationcompartment = models.CharField(max_length=160,blank=True,default='')
+    ce = models.CharField(max_length=160,blank=True,default='')
 
     # the patient who has this device, if known
     patient = models.ForeignKey(Patient, related_name='wisepill_messages', blank=True,null=True)
@@ -92,6 +99,13 @@ Newer devices seem to change @= to AT=.
         elif 'AT' in values:
             self.message_type = int(values['AT'])
         self.msisdn = values['CN']
+        self.serialnumber = values['SN']
+        self.signalstrength = int(values['S'])
+        self.batterystrength = int(values['B'])
+        self.puffcount = int(values['PC'])
+        self.ussdresponse = values['U']
+        self.medicationcompartment = values['M']
+        self.ce = values['CE']
         # datetime format=DDMMYYHHMMSS
         t = values['T']
         (dd,month,yy,hh,minute,ss) = [int(x) for x in (t[0:2],t[2:4],t[4:6],t[6:8],t[8:10],t[10:12])]

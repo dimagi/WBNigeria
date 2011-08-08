@@ -1,9 +1,10 @@
+import datetime
 import logging
 
 from django import http
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
+from django.db.models import Count, Max
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
@@ -12,7 +13,7 @@ from aremind.apps.adherence.forms import (ReminderForm, FeedForm, EntryForm,
 from aremind.apps.adherence.models import (Reminder, Feed, Entry,
                                            QuerySchedule, PatientSurvey,
                                            PillsMissed)
-
+from aremind.apps.patients.models import Patient
 
 logger = logging.getLogger('adherence.views')
 
@@ -211,3 +212,10 @@ def pills_missed_report(request):
     pills_missed = PillsMissed.objects.order_by('-date')
     context = {'pills_missed': pills_missed }
     return render(request, 'adherence/pills_missed_report.html', context)
+
+@login_required
+def wisepill_not_reporting(request):
+    hours48_ago = datetime.datetime.now() - datetime.timedelta(hours=48)
+    notreporting = Patient.objects.all().exclude(wisepill_messages__timestamp__gte=hours48_ago).annotate(last_report=Max('wisepill_messages__timestamp'))
+    context = { 'notreporting': notreporting }
+    return render(request, 'adherence/wisepill_not_reporting.html', context)

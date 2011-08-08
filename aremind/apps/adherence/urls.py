@@ -19,5 +19,6 @@ urlpatterns = patterns('aremind.apps.adherence.views',
     url(r'^query_schedule_delete/(?P<schedule_id>\d+)/$', 'delete_query_schedule', name='adherence-delete-query-schedule'),
     url(r'^query_schedule_force/(?P<schedule_id>\d+)/$', 'force_query_schedule', name='adherence-force-query-schedule'),
     url(r'^pills_missed/$', 'pills_missed_report', name='adherence-pills-missed'),
+    url(r'^wisepill_not_reporting/$', 'wisepill_not_reporting', name='adherence-unreporting-wisepill'),
     url(r'^$', 'dashboard', name='adherence-dashboard'),
 )

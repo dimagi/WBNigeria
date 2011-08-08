@@ -191,7 +191,7 @@ def update_requirements():
     requirements = posixpath.join(env.code_root, 'requirements')
     with cd(requirements):
         cmd = ['sudo -u %s -H pip install' % env.sudo_user]
-        cmd += ['-q -E %(virtualenv_root)s' % env]
+        cmd += ['-E %(virtualenv_root)s' % env]
         cmd += ['--requirement %s' % posixpath.join(requirements, 'apps.txt')]
         run(' '.join(cmd))
 

@@ -80,9 +80,9 @@ def production():
     env.code_branch = 'master'
     env.sudo_user = 'aremind'
     env.environment = 'production'
-    env.server_port = '9002'
+    env.server_port = '9010'
     env.server_name = 'aremind-production'
-    env.hosts = ['204.232.207.248']
+    env.hosts = ['10.84.168.245']
     env.settings = '%(project)s.localsettings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()

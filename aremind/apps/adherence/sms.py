@@ -45,9 +45,12 @@ def make_tree():
     # Receipt of this message triggers starting the tree.
     trigger = "start tree"
 
-    tree,x = Tree.objects.get_or_create(trigger = trigger.lower(),
-                                        root_state = state1,
-                                        completion_text = '')
+    # Tree has a uniqueness constraint on the trigger
+    tree,x = Tree.objects.get_or_create(trigger = trigger.lower())
+
+    tree.root_state = state1
+    tree.completion_text = ''
+    tree.save()
 
     return tree
 

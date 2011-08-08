@@ -63,6 +63,9 @@ class Patient(models.Model):
                                            validators=[MinValueValidator(0),
                                                        MaxValueValidator(100)])
 
+    batterystrength = models.IntegerField(default=-1,
+                                          help_text = "Last battery strength reported by patient's Wisepill device")
+
     def __unicode__(self):
         msg = u'Patient, Subject ID:{id}, Enrollment Date:{date_enrolled}'
         return msg.format(id=self.subject_number,

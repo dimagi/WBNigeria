@@ -4,6 +4,11 @@ import logging
 from django.db import models
 from apps.patients.models import Patient
 
+# at or below this battery strength reported by a wisepill device,
+# we'll consider its batter to be low
+# FIXME: this is just a number pulled from the air and has no legitimacy whatsoever
+WISEPILL_LOW_BATTERY = 4000
+
 logger = logging.getLogger('wisepill.models')
 
 class WisepillMessage(models.Model):
@@ -52,6 +57,9 @@ class WisepillMessage(models.Model):
             self._parse_message()
             # and set the patient field based on the msisdn
             self.set_patient()
+        if self.patient:
+            self.patient.batterystrength = self.batterystrength
+            self.patient.save()
         super(WisepillMessage,self).save(*args,**kwargs)
 
     def set_patient(self):

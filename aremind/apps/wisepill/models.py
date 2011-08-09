@@ -6,8 +6,8 @@ from apps.patients.models import Patient
 
 # at or below this battery strength reported by a wisepill device,
 # we'll consider its batter to be low
-# FIXME: this is just a number pulled from the air and has no legitimacy whatsoever
-WISEPILL_LOW_BATTERY = 4000
+# The manufacturer says low battery is below 3600 mV
+WISEPILL_LOW_BATTERY = 3599
 
 logger = logging.getLogger('wisepill.models')
 

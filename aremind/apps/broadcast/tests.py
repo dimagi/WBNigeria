@@ -18,6 +18,8 @@ from aremind.apps.broadcast.models import Broadcast, DateAttribute,\
                                          ForwardingRule
 from aremind.apps.broadcast.app import BroadcastApp, scheduler_callback
 from aremind.apps.broadcast.forms import BroadcastForm
+from aremind.apps.patients.tests import PatientsCreateDataTest
+from aremind.apps.wisepill.constants import WISEPILL_LOW_BATTERY
 
 from threadless_router.tests.base import SimpleRouterMixin
 
@@ -309,7 +311,28 @@ class BroadcastViewTest(BroadcastCreateDataTest):
         after = Broadcast.objects.get(pk=before.pk)
         self.assertTrue(after.schedule_frequency is None)
 
+class LowBatteryViewTest(PatientsCreateDataTest):
+    def setUp(self):
+        self.user = User.objects.create_user('test', 'a@b.com', 'abc')
+        self.user.save()
+        self.client.login(username='test', password='abc')
 
+    def test_low_battery_patient(self):
+        patient = self.create_patient()
+
+        patient.batterystrength = WISEPILL_LOW_BATTERY + 1  # not low
+        patient.save()
+        response = self.client.get(reverse('rapidsms-dashboard'))
+        context = response.context
+        self.assertEquals(len(context['low_battery_patients']), 0)
+
+        patient.batterystrength = WISEPILL_LOW_BATTERY # low
+        patient.save()
+        response = self.client.get(reverse('rapidsms-dashboard'))
+        context = response.context
+        self.assertEquals(len(context['low_battery_patients']), 1)
+        self.assertEquals(context['low_battery_patients'][0], patient)
+        
 class BroadcastForwardingTest(BroadcastCreateDataTest):
 
     def setUp(self):

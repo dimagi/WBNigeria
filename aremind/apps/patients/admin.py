@@ -11,7 +11,7 @@ from aremind.apps.patients.importer import parse_payload
 class PatientAdmin(admin.ModelAdmin):
     list_display = ('subject_number', 'date_enrolled', 'next_visit',
                     'mobile_number', 'pin', 'contact', 'daily_doses',
-                    'adherence')
+                    'adherence', 'batterystrength')
     list_filter = ('next_visit',)
     date_hierarchy = 'date_enrolled'
     ordering = ('-date_enrolled',)

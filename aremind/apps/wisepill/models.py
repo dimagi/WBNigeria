@@ -3,11 +3,7 @@ import logging
 
 from django.db import models
 from apps.patients.models import Patient
-
-# at or below this battery strength reported by a wisepill device,
-# we'll consider its batter to be low
-# The manufacturer says low battery is below 3600 mV
-WISEPILL_LOW_BATTERY = 3599
+from apps.wisepill.constants import WISEPILL_LOW_BATTERY
 
 logger = logging.getLogger('wisepill.models')
 

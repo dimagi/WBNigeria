@@ -11,6 +11,7 @@ from rapidsms import models as rapidsms
 from aremind.apps.adherence.types import *
 from aremind.apps.groups.models import Group
 from aremind.apps.groups.utils import format_number
+from aremind.apps.wisepill.constants import WISEPILL_LOW_BATTERY
 
 import logging
 logger = logging.getLogger('patients.models')
@@ -64,7 +65,7 @@ class Patient(models.Model):
                                                        MaxValueValidator(100)])
 
     batterystrength = models.IntegerField(default=-1,
-                                          help_text = "Last battery strength reported by patient's Wisepill device")
+                                          help_text = "Last battery strength reported by patient's Wisepill device.  Below %d is considered low" % (1+WISEPILL_LOW_BATTERY))
 
     def __unicode__(self):
         msg = u'Patient, Subject ID:{id}, Enrollment Date:{date_enrolled}'

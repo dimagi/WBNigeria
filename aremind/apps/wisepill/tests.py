@@ -2,7 +2,8 @@ import datetime
 from django.test import TestCase
 
 from rapidsms.models import Contact
-from aremind.apps.wisepill.models import WisepillMessage, WISEPILL_LOW_BATTERY
+from aremind.apps.wisepill.models import WisepillMessage
+from aremind.apps.wisepill.constants import WISEPILL_LOW_BATTERY
 from aremind.apps.patients.models import Patient, PatientDataPayload
 from aremind.apps.patients.importer import parse_payload
 

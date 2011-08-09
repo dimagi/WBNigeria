@@ -19,7 +19,7 @@ from aremind.apps.broadcast.models import Broadcast, DateAttribute,\
 from aremind.apps.broadcast.app import BroadcastApp, scheduler_callback
 from aremind.apps.broadcast.forms import BroadcastForm
 from aremind.apps.patients.tests import PatientsCreateDataTest
-from aremind.apps.wisepill.models import WISEPILL_LOW_BATTERY
+from aremind.apps.wisepill.constants import WISEPILL_LOW_BATTERY
 
 from threadless_router.tests.base import SimpleRouterMixin
 

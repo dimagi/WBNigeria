@@ -19,7 +19,7 @@ from aremind.apps.broadcast.forms import BroadcastForm, ForwardingRuleForm, Repo
 from aremind.apps.broadcast.models import Broadcast, BroadcastMessage, ForwardingRule
 from aremind.apps.patients.models import Patient
 from aremind.apps.reminders.models import SentNotification
-from aremind.apps.wisepill.models import WISEPILL_LOW_BATTERY
+from aremind.apps.wisepill.constants import WISEPILL_LOW_BATTERY
 
 
 @login_required

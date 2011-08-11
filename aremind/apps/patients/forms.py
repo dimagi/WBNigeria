@@ -18,7 +18,8 @@ XML_DATE_FORMATS = ('%b  %d %Y ',)
 XML_TIME_FORMATS = ('%H:%M', )
 
 class PatientForm(forms.ModelForm):
-
+    # NB: This form is only used for importing patient data
+    # The PatientRemindersForm is used in the UI
     date_enrolled = forms.DateField(input_formats=XML_DATE_FORMATS)
     next_visit = forms.DateField(input_formats=XML_DATE_FORMATS,
                                  required=False)
@@ -27,7 +28,7 @@ class PatientForm(forms.ModelForm):
 
     class Meta(object):
         model = patients.Patient
-        exclude = ('raw_data', 'contact')
+        exclude = ('raw_data', 'contact', 'batterystrength')
 
     def clean_mobile_number(self):
         mobile_number = normalize_number(self.cleaned_data['mobile_number'])

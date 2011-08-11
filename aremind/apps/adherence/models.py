@@ -419,7 +419,13 @@ class QuerySchedule(models.Model):
     start_date = models.DateField()
     time_of_day = models.TimeField()
     recipients = models.ManyToManyField(Group,
-                                        related_name='adherence_query_schedules')
+                                        help_text='Groups to receive adherence queries.',
+                                        related_name='adherence_query_schedules',
+                                        blank=True)
+    patients = models.ManyToManyField(Patient,
+                                      help_text='Individual patients to receive adherence queries.',
+                                      related_name='adherence_query_schedules',
+                                      blank=True)
     query_type = models.IntegerField(choices=QUERY_TYPES)
     last_run = models.DateTimeField(null=True, blank=True, editable=False)
     active = models.BooleanField(default=True)
@@ -467,6 +473,10 @@ class QuerySchedule(models.Model):
                         survey.start()
                     except Patient.DoesNotExist:
                         pass # no patient for that contact
+            for patient in self.patients.all():
+                survey = PatientSurvey(patient=patient,
+                                       query_type=self.query_type)
+                survey.start()
             self.last_run = datetime.datetime.now()
             self.save()
 

@@ -460,20 +460,24 @@ class QuerySchedule(models.Model):
                 schedule_it = True
         return schedule_it
 
+    def who_should_receive(self):
+        """Return a list of the Patients who should receive this query"""
+        patients = []
+        for group in self.recipients.all():
+            for contact in group.contacts.all():
+                try:
+                    patient = Patient.objects.get(contact=contact)
+                    patients.append(patient)
+                except Patient.DoesNotExist:
+                    pass # no patient for that contact
+        patients.extend(list(self.patients.all()))
+        return patients
+
     def start_scheduled_queries(self, force=False):
         """Start any queries that are scheduled to start now."""
         if self.should_run(force):
             logger.debug("Starting query from schedule %s" % self)
-            for group in self.recipients.all():
-                for contact in group.contacts.all():
-                    try:
-                        patient = Patient.objects.get(contact=contact)
-                        survey = PatientSurvey(patient=patient,
-                                               query_type=self.query_type)
-                        survey.start()
-                    except Patient.DoesNotExist:
-                        pass # no patient for that contact
-            for patient in self.patients.all():
+            for patient in self.who_should_receive():
                 survey = PatientSurvey(patient=patient,
                                        query_type=self.query_type)
                 survey.start()

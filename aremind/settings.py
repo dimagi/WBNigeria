@@ -280,3 +280,4 @@ INSTALLED_BACKENDS = {}
 #    'django.contrib.admin',
 #)
 
+DEFAULT_MESSAGE = "Unfortunately, we did not understand your message. Please call Elizabeth at 617 414 7022 if you need help."

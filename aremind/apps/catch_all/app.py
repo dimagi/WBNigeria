@@ -1,11 +1,11 @@
+from django.conf import settings
 from rapidsms.apps.base import AppBase
 
 
 class CatchAllApp(AppBase):
     """ RapidSMS app to reply to unhandled messages """
 
-    template = """Thank you for contacting us. Please reply with 2 to be """ \
-               """called back within 2 days."""
+    template = getattr(settings, "DEFAULT_MESSAGE", "Thank you for contacting us.")
 
     def default(self, msg):
         """ If we reach the default phase here, always reply with help text """

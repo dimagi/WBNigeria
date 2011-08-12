@@ -120,10 +120,12 @@ class Patient(models.Model):
             if msgs.count() == 0:
                 return self.manual_adherence
 
+            min_days_to_compute_adherence = getattr(settings, "MIN_DAYS_TO_COMPUTE_ADHERENCE", 7)
+
             # When was our first message (ever)?
             first_message = msgs.order_by('timestamp')[0]
             days_to_first_message = (today - first_message.timestamp.date()).days
-            if days_to_first_message < 7:
+            if days_to_first_message < min_days_to_compute_adherence:
                 return self.manual_adherence
 
             days_to_count = 7

@@ -331,6 +331,23 @@ class WisepillAdherenceTest(PatientsCreateDataTest):
             print "Creating message for %d days ago" % n
             self.create_message_for_patient(self.days_ago(n))
         self.assertEqual(self.patient.adherence(), 100)
+    
+    def test_adherence_set_min_days(self):
+        save_setting = getattr(settings, "MIN_DAYS_TO_COMPUTE_ADHERENCE", None)
+        try:
+            setattr(settings, "MIN_DAYS_TO_COMPUTE_ADHERENCE", 10)
+            for n in range(9):
+                print "Creating message for %d days ago" % n
+                self.create_message_for_patient(self.days_ago(n))
+            self.assertEqual(self.patient.adherence(),
+                             self.patient.manual_adherence)
+            setattr(settings, "MIN_DAYS_TO_COMPUTE_ADHERENCE", 5)
+            self.assertEqual(self.patient.adherence(), 100)
+        finally:
+            if save_setting:
+                setattr(settings, "MIN_DAYS_TO_COMPUTE_ADHERENCE", save_setting)
+            else:
+                delattr(settings, "MIN_DAYS_TO_COMPUTE_ADHERENCE")
 
     def test_today_doesnt_count(self):
         self.create_message_for_patient(self.days_ago(0))

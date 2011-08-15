@@ -1,12 +1,16 @@
 import datetime
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from aremind.apps.adherence.models import (Reminder, SendReminder, Feed, Entry,
-                                           QuerySchedule)
-from aremind.apps.adherence.types import QUERY_TYPES, QUERY_TYPE_SMS, QUERY_TYPE_IVR
+from rapidsms.messages.incoming import IncomingMessage
+from rapidsms.models import Connection, Contact, Backend
+from rapidsms.tests.harness import MockRouter
+from decisiontree.app import App as DecisionApp
+
+from aremind.apps.adherence.models import (Reminder, Feed, Entry,
+                                           QuerySchedule, PatientSurvey)
+from aremind.apps.adherence.types import QUERY_TYPE_SMS
 from aremind.apps.adherence.sms import get_tree
 from aremind.apps.patients.tests import PatientsCreateDataTest
 from aremind.apps.wisepill.models import WisepillMessage
@@ -502,3 +506,68 @@ class WisepillByLastReportTest(AdherenceCreateDataTest):
         context = response.context
         self.assertEquals(patient49, context['patients'][0])
         self.assertEquals(patient47, context['patients'][1])
+
+class TreeTest(PatientsCreateDataTest):
+    """Test that our decisiontree works the way we want"""
+    
+    def setUp(self):
+        self.router = MockRouter()
+
+        self.backend = self.router.add_backend(u'MockBackend', 'rapidsms.tests.harness')
+        self.assertIsNotNone(self.backend)
+        self.assertEquals(self.router.backends[u'MockBackend'], self.backend)
+
+        backend_in_db = Backend.objects.create(name=u'MockBackend')
+        backend_in_db.save()
+
+        self.contact = Contact.objects.create(first_name='John',
+                                              last_name='Doe')
+        self.connection = Connection.objects.create(contact=self.contact,
+                                                    backend=backend_in_db,
+                                                    identity='1112223333')
+        self.patient = self.create_patient(data={'contact': self.contact })
+
+        self.app = DecisionApp(router=self.router)
+        self.router.add_app(self.app)
+        self.tree =  get_tree()
+        self.backend.start()
+        self.app.start()
+        self.survey = PatientSurvey.objects.create(patient=self.patient,
+                                                   query_type=QUERY_TYPE_SMS)
+        super(TreeTest,self).setUp()
+
+    def _send(self, text):
+        msg = IncomingMessage(self.connection, text)
+        self.app.handle(msg)
+        return msg
+
+    def test_start(self):
+        msg = self._send(self.tree.trigger)
+        # this is kind of pointless but gets the ball rolling
+        self.assertEqual(msg.responses[0].text, 
+                         "How many pills did you miss in the last four days?")
+
+    def test_invalid_response(self):
+        self._send(self.tree.trigger)
+        msg = self._send("Foo!  Bar!  Baz!")
+        rsp = msg.responses[0].text
+        self.assertTrue(rsp.startswith("Sorry, please respond with a number. "))
+
+    def test_valid_response(self):
+        self._send(self.tree.trigger)
+        self.survey.status = PatientSurvey.STATUS_STARTED
+        self.survey.save()
+        msg = self._send("6")
+        print "len(responses)=%d" % len(msg.responses)
+        rsp = msg.responses[0].text
+        self.assertTrue(rsp.startswith("Thank you. Your adherence is"))
+
+    def test_noisy_response(self):
+        """Test response that has spaces and punctuation in it"""
+        self._send(self.tree.trigger)
+        self.survey.status = PatientSurvey.STATUS_STARTED
+        self.survey.save()
+        msg = self._send(" 6.")
+        print "len(responses)=%d" % len(msg.responses)
+        rsp = msg.responses[0].text
+        self.assertTrue(rsp.startswith("Thank you. Your adherence is"))

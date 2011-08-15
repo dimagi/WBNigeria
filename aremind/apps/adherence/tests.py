@@ -18,7 +18,7 @@ __all__ = (
     'EditReminderViewTest',
     'DeleteReminderViewTest',
     'QueryScheduleTest',
-    'UnreportingWisepillTest',
+    'WisepillByLastReportTest',
 )
 
 
@@ -404,16 +404,16 @@ class QueryScheduleTest(TestCase):
         self.assertRaises(QuerySchedule.DoesNotExist, QuerySchedule.objects.get,
                           pk=schedule.pk)
 
-class UnreportingWisepillTest(AdherenceCreateDataTest):
-    """Test reporting which wisepill devices haven't reported in 48 hours"""
-    
+class WisepillByLastReportTest(AdherenceCreateDataTest):
+    """Test reporting wisepill devices by last report time"""
+
     def setUp(self):
-        super(UnreportingWisepillTest, self).setUp()
+        super(WisepillByLastReportTest, self).setUp()
         self.user = User.objects.create_user('test', 'a@b.com', 'abc')
         self.assertTrue(self.client.login(username='test', password='abc'),
                         "User login failed")
-        self.url = reverse('adherence-unreporting-wisepill')
-        
+        self.url = reverse('adherence-wisepill-by-last-report')
+
     def create_wisepill_message(self, patient=None, timestamp=None):
         if patient is None:
             patient = self.patient
@@ -422,37 +422,25 @@ class UnreportingWisepillTest(AdherenceCreateDataTest):
         WisepillMessage.objects.create(timestamp=timestamp,
                                        patient=patient)
 
-    def test_very_recent_messages(self):
-        """Patient with message just this second, show not be in report"""
-        self.patient = self.create_patient()
-        self.create_wisepill_message()
-        response = self.client.get(self.url)
-        context = response.context
-        self.assertFalse(self.patient in context['notreporting'])
-
     def test_no_messages(self):
         """Patient with no messages - should be listed"""
         self.patient = self.create_patient()
         response = self.client.get(self.url)
         context = response.context
-        self.assertTrue(self.patient in context['notreporting'])
-        self.assertTrue(context['notreporting'][0].last_report is None)
+        self.assertTrue(self.patient in context['patients'])
+        self.assertTrue(context['patients'][0].last_report is None)
 
-    def test_old_message(self):
+    def test_ordering(self):
         """Message just old enough for patient to show up in report"""
-        self.patient = self.create_patient()
+        patient49 = self.create_patient()
         hours_49_ago = datetime.datetime.now() - datetime.timedelta(hours=49)
-        self.create_wisepill_message(timestamp=hours_49_ago)
-        response = self.client.get(self.url)
-        context = response.context
-        self.assertTrue(self.patient in context['notreporting'])
-        self.assertTrue(context['notreporting'][0].last_report == hours_49_ago)
+        self.create_wisepill_message(patient=patient49, timestamp=hours_49_ago)
 
-    def test_not_so_old_message(self):
-        """Message just recent enough to keep patient out of report"""
-        self.patient = self.create_patient()
+        patient47 = self.create_patient()
         hours_47_ago = datetime.datetime.now() - datetime.timedelta(hours=47)
-        self.create_wisepill_message(timestamp=hours_47_ago)
+        self.create_wisepill_message(patient=patient47, timestamp=hours_47_ago)
+
         response = self.client.get(self.url)
         context = response.context
-        self.assertFalse(self.patient in context['notreporting'])
+        self.assertEquals(patient49, context['patients'][0])
+        self.assertEquals(patient47, context['patients'][1])

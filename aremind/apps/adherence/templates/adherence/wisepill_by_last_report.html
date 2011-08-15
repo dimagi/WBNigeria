@@ -1,27 +1,27 @@
 {% extends "adherence/base.html" %}
-{% load pagination_tags sorting_tags %}
+{% load pagination_tags sorting_tags humanize %}
 
 {% block right %}
-<h1>Patients without a Wisepill report in the last 48 hours</h1>
+<h1>Patients by last Wisepill report time</h1>
 <div class="module">
-{% autosort notreporting %}
-{% autopaginate notreporting 20 %}
+{% autosort patients %}
+{% autopaginate patients 20 %}
 <table class="pagination sortable adherence-report">
 <thead>
   <tr>
     <th>ID</th>
-    <th>{% anchor patient__subject_number "Patient ID"%}</th>
-    <th>{% anchor patient__wisepill_msisdn "Wisepill MSISDN" %}</th>
-    <th>Time of last report</th>
+    <th>{% anchor subject_number "Patient ID"%}</th>
+    <th>{% anchor wisepill_msisdn "Wisepill MSISDN" %}</th>
+    <th>{% anchor last_report "Time of last report" %}</th>
   </tr>
 </thead>
 <tbody>
-{% for result in notreporting %}
+{% for result in patients %}
 <tr class="{% cycle 'odd' 'even' %}">
   <td>{{ result.pk }}</td>
   <td>{{ result.subject_number }}</td>
   <td>{{ result.wisepill_msisdn }}</td>
-  <td>{{ result.last_report }} </td>
+  <td>{{ result.last_report|naturalday }} </td>
 </tr>
 {% endfor %}
 </tbody>

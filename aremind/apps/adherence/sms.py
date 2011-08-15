@@ -33,7 +33,7 @@ def get_tree():
     except Tree.DoesNotExist:
         pass # we'll create it below
 
-    q1_text = _("How many pills did you miss in the last four days?")
+    q1_text = _("How many doses did you miss in the last four days?")
     err_text = _("Sorry, please respond with a number. ")
 
     q1, x = Question.objects.get_or_create(text = q1_text,

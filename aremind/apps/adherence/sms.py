@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+import re
 
 from django.dispatch import receiver
 from decisiontree.app import session_end_signal
@@ -16,6 +17,7 @@ from aremind.apps.patients.models import Patient, remember_patient_pills_taken
 logger = logging.getLogger('adherence.sms')
 
 TRIGGER = "start tree"
+ANSWER_RE = r".*(\d+).*"
 
 # In RapidSMS, message translation is done in OutgoingMessage, so no need
 # to attempt the real translation here.  Use _ so that ./manage.py makemessages
@@ -42,7 +44,7 @@ def get_tree():
 
     answer,x = Answer.objects.get_or_create(name="numberofpills",
                                           type='R',
-                                          answer=r"\d+")
+                                          answer=ANSWER_RE)
 
     trans1,x = Transition.objects.get_or_create(current_state=state1,
                                               answer=answer,
@@ -88,14 +90,23 @@ def start_tree_for_all_patients():
 def session_end(sender, **kwargs):
     session = kwargs['session']
     canceled = kwargs['canceled']
+    message = kwargs['message']
 
     # for convenience
     PatientSurvey = aremind.apps.adherence.models.PatientSurvey
 
     # find the patient
     connection = session.connection
-    patient = Patient.objects.get(contact = connection.contact)
+    try:
+        patient = Patient.objects.get(contact = connection.contact)
+    except Patient.DoesNotExist:
+        # No patient, this session might not be relevant to this app
+        return
+
     survey = PatientSurvey.find_active(patient, QUERY_TYPE_SMS)
+
+    if not survey:
+        return
 
     if canceled:
         survey.completed(PatientSurvey.STATUS_NOT_COMPLETED)
@@ -109,7 +120,9 @@ def session_end(sender, **kwargs):
         return
 
     entry = entries.all()[0]
-    num_pills = int(entry.text)
+    # Pick the relevant part of the answer
+    text = re.match(ANSWER_RE, entry.text).group(1)
+    num_pills = int(text)
     if not survey.is_test:
         aremind.apps.adherence.models.PillsMissed(patient=patient,
                                                   num_missed=num_pills,
@@ -119,8 +132,12 @@ def session_end(sender, **kwargs):
     # After completing survey, tell patient what their current adherence is
     connection = patient.contact.default_connection
     adherence = patient.adherence()  # integer percentage
-    msg = OutgoingMessage(connection,
-                          _("Thank you. Your adherence is %(adherence)s%%, as measured by the black study pillbox."),
-                          adherence=adherence)
-    router = Router()
-    router.outgoing(msg)
+    response_text = _("Thank you. Your adherence is %(adherence)s%%, as measured by the black study pillbox.")
+    kwargs = dict(adherence=adherence)
+    if message:
+        message.respond(response_text, **kwargs)
+    else:
+        msg = OutgoingMessage(connection,
+                              response_text, **kwargs)
+        router = Router()
+        router.outgoing(msg)

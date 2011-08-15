@@ -170,6 +170,7 @@ def clone_repo():
 def deploy():
     """ deploy code to remote host by checking out the latest via git """
     require('root', provided_by=('staging', 'production'))
+    sudo('echo ping!')
     if env.environment == 'production':
         if not console.confirm('Are you sure you want to deploy production?',
                                default=False):
@@ -179,7 +180,7 @@ def deploy():
     with cd(env.code_root):
         sudo('git pull', user=env.sudo_user)
         sudo('git checkout %(code_branch)s' % env, user=env.sudo_user)
-    update_requirements()
+    #update_requirements()
     migrate()
     collectstatic()
     start()

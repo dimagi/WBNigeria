@@ -419,7 +419,13 @@ class QuerySchedule(models.Model):
     start_date = models.DateField()
     time_of_day = models.TimeField()
     recipients = models.ManyToManyField(Group,
-                                        related_name='adherence_query_schedules')
+                                        help_text='Groups to receive adherence queries.',
+                                        related_name='adherence_query_schedules',
+                                        blank=True)
+    patients = models.ManyToManyField(Patient,
+                                      help_text='Individual patients to receive adherence queries.',
+                                      related_name='adherence_query_schedules',
+                                      blank=True)
     query_type = models.IntegerField(choices=QUERY_TYPES)
     last_run = models.DateTimeField(null=True, blank=True, editable=False)
     active = models.BooleanField(default=True)
@@ -454,19 +460,29 @@ class QuerySchedule(models.Model):
                 schedule_it = True
         return schedule_it
 
+    def who_should_receive(self):
+        """Return a list of the Patients who should receive this query"""
+        # Start with individual patients for this query schedule
+        patients = list(self.patients.all())
+        # Then add patients in the groups for this query schedule
+        for group in self.recipients.all():
+            for contact in group.contacts.all():
+                try:
+                    patient = Patient.objects.get(contact=contact)
+                    if patient not in patients:
+                        patients.append(patient)
+                except Patient.DoesNotExist:
+                    pass # no patient for that contact
+        return patients
+
     def start_scheduled_queries(self, force=False):
         """Start any queries that are scheduled to start now."""
         if self.should_run(force):
             logger.debug("Starting query from schedule %s" % self)
-            for group in self.recipients.all():
-                for contact in group.contacts.all():
-                    try:
-                        patient = Patient.objects.get(contact=contact)
-                        survey = PatientSurvey(patient=patient,
-                                               query_type=self.query_type)
-                        survey.start()
-                    except Patient.DoesNotExist:
-                        pass # no patient for that contact
+            for patient in self.who_should_receive():
+                survey = PatientSurvey(patient=patient,
+                                       query_type=self.query_type)
+                survey.start()
             self.last_run = datetime.datetime.now()
             self.save()
 
@@ -528,7 +544,7 @@ class PatientSurvey(models.Model):
             raise SurveyAlreadyStartedException()
 
         if self.query_type == QUERY_TYPE_SMS:
-            tree = aremind.apps.adherence.sms.make_tree()
+            tree = aremind.apps.adherence.sms.get_tree()
             aremind.apps.adherence.sms.start_tree_for_patient(tree, self.patient)
         elif self.query_type == QUERY_TYPE_IVR:
             url = reverse('patient-ivr-callback',

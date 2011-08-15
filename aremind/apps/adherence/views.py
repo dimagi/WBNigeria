@@ -214,8 +214,9 @@ def pills_missed_report(request):
     return render(request, 'adherence/pills_missed_report.html', context)
 
 @login_required
-def wisepill_not_reporting(request):
-    hours48_ago = datetime.datetime.now() - datetime.timedelta(hours=48)
-    notreporting = Patient.objects.all().exclude(wisepill_messages__timestamp__gte=hours48_ago).annotate(last_report=Max('wisepill_messages__timestamp'))
-    context = { 'notreporting': notreporting }
-    return render(request, 'adherence/wisepill_not_reporting.html', context)
+def wisepill_by_last_report(request):
+    patients = Patient.objects.\
+        annotate(last_report=Max('wisepill_messages__timestamp')).\
+        order_by('last_report')
+    context = { 'patients': patients }
+    return render(request, 'adherence/wisepill_by_last_report.html', context)

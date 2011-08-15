@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
-    
+
+    "django.contrib.humanize",
+
     "pagination",
     "django_sorting",
     "south",

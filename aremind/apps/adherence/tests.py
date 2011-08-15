@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from aremind.apps.adherence.models import (Reminder, SendReminder, Feed, Entry,
                                            QuerySchedule)
 from aremind.apps.adherence.types import QUERY_TYPES, QUERY_TYPE_SMS, QUERY_TYPE_IVR
+from aremind.apps.adherence.sms import get_tree
 from aremind.apps.patients.tests import PatientsCreateDataTest
 from aremind.apps.wisepill.models import WisepillMessage
 
@@ -18,7 +19,7 @@ __all__ = (
     'EditReminderViewTest',
     'DeleteReminderViewTest',
     'QueryScheduleTest',
-    'UnreportingWisepillTest',
+    'WisepillByLastReportTest',
 )
 
 
@@ -317,7 +318,7 @@ class DeleteReminderViewTest(AdherenceCreateDataTest):
         self.assertRedirects(response, reverse('adherence-dashboard'))
         self.assertRaises(Reminder.DoesNotExist, Reminder.objects.get, pk=self.test_reminder.pk)
 
-class QueryScheduleTest(TestCase):
+class QueryScheduleTest(PatientsCreateDataTest):
 
     def setUp(self):
         super(QueryScheduleTest, self).setUp()
@@ -325,6 +326,25 @@ class QueryScheduleTest(TestCase):
         self.assertTrue(self.client.login(username='test', password='abc'),
                         "User login failed")
 
+    def can_change_decisiontree_text(self):
+        """Test that once the tree is created in the database, we can
+        change the messages in the database and it'll get used.
+        """
+
+        # Force creation of tree
+        tree = get_tree()
+        # Get first question
+        q1 = tree.root_state.question
+        self.assertEquals(q1.text, "How many pills did you miss in the last four days?")
+        
+        # now change the text in the database
+        NEW_TEXT = "test me!"
+        q1.text = NEW_TEXT
+        q1.save()
+        
+        q1 = get_tree().root_state.question
+        self.assertEquals(q1.text, NEW_TEXT)
+    
     def test_start_five_days_ago_never_run(self):
         schedule = QuerySchedule(start_date = datetime.date.today() -
                                        datetime.timedelta(days=5),
@@ -404,16 +424,54 @@ class QueryScheduleTest(TestCase):
         self.assertRaises(QuerySchedule.DoesNotExist, QuerySchedule.objects.get,
                           pk=schedule.pk)
 
-class UnreportingWisepillTest(AdherenceCreateDataTest):
-    """Test reporting which wisepill devices haven't reported in 48 hours"""
-    
+    def test_query_schedule_recipients(self):
+        """Test the right patients to receive queries"""
+        group1 = self.create_group()
+        patient1 = self.create_patient()
+        patient2 = self.create_patient()
+        group1.contacts.add(patient1.contact)
+        schedule = QuerySchedule(start_date = datetime.date.today(),
+                                 time_of_day = datetime.time(hour=0),
+                                 last_run = None,
+                                 active = False,
+                                 days_between = 4,
+                                 query_type = QUERY_TYPE_SMS)
+        schedule.save()
+        schedule.recipients.add(group1)
+        schedule.patients.add(patient2)
+        to_receive = schedule.who_should_receive()
+        self.assertTrue(patient1 in to_receive)
+        self.assertTrue(patient2 in to_receive)
+
+    def test_query_recipients_not_duplicated(self):
+        """test that if a patient is added to a query schedule both individually
+        and by being a member of a group, they don't get queried twice"""
+        
+        group1 = self.create_group()
+        patient1 = self.create_patient()
+        group1.contacts.add(patient1.contact)
+        schedule = QuerySchedule(start_date = datetime.date.today(),
+                                 time_of_day = datetime.time(hour=0),
+                                 last_run = None,
+                                 active = False,
+                                 days_between = 4,
+                                 query_type = QUERY_TYPE_SMS)
+        schedule.save()
+        schedule.recipients.add(group1)
+        schedule.patients.add(patient1)
+        to_receive = schedule.who_should_receive()
+        self.assertEquals(len(to_receive), 1)
+
+class WisepillByLastReportTest(AdherenceCreateDataTest):
+    """Test reporting wisepill devices by last report time"""
+
     def setUp(self):
-        super(UnreportingWisepillTest, self).setUp()
+        super(WisepillByLastReportTest, self).setUp()
         self.user = User.objects.create_user('test', 'a@b.com', 'abc')
         self.assertTrue(self.client.login(username='test', password='abc'),
                         "User login failed")
-        self.url = reverse('adherence-unreporting-wisepill')
-        
+        self.url = reverse('adherence-wisepill-by-last-report')
+
     def create_wisepill_message(self, patient=None, timestamp=None):
         if patient is None:
             patient = self.patient
@@ -422,37 +480,25 @@ class UnreportingWisepillTest(AdherenceCreateDataTest):
         WisepillMessage.objects.create(timestamp=timestamp,
                                        patient=patient)
 
-    def test_very_recent_messages(self):
-        """Patient with message just this second, show not be in report"""
-        self.patient = self.create_patient()
-        self.create_wisepill_message()
-        response = self.client.get(self.url)
-        context = response.context
-        self.assertFalse(self.patient in context['notreporting'])
-
     def test_no_messages(self):
         """Patient with no messages - should be listed"""
         self.patient = self.create_patient()
         response = self.client.get(self.url)
         context = response.context
-        self.assertTrue(self.patient in context['notreporting'])
-        self.assertTrue(context['notreporting'][0].last_report is None)
+        self.assertTrue(self.patient in context['patients'])
+        self.assertTrue(context['patients'][0].last_report is None)
 
-    def test_old_message(self):
+    def test_ordering(self):
         """Message just old enough for patient to show up in report"""
-        self.patient = self.create_patient()
+        patient49 = self.create_patient()
         hours_49_ago = datetime.datetime.now() - datetime.timedelta(hours=49)
-        self.create_wisepill_message(timestamp=hours_49_ago)
-        response = self.client.get(self.url)
-        context = response.context
-        self.assertTrue(self.patient in context['notreporting'])
-        self.assertTrue(context['notreporting'][0].last_report == hours_49_ago)
+        self.create_wisepill_message(patient=patient49, timestamp=hours_49_ago)
 
-    def test_not_so_old_message(self):
-        """Message just recent enough to keep patient out of report"""
-        self.patient = self.create_patient()
+        patient47 = self.create_patient()
         hours_47_ago = datetime.datetime.now() - datetime.timedelta(hours=47)
-        self.create_wisepill_message(timestamp=hours_47_ago)
+        self.create_wisepill_message(patient=patient47, timestamp=hours_47_ago)
+
         response = self.client.get(self.url)
         context = response.context
-        self.assertFalse(self.patient in context['notreporting'])
+        self.assertEquals(patient49, context['patients'][0])
+        self.assertEquals(patient47, context['patients'][1])

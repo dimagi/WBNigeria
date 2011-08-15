@@ -7,7 +7,7 @@ from django.forms.models import modelformset_factory
 from rapidsms.models import Contact
 from selectable.forms import AutoComboboxSelectMultipleField
 
-from aremind.apps.adherence.lookups import ReminderLookup, FeedLookup
+from aremind.apps.adherence.lookups import ReminderLookup, FeedLookup, QueryLookup
 from aremind.apps.groups.forms import FancyPhoneInput
 from aremind.apps.groups.validators import validate_phone
 from aremind.apps.groups.utils import normalize_number
@@ -79,6 +79,7 @@ class PatientRemindersForm(forms.ModelForm):
     last_name = forms.CharField(max_length=64, required=False)
     reminders = AutoComboboxSelectMultipleField(ReminderLookup, label="Medicine Reminders", required=False)
     feeds = AutoComboboxSelectMultipleField(FeedLookup, required=False)
+    queries = AutoComboboxSelectMultipleField(QueryLookup, required=False)
 
     class Meta(object):
         model = patients.Patient
@@ -97,6 +98,7 @@ class PatientRemindersForm(forms.ModelForm):
             self.initial['feeds'] = self.instance.contact.feeds.all()
             self.initial['first_name'] = self.instance.contact.first_name
             self.initial['last_name'] = self.instance.contact.last_name
+            self.initial['queries'] = self.instance.adherence_query_schedules.all()
         else:
             # Generate subject ID and pin
             self.initial['subject_number'] = self.generate_new_subject_id()
@@ -144,6 +146,10 @@ class PatientRemindersForm(forms.ModelForm):
             for f in feeds:
                 f.subscribers.add(patient.contact)
             patient.contact.save()
+            queries = self.cleaned_data.get('queries', []) or []
+            patient.adherence_query_schedules.clear()
+            for q in queries:
+                q.patients.add(patient)
             patient.save()
         return patient
 

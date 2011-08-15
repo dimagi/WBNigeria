@@ -318,7 +318,7 @@ class DeleteReminderViewTest(AdherenceCreateDataTest):
         self.assertRedirects(response, reverse('adherence-dashboard'))
         self.assertRaises(Reminder.DoesNotExist, Reminder.objects.get, pk=self.test_reminder.pk)
 
-class QueryScheduleTest(TestCase):
+class QueryScheduleTest(PatientsCreateDataTest):
 
     def setUp(self):
         super(QueryScheduleTest, self).setUp()
@@ -423,6 +423,26 @@ class QueryScheduleTest(TestCase):
         # our schedule should no longer exist
         self.assertRaises(QuerySchedule.DoesNotExist, QuerySchedule.objects.get,
                           pk=schedule.pk)
+
+    def test_query_schedule_recipients(self):
+        """Test the right patients to receive queries"""
+        group1 = self.create_group()
+        patient1 = self.create_patient()
+        patient2 = self.create_patient()
+        group1.contacts.add(patient1.contact)
+        schedule = QuerySchedule(start_date = datetime.date.today(),
+                                 time_of_day = datetime.time(hour=0),
+                                 last_run = None,
+                                 active = False,
+                                 days_between = 4,
+                                 query_type = QUERY_TYPE_SMS)
+        schedule.save()
+        schedule.recipients.add(group1)
+        schedule.patients.add(patient2)
+        to_receive = schedule.who_should_receive()
+        self.assertTrue(patient1 in to_receive)
+        self.assertTrue(patient2 in to_receive)
+        
 
 class WisepillByLastReportTest(AdherenceCreateDataTest):
     """Test reporting wisepill devices by last report time"""

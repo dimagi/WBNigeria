@@ -1,7 +1,7 @@
 from selectable.base import ModelLookup
 from selectable.registry import registry
 
-from aremind.apps.adherence.models import Reminder, Feed
+from aremind.apps.adherence.models import Reminder, Feed, QuerySchedule
 
 
 class ReminderLookup(ModelLookup):
@@ -19,3 +19,8 @@ class FeedLookup(ModelLookup):
 
 registry.register(FeedLookup)
 
+class QueryLookup(ModelLookup):
+    model = QuerySchedule
+    search_field = 'patients'
+
+registry.register(QueryLookup)

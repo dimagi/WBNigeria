@@ -419,7 +419,13 @@ class QuerySchedule(models.Model):
     start_date = models.DateField()
     time_of_day = models.TimeField()
     recipients = models.ManyToManyField(Group,
-                                        related_name='adherence_query_schedules')
+                                        help_text='Groups to receive adherence queries.',
+                                        related_name='adherence_query_schedules',
+                                        blank=True)
+    patients = models.ManyToManyField(Patient,
+                                      help_text='Individual patients to receive adherence queries.',
+                                      related_name='adherence_query_schedules',
+                                      blank=True)
     query_type = models.IntegerField(choices=QUERY_TYPES)
     last_run = models.DateTimeField(null=True, blank=True, editable=False)
     active = models.BooleanField(default=True)
@@ -454,19 +460,27 @@ class QuerySchedule(models.Model):
                 schedule_it = True
         return schedule_it
 
+    def who_should_receive(self):
+        """Return a list of the Patients who should receive this query"""
+        patients = []
+        for group in self.recipients.all():
+            for contact in group.contacts.all():
+                try:
+                    patient = Patient.objects.get(contact=contact)
+                    patients.append(patient)
+                except Patient.DoesNotExist:
+                    pass # no patient for that contact
+        patients.extend(list(self.patients.all()))
+        return patients
+
     def start_scheduled_queries(self, force=False):
         """Start any queries that are scheduled to start now."""
         if self.should_run(force):
             logger.debug("Starting query from schedule %s" % self)
-            for group in self.recipients.all():
-                for contact in group.contacts.all():
-                    try:
-                        patient = Patient.objects.get(contact=contact)
-                        survey = PatientSurvey(patient=patient,
-                                               query_type=self.query_type)
-                        survey.start()
-                    except Patient.DoesNotExist:
-                        pass # no patient for that contact
+            for patient in self.who_should_receive():
+                survey = PatientSurvey(patient=patient,
+                                       query_type=self.query_type)
+                survey.start()
             self.last_run = datetime.datetime.now()
             self.save()
 

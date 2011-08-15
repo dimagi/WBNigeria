@@ -528,7 +528,7 @@ class PatientSurvey(models.Model):
             raise SurveyAlreadyStartedException()
 
         if self.query_type == QUERY_TYPE_SMS:
-            tree = aremind.apps.adherence.sms.make_tree()
+            tree = aremind.apps.adherence.sms.get_tree()
             aremind.apps.adherence.sms.start_tree_for_patient(tree, self.patient)
         elif self.query_type == QUERY_TYPE_IVR:
             url = reverse('patient-ivr-callback',

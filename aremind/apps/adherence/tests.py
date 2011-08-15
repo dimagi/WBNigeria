@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from aremind.apps.adherence.models import (Reminder, SendReminder, Feed, Entry,
                                            QuerySchedule)
 from aremind.apps.adherence.types import QUERY_TYPES, QUERY_TYPE_SMS, QUERY_TYPE_IVR
+from aremind.apps.adherence.sms import get_tree
 from aremind.apps.patients.tests import PatientsCreateDataTest
 from aremind.apps.wisepill.models import WisepillMessage
 
@@ -325,6 +326,25 @@ class QueryScheduleTest(TestCase):
         self.assertTrue(self.client.login(username='test', password='abc'),
                         "User login failed")
 
+    def can_change_decisiontree_text(self):
+        """Test that once the tree is created in the database, we can
+        change the messages in the database and it'll get used.
+        """
+
+        # Force creation of tree
+        tree = get_tree()
+        # Get first question
+        q1 = tree.root_state.question
+        self.assertEquals(q1.text, "How many pills did you miss in the last four days?")
+        
+        # now change the text in the database
+        NEW_TEXT = "test me!"
+        q1.text = NEW_TEXT
+        q1.save()
+        
+        q1 = get_tree().root_state.question
+        self.assertEquals(q1.text, NEW_TEXT)
+    
     def test_start_five_days_ago_never_run(self):
         schedule = QuerySchedule(start_date = datetime.date.today() -
                                        datetime.timedelta(days=5),

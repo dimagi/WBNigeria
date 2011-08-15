@@ -15,14 +15,21 @@ from aremind.apps.patients.models import Patient, remember_patient_pills_taken
 
 logger = logging.getLogger('adherence.sms')
 
+TRIGGER = "start tree"
+
 # In RapidSMS, message translation is done in OutgoingMessage, so no need
 # to attempt the real translation here.  Use _ so that ./manage.py makemessages
 # finds our text.
 _ = lambda s: s
 
-def make_tree():
-    """Create a decisiontree Tree in the database.
+def get_tree():
+    """Create or retrieve a decisiontree Tree in the database.
     Returns the Tree object."""
+    
+    try:
+        return Tree.objects.get(trigger = TRIGGER)
+    except Tree.DoesNotExist:
+        pass # we'll create it below
 
     q1_text = _("How many pills did you miss in the last four days?")
     err_text = _("Sorry, please respond with a number. ")
@@ -43,10 +50,11 @@ def make_tree():
 
     # We only use this internally, so not translated
     # Receipt of this message triggers starting the tree.
-    trigger = "start tree"
+    trigger = TRIGGER
 
     # Tree has a uniqueness constraint on the trigger
-    tree,x = Tree.objects.get_or_create(trigger = trigger.lower())
+    tree,x = Tree.objects.get_or_create(trigger = trigger.lower(),
+                                        defaults={'root_state': state1})
 
     tree.root_state = state1
     tree.completion_text = ''
@@ -71,7 +79,7 @@ def start_tree_for_patient(tree, patient):
 
 def start_tree_for_all_patients():
     logging.debug("start_tree_for_all_patients")
-    tree = make_tree()
+    tree = get_tree()
     for patient in Patient.objects.all():
         start_tree_for_patient(tree, patient)
 

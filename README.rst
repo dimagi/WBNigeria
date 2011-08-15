@@ -34,7 +34,7 @@ Developer Setup
 
 * The following additional build dependencies::
 
-    sudo apt-get install libxslt1-dev libxml2-dev
+    sudo apt-get install libxslt1-dev libxml2-dev mercurial
 
 * Install pip and virtualenv, and make sure virtualenv is up to date, e.g.::
 

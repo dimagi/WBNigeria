@@ -301,7 +301,7 @@ def patient_ivr_callback(request, patient_id):
                               (u"%d" % patient.adherence()))
         else:
             welcome_value = "This is ARemind calling to see how you're doing."
-            ask_value = 'How many pills did you miss in the last four days?  Please enter the number, then press pound.'
+            ask_value = 'How many doses did you miss in the last four days?  Please enter the number, then press pound.'
             thankyou_values = ("Thank you.  Your adherence is %d percent." % patient.adherence(),)
 
         # if call works, talk to them

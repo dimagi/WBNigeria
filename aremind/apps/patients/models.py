@@ -11,6 +11,7 @@ from rapidsms import models as rapidsms
 from aremind.apps.adherence.types import *
 from aremind.apps.groups.models import Group
 from aremind.apps.groups.utils import format_number
+from aremind.apps.wisepill.constants import WISEPILL_LOW_BATTERY
 
 import logging
 logger = logging.getLogger('patients.models')
@@ -62,6 +63,9 @@ class Patient(models.Model):
                                            blank=True,
                                            validators=[MinValueValidator(0),
                                                        MaxValueValidator(100)])
+
+    batterystrength = models.IntegerField(default=-1,
+                                          help_text = "Last battery strength reported by patient's Wisepill device.  Below %d is considered low" % (1+WISEPILL_LOW_BATTERY))
 
     def __unicode__(self):
         msg = u'Patient, Subject ID:{id}, Enrollment Date:{date_enrolled}'
@@ -116,10 +120,12 @@ class Patient(models.Model):
             if msgs.count() == 0:
                 return self.manual_adherence
 
+            min_days_to_compute_adherence = getattr(settings, "MIN_DAYS_TO_COMPUTE_ADHERENCE", 7)
+
             # When was our first message (ever)?
             first_message = msgs.order_by('timestamp')[0]
             days_to_first_message = (today - first_message.timestamp.date()).days
-            if days_to_first_message < 7:
+            if days_to_first_message < min_days_to_compute_adherence:
                 return self.manual_adherence
 
             days_to_count = 7

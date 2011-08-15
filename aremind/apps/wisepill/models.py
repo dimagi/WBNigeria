@@ -3,6 +3,7 @@ import logging
 
 from django.db import models
 from apps.patients.models import Patient
+from apps.wisepill.constants import WISEPILL_LOW_BATTERY
 
 logger = logging.getLogger('wisepill.models')
 
@@ -52,6 +53,9 @@ class WisepillMessage(models.Model):
             self._parse_message()
             # and set the patient field based on the msisdn
             self.set_patient()
+        if self.patient:
+            self.patient.batterystrength = self.batterystrength
+            self.patient.save()
         super(WisepillMessage,self).save(*args,**kwargs)
 
     def set_patient(self):

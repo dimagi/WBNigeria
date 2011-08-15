@@ -17,6 +17,37 @@
     </form>
 </div>
 <div class="module">
+    <h2>Wisepill Devices With Low Battery</h2>
+    {% comment %}
+    should appear as a list of devices with any additional battery level information that the API provides.
+
+Also should show:
+Subject number
+Wisepill MSISDN
+Mobile Number
+{% endcomment %}
+{% if low_battery_patients %}
+<table>
+    <tr>
+        <th>Subject Number</th>
+        <th>Wisepill MSISDN</th>
+        <th>Mobile Number</th>
+        <th>Battery Strength (mV)</th>
+    </tr>
+    {% for patient in low_battery_patients %}
+    <tr>
+        <td>{{ patient.subject_number }}</td>
+        <td>{{ patient.msisdn }}</td>
+        <td>{{ patient.mobile_number }}</td>
+        <td>{{ patient.batterystrength }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>None</p>
+{% endif %}
+</div>
+<div class="module">
     <h2>Forwarded Messages</h2>
     {% if rule_data %}
     <ul>

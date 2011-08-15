@@ -3,6 +3,7 @@ from django.test import TestCase
 
 from rapidsms.models import Contact
 from aremind.apps.wisepill.models import WisepillMessage
+from aremind.apps.wisepill.constants import WISEPILL_LOW_BATTERY
 from aremind.apps.patients.models import Patient, PatientDataPayload
 from aremind.apps.patients.importer import parse_payload
 
@@ -37,12 +38,15 @@ class WisepillTest(TestCase):
 
     def setUp(self):
         # Create some patients to correspond to the test messages
+        self.patient = None
         for p in self.patients:
             contact = Contact(name=p['subject_number'])
             contact.save()
             patient = Patient(subject_number=p['subject_number'],
                               contact=contact)
             patient.save()
+            if not self.patient:
+                self.patient = patient
         for testmsg in self.testmsgs:
             patient = Patient.objects.get(subject_number=testmsg['subject_number'])
             self.assertTrue(patient is not None)
@@ -50,6 +54,21 @@ class WisepillTest(TestCase):
             patient.save()
             testmsg['patient'] = patient
             self.assertEquals(patient.wisepill_msisdn,testmsg['msisdn'])
+
+    def create_wisepill_message(self, data=None):
+        defaults = dict(msisdn=self.patient.wisepill_msisdn,
+                        timestamp=datetime.datetime.now(),
+                        message_type=WisepillMessage.LIVE_EVENT,
+                        patient=self.patient,
+                        batterystrength=WISEPILL_LOW_BATTERY+1,
+                        )
+        if data:
+            defaults.update(data)
+        msg = WisepillMessage()
+        for key,value in defaults.iteritems():
+            setattr(msg, key, value)
+        msg.save()
+        return msg
 
     def test_message_parsing(self):
         for testmsg in self.testmsgs:
@@ -94,4 +113,13 @@ class WisepillTest(TestCase):
             self.assertTrue(rc)
             obj = WisepillMessage.objects.get(sms_message = testmsg['raw'])
             obj.delete()
-        
+
+    def test_battery_strength(self):
+        """If we create a wisepill message with a particular battery strength,
+        its patient's battery strength is also set"""
+        self.create_wisepill_message(data=dict(batterystrength=5))
+        patient = Patient.objects.get(pk=self.patient.pk)
+        self.assertEquals(patient.batterystrength, 5)
+        self.create_wisepill_message(data=dict(batterystrength=25))
+        patient = Patient.objects.get(pk=self.patient.pk)
+        self.assertEquals(patient.batterystrength, 25)

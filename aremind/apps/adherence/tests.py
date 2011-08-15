@@ -8,6 +8,7 @@ from aremind.apps.adherence.models import (Reminder, SendReminder, Feed, Entry,
                                            QuerySchedule)
 from aremind.apps.adherence.types import QUERY_TYPES, QUERY_TYPE_SMS, QUERY_TYPE_IVR
 from aremind.apps.patients.tests import PatientsCreateDataTest
+from aremind.apps.wisepill.models import WisepillMessage
 
 
 __all__ = (
@@ -17,6 +18,7 @@ __all__ = (
     'EditReminderViewTest',
     'DeleteReminderViewTest',
     'QueryScheduleTest',
+    'UnreportingWisepillTest',
 )
 
 
@@ -401,3 +403,56 @@ class QueryScheduleTest(TestCase):
         # our schedule should no longer exist
         self.assertRaises(QuerySchedule.DoesNotExist, QuerySchedule.objects.get,
                           pk=schedule.pk)
+
+class UnreportingWisepillTest(AdherenceCreateDataTest):
+    """Test reporting which wisepill devices haven't reported in 48 hours"""
+    
+    def setUp(self):
+        super(UnreportingWisepillTest, self).setUp()
+        self.user = User.objects.create_user('test', 'a@b.com', 'abc')
+        self.assertTrue(self.client.login(username='test', password='abc'),
+                        "User login failed")
+        self.url = reverse('adherence-unreporting-wisepill')
+        
+    def create_wisepill_message(self, patient=None, timestamp=None):
+        if patient is None:
+            patient = self.patient
+        if timestamp is None:
+            timestamp = datetime.datetime.now()
+        WisepillMessage.objects.create(timestamp=timestamp,
+                                       patient=patient)
+
+    def test_very_recent_messages(self):
+        """Patient with message just this second, show not be in report"""
+        self.patient = self.create_patient()
+        self.create_wisepill_message()
+        response = self.client.get(self.url)
+        context = response.context
+        self.assertFalse(self.patient in context['notreporting'])
+
+    def test_no_messages(self):
+        """Patient with no messages - should be listed"""
+        self.patient = self.create_patient()
+        response = self.client.get(self.url)
+        context = response.context
+        self.assertTrue(self.patient in context['notreporting'])
+        self.assertTrue(context['notreporting'][0].last_report is None)
+
+    def test_old_message(self):
+        """Message just old enough for patient to show up in report"""
+        self.patient = self.create_patient()
+        hours_49_ago = datetime.datetime.now() - datetime.timedelta(hours=49)
+        self.create_wisepill_message(timestamp=hours_49_ago)
+        response = self.client.get(self.url)
+        context = response.context
+        self.assertTrue(self.patient in context['notreporting'])
+        self.assertTrue(context['notreporting'][0].last_report == hours_49_ago)
+
+    def test_not_so_old_message(self):
+        """Message just recent enough to keep patient out of report"""
+        self.patient = self.create_patient()
+        hours_47_ago = datetime.datetime.now() - datetime.timedelta(hours=47)
+        self.create_wisepill_message(timestamp=hours_47_ago)
+        response = self.client.get(self.url)
+        context = response.context
+        self.assertFalse(self.patient in context['notreporting'])

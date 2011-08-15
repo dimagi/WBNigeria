@@ -462,15 +462,17 @@ class QuerySchedule(models.Model):
 
     def who_should_receive(self):
         """Return a list of the Patients who should receive this query"""
-        patients = []
+        # Start with individual patients for this query schedule
+        patients = list(self.patients.all())
+        # Then add patients in the groups for this query schedule
         for group in self.recipients.all():
             for contact in group.contacts.all():
                 try:
                     patient = Patient.objects.get(contact=contact)
-                    patients.append(patient)
+                    if patient not in patients:
+                        patients.append(patient)
                 except Patient.DoesNotExist:
                     pass # no patient for that contact
-        patients.extend(list(self.patients.all()))
         return patients
 
     def start_scheduled_queries(self, force=False):

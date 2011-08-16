@@ -33,6 +33,10 @@ INSTALLED_BACKENDS = {
     },
 }
 
+# Change this to True if we should use https:// on URLs we send to tropo
+# to retrieve audio files from us
+USE_SSL_FOR_AUDIO_FILE_URLS = False
+
 DJANGO_LOG_FILE = "aremind.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "DEBUG"

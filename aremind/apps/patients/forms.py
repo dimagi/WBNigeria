@@ -137,6 +137,7 @@ class PatientRemindersForm(forms.ModelForm):
         patient.contact.pin = patient.pin
         commit = kwargs.pop('commit', True)
         if commit:
+            patient.contact.save()
             reminders = self.cleaned_data.get('reminders', []) or []
             patient.contact.reminders.clear()
             for r in reminders:
@@ -145,11 +146,10 @@ class PatientRemindersForm(forms.ModelForm):
             patient.contact.feeds.clear()
             for f in feeds:
                 f.subscribers.add(patient.contact)
-            patient.contact.save()
+            patient.save()
             queries = self.cleaned_data.get('queries', []) or []
             for q in queries:
                 q.patients.add(patient)
-            patient.save()
             patient.adherence_query_schedules.clear()
         return patient
 

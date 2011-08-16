@@ -21,6 +21,7 @@ from rapidsms.messages.outgoing import OutgoingMessage
 
 from aremind.apps.groups.models import Group
 from aremind.apps.patients import models as patients
+from aremind.apps.patients.forms import PatientRemindersForm
 from aremind.tests.testcases import (CreateDataTest, FlushTestScript,
                                     patch_settings)
 from aremind.apps.patients.importer import parse_payload, parse_patient
@@ -285,6 +286,20 @@ class ImportTest(PatientsCreateDataTest):
         self.assertEqual(payload.patients.count(), 1)
         patient = payload.patients.all()[0]
         self.assertFalse(patient.reminder_time)
+
+
+    def test_patient_reminders_form(self):
+        contact = self.create_contact()
+        data = { 'contact': contact,
+                'subject_number': 'foo',
+                'mobile_number': '999555121212',
+                'daily_doses': 1,
+                }
+        form = PatientRemindersForm(data)
+        if form.is_valid():
+            form.save()
+        else:
+            self.fail("Form did not validate: %r" % form.errors)
 
 class WisepillAdherenceTest(PatientsCreateDataTest):
 

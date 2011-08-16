@@ -9,12 +9,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
 from rapidsms.messages import OutgoingMessage
+from rapidsms.models import Connection
+import rapidsms.contrib.messagelog.models as messagelog
 from threadless_router.router import Router
 
 from aremind.decorators import has_perm_or_basicauth
@@ -78,6 +80,20 @@ def create_edit_patient(request, patient_id=None):
         form = PatientRemindersForm(instance=patient)
     context = {'patient': patient, 'form': form}
     return render(request, 'patients/create_edit_patient.html', context)
+
+@login_required
+def messages_to_patient(request, patient_id):
+    patient = get_object_or_404(patients.Patient, pk=patient_id)
+    contact = patient.contact
+    connections = Connection.objects.filter(contact=contact)
+    messages = messagelog.Message.objects.filter(
+        Q(contact=patient.contact) | Q(connection__in=connections),
+        direction="O") \
+        .order_by('-date')
+    # note - can't call these 'messages' in the request context because
+    # then our base template will try to render them as Django 'messages'
+    context = dict(patient=patient, texts=messages)
+    return render(request, 'patients/messages_to_patient.html', context)
 
 
 @login_required

@@ -239,8 +239,11 @@ def audio_file_url(filename):
     """
     root = settings.STATIC_URL  # ends in '/'
     use_ssl = getattr(settings, 'USE_SSL_FOR_AUDIO_FILE_URLS', False)
+    alt_domain = getattr(settings, 'IVR_AUDIO_DOMAIN_URL', False) #an unfortunate tropo necessary hack.
     scheme = "https" if use_ssl else "http"
     url = "%s://%s%saudio/%s" % (scheme, Site.objects.get_current().domain, root, filename)
+    if(alt_domain):
+        url = "http://%s%saudio/%s" % (alt_domain, root, filename)
     logging.info("##AUDIO_URL=%s" % url)
     return url
 

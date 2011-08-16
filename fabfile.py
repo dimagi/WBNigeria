@@ -80,9 +80,9 @@ def production():
     env.code_branch = 'master'
     env.sudo_user = 'aremind'
     env.environment = 'production'
-    env.server_port = '9002'
+    env.server_port = '9010'
     env.server_name = 'aremind-production'
-    env.hosts = ['204.232.207.248']
+    env.hosts = ['10.84.168.245']
     env.settings = '%(project)s.localsettings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
@@ -170,6 +170,7 @@ def clone_repo():
 def deploy():
     """ deploy code to remote host by checking out the latest via git """
     require('root', provided_by=('staging', 'production'))
+    sudo('echo ping!')
     if env.environment == 'production':
         if not console.confirm('Are you sure you want to deploy production?',
                                default=False):
@@ -179,7 +180,7 @@ def deploy():
     with cd(env.code_root):
         sudo('git pull', user=env.sudo_user)
         sudo('git checkout %(code_branch)s' % env, user=env.sudo_user)
-    update_requirements()
+    #update_requirements()
     migrate()
     collectstatic()
     start()
@@ -191,7 +192,7 @@ def update_requirements():
     requirements = posixpath.join(env.code_root, 'requirements')
     with cd(requirements):
         cmd = ['sudo -u %s -H pip install' % env.sudo_user]
-        cmd += ['-q -E %(virtualenv_root)s' % env]
+        cmd += ['-E %(virtualenv_root)s' % env]
         cmd += ['--requirement %s' % posixpath.join(requirements, 'apps.txt')]
         run(' '.join(cmd))
 
@@ -234,31 +235,31 @@ def netstat_plnt():
 def stop():
     """ stop server and celery on remote host """
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('stop %(environment)s:*' % env)
+    _supervisor_command('stop %(project)s-%(environment)s:*' % env)
 
 
 def start():
     """ start server and celery on remote host """
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('start %(environment)s:*' % env)
+    _supervisor_command('start %(project)s-%(environment)s:*' % env)
 
 
 def servers_start():
     ''' Start the gunicorn servers '''
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('start  %(environment)s:%(environment)s-server' % env)
+    _supervisor_command('start  %(project)s-%(environment)s:%(project)s-%(environment)s-server' % env)
 
 
 def servers_stop():
     ''' Stop the gunicorn servers '''
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('stop  %(environment)s:%(environment)s-server' % env)
+    _supervisor_command('stop  %(project)s-%(environment)s:%(project)s-%(environment)s-server' % env)
 
 
 def servers_restart():
     ''' Start the gunicorn servers '''
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('restart  %(environment)s:%(environment)s-server' % env)
+    _supervisor_command('restart  %(project)s-%(environment)s:%(project)s-%(environment)s-server' % env)
 
 
 def migrate():

@@ -1,0 +1,41 @@
+{% extends "patients/base.html" %}
+{% load i18n pagination_tags sorting_tags %}
+
+{% block title %}Messages to patient{% endblock %}
+
+{% block content %}
+<div class='module'>
+    <h2>Messages to patient {{ patient.subject_number }}</h2>
+    {% autosort texts %}
+    {% autopaginate texts 20 %}
+    <table class='sortable pagination'>
+        <thead>
+            <tr>
+                <th>{% anchor date "Date" %}</th>
+                <th>{% anchor text "Text" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for message in texts %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td>{{ message.date }}</td>
+                    <td>{{ message.text }}</td>
+                </tr>
+            {% empty %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td colspan='2'>No messages sent.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if paginator.count > paginator.per_page %}
+            <tr>
+                <td colspan='2'>
+                    {% paginate %}
+                </td>
+            </tr>
+            {% endif %}
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

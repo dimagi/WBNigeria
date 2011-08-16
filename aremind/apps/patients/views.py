@@ -229,7 +229,7 @@ def patient_ivr_complete(request, patient_id):
         survey.completed(PatientSurvey.STATUS_ERROR)
         return http.HttpResponseServerError()
 
-def audio_file_url(filename, ssl=False):
+def audio_file_url(filename):
     """Given a filename, work out the URL that tropo needs to use
     to download it from us.  Tropo apparently needs the full URL,
     at least otherwise it reads out the filename instead of
@@ -238,7 +238,8 @@ def audio_file_url(filename, ssl=False):
     http://example.com:8000/static/audio/01-Intro.mp3
     """
     root = settings.STATIC_URL  # ends in '/'
-    scheme = "https" if ssl else "http"
+    use_ssl = getattr(settings, 'USE_SSL_FOR_AUDIO_FILE_URLS', False)
+    scheme = "https" if use_ssl else "http"
     url = "%s://%s%saudio/%s" % (scheme, Site.objects.get_current().domain, root, filename)
     logging.info("##AUDIO_URL=%s" % url)
     return url
@@ -255,8 +256,6 @@ def patient_ivr_callback(request, patient_id):
     """
     
     patient = get_object_or_404(patients.Patient, pk=patient_id)
-    ssl = request.is_secure()
-    logging.info("##patient_ivr_callback: ssl=%s" % ssl)
 
     # Got POST from Tropo wanting to know what to do
     try:
@@ -315,10 +314,10 @@ def patient_ivr_callback(request, patient_id):
             }}
 
         if USE_RECORDED_VOICE:
-            welcome_value = audio_file_url('01-Intro.mp3', ssl)
-            ask_value = audio_file_url('02-HowManyDoses.mp3', ssl)
-            thankyou_values = (audio_file_url('03-ThankYou.mp3', ssl),
-                              audio_file_url('04-YourAdherenceScoreIs.mp3', ssl),
+            welcome_value = audio_file_url('01-Intro.mp3')
+            ask_value = audio_file_url('02-HowManyDoses.mp3')
+            thankyou_values = (audio_file_url('03-ThankYou.mp3'),
+                              audio_file_url('04-YourAdherenceScoreIs.mp3'),
                               (u"%d" % patient.adherence()))
         else:
             welcome_value = "This is ARemind calling to see how you're doing."

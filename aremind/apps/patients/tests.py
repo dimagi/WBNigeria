@@ -22,6 +22,7 @@ from rapidsms.messages.outgoing import OutgoingMessage
 from aremind.apps.groups.models import Group
 from aremind.apps.patients import models as patients
 from aremind.apps.patients.forms import PatientRemindersForm
+from aremind.apps.adherence.models import Reminder, Feed, QuerySchedule
 from aremind.tests.testcases import (CreateDataTest, FlushTestScript,
                                     patch_settings)
 from aremind.apps.patients.importer import parse_payload, parse_patient
@@ -290,10 +291,21 @@ class ImportTest(PatientsCreateDataTest):
 
     def test_patient_reminders_form(self):
         contact = self.create_contact()
+        today = datetime.date.today()
+        reminder = Reminder.objects.create(time_of_day = '0:00',
+                                           date = today)
+        feed = Feed.objects.create(name='test feed')
+        query = QuerySchedule.objects.create(start_date=today,
+                              time_of_day='0:00',
+                              query_type=1,
+                              days_between=4)
         data = { 'contact': contact,
                 'subject_number': 'foo',
                 'mobile_number': '999555121212',
-                'daily_doses': 1,
+                'daily_doses': '1',
+                'reminders_1': str(reminder.pk),
+                'feeds_1': str(feed.pk),
+                'queries_1': str(query.pk),
                 }
         form = PatientRemindersForm(data)
         if form.is_valid():

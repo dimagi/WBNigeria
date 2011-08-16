@@ -147,10 +147,10 @@ class PatientRemindersForm(forms.ModelForm):
                 f.subscribers.add(patient.contact)
             patient.contact.save()
             queries = self.cleaned_data.get('queries', []) or []
-            patient.adherence_query_schedules.clear()
             for q in queries:
                 q.patients.add(patient)
             patient.save()
+            patient.adherence_query_schedules.clear()
         return patient
 
 

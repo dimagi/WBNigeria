@@ -239,7 +239,9 @@ def audio_file_url(filename, ssl=False):
     """
     root = settings.STATIC_URL  # ends in '/'
     scheme = "https" if ssl else "http"
-    return "%s://%s%saudio/%s" % (scheme, Site.objects.get_current().domain, root, filename)
+    url = "%s://%s%saudio/%s" % (scheme, Site.objects.get_current().domain, root, filename)
+    logging.info("##AUDIO_URL=%s" % url)
+    return url
 
 # Maybe this should be a setting
 USE_RECORDED_VOICE = True
@@ -254,6 +256,7 @@ def patient_ivr_callback(request, patient_id):
     
     patient = get_object_or_404(patients.Patient, pk=patient_id)
     ssl = request.is_secure()
+    logging.info("##patient_ivr_callback: ssl=%s" % ssl)
 
     # Got POST from Tropo wanting to know what to do
     try:
@@ -343,7 +346,7 @@ def patient_ivr_callback(request, patient_id):
         commands.append({ 'hangup': None })
 
         to_return = { 'tropo': commands }
-        logger.debug("##Returning %s" % to_return)
+        logger.info("##Returning %s" % to_return)
         return http.HttpResponse(json.dumps(to_return))
     except Exception,e:
         logger.exception(e)

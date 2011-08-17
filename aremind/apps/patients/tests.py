@@ -306,6 +306,7 @@ class ImportTest(PatientsCreateDataTest):
                 'reminders_1': str(reminder.pk),
                 'feeds_1': str(feed.pk),
                 'queries_1': str(query.pk),
+                'manual_adherence': 80,
                 }
         form = PatientRemindersForm(data)
         if form.is_valid():

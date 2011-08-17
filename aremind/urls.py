@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.views.generic.simple import direct_to_template
 
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -44,8 +45,20 @@ urlpatterns = patterns('',
     (r'^rosetta/', include('rosetta.urls')),
     (r'^selectable/', include('selectable.urls')),
 
-    url(r'^tropo/$', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),                       
+    url(r'^tropo/$', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),                     
 )
+
+ # Contrib Auth Password Management
+urlpatterns += patterns('django.contrib.auth.views',   
+    url(r'^account/password/change/$', 'password_change', name='auth_password_change'),
+    url(r'^account/password/change/done/$', 'password_change_done', name='auth_password_change_done'),
+    url(r'^account/password/reset/$', 'password_reset', name='auth_password_reset'),
+    url(r'^account/password/reset/confirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', 'password_reset_confirm', 
+        name='auth_password_reset_confirm'),
+    url(r'^account/password/reset/complete/$', 'password_reset_complete', name='auth_password_reset_complete'),
+    url(r'^account/password/reset/done/$', 'password_reset_done', name='auth_password_reset_done'),
+)
+
 
 if settings.DEBUG:
     urlpatterns += patterns('',

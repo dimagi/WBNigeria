@@ -1,0 +1,35 @@
+{% extends "aremind/layout.html" %}
+{% load forms_tags i18n %}
+{% block title %}Login{% endblock %}
+{% block content %}
+
+{% if form.errors %}
+<p>Oops. Your username and password didn't match. Please try again.</p>
+{% endif %}
+{% if user.is_authenticated %}
+<p>You're already logged in!</p>
+{% else %}
+<h1>Please log in to RapidSMS</h1>
+
+
+<form method="post" action="{% url rapidsms-login %}">
+{% csrf_token %}
+<input type="hidden" name="next" value="{{ next }}" />
+<table>
+<tr>
+    <td>{{ form.username.label_tag }}</td>
+    <td>{{ form.username }}</td>
+</tr>
+<tr>
+    <td>{{ form.password.label_tag }}</td>
+    <td>{{ form.password }}</td>
+</tr>
+<tr>
+    <td><a href="{% url auth_password_reset %}">{% trans "Forgot your password?" %}</a></td>
+    <td><button type="submit" name="login">{% trans "Login" %}</button></td>
+</tr>
+</table>
+</form>
+
+{% endif %}
+{% endblock %}

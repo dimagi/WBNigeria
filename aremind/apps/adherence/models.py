@@ -220,6 +220,9 @@ class Feed(models.Model):
     def fetch_manual_feed(self):
         # Nothing to do here...
         pass
+    
+    def is_valid_manual_feed(self):
+        return True
 
     def parse_twitter_date(self, string):
         locale.setlocale(locale.LC_TIME, 'C')
@@ -227,6 +230,15 @@ class Feed(models.Model):
         locale.setlocale(locale.LC_TIME, '')
         return date
          
+    def is_valid_twitter_feed(self):
+        api = twitter.Api()
+        try:
+            api.GetUserTimeline(self.name)
+        except twitter.TwitterError as e:
+            logger.error(repr(e.message))
+            return False
+        return True
+
     def fetch_twitter_feed(self):
         api = twitter.Api()
         try:
@@ -248,6 +260,13 @@ class Feed(models.Model):
         self.last_download = datetime.datetime.now()
         self.save()
         return len(timeline)
+
+    def is_valid_rss_feed(self):
+        data = feedparser.parse(self.url)
+        if 'bozo' in data and data.bozo:
+            logger.error('Bad Rss/Atom feed: %s' % self.url)
+            return False
+        return True
 
     def fetch_rss_feed(self):
         data = feedparser.parse(self.url)
@@ -271,6 +290,14 @@ class Feed(models.Model):
         self.last_download = datetime.datetime.now()
         self.save()
         return len(data)
+
+    def is_valid_feed(self):
+        function_name = 'is_valid_%s_feed' % self.feed_type
+        is_valid_function = getattr(self, function_name, None)
+        if is_valid_function:
+            return is_valid_function()
+        else:
+            raise NotImplementedError('%s has not been implemented yet.' % function_name)
 
     def _get_rss_pub_date(self, item):
         pub_date = None       

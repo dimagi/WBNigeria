@@ -3,6 +3,7 @@ from django import forms
 from rapidsms.models import Contact
 
 from aremind.apps.adherence.models import Reminder, Feed, Entry, QuerySchedule
+from django.core.exceptions import ValidationError
 
 
 class ReminderForm(forms.ModelForm):
@@ -58,6 +59,14 @@ class FeedForm(forms.ModelForm):
     def label_from_instance(self, obj):
         return obj.patient_set.all()[0].subject_number
 
+    def clean(self):
+        super(FeedForm,self).clean()
+        if self.is_valid(): #  so far, anyway
+            self.instance.name = self.cleaned_data['name']
+            self.instance.feed_type = self.cleaned_data['feed_type']
+            if not self.instance.is_valid_feed():
+                raise ValidationError("Not a valid feed")
+        return self.cleaned_data
 
 class EntryForm(forms.ModelForm):
 

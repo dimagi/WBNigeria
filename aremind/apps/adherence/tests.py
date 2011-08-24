@@ -14,12 +14,15 @@ from aremind.apps.adherence.types import QUERY_TYPE_SMS
 from aremind.apps.adherence.sms import get_tree
 from aremind.apps.patients.tests import PatientsCreateDataTest
 from aremind.apps.wisepill.models import WisepillMessage
+from django.test.testcases import TestCase
+from aremind.apps.adherence.forms import FeedForm
 
 
 __all__ = (
     'ReminderModelTest',
     'AdherenceDashboardViewTest',
     'CreateReminderViewTest',
+    'CreateFeedFormTest',
     'EditReminderViewTest',
     'DeleteReminderViewTest',
     'QueryScheduleTest',
@@ -230,6 +233,19 @@ class AdherenceDashboardViewTest(AdherenceCreateDataTest):
         self.assertEqual(response.status_code, 200)
 
 
+class CreateFeedFormTest(TestCase):
+    def test_invalid_twitter_feed(self):
+        """Don't allow creating an invalid twitter feed"""
+        form = FeedForm(data={'name': "there's no such twitter feed",
+                              'feed_type': Feed.TYPE_TWIITER})
+        self.assertFalse(form.is_valid())
+    
+    def test_valid_twitter_feed(self):
+        """A known-valid twitter feed will validate"""
+        form = FeedForm(data={'name': "twitter",
+                              'feed_type': Feed.TYPE_TWIITER})
+        self.assertTrue(form.is_valid())
+    
 class CreateReminderViewTest(AdherenceCreateDataTest):
     
     def setUp(self):

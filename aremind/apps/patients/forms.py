@@ -109,6 +109,9 @@ class PatientRemindersForm(forms.ModelForm):
         validate_phone(mobile_number)
         return mobile_number
 
+    def clean_manual_adherence(self):
+        return self.cleaned_data.get('manual_adherence', 0) or 0
+
     def generate_new_subject_id(self):
         valid = False
         while not valid:

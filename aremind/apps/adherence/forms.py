@@ -4,6 +4,7 @@ from rapidsms.models import Contact
 
 from aremind.apps.adherence.models import Reminder, Feed, Entry, QuerySchedule
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 
 class ReminderForm(forms.ModelForm):
@@ -115,10 +116,14 @@ class EntryForm(forms.ModelForm):
 class QueryScheduleForm(forms.ModelForm):
     class Meta(object):
         model = QuerySchedule
+        exclude = ('recipients',)
 
     def __init__(self, *args, **kwargs):
         super(QueryScheduleForm, self).__init__(*args, **kwargs)
+        remove_message = unicode(_('Hold down "Control", or "Command" on a Mac, to select more than one.'))
         self.fields['start_date'].label = 'Start date'
         self.fields['start_date'].required = True
         self.fields['start_date'].widget.attrs['class'] = 'datepicker'
         self.fields['time_of_day'].widget.attrs['class'] = 'timepicker'
+        self.fields['patients'].widget.attrs['class'] = 'multiselect'
+        self.fields['patients'].help_text = self.fields['patients'].help_text.replace(remove_message, '').strip()

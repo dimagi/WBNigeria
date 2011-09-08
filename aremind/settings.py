@@ -26,6 +26,9 @@ INSTALLED_APPS = [
     "threadless_router.celery",
     "decisiontree",
 
+    #audit utils
+    "auditcare",
+
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
     # "rapidsms.contrib.ajax",
@@ -66,7 +69,8 @@ INSTALLED_APPS = [
     # "rapidsms.contrib.registration",
     #"rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
- 
+
+    "couchlog",
     # this app should be last, as it will always reply with a help message
     "aremind.apps.catch_all",
 ]
@@ -153,6 +157,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     #this is for a custom logo on the dashboard (see LOGO_*_URL in settings, above)
     "rapidsms.context_processors.logo",
     "aremind.apps.reminders.context_processors.messages",
+    "couchlog.context_processors.static_workaround"
 ]
 
 
@@ -164,6 +169,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'django_sorting.middleware.SortingMiddleware',
+    'auditcare.middleware.AuditMiddleware',
 ]
     
 # -------------------------------------------------------------------- #
@@ -229,7 +235,7 @@ PRIMARY_BACKEND = 'tropo'
 # if set, the message tester app will always use this backend
 TEST_MESSAGER_BACKEND = 'tropo'
 
-RAPIDSMS_HANDLERS_EXCLUDE_APPS = []
+RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog","djcelery"]
 
 STATICFILES_FINDERS =(
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -238,6 +244,48 @@ STATICFILES_FINDERS =(
 
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'))
+
+
+
+
+AUDIT_VIEWS = [
+    'aremind.apps.adherence.views.create_edit_schedule',
+    'aremind.apps.adherence.views.delete_schedule',
+    'aremind.apps.adherence.views.create_edit_feed',
+    'aremind.apps.adherence.views.delete_feed',
+    'aremind.apps.adherence.views.create_edit_entry',
+    'aremind.apps.adherence.views.delete_entry',
+    'aremind.apps.adherence.views.ivr_callback',
+    'aremind.apps.adherence.views.query_results',
+    'aremind.apps.adherence.views.create_edit_query_schedule',
+    'aremind.apps.adherence.views.delete_query_schedule',
+    'aremind.apps.adherence.views.force_query_schedule',
+    'aremind.apps.adherence.views.pills_missed_report',
+    'aremind.apps.adherence.views.wisepill_by_last_report',
+    'aremind.apps.adherence.views.dashboard',
+    'aremind.apps.broadcast.views.send_message',
+    'aremind.apps.broadcast.views.schedule',
+    'aremind.apps.broadcast.views.delete_broadcast',
+    'aremind.apps.broadcast.views.create_edit_rule',
+    'aremind.apps.broadcast.views.delete_rule',
+    'aremind.apps.broadcast.views.report_graph_data',
+    'aremind.apps.broadcast.views.last_messages',
+    'aremind.apps.groups.create_edit_group',
+    'aremind.apps.groups.views.delete_group',
+    'aremind.apps.groups.views.create_edit_contact',
+    'aremind.apps.groups.views.delete_contact'
+    'aremind.apps.patients.views.create_edit_patient',
+    'aremind.apps.patients.views.create_edit_pill_history',
+    'aremind.apps.patients.views.patient_onetime_message',
+    'aremind.apps.patients.views.patient_start_adherence_tree',
+    'aremind.apps.patients.views.messages_to_patient',
+    'aremind.apps.reminders.views.create_edit_notification',
+    'aremind.apps.reminders.views.delete_notification',
+    'aremind.apps.reminders.views.manually_confirm',
+    'aremind.apps.reminders.views.dashboard',
+    'aremind.apps.wisepill.views.list_messages_for_patient',
+    'aremind.apps.test_messager.views.message_form'
+]
 
 import djcelery
 djcelery.setup_loader()

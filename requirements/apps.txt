@@ -25,3 +25,6 @@ nose==1.0
 -e git+https://github.com/adammck/djtables#egg=djtables
 couchdbkit
 pytz
+-e git+https://github.com/dimagi/couchlog.git#egg=couchlog
+-e git+https://github.com/dimagi/auditcare.git#egg=auditcare
+-e git+https://github.com/dimagi/dimagi-utils.git#egg=dimagi_utils

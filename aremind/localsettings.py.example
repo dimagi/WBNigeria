@@ -74,3 +74,11 @@ COUNTRY_CODE = '1'
 # INSTALLED_APPS = list(INSTALLED_APPS)
 # INSTALLED_APPS.append('debug_toolbar')
 # DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
+
+
+
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_VHOST = "aremind_staging"
+BROKER_USER = "aremind"
+BROKER_PASSWORD = "" # In local settings

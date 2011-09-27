@@ -15,7 +15,8 @@ urlpatterns = patterns('',
 
     (r'^admin/', include(admin.site.urls)),
     (r'^', include('decisiontree.urls')),
-    
+    (r'^', include('auditcare.urls')),
+
     # RapidSMS core URLs
     (r'^account/', include('rapidsms.urls.login_logout')),
     url(r'^$', 'aremind.apps.broadcast.views.dashboard', name='rapidsms-dashboard'),
@@ -45,7 +46,9 @@ urlpatterns = patterns('',
     (r'^rosetta/', include('rosetta.urls')),
     (r'^selectable/', include('selectable.urls')),
 
-    url(r'^tropo/$', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),                     
+    url(r'^tropo/$', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),
+
+    (r'^couchlog/', include('couchlog.urls')),
 )
 
  # Contrib Auth Password Management

@@ -23,7 +23,7 @@ nose==1.0
 -e git+https://github.com/caktus/rapidsms-threadless-router.git#egg=threadless_router
 -e git+https://github.com/dimagi/rapidsms.git#egg=rapidsms
 -e git+https://github.com/adammck/djtables#egg=djtables
-couchdbkit
+couchdbkit==0.5.4
 pytz
 -e git+https://github.com/dimagi/couchlog.git#egg=couchlog
 -e git+https://github.com/dimagi/auditcare.git#egg=auditcare

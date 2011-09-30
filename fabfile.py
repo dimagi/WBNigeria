@@ -70,6 +70,7 @@ def staging():
     env.server_port = '9002'
     env.server_name = 'noneset'
     env.hosts = ['204.232.206.181']
+    env.hosts = ['204.232.206.181']
     env.settings = '%(project)s.localsettings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
@@ -86,12 +87,6 @@ def production():
     env.settings = '%(project)s.localsettings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
-
-#    env.code_branch = 'master'
-#    env.sudo_user = 'aremind'
-#    env.environment = 'production'
-#    env.hosts = []
-#    raise NotImplementedError()
 
 
 def install_packages():
@@ -170,20 +165,27 @@ def clone_repo():
 def deploy():
     """ deploy code to remote host by checking out the latest via git """
     require('root', provided_by=('staging', 'production'))
-    sudo('echo ping!')
+    sudo('echo ping!') #hack/workaround for delayed console response
     if env.environment == 'production':
         if not console.confirm('Are you sure you want to deploy production?',
                                default=False):
             utils.abort('Production deployment aborted.')
     with settings(warn_only=True):
         stop()
-    with cd(env.code_root):
-        sudo('git pull', user=env.sudo_user)
-        sudo('git checkout %(code_branch)s' % env, user=env.sudo_user)
-    #update_requirements()
-    migrate()
-    collectstatic()
-    start()
+    try:
+        with cd(env.code_root):
+            sudo('git checkout %(code_branch)s' % env, user=env.sudo_user)
+            sudo('git pull', user=env.sudo_user)
+            sudo('git submodule init', user=env.sudo_user)
+            sudo('git submodule update', user=env.sudo_user)
+#        update_requirements()
+        update_services()
+        migrate()
+        collectstatic()
+        touch()
+    finally:
+        # hopefully bring the server back to life if anything goes wrong
+        start()
 
 
 def update_requirements():
@@ -194,7 +196,17 @@ def update_requirements():
         cmd = ['sudo -u %s -H pip install' % env.sudo_user]
         cmd += ['-E %(virtualenv_root)s' % env]
         cmd += ['--requirement %s' % posixpath.join(requirements, 'apps.txt')]
-        run(' '.join(cmd))
+        sudo(' '.join(cmd), user=env.sudo_user)
+
+
+def touch():
+    """ touch apache and supervisor conf files to trigger reload. Also calls supervisorctl update to load latest supervisor.conf """
+    require('code_root', provided_by=('staging', 'production'))
+    apache_path = posixpath.join(posixpath.join(env.services, 'apache'), 'apache.conf')
+    supervisor_path = posixpath.join(posixpath.join(env.services, 'supervisor'), 'supervisor.conf')
+    sudo('touch %s' % apache_path, user=env.sudo_user)
+    sudo('touch %s' % supervisor_path, user=env.sudo_user)
+    _supervisor_command('update')
 
 
 def update_services():
@@ -336,6 +348,13 @@ def upload_supervisor_conf():
     run('sudo chgrp -R www-data %s' % destination)
     run('sudo chmod -R g+w %s' % destination)
     run('sudo -u %s mv -f %s %s' % (env.sudo_user, destination, enabled))
+
+    #update the line in the supervisord config file that points to our supervisor.conf
+    #remove the line if it already exists
+    tmp = posixpath.join('/','var','tmp','supervisord.conf')
+    sudo('sed "/$%s/d" /etc/supervisor/supervisord.conf > %s' % (env.services.replace('/','\/') , tmp))
+    sudo('echo "files = %s/supervisor/*.conf" >> %s' % (env.services, tmp) )
+    sudo('mv /var/tmp/supervisord.conf /etc/supervisor/supervisord.conf')
     _supervisor_command('update')
 
 
@@ -350,6 +369,10 @@ def upload_apache_conf():
     run('sudo chgrp -R www-data %s' % destination)
     run('sudo chmod -R g+w %s' % destination)
     run('sudo -u %s mv -f %s %s' % (env.sudo_user, destination, enabled))
+    sudo('a2enmod proxy')
+    sudo('a2enmod proxy_http')
+    sudo('rm /etc/apache2/sites-enabled/%(project)s' % env)
+    sudo('ln -s %(services)s/apache/%(environment)s.conf /etc/apache2/sites-enabled/%(project)s' % env)
     apache_reload()
 
 

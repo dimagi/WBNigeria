@@ -352,7 +352,7 @@ def upload_supervisor_conf():
     #update the line in the supervisord config file that points to our supervisor.conf
     #remove the line if it already exists
     tmp = posixpath.join('/','var','tmp','supervisord.conf')
-    sudo('sed "/$%s/d" /etc/supervisor/supervisord.conf > %s' % (env.services.replace('/','\/') , tmp))
+    sudo("sed '/.conf/d' %s/supervisor/supervisord.conf > %s" % (env.services , tmp))
     sudo('echo "files = %s/supervisor/*.conf" >> %s' % (env.services, tmp) )
     sudo('mv /var/tmp/supervisord.conf /etc/supervisor/supervisord.conf')
     _supervisor_command('update')

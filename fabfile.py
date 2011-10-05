@@ -343,7 +343,7 @@ def upload_supervisor_conf():
     template = posixpath.join(os.path.dirname(__file__), 'services', 'templates', 'supervisor.conf')
     destination = '/var/tmp/supervisor.conf'
     files.upload_template(template, destination, context=env, use_sudo=True)
-    enabled =  posixpath.join(env.services, u'supervisor/%(environment)s.conf' % env)
+    enabled =  posixpath.join(env.services, u'supervisor/supervisord.conf' % env)
     run('sudo chown -R %s %s' % (env.sudo_user, destination))
     run('sudo chgrp -R www-data %s' % destination)
     run('sudo chmod -R g+w %s' % destination)

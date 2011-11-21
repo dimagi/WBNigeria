@@ -15,18 +15,31 @@
         {% endfor %}
         sLineOpts = {type: 'bar',  //general sparkline init params
                 barColor: '#2FA5D1',
-                barWidth: 5,
+                barWidth: 10,
                 zeroColor : 'black',
 	            nullColor :'black'
         }
 
         //for the Wisepill sparklines:
         var dailyDose = 0;
-        $(".patient_id").each(function (e) {
+        $(".wisepill_activity_patient_id").each(function (e) {
             dailyDose = parseInt($($(this).parent().find('td')[5]).text());
+
             sLineOpts['chartRangeMax'] = dailyDose;
             sLineOpts['chartRangeMin'] = 0;
             $(this).sparkline(wpsparklines[$(this).text()], sLineOpts);
+        });
+
+        dailyDose = 0
+        $(".missed_pill_patient_id").each (function (idx) {
+            sLineOpts["barWidth"] = 20;
+//            sLineOpts["zeroAxis"] = true;
+            sLineOpts["zeroColor"] = 'black';
+            sLineOpts["nullColor"] = 'black';
+            dailyDose = parseInt($($(this).parent().find('td')[5]).text());
+//            sLineOpts['chartRangeMax'] = -1;
+            sLineOpts['chartRangeMin'] = -7; //each bar is pills missed *per week*
+            $(this).sparkline(pmsparklines[$(this).text()], sLineOpts);
         });
 
   
@@ -57,10 +70,10 @@
                 <th>{% anchor subject_number "Subject ID" %}</th>
                 <th>{% anchor date_enrolled "Date Enrolled" %}</th>
                 <th>{% anchor next_visit "Next Appointment" %}</th>
-                <th>{% anchor reminder_count "WisePill Activity" %}</th>
+                <th>{% anchor reminder_count "WisePill Activity (Last 20 Days)" %}</th>
                 <th>{% anchor feed_count "Missed Pill Count (SMS), 1 bar = 1 week" %}</th>
                 <th>{% anchor daily_doses "Daily Doses" %}</th>
-                <th>{% anchor adherence "Adherence" %}</th>
+                <th>{% anchor adherence "Calculated Adherence" %}</th>
             </tr>
         </thead>
         <tbody>
@@ -69,10 +82,10 @@
                     <td>{{ patient.subject_number }}</td>
                     <td>{{ patient.date_enrolled }}</td>
                     <td>{{ patient.next_visit }}</td>
-                    <td class="patient_id">{{ patient.id }}</td>
-                    <td>{{ patient.feed_count }}</td>
+                    <td class="wisepill_activity_patient_id">{{ patient.id }}</td>
+                    <td class="missed_pill_patient_id">{{ patient.id }}</td>
                     <td>{{ patient.daily_doses }}</td>
-                    <td>{{ patient.adherence }}%</td>
+                    <td>{{ patient.report_adherence }}%</td>
 
                 </tr>
             {% empty %}

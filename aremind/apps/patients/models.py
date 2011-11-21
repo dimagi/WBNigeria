@@ -140,6 +140,48 @@ class Patient(models.Model):
                 percent = 100  # 100 is the max
             self._percent = percent
         return self._percent
+
+    def adherence_report_date(self, report_date):
+        """
+        Same behaviour as adherence, except we specify a date up to which the calculation should run.
+        """
+
+        today = report_date
+        beginning_of_today = datetime.datetime(today.year,
+                                               today.month,
+                                               today.day)
+
+        # Messages we've gotten (today doesn't count)
+        # pylint: disable-msg=E1101
+        msgs = self.wisepill_messages.filter(timestamp__lt=beginning_of_today)
+
+        # Are they supposed to take any?
+        if self.daily_doses == 0:
+            return 100 # perfect!
+
+        # Have we ever gotten a message before today?
+        if msgs.count() == 0:
+            return self.manual_adherence
+
+        min_days_to_compute_adherence = getattr(settings, "MIN_DAYS_TO_COMPUTE_ADHERENCE", 7)
+
+        # When was our first message (ever)?
+        first_message = msgs.order_by('timestamp')[0]
+        days_to_first_message = (today - first_message.timestamp.date()).days
+        if days_to_first_message < min_days_to_compute_adherence:
+            return self.manual_adherence
+
+        days_to_count = 7
+
+        # compute adherence
+        first_day_to_count = today - datetime.timedelta(days=days_to_count)
+        num_wisepill_doses = msgs.filter(timestamp__gte=first_day_to_count). \
+                                  count()
+        supposed_to_take = days_to_count * self.daily_doses
+        percent = int((100 * num_wisepill_doses) / supposed_to_take)
+        if percent > 100:
+            percent = 100  # 100 is the max
+        return percent
         
     def days_to_reach_level(self, level=95):
         days_to_count = 7

@@ -81,10 +81,21 @@ def get_patient_stats_context(appt_date):
             wpsparkline.insert(0,msgCount)
         patient.wisepill_sparkline = wpsparkline
 
-        pillsMissed = patient.pillsmissed_set.filter(date__lt=appt_date, source=1).order_by('date')
         pmSparkline = []
-        for pillMiss in pillsMissed:
-            pmSparkline.insert(0,pillMiss.num_missed)
+        dateStartWeek = appt_date
+        dateEndWeek = appt_date - datetime.timedelta(days=7)
+        for week in range(8):
+            pillsMissed = patient.pillsmissed_set.filter(date__lt=dateStartWeek, date__gt=dateEndWeek, source=1) #we should only find at most 1 per week...
+            if(len(pillsMissed) > 0):
+                pmSparkline.insert(0,(-1)*pillsMissed[0].num_missed)
+            else:
+                pmSparkline.insert(0,0)
+            dateStartWeek = dateEndWeek
+            dateEndWeek = dateEndWeek - datetime.timedelta(days=7)
+
+
+        patient.report_adherence = patient.adherence_report_date(appt_date)
+
         patient.pills_missed_parkline = pmSparkline
 
 

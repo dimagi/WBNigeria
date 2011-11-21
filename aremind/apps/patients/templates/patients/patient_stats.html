@@ -13,14 +13,23 @@
             wpsparklines["{{ patient.id }}"] = {{ patient.wisepill_sparkline }};
             pmsparklines["{{ patient.id }}"] = {{ patient.pills_missed_parkline }};
         {% endfor %}
-        sLineOpts = {type: 'bar',
+        sLineOpts = {type: 'bar',  //general sparkline init params
                 barColor: '#2FA5D1',
                 barWidth: 5,
-                zeroAxis: false};
-        var id;
+                zeroColor : 'black',
+	            nullColor :'black'
+        }
+
+        //for the Wisepill sparklines:
+        var dailyDose = 0;
         $(".patient_id").each(function (e) {
-            $(this).sparkline(wpsparklines[e], sLineOpts);
+            dailyDose = parseInt($($(this).parent().find('td')[5]).text());
+            sLineOpts['chartRangeMax'] = dailyDose;
+            sLineOpts['chartRangeMin'] = 0;
+            $(this).sparkline(wpsparklines[$(this).text()], sLineOpts);
         });
+
+  
   });
   </script>
  <!-- <script src="{{ STATIC_URL }}js/patient_stats.js" type="text/javascript"></script> -->

@@ -1,0 +1,86 @@
+{% extends "patients/patient_list.html" %}
+{% load i18n pagination_tags sorting_tags %}
+
+{% block title %}Patient Listing{% endblock %}
+
+{% block javascripts %}{{ block.super }}
+  <script src="{{ STATIC_URL }}js/jquery.sparkline.js" type="text/javascript"></script>
+  <script type="text/javascript">
+  $(document).ready(function() {
+        var wpsparklines = {}; //wisepill activity sparkline
+        var pmsparklines = {}; //pills missed by SMS report sparkline
+        {% for patient in patients %}
+            wpsparklines["{{ patient.id }}"] = {{ patient.wisepill_sparkline }};
+            pmsparklines["{{ patient.id }}"] = {{ patient.pills_missed_parkline }};
+        {% endfor %}
+        sLineOpts = {type: 'bar',
+                barColor: '#2FA5D1',
+                barWidth: 5,
+                zeroAxis: false};
+        var id;
+        $(".patient_id").each(function (e) {
+            $(this).sparkline(wpsparklines[e], sLineOpts);
+        });
+  });
+  </script>
+ <!-- <script src="{{ STATIC_URL }}js/patient_stats.js" type="text/javascript"></script> -->
+{% endblock %}
+
+{% block content %}
+    <div class="module">
+    <form class="date-form buttons" action="{% url patient-stats %}" method="get">
+        <div class='form-action'>
+            {{ report_form }}
+            <input type='submit' value="Change Report Date" />
+        </div>
+    </form>
+</div>
+
+
+
+<div class='module'>
+    <h2>Patient Stats</h2>
+    {% autosort patients %}
+    {% autopaginate patients 20 %}
+    <table class='sortable pagination'>
+        <thead>
+            <tr>
+                <th>{% anchor subject_number "Subject ID" %}</th>
+                <th>{% anchor date_enrolled "Date Enrolled" %}</th>
+                <th>{% anchor next_visit "Next Appointment" %}</th>
+                <th>{% anchor reminder_count "WisePill Activity" %}</th>
+                <th>{% anchor feed_count "Missed Pill Count (SMS), 1 bar = 1 week" %}</th>
+                <th>{% anchor daily_doses "Daily Doses" %}</th>
+                <th>{% anchor adherence "Adherence" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td>{{ patient.subject_number }}</td>
+                    <td>{{ patient.date_enrolled }}</td>
+                    <td>{{ patient.next_visit }}</td>
+                    <td class="patient_id">{{ patient.id }}</td>
+                    <td>{{ patient.feed_count }}</td>
+                    <td>{{ patient.daily_doses }}</td>
+                    <td>{{ patient.adherence }}%</td>
+
+                </tr>
+            {% empty %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td colspan='9'>Currently no patients enrolled.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if paginator.count > paginator.per_page %}
+            <tr>
+                <td colspan='9'>
+                    {% paginate %}
+                </td>
+            </tr>
+            {% endif %}
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

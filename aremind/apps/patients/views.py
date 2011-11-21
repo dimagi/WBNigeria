@@ -26,6 +26,7 @@ from aremind.apps.adherence.types import *
 from aremind.apps.patients import models as patients
 from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm, PillHistoryForm
 from aremind.apps.patients.importer import parse_payload
+from aremind.apps.reminders.forms import ReportForm
 
 
 logger = logging.getLogger('aremind.apps.patients')
@@ -62,6 +63,44 @@ def list_patients(request):
     context = {'patients': patients_list}
     return render(request, 'patients/patient_list.html', context)
 
+
+def get_patient_stats_context(appt_date):
+    context = {}
+    patients_list = patients.Patient.objects.annotate(
+        reminder_count=Count('contact__reminders', distinct=True),
+        feed_count=Count('contact__feeds', distinct=True),
+        message_count=Count('wisepill_messages', distinct=True),
+    )
+    for patient in patients_list:
+        wpmessages = patient.wisepill_messages.all()
+        wpsparkline = []
+        for day in range(20):
+            dateStart =  appt_date - datetime.timedelta(days=day)
+            msgs = wpmessages.filter(timestamp__year=dateStart.year, timestamp__month=dateStart.month, timestamp__day=dateStart.day)
+            msgCount = msgs.count()
+            wpsparkline.insert(0,msgCount)
+        patient.wisepill_sparkline = wpsparkline
+
+        pillsMissed = patient.pillsmissed_set.filter(date__lt=appt_date, source=1).order_by('date')
+        pmSparkline = []
+        for pillMiss in pillsMissed:
+            pmSparkline.insert(0,pillMiss.num_missed)
+        patient.pills_missed_parkline = pmSparkline
+
+
+    context['patients'] = patients_list;
+    return context
+
+@login_required
+def list_patient_stats(request):
+    today = datetime.date.today()
+    appt_date = today + datetime.timedelta(weeks=1)
+    form = ReportForm(request.GET or None)
+    if form.is_valid():
+        appt_date = form.cleaned_data['date'] or appt_date
+    context = get_patient_stats_context(appt_date)
+    context['report_form'] =  form
+    return render(request, 'patients/patient_stats.html', context)
 
 
 @login_required

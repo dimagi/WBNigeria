@@ -79,7 +79,7 @@
         <tbody>
             {% for patient in patients %}
                 <tr class="{% cycle 'odd' 'even' %}">
-                    <td>{{ patient.subject_number }}</td>
+                    <td><a href="detail/{{ patient.id }}/">{{ patient.subject_number }}</a></td>
                     <td>{{ patient.date_enrolled }}</td>
                     <td>{{ patient.next_visit }}</td>
                     <td class="wisepill_activity_patient_id">{{ patient.id }}</td>

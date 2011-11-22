@@ -24,9 +24,12 @@ from aremind.apps.adherence.models import (get_contact_message, PatientSurvey,
                                            PillsMissed)
 from aremind.apps.adherence.types import *
 from aremind.apps.patients import models as patients
+from aremind.apps.patients.models import Patient
 from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm, PillHistoryForm
 from aremind.apps.patients.importer import parse_payload
 from aremind.apps.reminders.forms import ReportForm
+
+from dimagi.utils.dates import get_day_of_month
 
 
 logger = logging.getLogger('aremind.apps.patients')
@@ -112,6 +115,47 @@ def list_patient_stats(request):
     context = get_patient_stats_context(appt_date)
     context['report_form'] =  form
     return render(request, 'patients/patient_stats.html', context)
+
+
+def get_patient_stats_detail_context(report_date, patient_id):
+    context = {}
+    if not patient_id:
+        patients = Patient.objects.all()
+    else:
+        patients = Patient.objects.filter(id=patient_id)
+        if(len(patients) > 0):
+            context["daily_doses"] = patients[0].daily_doses
+
+    context["patients"] = patients
+    if not report_date:
+        report_date = datetime.now()
+
+    days = get_day_of_month(report_date.year,report_date.month,-1).day
+    usage_rows = []
+    for day in range(1,days+1):
+        row_date = datetime.date(report_date.year,report_date.month, day)
+        row = []
+        row.append(row_date)
+        for patient in patients:
+            msg_count = patient.wisepill_messages.filter(timestamp__year=row_date.year,timestamp__month=row_date.month,timestamp__day=row_date.day).count()
+            row.append(msg_count)
+        usage_rows.append(row)
+
+    context["usage_rows"] = usage_rows
+    return context
+
+@login_required
+def list_patient_stats_detail(request, patient_id=None):
+    today = datetime.date.today()
+    report_date = today + datetime.timedelta(weeks=1)
+    form = ReportForm(request.GET or None)
+    if form.is_valid():
+        report_date = form.cleaned_data['date'] or report_date
+    context = get_patient_stats_detail_context(report_date, patient_id)
+    context['report_form'] =  form
+    context['report_date'] = report_date
+    context['report_month'] = report_date.strftime('%B')
+    return render(request, 'patients/patient_stats_detail.html', context)
 
 
 @login_required

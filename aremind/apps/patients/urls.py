@@ -15,6 +15,7 @@ urlpatterns = patterns('aremind.apps.patients.views',
     url(r'^ivrcomplete/(?P<patient_id>\d+)$', 'patient_ivr_complete', name='patient-ivr-complete'),
     url(r'^$', 'list_patients', name='patient-list'),
     url(r'^stats/$', 'list_patient_stats', name='patient-stats'),
+    url(r'^stats/detail/(?P<patient_id>\d+)/$', 'list_patient_stats_detail', name='patient-stats-detail'),
     url(r'^messagesto/(?P<patient_id>\d+)/$', 'messages_to_patient', name='messages-to-patient'),
 )
     

@@ -1,0 +1,73 @@
+{% extends "patients/patient_list.html" %}
+{% load pagination_tags sorting_tags humanize %}
+
+
+
+{% block stylesheets %}
+{{ block.super }}
+{% endblock %}
+
+{% block javascripts %}
+{{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var isSinglePatient = (parseInt( {{ patients|length }} ) === 1);
+
+            if (isSinglePatient) {
+                var daily_dose = parseInt( {{ daily_doses }} );
+                var cells = $('.wisepill_day_count');
+                cells.each(function (idx) {
+                    var cell = $(this);
+                    var count = parseInt(cell.text());
+                    if(count > daily_dose) {
+                        cell.css('background-color', 'yellow');
+                    } else if (count === 0) {
+                        cell.css('background-color', 'red');
+                    }
+
+                })
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="module">
+    <form class="date-form buttons" action="" method="get">
+        <div class='form-action'>
+            {{ report_form }}
+            <input type='submit' value="Change Report Date" />
+        </div>
+    </form>
+</div>
+
+    {% autosort usage_rows %}
+    {% autopaginate usage_rows 31 %}
+<h1>Wisepill Activity by day for Month of <b>{{ report_month }}</b></h1>
+<div class="module">
+    <table class="pagination sortable adherence-report">
+        <thead>
+            <tr>
+                <th>Date</th>
+            {% for patient in patients %}
+                <th>{{ patient.subject_number }}</th>
+            {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in usage_rows %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                {% for count in row %}
+                    <td class="wisepill_day_count">{{ count }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr><td colspan="5">{% paginate %}</td>
+        </tfoot>
+    </table>
+
+</div>
+{% endblock %}

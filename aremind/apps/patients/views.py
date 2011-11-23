@@ -141,7 +141,25 @@ def get_patient_stats_detail_context(report_date, patient_id):
             row.append(msg_count)
         wp_usage_rows.append(row)
 
+    pill_count_data = {}
+    for patient in patients:
+        pills_missed_data = []
+        num_days_enrolled = (datetime.date.today() - patient.date_enrolled).days
+        num_weeks_enrolled = num_days_enrolled / 7
+        pills_missed_data.append(num_weeks_enrolled)
+        for week in range(0,num_weeks_enrolled + 1):
+            week_start = (patient.date_enrolled + datetime.timedelta(days=week*7))
+            week_end = week_start + datetime.timedelta(days=7)
+            pills_missed_set = patient.pillsmissed_set.filter(date__gt=week_start, date__lt=week_end, source=1) # source = 1 means SMS
+            pills_missed_week = pills_missed_set.aggregate(Count('num_missed'))["num_missed__count"]
+            pm_week_data = {}
+            pm_week_data["week_start"] = week_start
+            pm_week_data["week_end"] = week_end
+            pm_week_data["pills_missed"] = pills_missed_week
+            pills_missed_data.append(pm_week_data)
+        pill_count_data[patient.subject_number] = pills_missed_data
     context["wp_usage_rows"] = wp_usage_rows
+    context["pm_data"] = pill_count_data
     return context
 
 @login_required

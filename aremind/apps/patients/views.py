@@ -131,7 +131,7 @@ def get_patient_stats_detail_context(report_date, patient_id):
         report_date = datetime.now()
 
     days = get_day_of_month(report_date.year,report_date.month,-1).day
-    usage_rows = []
+    wp_usage_rows = []
     for day in range(1,days+1):
         row_date = datetime.date(report_date.year,report_date.month, day)
         row = []
@@ -139,9 +139,9 @@ def get_patient_stats_detail_context(report_date, patient_id):
         for patient in patients:
             msg_count = patient.wisepill_messages.filter(timestamp__year=row_date.year,timestamp__month=row_date.month,timestamp__day=row_date.day).count()
             row.append(msg_count)
-        usage_rows.append(row)
+        wp_usage_rows.append(row)
 
-    context["usage_rows"] = usage_rows
+    context["wp_usage_rows"] = wp_usage_rows
     return context
 
 @login_required

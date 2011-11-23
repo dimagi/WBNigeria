@@ -42,27 +42,38 @@
     </form>
 </div>
 
-    {% autosort usage_rows %}
-    {% autopaginate usage_rows 31 %}
+    {% autosort wp_usage_rows %}
+    {% autopaginate wp_usage_rows 10 %}
 <h1>Wisepill Activity by day for Month of <b>{{ report_month }}</b></h1>
 <div class="module">
     <table class="pagination sortable adherence-report">
         <thead>
             <tr>
-                <th>Date</th>
-            {% for patient in patients %}
-                <th>{{ patient.subject_number }}</th>
-            {% endfor %}
+                <th>Subject Number</th>
+                {% for row in wp_usage_rows %}
+                    <th>{{ row.0 }}</th>
+                {% endfor %}
+{#            {% for patient in patients %}#}
+{#                <th>{{ patient.subject_number }}</th>#}
+{#            {% endfor %}#}
             </tr>
         </thead>
         <tbody>
-            {% for row in usage_rows %}
+            {% for patient in patients %}
                 <tr class="{% cycle 'odd' 'even' %}">
-                {% for count in row %}
-                    <td class="wisepill_day_count">{{ count }}</td>
-                {% endfor %}
+                        <td>{{ patient.subject_number }}</td>
+                    {% for row in wp_usage_rows %}
+                        <td class="wisepill_day_count">{{ row.1 }}</td>
+                    {% endfor %}
                 </tr>
             {% endfor %}
+{#            {% for row in wp_usage_rows %}#}
+{#                <tr class="{% cycle 'odd' 'even' %}">#}
+{#                {% for count in row %}#}
+{#                    <td class="wisepill_day_count">{{ count }}</td>#}
+{#                {% endfor %}#}
+{#                </tr>#}
+{#            {% endfor %}#}
         </tbody>
         <tfoot>
           <tr><td colspan="5">{% paginate %}</td>

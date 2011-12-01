@@ -56,15 +56,15 @@ def receive_patient_record(request):
     return http.HttpResponse("Data submitted succesfully.")
 
 
-@login_required
-def list_patients(request):
-    patients_list = patients.Patient.objects.all().annotate(
-        reminder_count=Count('contact__reminders', distinct=True),
-        feed_count=Count('contact__feeds', distinct=True),
-        message_count=Count('wisepill_messages', distinct=True),
-    )
-    context = {'patients': patients_list}
-    return render(request, 'patients/patient_list.html', context)
+#@login_required
+#def list_patients(request):
+#    patients_list = patients.Patient.objects.all().annotate(
+#        reminder_count=Count('contact__reminders', distinct=True),
+#        feed_count=Count('contact__feeds', distinct=True),
+#        message_count=Count('wisepill_messages', distinct=True),
+#    )
+#    context = {'patients': patients_list}
+#    return render(request, 'patients/patient_list.html', context)
 
 
 def get_patient_stats_context(appt_date):
@@ -106,7 +106,7 @@ def get_patient_stats_context(appt_date):
     return context
 
 @login_required
-def list_patient_stats(request):
+def list_patients(request):
     today = datetime.date.today()
     appt_date = today + datetime.timedelta(weeks=1)
     form = ReportForm(request.GET or None)

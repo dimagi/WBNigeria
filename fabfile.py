@@ -84,7 +84,7 @@ def production():
     env.environment = 'production'
     env.server_port = '9010'
     env.server_name = 'aremind-production'
-    env.hosts = ['192.168.100.63']
+    env.hosts = ['10.84.168.98']
     env.settings = '%(project)s.localsettings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()

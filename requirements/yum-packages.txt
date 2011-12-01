@@ -1,0 +1,1 @@
+python-devel.x86_64 libevent-devel.x86_64 libevent zlib-devel libxslt zlib

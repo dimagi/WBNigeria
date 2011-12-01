@@ -1,0 +1,116 @@
+{% extends "patients/patient_list.html" %}
+{% load i18n pagination_tags sorting_tags %}
+
+{% block title %}Patient Listing{% endblock %}
+
+{% block javascripts %}{{ block.super }}
+  <script src="{{ STATIC_URL }}js/jquery.sparkline.js" type="text/javascript"></script>
+  <script type="text/javascript">
+  $(document).ready(function() {
+        var wpsparklines = {}; //wisepill activity sparkline
+        var pmsparklines = {}; //pills missed by SMS report sparkline
+        {% for patient in patients %}
+            wpsparklines["{{ patient.id }}"] = {{ patient.wisepill_sparkline }};
+            pmsparklines["{{ patient.id }}"] = {{ patient.pills_missed_parkline }};
+        {% endfor %}
+        sLineOpts = {type: 'bar',  //general sparkline init params
+                barColor: '#2FA5D1',
+                barWidth: 10,
+                zeroColor : 'black',
+	            nullColor :'black'
+        }
+
+        //for the Wisepill sparklines:
+        var dailyDose = 0;
+        $(".wisepill_activity_patient_id").each(function (e) {
+            dailyDose = parseInt($($(this).parent().find('td')[5]).text());
+
+            sLineOpts['chartRangeMax'] = dailyDose;
+            sLineOpts['chartRangeMin'] = 0;
+            $(this).sparkline(wpsparklines[$(this).text()], sLineOpts);
+        });
+
+        dailyDose = 0
+        $(".missed_pill_patient_id").each (function (idx) {
+            sLineOpts["barWidth"] = 20;
+//            sLineOpts["zeroAxis"] = true;
+            sLineOpts["zeroColor"] = 'black';
+            sLineOpts["nullColor"] = 'black';
+            dailyDose = parseInt($($(this).parent().find('td')[5]).text());
+//            sLineOpts['chartRangeMax'] = -1;
+            sLineOpts['chartRangeMin'] = -7; //each bar is pills missed *per week*
+            $(this).sparkline(pmsparklines[$(this).text()], sLineOpts);
+        });
+
+  
+  });
+  </script>
+ <!-- <script src="{{ STATIC_URL }}js/patient_stats.js" type="text/javascript"></script> -->
+{% endblock %}
+
+{% block content %}
+    <div class="module">
+    <form class="date-form buttons" action="{% url patient-list %}" method="get">
+        <div class='form-action'>
+            {{ report_form }}
+            <input type='submit' value="Change Report Date" />
+        </div>
+    </form>
+</div>
+
+
+
+<div class='module'>
+    <h2>Patient Stats</h2>
+    {% autosort patients %}
+    {% autopaginate patients 20 %}
+    <table class='sortable pagination'>
+        <thead>
+            <tr>
+                <th>{% anchor subject_number "Subject ID" %}</th>
+                <th>{% anchor date_enrolled "Date Enrolled" %}</th>
+                <th>{% anchor next_visit "Next Appointment" %}</th>
+                <th>{% anchor reminder_count "WisePill Activity (Last 20 Days)" %}</th>
+                <th>{% anchor feed_count "Missed Pill Count (SMS), 1 bar = 1 week" %}</th>
+                <th>{% anchor daily_doses "Daily Doses" %}</th>
+                <th>{% anchor adherence "Calculated Adherence" %}</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td><a href="detail/{{ patient.id }}/">{{ patient.subject_number }}</a></td>
+                    <td>{{ patient.date_enrolled }}</td>
+                    <td>{{ patient.next_visit }}</td>
+                    <td class="wisepill_activity_patient_id">{{ patient.id }}</td>
+                    <td class="missed_pill_patient_id">{{ patient.id }}</td>
+                    <td>{{ patient.daily_doses }}</td>
+                    <td>{{ patient.report_adherence }}%</td>
+                    <td class='actions'>
+                        <a class='button' title="Edit Patient Info" href='{% url patient-detail patient.pk %}'><span class='ui-icon ui-icon-pencil'></span></a>
+                        <a class='button' title="Send One Time Reminder" href='{% url patient-onetime-message patient.pk %}'><span class='ui-icon ui-icon-mail-closed'></span></a>
+                        <a class='button' title="Start Adherence Report Tree (for testing only)" href='{% url patient-start-adherence-tree patient.pk %}'><span class='ui-icon ui-icon-circle-triangle-e'></span></a>
+                        <a class='button' title='Start Adherence Report Voice Survey (IVR) (for testing only)' href='{% url patient-start-ivr patient.pk %}'><span class='ui-icon ui-icon-arrowthick-2-e-w'></span></a>
+                        <a class='button' title='Show messages to patient' href='{% url messages-to-patient patient.pk %}'><span class='ui-icon ui-icon-info'></span></a>
+                    </td>
+
+                </tr>
+            {% empty %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                    <td colspan='9'>Currently no patients enrolled.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if paginator.count > paginator.per_page %}
+            <tr>
+                <td colspan='9'>
+                    {% paginate %}
+                </td>
+            </tr>
+            {% endif %}
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

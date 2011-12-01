@@ -24,8 +24,12 @@ from aremind.apps.adherence.models import (get_contact_message, PatientSurvey,
                                            PillsMissed)
 from aremind.apps.adherence.types import *
 from aremind.apps.patients import models as patients
+from aremind.apps.patients.models import Patient
 from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm, PillHistoryForm
 from aremind.apps.patients.importer import parse_payload
+from aremind.apps.reminders.forms import ReportForm
+
+from dimagi.utils.dates import get_day_of_month
 
 
 logger = logging.getLogger('aremind.apps.patients')
@@ -52,16 +56,130 @@ def receive_patient_record(request):
     return http.HttpResponse("Data submitted succesfully.")
 
 
-@login_required
-def list_patients(request):
-    patients_list = patients.Patient.objects.all().annotate(
+#@login_required
+#def list_patients(request):
+#    patients_list = patients.Patient.objects.all().annotate(
+#        reminder_count=Count('contact__reminders', distinct=True),
+#        feed_count=Count('contact__feeds', distinct=True),
+#        message_count=Count('wisepill_messages', distinct=True),
+#    )
+#    context = {'patients': patients_list}
+#    return render(request, 'patients/patient_list.html', context)
+
+
+def get_patient_stats_context(appt_date):
+    context = {}
+    patients_list = patients.Patient.objects.annotate(
         reminder_count=Count('contact__reminders', distinct=True),
         feed_count=Count('contact__feeds', distinct=True),
         message_count=Count('wisepill_messages', distinct=True),
     )
-    context = {'patients': patients_list}
-    return render(request, 'patients/patient_list.html', context)
+    for patient in patients_list:
+        wpmessages = patient.wisepill_messages.all()
+        wpsparkline = []
+        for day in range(20):
+            dateStart =  appt_date - datetime.timedelta(days=day)
+            msgs = wpmessages.filter(timestamp__year=dateStart.year, timestamp__month=dateStart.month, timestamp__day=dateStart.day)
+            msgCount = msgs.count()
+            wpsparkline.insert(0,msgCount)
+        patient.wisepill_sparkline = wpsparkline
 
+        pmSparkline = []
+        dateStartWeek = appt_date
+        dateEndWeek = appt_date - datetime.timedelta(days=7)
+        for week in range(8):
+            pillsMissed = patient.pillsmissed_set.filter(date__lt=dateStartWeek, date__gt=dateEndWeek, source=1) #we should only find at most 1 per week...
+            if(len(pillsMissed) > 0):
+                pmSparkline.insert(0,(-1)*pillsMissed[0].num_missed)
+            else:
+                pmSparkline.insert(0,0)
+            dateStartWeek = dateEndWeek
+            dateEndWeek = dateEndWeek - datetime.timedelta(days=7)
+
+
+        patient.report_adherence = patient.adherence_report_date(appt_date)
+
+        patient.pills_missed_parkline = pmSparkline
+
+
+    context['patients'] = patients_list;
+    return context
+
+@login_required
+def list_patients(request):
+    today = datetime.date.today()
+    appt_date = today + datetime.timedelta(weeks=1)
+    form = ReportForm(request.GET or None)
+    if form.is_valid():
+        appt_date = form.cleaned_data['date'] or appt_date
+    context = get_patient_stats_context(appt_date)
+    context['report_form'] =  form
+    return render(request, 'patients/patient_stats.html', context)
+
+
+def get_patient_stats_detail_context(report_date, patient_id):
+    context = {}
+    if not patient_id:
+        patients = Patient.objects.all()
+    else:
+        patients = Patient.objects.filter(id=patient_id)
+        if(len(patients) > 0):
+            context["daily_doses"] = patients[0].daily_doses
+
+    context["patients"] = patients
+    if not report_date:
+        report_date = datetime.now()
+
+    days = get_day_of_month(report_date.year,report_date.month,-1).day
+    wp_usage_rows = []
+    for day in range(1,days+1):
+        row_date = datetime.date(report_date.year,report_date.month, day)
+        row = []
+        row.append(row_date)
+        for patient in patients:
+            msg_count = patient.wisepill_messages.filter(timestamp__year=row_date.year,timestamp__month=row_date.month,timestamp__day=row_date.day).count()
+            row.append(msg_count)
+        wp_usage_rows.append(row)
+
+    pill_count_data = {}
+    for patient in patients:
+        pill_count_data["patient_id"] = patient.subject_number
+        pills_missed_data = []
+        num_days_enrolled = (datetime.date.today() - patient.date_enrolled).days
+        num_weeks_enrolled = num_days_enrolled / 7
+        pill_count_data["weeks_enrolled"] = num_weeks_enrolled
+        for week in range(0,num_weeks_enrolled + 1):
+            week_start = (patient.date_enrolled + datetime.timedelta(days=week*7))
+            week_end = week_start + datetime.timedelta(days=7)
+            pm_week_data = {}
+
+            pills_missed_set = patient.pillsmissed_set.filter(date__gt=week_start, date__lt=week_end, source=1) # source = 1 means SMS
+            if(len(pills_missed_set) > 0):
+                pills_missed_week = pills_missed_set.aggregate(Count('num_missed'))["num_missed__count"]
+            else:
+                pills_missed_week = "No Response"
+            pm_week_data["pills_missed"] = pills_missed_week
+            pm_week_data["week_start"] = week_start
+            pm_week_data["week_end"] = week_end
+            pills_missed_data.append(pm_week_data)
+        pill_count_data["pill_count_data"] = pills_missed_data
+    context["wp_usage_rows"] = wp_usage_rows
+    context["pm_data"] = pill_count_data
+    context["pm_weeks"] = pill_count_data["pill_count_data"]
+    return context
+
+@login_required
+def list_patient_stats_detail(request, patient_id=None):
+    today = datetime.date.today()
+    report_date = today + datetime.timedelta(weeks=1)
+    form = ReportForm(request.GET or None)
+    if form.is_valid():
+        report_date = form.cleaned_data['date'] or report_date
+    context = get_patient_stats_detail_context(report_date, patient_id)
+    context['report_form'] =  form
+    context['report_date'] = report_date
+    context['report_month'] = report_date.strftime('%B')
+    return render(request, 'patients/patient_stats_detail.html', context)
 
 
 @login_required

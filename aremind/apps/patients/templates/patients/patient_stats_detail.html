@@ -1,0 +1,102 @@
+{% extends "patients/patient_list.html" %}
+{% load pagination_tags sorting_tags humanize %}
+
+
+
+{% block stylesheets %}
+{{ block.super }}
+{% endblock %}
+
+{% block javascripts %}
+{{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var isSinglePatient = (parseInt( {{ patients|length }} ) === 1);
+
+            if (isSinglePatient) {
+                var daily_dose = parseInt( {{ daily_doses }} );
+                var cells = $('.wisepill_day_count');
+                cells.each(function (idx) {
+                    var cell = $(this);
+                    var count = parseInt(cell.text());
+                    if(count > daily_dose) {
+                        cell.css('background-color', 'yellow');
+                    } else if (count === 0) {
+                        cell.css('background-color', 'red');
+                    }
+
+                })
+            }
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="module">
+    <form class="date-form buttons" action="" method="get">
+        <div class='form-action'>
+            {{ report_form }}
+            <input type='submit' value="Change Report Date" />
+        </div>
+    </form>
+</div>
+<div class="module">
+    <h1>Wisepill Activity by day for Month of <b>{{ report_month }}</b></h1>
+    <table class="pagination sortable adherence-report">
+        {% autosort wp_usage_rows %}
+        {% autopaginate wp_usage_rows 10 %}
+        <thead>
+            <tr>
+                <th>Subject Number</th>
+                {% for row in wp_usage_rows %}
+                    <th>{{ row.0 }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients %}
+                <tr class="{% cycle 'odd' 'even' %}">
+                        <td>{{ patient.subject_number }}</td>
+                    {% for row in wp_usage_rows %}
+                        <td class="wisepill_day_count">{{ row.1 }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr><td colspan="5">{% paginate %}</td>
+        </tfoot>
+    </table>
+
+</div>
+
+<div class="module">
+    <h1>Pills Missed by weekly SMS pill count (All weeks)</h1>
+    <table class="pagination sortable adherence-report">
+    {% autosort pm_weeks %}
+    {% autopaginate pm_weeks 10 %}
+        <thead>
+            <tr>
+                <th>Subject Number</th>
+
+                {% for col in pm_weeks %}
+                    <th>{{ col.week_start|date:"j-M" }} to {{ col.week_end|date:"j-M" }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+                <tr class="{% cycle 'odd' 'even' %}">
+                        <td>{{ pm_data.patient_id }}</td>
+                    {% for col in pm_weeks %}
+                        <td class="weekly_count_value">{{ col.pills_missed }}</td>
+                    {% endfor %}
+                </tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="5">{% paginate %}</td>
+        </tfoot>
+    </table>
+
+</div>
+{% endblock %}

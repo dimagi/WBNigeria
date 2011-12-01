@@ -20,6 +20,7 @@ import os, sys
 
 from fabric.api import *
 from fabric.contrib import files, console
+from fabric.contrib.files import exists
 from fabric.contrib.project import rsync_project
 from fabric import utils
 from fabric.decorators import hosts
@@ -82,7 +83,7 @@ def production():
     env.environment = 'production'
     env.server_port = '9010'
     env.server_name = 'aremind-production'
-    env.hosts = ['10.84.168.98']
+    env.hosts = ['192.168.100.63']
     env.settings = '%(project)s.localsettings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
@@ -111,6 +112,12 @@ def upgrade_packages():
     sudo("apt-get update -y")
     sudo("apt-get upgrade -y")
 
+def blah():
+    require('environment', provided_by=('staging','production'))
+    if(sudo('apt-get update')):
+        print 'Apt is installed'
+    elif(sudo('yum check-update')):
+        print 'Yum is installed'
 
 def setup_server():
     """Set up a server for the first time in preparation for deployments."""
@@ -158,7 +165,7 @@ def create_virtualenv():
     """ setup virtualenv on remote host """
     require('virtualenv_root', provided_by=('staging', 'production'))
     args = '--clear --distribute --no-site-packages'
-    sudo('virtualenv %s %s' % (args, env.virtualenv_root), user=env.sudo_user)
+    sudo('virtualenv %s %s' % (args, env.virtualenv_root), shell=False)
 
 
 def clone_repo():

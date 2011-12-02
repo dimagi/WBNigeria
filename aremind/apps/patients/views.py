@@ -27,7 +27,7 @@ from aremind.apps.patients import models as patients
 from aremind.apps.patients.models import Patient
 from aremind.apps.patients.forms import PatientRemindersForm, PatientOnetimeMessageForm, PillHistoryForm
 from aremind.apps.patients.importer import parse_payload
-from aremind.apps.reminders.forms import ReportForm
+from aremind.apps.reminders.forms import ReportForm, MonthReportForm
 
 from dimagi.utils.dates import get_day_of_month
 
@@ -172,7 +172,7 @@ def get_patient_stats_detail_context(report_date, patient_id):
 def list_patient_stats_detail(request, patient_id=None):
     today = datetime.date.today()
     report_date = today + datetime.timedelta(weeks=1)
-    form = ReportForm(request.GET or None)
+    form = MonthReportForm(request.GET or None)
     if form.is_valid():
         report_date = form.cleaned_data['date'] or report_date
     context = get_patient_stats_detail_context(report_date, patient_id)

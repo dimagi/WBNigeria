@@ -22,3 +22,9 @@ class NotificationForm(forms.ModelForm):
 class ReportForm(forms.Form):
     date = forms.DateField(label='Report Date', required=False)
     date.widget.attrs.update({'class': 'datepicker'})
+
+class MonthReportForm(forms.Form):
+    date = forms.DateField(label='Report Date', required=False)
+    date.widget.attrs.update({'class': 'monthpicker'})
+    fakedate = forms.CharField()
+    fakedate.widget.attrs.update({'class': 'fakedate'})

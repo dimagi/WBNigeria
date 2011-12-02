@@ -475,8 +475,8 @@ class QuerySchedule(models.Model):
             return False
         today = datetime.date.today()
         time_of_day = datetime.datetime.now().time()
-        if time_of_day < self.time_of_day:
-            # too early in the day for this one
+        if (time_of_day < self.time_of_day or today < self.start_date):
+            # too early in the day, or start_date has not yet arrived
             return False
         schedule_it = False
         if self.last_run is None:

@@ -1,14 +1,28 @@
-{% extends "patients/patient_list.html" %}
+{% extends "aremind/layout-split-2.html" %}
 {% load pagination_tags sorting_tags humanize %}
 
 
 
 {% block stylesheets %}
 {{ block.super }}
+    <style>
+    .ui-datepicker-calendar {
+        display: none;
+        }
+
+    #color-legend {
+        display: inline-block;
+        margin-left: 200px;
+        vertical-align: middle;
+    }
+    </style>
 {% endblock %}
 
 {% block javascripts %}
 {{ block.super }}
+    <script src="{{ STATIC_URL }}js/jquery-ui-timepicker-addon.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}js/forms.js" type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}patients/js/patients.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             var isSinglePatient = (parseInt( {{ patients|length }} ) === 1);
@@ -25,78 +39,115 @@
                         cell.css('background-color', 'red');
                     }
 
-                })
+                });
+
+                var cells = $('.weekly_count_value');
+                cells.each(function (d) {
+                    var cell = $(this);
+                    var text = cell.text();
+                    var count = parseInt(text);
+                    if (count && count > 0) {
+                        cell.css('background-color', 'yellow');
+                    } else if (text && text.toLowerCase() === 'no response') {
+                        cell.css('background-color', 'red');
+                    }
+                });
+//
+                $('#yellow_cell').css('background-color', 'yellow');
+                $('#red_cell').css('background-color', 'red');
+
+                var legend_table = $('#color-legend');
+                legend_table.find('th').css('border','1px solid #DDD');
+                legend_table.find('tbody').css('border', '1px solid #DDD');
             }
         });
     </script>
 {% endblock %}
 
-{% block content %}
+    {% block content %}
+        <div class="module">
+            <h1>Detailed Usage for Patient: {{ patients.0.subject_number }}</h1>
+            <form class="date-form buttons" action="" method="get">
+                <div class='form-action'>
+                    {{ report_form }}
+                    <input type='submit' value="Change Report Date" />
+                    <table id="color-legend" class="adherence-report sortable">
+                         <thead>
+                             <th>Color</th>
+                             <th>Meaning</th>
+                         </thead>
+                         <tbody>
+                             <tr class='odd'>
+                                 <td id="yellow_cell">Yellow</td>
+                                 <td>A higher than expected value</td>
+                             </tr>
+                             <tr class='even'>
+                                 <td id="red_cell">Red</td>
+                                 <td>No activity or response</td>
+                             </tr>
+                         </tbody>
+                     </table>
+                </div>
+            </form>
 
-    <div class="module">
-    <form class="date-form buttons" action="" method="get">
-        <div class='form-action'>
-            {{ report_form }}
-            <input type='submit' value="Change Report Date" />
         </div>
-    </form>
-</div>
-<div class="module">
-    <h1>Wisepill Activity by day for Month of <b>{{ report_month }}</b></h1>
-    <table class="pagination sortable adherence-report">
-        {% autosort wp_usage_rows %}
-        {% autopaginate wp_usage_rows 10 %}
-        <thead>
-            <tr>
-                <th>Subject Number</th>
-                {% for row in wp_usage_rows %}
-                    <th>{{ row.0 }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for patient in patients %}
-                <tr class="{% cycle 'odd' 'even' %}">
-                        <td>{{ patient.subject_number }}</td>
+        {{ block.super }}
+
+{#        <div class="module">#}
+{##}
+{#        </div>#}
+    {% endblock %}
+
+    {% block left %}
+        <div class="module">
+            <h2>Wisepill Activity by day (<b>{{ report_month }}</b>)</h2>
+            <table class="pagination sortable adherence-report" style="margin:auto">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Activity</th>
+                    </tr>
+                </thead>
+                <tbody>
                     {% for row in wp_usage_rows %}
-                        <td class="wisepill_day_count">{{ row.1 }}</td>
+                        <tr class="{% cycle 'odd' 'even' %}">
+                            <td>{{ row.0 }}</td>
+                            <td class="wisepill_day_count">{{ row.1 }}</td>
+                        </tr>
                     {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-          <tr><td colspan="5">{% paginate %}</td>
-        </tfoot>
-    </table>
+                </tbody>
+                <tfoot>
+                  <tr><td colspan="5">{% paginate %}</td>
+                </tfoot>
+            </table>
+        </div>
+    {% endblock %}
 
-</div>
-
-<div class="module">
-    <h1>Pills Missed by weekly SMS pill count (All weeks)</h1>
-    <table class="pagination sortable adherence-report">
-    {% autosort pm_weeks %}
-    {% autopaginate pm_weeks 10 %}
-        <thead>
-            <tr>
-                <th>Subject Number</th>
-
+    {% block right %}
+        <div class="module">
+            <h2>Pills Missed by weekly pill count (<b>{{ report_month }}</b>)</h2>
+            <table class="pagination sortable adherence-report" style="margin:auto">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Response</th>
+                    </tr>
+                </thead>
+                <tbody>
                 {% for col in pm_weeks %}
-                    <th>{{ col.week_start|date:"j-M" }} to {{ col.week_end|date:"j-M" }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-                <tr class="{% cycle 'odd' 'even' %}">
-                        <td>{{ pm_data.patient_id }}</td>
-                    {% for col in pm_weeks %}
+                    <tr class="{% cycle 'odd' 'even' %}">
+                        <td>{{ col.week_start|date:"j-M" }} to {{ col.week_end|date:"j-M" }}</td>
                         <td class="weekly_count_value">{{ col.pills_missed }}</td>
-                    {% endfor %}
-                </tr>
-        </tbody>
-        <tfoot>
-          <tr><td colspan="5">{% paginate %}</td>
-        </tfoot>
-    </table>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr><td colspan="5">{% paginate %}</td>
+                </tfoot>
+            </table>
+        </div>
+    {% endblock %}
 
-</div>
-{% endblock %}
+
+
+

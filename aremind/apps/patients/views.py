@@ -145,11 +145,10 @@ def get_patient_stats_detail_context(report_date, patient_id):
     for patient in patients:
         pill_count_data["patient_id"] = patient.subject_number
         pills_missed_data = []
-        num_days_enrolled = (datetime.date.today() - patient.date_enrolled).days
-        num_weeks_enrolled = num_days_enrolled / 7
-        pill_count_data["weeks_enrolled"] = num_weeks_enrolled
-        for week in range(0,num_weeks_enrolled + 1):
-            week_start = (patient.date_enrolled + datetime.timedelta(days=week*7))
+        num_days_in_report_month = days
+        num_weeks_in_report_month = num_days_in_report_month / 7
+        for week in range(0,num_weeks_in_report_month + 1):
+            week_start = (datetime.date(report_date.year,report_date.month,1) + datetime.timedelta(days=week*7))
             week_end = week_start + datetime.timedelta(days=7)
             pm_week_data = {}
 

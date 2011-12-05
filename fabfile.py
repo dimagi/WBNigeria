@@ -73,6 +73,7 @@ def staging():
     env.hosts = ['204.232.206.181']
     env.hosts = ['204.232.206.181']
     env.settings = '%(project)s.localsettings' % env
+    env.remote_os = None
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
 
@@ -84,20 +85,27 @@ def production():
     env.environment = 'production'
     env.server_port = '9010'
     env.server_name = 'aremind-production'
-    env.hosts = ['10.84.168.98']
+#    env.hosts = ['10.84.168.98']
+    env.hosts = ['192.168.100.63']
     env.settings = '%(project)s.localsettings' % env
+    env.remote_os = None # e.g. 'ubuntu' or 'redhat'.  Gets autopopulated by what_os() if you don't know what it is or don't want to specify.
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
 
 
 def install_packages():
     """Install packages, given a list of package names"""
-
     require('environment', provided_by=('staging', 'production'))
-    packages_file = posixpath.join(PROJECT_ROOT, 'requirements', 'apt-packages.txt')
-    with open(packages_file) as f:
-        packages = f.readlines()
-    sudo("apt-get install -y %s" % " ".join(map(lambda x: x.strip('\n\r'), packages)))
+    if what_os() == 'ubuntu':
+        packages_file = posixpath.join(PROJECT_ROOT, 'requirements', 'apt-packages.txt')
+        with open(packages_file) as f:
+            packages = f.readlines()
+        sudo("apt-get install -y %s" % " ".join(map(lambda x: x.strip('\n\r'), packages)))
+    elif what_os() == 'redhat':
+        packages_file = posixpath.join(PROJECT_ROOT, 'requirements', 'yum-packages.txt')
+        with open(packages_file) as f:
+            packages = f.readlines()[0]
+        sudo("yum install %s" % packages)
 
 
 def upgrade_packages():
@@ -107,16 +115,23 @@ def upgrade_packages():
     sudo("apt-get update -y")
     sudo("apt-get upgrade -y")
 
-def blah():
-    require('environment', provided_by=('staging','production'))
-    if(sudo('apt-get update')):
-        print 'Apt is installed'
-    elif(sudo('yum check-update')):
-        print 'Yum is installed'
+def what_os():
+    with settings(warn_only=True):
+        require('environment', provided_by=('staging','production'))
+        if env.remote_os is None: #make sure we only run this check once per fab execution.
+            if(files.exists('/etc/lsb-release',verbose=True) and files.contains(text='DISTRIB_ID=Ubuntu', filename='/etc/lsb-release')):
+                env.remote_os = 'ubuntu'
+                print 'Found lsb-release and contains "DISTRIB_ID=Ubuntu", this is an Ubuntu System.'
+            elif(files.exists('/etc/redhat-release',verbose=True)):
+                env.remote_os = 'redhat'
+                print 'Found /etc/redhat-release, this is a RedHat system.'
+            else:
+                print 'System OS not recognized! Aborting.'
+                exit()
+        return env.remote_os
 
 def setup_server():
     """Set up a server for the first time in preparation for deployments."""
-
     require('environment', provided_by=('staging', 'production'))
     upgrade_packages()
     # Install required system packages for deployment, plus some extras

@@ -51,6 +51,12 @@ def _setup_path():
     env.virtualenv_root = posixpath.join(env.root, 'python_env')
     env.services = posixpath.join(env.home, 'services')
 
+def _set_apache_user():
+    if what_os() == 'ubuntu':
+       env.apache_user = 'www-data'
+    elif what_os() == 'redhat':
+        env.apache_user = 'apache'
+
 
 def setup_dirs():
     """ create (if necessary) and make writable uploaded media, log, etc. directories """
@@ -77,7 +83,6 @@ def staging():
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
 
-
 def production():
     """ use production environment on remote host"""
     env.code_branch = 'master'
@@ -92,33 +97,43 @@ def production():
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
 
-
 def install_packages():
     """Install packages, given a list of package names"""
     require('environment', provided_by=('staging', 'production'))
+    packages_list = ''
+    installer_command = ''
     if what_os() == 'ubuntu':
-        packages_file = posixpath.join(PROJECT_ROOT, 'requirements', 'apt-packages.txt')
-        with open(packages_file) as f:
-            packages = f.readlines()
-        sudo("apt-get install -y %s" % " ".join(map(lambda x: x.strip('\n\r'), packages)))
+        packages_list = 'apt-packages.txt'
+        installer_command = 'apt-get install -y'
     elif what_os() == 'redhat':
-        packages_file = posixpath.join(PROJECT_ROOT, 'requirements', 'yum-packages.txt')
-        with open(packages_file) as f:
-            packages = f.readlines()[0]
-        sudo("yum install %s" % packages)
+        packages_list = 'yum-packages.txt'
+        installer_command = 'yum install'
+    packages_file = posixpath.join(PROJECT_ROOT, 'requirements', packages_list)
+    with open(packages_file) as f:
+        packages = f.readlines()
+    sudo("%s %s" % (installer_command, " ".join(map(lambda x: x.strip('\n\r'), packages))))
 
 
 def upgrade_packages():
-    """Bring all the installed packages up to date"""
-
+    """
+    Bring all the installed packages up to date.
+    This is a bad idea in RedHat as it can lead to an
+    OS Upgrade (e.g RHEL 5.1 to RHEL 6).
+    Should be avoided.  Run install packages instead.
+    """
     require('environment', provided_by=('staging', 'production'))
-    sudo("apt-get update -y")
-    sudo("apt-get upgrade -y")
+    if what_os() == 'ubuntu':
+        sudo("apt-get update -y")
+        sudo("apt-get upgrade -y")
+    else:
+        return #disabled for RedHat (see docstring)
 
 def what_os():
+
     with settings(warn_only=True):
         require('environment', provided_by=('staging','production'))
         if env.remote_os is None: #make sure we only run this check once per fab execution.
+            print 'Testing operating system type...'
             if(files.exists('/etc/lsb-release',verbose=True) and files.contains(text='DISTRIB_ID=Ubuntu', filename='/etc/lsb-release')):
                 env.remote_os = 'ubuntu'
                 print 'Found lsb-release and contains "DISTRIB_ID=Ubuntu", this is an Ubuntu System.'
@@ -167,21 +182,23 @@ def bootstrap():
     update_services()
     create_virtualenv()
     update_requirements()
-    setup_translation()
     fix_locale_perms()
 
 
 def create_virtualenv():
     """ setup virtualenv on remote host """
     require('virtualenv_root', provided_by=('staging', 'production'))
+    with settings(warn_only=True):
+        sudo('rm -rf %(virtualenv_root)s' % env, shell=False)
     args = '--clear --distribute --no-site-packages'
-    sudo('virtualenv %s %s' % (args, env.virtualenv_root), shell=False)
+    sudo('virtualenv %s %s' % (args, env.virtualenv_root), shell=False, user=env.sudo_user)
 
 
 def clone_repo():
     """ clone a new copy of the git repository """
-    with cd(env.root):
-        sudo('git clone %(code_repo)s %(code_root)s' % env, user=env.sudo_user)
+    with settings(warn_only=True):
+        with cd(env.root):
+            sudo('git clone %(code_repo)s %(code_root)s' % env, user=env.sudo_user)
 
 
 def deploy():
@@ -215,7 +232,7 @@ def update_requirements():
     require('code_root', provided_by=('staging', 'production'))
     requirements = posixpath.join(env.code_root, 'requirements')
     with cd(requirements):
-        cmd = ['sudo -u %s -H pip install' % env.sudo_user]
+        cmd = ['pip install']
         cmd += ['-E %(virtualenv_root)s' % env]
         cmd += ['--requirement %s' % posixpath.join(requirements, 'apps.txt')]
         sudo(' '.join(cmd), user=env.sudo_user)
@@ -251,19 +268,22 @@ def configtest():
 def apache_reload():    
     """ reload Apache on remote host """
     require('root', provided_by=('staging', 'production'))
-    run('sudo /etc/init.d/apache2 reload')
+    if what_os() == 'redhat':
+        sudo('/etc/init.d/httpd reload')
+    elif what_os() == 'ubuntu':
+        sudo('/etc/init.d/apache2 reload')
 
 
 def apache_restart():
     """ restart Apache on remote host """
     require('root', provided_by=('staging', 'production'))
-    run('sudo /etc/init.d/apache2 restart')
+    sudo('/etc/init.d/apache2 restart')
 
 
 def netstat_plnt():
     """ run netstat -plnt on a remote host """
     require('hosts', provided_by=('production', 'staging'))
-    run('sudo netstat -plnt')
+    sudo('netstat -plnt')
 
 
 def stop():
@@ -334,70 +354,80 @@ def reset_local_db():
     host = '%s@%s' % (env.user, env.hosts[0])
     local('ssh -C %s sudo -u aremind pg_dump -Ox %s | psql %s' % (host, remote_db, local_db))
 
-
-def setup_translation():
-    """ Setup the git config for commiting .po files on the server """
-    run('sudo -H -u %s git config --global user.name "aremind Translators"' % env.sudo_user)
-    run('sudo -H -u %s git config --global user.email "aremind-dev@dimagi.com"' % env.sudo_user)
-
-
 def fix_locale_perms():
     """ Fix the permissions on the locale directory """
     require('root', provided_by=('staging', 'production'))
+    _set_apache_user()
     locale_dir = '%s/aremind/locale/' % env.code_root
-    run('sudo chown -R %s %s' % (env.sudo_user, locale_dir))
-    run('sudo chgrp -R www-data %s' % locale_dir)
-    run('sudo chmod -R g+w %s' % locale_dir)
+    sudo('chown -R %s %s' % (env.sudo_user, locale_dir), user=env.sudo_user)
+    sudo('chgrp -R %s %s' % (env.apache_user, locale_dir), user='root')
+    sudo('chmod -R g+w %s' % (locale_dir), user=env.sudo_user)
 
 
 def commit_locale_changes():
     """ Commit locale changes on the remote server and pull them in locally """
     fix_locale_perms()
     with cd(env.code_root):
-        run('sudo -H -u %s git add aremind/locale' % env.sudo_user)
-        run('sudo -H -u %s git commit -m "updating translation"' % env.sudo_user)
+        sudo('-H -u %s git add aremind/locale' % env.sudo_user)
+        sudo('-H -u %s git commit -m "updating translation"' % env.sudo_user)
     local('git pull ssh://%s%s' % (env.host, env.code_root))
 
 
 def upload_supervisor_conf():
     """Upload and link Supervisor configuration from the template."""
     require('environment', provided_by=('staging', 'demo', 'production'))
-    template = posixpath.join(os.path.dirname(__file__), 'services', 'templates', 'supervisor.conf')
-    destination = '/var/tmp/supervisor.conf'
-    files.upload_template(template, destination, context=env, use_sudo=True)
-    enabled =  posixpath.join(env.services, u'supervisor/supervisord.conf' % env)
-    run('sudo chown -R %s %s' % (env.sudo_user, destination))
-    run('sudo chgrp -R www-data %s' % destination)
-    run('sudo chmod -R g+w %s' % destination)
-    run('sudo -u %s mv -f %s %s' % (env.sudo_user, destination, enabled))
+    _set_apache_user()
+    upload_dict = {}
+    upload_dict["template"] = posixpath.join(os.path.dirname(__file__), 'services', 'templates', 'supervisor.conf')
+    upload_dict["destination"] = '/var/tmp/supervisor.conf.blah'
+    upload_dict["tmp"] = posixpath.join('/','var','tmp','supervisord.conf')
+    upload_dict["enabled"] =  posixpath.join(env.services, u'supervisor/supervisord.conf' % env)
+    if what_os() == 'ubuntu':
+        upload_dict["main_supervisor_conf_dir"] = '/etc/supervisor'
+    else:
+        upload_dict["main_supervisor_conf_dir"] = '/etc'
 
+    files.upload_template(upload_dict["template"], upload_dict["destination"], context=env, use_sudo=True)
+    sudo('chown -R %s %s' % (env.sudo_user, upload_dict["destination"]))
+    sudo('chgrp -R %s %s' % (env.apache_user, upload_dict["destination"]))
+    sudo('chmod -R g+w %(destination)s' % upload_dict)
+    sudo('mv -f %(destination)s %(enabled)s' % upload_dict)
     #update the line in the supervisord config file that points to our supervisor.conf
     #remove the line if it already exists
-    tmp = posixpath.join('/','var','tmp','supervisord.conf')
-    sudo("sed '/.conf/d' %s/supervisor/supervisord.conf > %s" % (env.services , tmp))
-    sudo('echo "files = %s/supervisor/*.conf" >> %s' % (env.services, tmp) )
-    sudo('mv /var/tmp/supervisord.conf /etc/supervisor/supervisord.conf')
+    sudo("sed '/.conf/d' %(main_supervisor_conf_dir)s/supervisord.conf > %(tmp)s" % upload_dict)
+    sudo('echo "files = %s/supervisor/*.conf" >> %s' % (env.services, upload_dict["tmp"]) )
+    sudo('mv -f %(tmp)s %(main_supervisor_conf_dir)s/supervisord.conf' % upload_dict)
     _supervisor_command('update')
 
 
 def upload_apache_conf():
     """Upload and link Supervisor configuration from the template."""
     require('environment', provided_by=('staging', 'demo', 'production'))
+    _set_apache_user()
     template = posixpath.join(os.path.dirname(__file__), 'services', 'templates', 'apache.conf')
-    destination = '/var/tmp/apache.conf'
+    destination = '/var/tmp/apache.conf.temp'
     files.upload_template(template, destination, context=env, use_sudo=True)
     enabled =  posixpath.join(env.services, u'apache/%(environment)s.conf' % env)
-    run('sudo chown -R %s %s' % (env.sudo_user, destination))
-    run('sudo chgrp -R www-data %s' % destination)
-    run('sudo chmod -R g+w %s' % destination)
-    run('sudo -u %s mv -f %s %s' % (env.sudo_user, destination, enabled))
-    sudo('a2enmod proxy')
-    sudo('a2enmod proxy_http')
-    sudo('rm /etc/apache2/sites-enabled/%(project)s' % env)
-    sudo('ln -s %(services)s/apache/%(environment)s.conf /etc/apache2/sites-enabled/%(project)s' % env)
-    apache_reload()
+    sudo('chown -R %s %s' % (env.sudo_user, destination))
+    sudo('chgrp -R %s %s' % (env.apache_user, destination))
+    sudo('chmod -R g+w %s' % destination)
+    sudo('mv -f %s %s' % (destination, enabled))
+    if what_os() == 'ubuntu':
+        sudo('a2enmod proxy')  #loaded by default in redhat
+        sudo('a2enmod proxy_http') #loaded by default in redhat
 
+    sites_enabled_dirfile = ''
+    if what_os() == 'ubuntu':
+        sites_enabled_dirfile = '/etc/apache2/sites-enabled/%(project)s.conf' % env
+    elif what_os() == 'redhat':
+        sites_enabled_dirfile = '/etc/httpd/conf.d/%(project)s.conf' % env
+    with settings(warn_only=True):
+        if files.exists(sites_enabled_dirfile):
+            sudo('rm %s' % sites_enabled_dirfile)
+
+    sudo('ln -s %s/apache/%s.conf %s' % (env.services, env.environment, sites_enabled_dirfile))
+    apache_reload()
 
 def _supervisor_command(command):
     require('hosts', provided_by=('staging', 'production'))
-    run('sudo supervisorctl %s' % command)
+    sudo('supervisorctl %s' % command)

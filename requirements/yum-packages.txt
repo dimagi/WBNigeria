@@ -1,1 +1,15 @@
-python-devel.x86_64 libevent-devel.x86_64 libevent zlib-devel libxslt zlib
+python-devel.x86_64
+libevent-devel.x86_64
+libevent
+zlib-devel
+libxslt
+zlib
+git
+postgresql
+postgresql-contrib
+mercurial
+python-setuptools
+httpd.x86_64
+libxslt.x86_64
+libxslt-devel.x86_64
+libxslt-python.x86_64

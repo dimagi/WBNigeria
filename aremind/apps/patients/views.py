@@ -33,7 +33,6 @@ from dimagi.utils.dates import get_day_of_month
 
 
 logger = logging.getLogger('aremind.apps.patients')
-logger.setLevel(logging.DEBUG)
 
 @csrf_exempt
 @require_http_methods(['POST'])

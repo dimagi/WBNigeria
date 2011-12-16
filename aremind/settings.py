@@ -336,3 +336,6 @@ DEFAULT_MESSAGE = "Unfortunately, we did not understand your message. Please cal
 
 AUDIT_DJANGO_USER = True
 AUDIT_MODEL_SAVE = []
+
+NO_LOGIN_REQUIRED_FOR = ["/tropo",
+                         "/tropo/"]

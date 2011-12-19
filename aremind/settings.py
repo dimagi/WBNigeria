@@ -169,7 +169,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'django_sorting.middleware.SortingMiddleware',
-    'aremind.login_required_everything.RequireLoginMiddleware',
+#    'aremind.login_required_everything.RequireLoginMiddleware',
     'auditcare.middleware.AuditMiddleware',
 ]
     
@@ -338,4 +338,6 @@ AUDIT_DJANGO_USER = True
 AUDIT_MODEL_SAVE = []
 
 NO_LOGIN_REQUIRED_FOR = ["/tropo",
-                         "/tropo/"]
+                         "/tropo/",
+                         "/ajax/",
+                         "/ajax",]

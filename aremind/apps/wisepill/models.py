@@ -73,25 +73,25 @@ class WisepillMessage(models.Model):
         (Only the other fields that we currently care about.)
         (Does not save.)
 
-Example message:
+        Example message:
 
-@=03,CN=256771413470,SN=357077005471753,T=190509060959,S=20,B=3800,PC=1,U= balance is UGX 15893. Yo,M=1,CE=0
+        @=03,CN=256771413470,SN=357077005471753,T=190509060959,S=20,B=3800,PC=1,U= balance is UGX 15893. Yo,M=1,CE=0
 
-@=<message type: 02 = live event, 03 = delayed event>,
-CN=<MSISDN>,
-SN=<Device Serial Number>,
-T=<DateTime: DDMMYYHHMMSS>
-S=<Signal Strength: 0-31, 99>,
-B=<Battery strength (mV)>,
-PC=<Puff Count: Not Used>,
-U=<USSD Response: Network response to configured USSD command>,
-M=<Medication compartment: Value= 1 for Wisepill portable dispenser>,
-CE=<Parameter Not used: value = 0>
-CR/LF
+        @=<message type: 02 = live event, 03 = delayed event>,
+        CN=<MSISDN>,
+        SN=<Device Serial Number>,
+        T=<DateTime: DDMMYYHHMMSS>
+        S=<Signal Strength: 0-31, 99>,
+        B=<Battery strength (mV)>,
+        PC=<Puff Count: Not Used>,
+        U=<USSD Response: Network response to configured USSD command>,
+        M=<Medication compartment: Value= 1 for Wisepill portable dispenser>,
+        CE=<Parameter Not used: value = 0>
+        CR/LF
 
-Newer devices seem to change @= to AT=.
+        Newer devices seem to change @= to AT=.
 
-"""
+        """
         parts = self.sms_message.split(",")
         values = {}
         for part in parts:

@@ -78,6 +78,8 @@ def get_patient_stats_context(appt_date):
         wpsparkline = []
         for day in range(20):
             dateStart =  appt_date - datetime.timedelta(days=day)
+            if is_patient_out_of_date_range(patient, dateStart):
+                continue
             msgs = wpmessages.filter(timestamp__year=dateStart.year, timestamp__month=dateStart.month, timestamp__day=dateStart.day)
             msgCount = msgs.count()
             wpsparkline.insert(0,msgCount)
@@ -87,19 +89,15 @@ def get_patient_stats_context(appt_date):
         dateStartWeek = appt_date
         dateEndWeek = appt_date - datetime.timedelta(days=7)
         for week in range(8):
-            pillsMissed = patient.pillsmissed_set.filter(date__lt=dateStartWeek, date__gt=dateEndWeek, source=1) #we should only find at most 1 per week...
-            if(len(pillsMissed) > 0):
-                pmSparkline.insert(0,(-1)*pillsMissed[0].num_missed)
-            else:
-                pmSparkline.insert(0,0)
+            if not is_patient_out_of_date_range(patient,dateEndWeek,dateStartWeek):
+                pillsMissed = patient.pillsmissed_set.filter(date__lt=dateStartWeek, date__gt=dateEndWeek, source=1) #we should only find at most 1 per week...
+                if(len(pillsMissed) > 0):
+                    pmSparkline.insert(0,(-1)*pillsMissed[0].num_missed)
             dateStartWeek = dateEndWeek
             dateEndWeek = dateEndWeek - datetime.timedelta(days=7)
 
-
         patient.report_adherence = patient.adherence_report_date(appt_date)
-
         patient.pills_missed_parkline = pmSparkline
-
 
     context['patients'] = patients_list;
     return context
@@ -119,7 +117,7 @@ def list_patients(request):
 def get_patient_stats_detail_context(report_date, patient_id):
     context = {}
     if not patient_id:
-        patients = Patient.objects.all()
+        return context #this method is for single patients only.
     else:
         patients = Patient.objects.filter(id=patient_id)
         if(len(patients) > 0):
@@ -133,6 +131,9 @@ def get_patient_stats_detail_context(report_date, patient_id):
     wp_usage_rows = []
     for day in range(1,days+1):
         row_date = datetime.date(report_date.year,report_date.month, day)
+        if is_patient_out_of_date_range(patients[0], row_date):
+            continue
+        
         row = []
         row.append(row_date)
         for patient in patients:
@@ -150,6 +151,8 @@ def get_patient_stats_detail_context(report_date, patient_id):
             week_start = (datetime.date(report_date.year,report_date.month,1) + datetime.timedelta(days=week*7))
             week_end = week_start + datetime.timedelta(days=7)
             pm_week_data = {}
+            if is_patient_out_of_date_range(patient,week_start,week_end):
+                continue
 
             pills_missed_set = patient.pillsmissed_set.filter(date__gt=week_start, date__lt=week_end, source=1) # source = 1 means SMS
             if(len(pills_missed_set) > 0):
@@ -165,6 +168,33 @@ def get_patient_stats_detail_context(report_date, patient_id):
     context["pm_data"] = pill_count_data
     context["pm_weeks"] = pill_count_data["pill_count_data"]
     return context
+
+
+def is_patient_out_of_date_range(patient, start_date, end_date=None):
+    '''
+    Checks to see if the dates given are within the range
+    of a patient being active on the system
+    if only a start_date is given, the start date
+    must fall before now() and after the enrollment date. Will
+    return True if this is the case, false otherwise.
+
+    If end_date is also given (it is optional), both
+    start_date and end_date must adhere to the above rules (same conditions)
+    '''
+    enroll_date = patient.date_enrolled
+    now = datetime.datetime.now().date()
+    if not start_date:
+        raise Exception
+
+    if start_date > now or start_date < enroll_date:
+        return True
+
+    if end_date and (end_date > now or end_date < enroll_date):
+        return True
+
+    return False
+
+    pass
 
 @login_required
 def list_patient_stats_detail(request, patient_id=None):

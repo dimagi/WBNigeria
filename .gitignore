@@ -11,3 +11,4 @@ test_localsettings.py
 static_files/
 requirements/src/
 projectFilesBackup/
+*.pid

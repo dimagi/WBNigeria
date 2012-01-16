@@ -15,7 +15,7 @@
         {% endfor %}
         sLineOpts = {type: 'bar',  //general sparkline init params
                 barColor: '#2FA5D1',
-                barWidth: 10,
+                barWidth: 25,
                 zeroColor : 'black',
 	            nullColor :'black'
         }
@@ -28,6 +28,18 @@
             sLineOpts['chartRangeMax'] = dailyDose;
             sLineOpts['chartRangeMin'] = 0;
             $(this).sparkline(wpsparklines[$(this).text()], sLineOpts);
+            var t = '<table class="legend_table"><tr>';
+
+            for (var i=6;i>-1;i--) {
+                t += '<td>';
+                t += {{ report_day }} - i;
+                t += '</td>';
+            }
+
+            t += '</tr>';
+            t += '<tr><td  colspan=7>{{ report_month }}</td></tr>';
+            t += '</table>';
+            $(this).append(t);
         });
 
         dailyDose = 0
@@ -57,6 +69,8 @@
         </div>
     </form>
 </div>
+
+
 
 
 

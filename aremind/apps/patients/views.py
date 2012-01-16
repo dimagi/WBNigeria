@@ -76,7 +76,7 @@ def get_patient_stats_context(appt_date):
     for patient in patients_list:
         wpmessages = patient.wisepill_messages.all()
         wpsparkline = []
-        for day in range(20):
+        for day in range(7):
             dateStart =  appt_date - datetime.timedelta(days=day)
             if is_patient_out_of_date_range(patient, dateStart):
                 continue
@@ -105,12 +105,14 @@ def get_patient_stats_context(appt_date):
 @login_required
 def list_patients(request):
     today = datetime.date.today()
-    appt_date = today + datetime.timedelta(weeks=1)
+    report_date = today   # + datetime.timedelta(weeks=1)
     form = ReportForm(request.GET or None)
     if form.is_valid():
-        appt_date = form.cleaned_data['date'] or appt_date
-    context = get_patient_stats_context(appt_date)
+        report_date = form.cleaned_data['date'] or report_date
+    context = get_patient_stats_context(report_date)
     context['report_form'] =  form
+    context['report_month'] = report_date.strftime('%B')
+    context['report_day'] = report_date.day
     return render(request, 'patients/patient_stats.html', context)
 
 

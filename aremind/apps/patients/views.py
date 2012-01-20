@@ -86,20 +86,23 @@ def get_patient_stats_context(appt_date):
         patient.wisepill_sparkline = wpsparkline
 
         pmSparkline = []
+        pmSparklineWeeks = []
         dateStartWeek = appt_date
         dateEndWeek = appt_date - datetime.timedelta(days=7)
         for week in range(8):
             if not is_patient_out_of_date_range(patient,dateEndWeek,dateStartWeek):
-                pillsMissed = patient.pillsmissed_set.filter(date__lt=dateStartWeek, date__gt=dateEndWeek, source=1) #we should only find at most 1 per week...
-                if(len(pillsMissed) > 0):
+                pillsMissed = patient.pillsmissed_set.filter(date__lte=dateStartWeek, date__gt=dateEndWeek, source=1) #we should only find at most 1 per week...
+                if len(pillsMissed) > 0:
                     pmSparkline.insert(0,(-1)*pillsMissed[0].num_missed)
+                    pmSparklineWeeks.insert(0, (dateStartWeek, dateEndWeek))
             dateStartWeek = dateEndWeek
             dateEndWeek = dateEndWeek - datetime.timedelta(days=7)
 
         patient.report_adherence = patient.adherence_report_date(appt_date)
-        patient.pills_missed_parkline = pmSparkline
+        patient.pills_missed_sparkline = pmSparkline
+        patient.pills_missed_weeks = pmSparklineWeeks
 
-    context['patients'] = patients_list;
+    context['patients'] = patients_list
     return context
 
 @login_required
@@ -185,13 +188,16 @@ def is_patient_out_of_date_range(patient, start_date, end_date=None):
     '''
     enroll_date = patient.date_enrolled
     now = datetime.datetime.now().date()
+    week_before_now = now - datetime.timedelta(days=7)
     if not start_date:
         raise Exception
 
-    if start_date > now or start_date < enroll_date:
+    if start_date > now or start_date <= enroll_date:
         return True
 
-    if end_date and (end_date > now or end_date < enroll_date):
+    if end_date and (end_date > now or end_date <= enroll_date):
+        if start_date >= week_before_now: #we're dealing with a range that starts within this week, so let it through
+            return False
         return True
 
     return False

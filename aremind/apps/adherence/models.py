@@ -594,7 +594,7 @@ class PillsMissed(models.Model):
     """Pills patient says they missed in the four days before
     a given date"""
     patient = models.ForeignKey(Patient)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(default=datetime.datetime.now())
     num_missed = models.IntegerField()
     source = models.IntegerField(choices=QUERY_TYPES)
 

@@ -7,18 +7,20 @@
   <script src="{{ STATIC_URL }}js/jquery.sparkline.js" type="text/javascript"></script>
   <script type="text/javascript">
   $(document).ready(function() {
+
+        var sLineOpts;
         var wpsparklines = {}; //wisepill activity sparkline
         var pmsparklines = {}; //pills missed by SMS report sparkline
         {% for patient in patients %}
             wpsparklines["{{ patient.id }}"] = {{ patient.wisepill_sparkline }};
-            pmsparklines["{{ patient.id }}"] = {{ patient.pills_missed_parkline }};
+            pmsparklines["{{ patient.id }}"] = {{ patient.pills_missed_sparkline }};
         {% endfor %}
         sLineOpts = {type: 'bar',  //general sparkline init params
                 barColor: '#2FA5D1',
                 barWidth: 25,
                 zeroColor : 'black',
 	            nullColor :'black'
-        }
+        };
 
         //for the Wisepill sparklines:
         var dailyDose = 0;
@@ -50,8 +52,19 @@
             sLineOpts["nullColor"] = 'black';
             dailyDose = parseInt($($(this).parent().find('td')[5]).text());
 //            sLineOpts['chartRangeMax'] = -1;
-            sLineOpts['chartRangeMin'] = -7; //each bar is pills missed *per week*
+            sLineOpts['chartRangeMin'] = -5; //each bar is pills missed *per week*
             $(this).sparkline(pmsparklines[$(this).text()], sLineOpts);
+            var t = '<table class="legend_table"><tr>';
+            for (var i=6;i>-1;i--) {
+                t += '<td>';
+                t += {{ report_day }} - i;
+                t += '</td>';
+            }
+
+            t += '</tr>';
+            t += '<tr><td  colspan=7>{{ report_month }}</td></tr>';
+            t += '</table>';
+            $(this).append(t);
         });
 
   

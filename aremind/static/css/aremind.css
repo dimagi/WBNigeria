@@ -153,7 +153,7 @@ input.ui-combo-input {
 }
 
 .missed_pill_patient_id canvas{
-    margin-left:20px;
+    /*margin-left:20px;*/
 }
 
 
@@ -175,4 +175,21 @@ input.ui-combo-input {
 
 .legend_table tbody tr {
     /*width:100%;*/
+}
+
+.pm_weeks_td {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+.pm_legend_table tbody td {
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin: 2px;
+    font-size:8px;
+    /*width:25px;*/
+    text-align:center;
+    width:14.2%;
 }

@@ -87,22 +87,29 @@ def get_patient_stats_context(appt_date):
 
         pmSparkline = []
         pmSparklineWeeks = []
-        dateStartWeek = appt_date
-        dateEndWeek = appt_date - datetime.timedelta(days=7)
-        for week in range(8):
-            if not is_patient_out_of_date_range(patient,dateEndWeek,dateStartWeek):
-                pillsMissed = patient.pillsmissed_set.filter(date__lte=dateStartWeek, date__gt=dateEndWeek, source=1) #we should only find at most 1 per week...
+        isWeeksFilled = False
+        dateEndWeek = appt_date
+        dateStartWeek = appt_date - datetime.timedelta(days=7)
+        for week in range(4):
+            if not isWeeksFilled:
+                pmSparklineWeeks.insert(0, (dateStartWeek, dateEndWeek))
+                if week == 3:
+                    isWeeksFilled = True
+            if not is_patient_out_of_date_range(patient,dateStartWeek,dateEndWeek):
+                datetimeEndWeek = datetime.datetime.combine(dateEndWeek, datetime.time(23,59))
+                datetimeStartWeek = datetime.datetime.combine(dateStartWeek,datetime.time(0,0))
+                pillsMissed = patient.pillsmissed_set.filter(date__range=(datetimeStartWeek, datetimeEndWeek), source=1) #we should only find at most 1 per week...
                 if len(pillsMissed) > 0:
-                    pmSparkline.insert(0,(-1)*pillsMissed[0].num_missed)
-                    pmSparklineWeeks.insert(0, (dateStartWeek, dateEndWeek))
-            dateStartWeek = dateEndWeek
-            dateEndWeek = dateEndWeek - datetime.timedelta(days=7)
-
+                    pmSparkline.insert(0,pillsMissed[0].num_missed)
+                else:
+                    pmSparkline.insert(0,-1)
+            dateEndWeek = dateStartWeek
+            dateStartWeek = dateEndWeek - datetime.timedelta(days=7)
         patient.report_adherence = patient.adherence_report_date(appt_date)
         patient.pills_missed_sparkline = pmSparkline
-        patient.pills_missed_weeks = pmSparklineWeeks
 
     context['patients'] = patients_list
+    context['pm_weeks'] = pmSparklineWeeks
     return context
 
 @login_required

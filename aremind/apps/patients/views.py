@@ -30,6 +30,7 @@ from aremind.apps.patients.importer import parse_payload
 from aremind.apps.reminders.forms import ReportForm, MonthReportForm
 
 from dimagi.utils.dates import get_day_of_month
+from rapidsms.contrib.messagelog.models import Message
 
 
 logger = logging.getLogger('aremind.apps.patients')
@@ -127,7 +128,15 @@ def list_patients(request):
 
 
 def get_patient_stats_detail_context(report_date, patient_id):
+    """
+
+    """
     context = {}
+    days = get_day_of_month(report_date.year,report_date.month,-1).day
+    num_days_in_report_month = days
+    datetime_end_month = datetime.datetime(report_date.year,report_date.month,num_days_in_report_month,23,59)
+    datetime_start_month = datetime.datetime(report_date.year, report_date.month,01,0,0)
+
     if not patient_id:
         return context #this method is for single patients only.
     else:
@@ -139,7 +148,6 @@ def get_patient_stats_detail_context(report_date, patient_id):
     if not report_date:
         report_date = datetime.now()
 
-    days = get_day_of_month(report_date.year,report_date.month,-1).day
     wp_usage_rows = []
     for day in range(1,days+1):
         row_date = datetime.date(report_date.year,report_date.month, day)
@@ -154,10 +162,25 @@ def get_patient_stats_detail_context(report_date, patient_id):
         wp_usage_rows.append(row)
 
     pill_count_data = {}
+    pills_missed_data = {}
     for patient in patients:
         pill_count_data["patient_id"] = patient.subject_number
-        pills_missed_data = []
-        num_days_in_report_month = days
+        pills_missed = patient.pillsmissed_set.filter(date__range=(datetime_start_month,datetime_end_month)).order_by('-date')[:4]
+        weeks = []
+        for pm in pills_missed:
+            week_start = pm.date-datetime.timedelta(days=7)
+            week_end = pm.date
+            num_missed = pm.num_missed
+            weeks.append({
+                'pills_missed': num_missed,
+                'week_start': week_start,
+                'week_end': week_end,
+                'received_on': pm.date
+            })
+
+        pills_missed_data[patient] = weeks
+
+        pm_weekly_aggregate = []
         num_weeks_in_report_month = num_days_in_report_month / 7
         for week in range(0,num_weeks_in_report_month + 1):
             week_start = (datetime.date(report_date.year,report_date.month,1) + datetime.timedelta(days=week*7))
@@ -167,23 +190,39 @@ def get_patient_stats_detail_context(report_date, patient_id):
                 continue
 
             pills_missed_set = patient.pillsmissed_set.filter(date__gt=week_start, date__lt=week_end, source=1) # source = 1 means SMS
-            if(len(pills_missed_set) > 0):
+            if len(pills_missed_set) > 0:
                 pills_missed_week = pills_missed_set.aggregate(Count('num_missed'))["num_missed__count"]
             else:
                 pills_missed_week = "No Response"
-            pm_week_data["pills_missed"] = pills_missed_week
+            pm_week_data["count"] = pills_missed_week
             pm_week_data["week_start"] = week_start
             pm_week_data["week_end"] = week_end
-            pills_missed_data.append(pm_week_data)
-        pill_count_data["pill_count_data"] = pills_missed_data
+            pm_weekly_aggregate.append(pm_week_data)
+
+
+
+    # Get last 20 messages related to this patient
+    patient_contact = patients[0].contact
+    patient_connections = patient_contact.connection_set.all()
+    patient_connection = None
+    if len(patient_connections) > 0:
+        patient_connection = patient_connections[0]
+        print 'Patient Connection!: %s' % patient_connection
+        messages = Message.objects.filter(connection=patient_connection)
+    else:
+        messages = Message.objects.filter(contact=patient_contact)
+
+    messages = messages.exclude(text__contains='start tree').exclude(text__contains='TimeOut') #exclude internal messages
+    messages = messages.filter(date__range=(datetime_start_month, datetime_end_month)) #stick to the report month
+    context["pat_messages"] = messages
     context["wp_usage_rows"] = wp_usage_rows
-    context["pm_data"] = pill_count_data
-    context["pm_weeks"] = pill_count_data["pill_count_data"]
+    context["pm_weeks"] = pills_missed_data
+    context["pm_weekly"] = pm_weekly_aggregate
     return context
 
 
 def is_patient_out_of_date_range(patient, start_date, end_date=None):
-    '''
+    """
     Checks to see if the dates given are within the range
     of a patient being active on the system
     if only a start_date is given, the start date
@@ -192,7 +231,7 @@ def is_patient_out_of_date_range(patient, start_date, end_date=None):
 
     If end_date is also given (it is optional), both
     start_date and end_date must adhere to the above rules (same conditions)
-    '''
+    """
     enroll_date = patient.date_enrolled
     now = datetime.datetime.now().date()
     week_before_now = now - datetime.timedelta(days=7)

@@ -36,7 +36,7 @@
                     if(count > daily_dose) {
                         cell.css('background-color', 'yellow');
                     } else if (count === 0) {
-                        cell.css('background-color', 'red');
+                        cell.css('background-color', '#FF9900');
                     }
 
                 });
@@ -49,12 +49,12 @@
                     if (count && count > 0) {
                         cell.css('background-color', 'yellow');
                     } else if (text && text.toLowerCase() === 'no response') {
-                        cell.css('background-color', 'red');
+                        cell.css('background-color', '#FF9900');
                     }
                 });
 //
                 $('#yellow_cell').css('background-color', 'yellow');
-                $('#red_cell').css('background-color', 'red');
+                $('#red_cell').css('background-color', '#FF9900');
 
                 var legend_table = $('#color-legend');
                 legend_table.find('th').css('border','1px solid #DDD');
@@ -125,24 +125,84 @@
 
     {% block right %}
         <div class="module">
-            <h2>Pills Missed by weekly pill count (<b>{{ report_month }}</b>)</h2>
-            <table class="pagination sortable adherence-report" style="margin:auto">
+            <h2>Pills Missed by weekly pill count: (<b>{{ report_month }}</b>)</h2>
+            <table id="pill_count_messages" class="pagination sortable adherence-report" style="margin:auto">
                 <thead>
+                    <tr>
+                        <th colspan=3 class="table_superheader">Pill Count Messages</th>
+                    </tr>
                     <tr>
                         <th>Date</th>
                         <th>Response</th>
+                        <th>Message Received Date</th>
                     </tr>
                 </thead>
                 <tbody>
-                {% for col in pm_weeks %}
-                    <tr class="{% cycle 'odd' 'even' %}">
-                        <td>{{ col.week_start|date:"j-M" }} to {{ col.week_end|date:"j-M" }}</td>
-                        <td class="weekly_count_value">{{ col.pills_missed }}</td>
-                    </tr>
+                {% for patient, weeks in pm_weeks.items %}
+                    {% for week in weeks %}
+                        <tr class="{% cycle 'odd' 'even' %}">
+                            <td>{{ week.week_start|date:"j-M" }} to {{ week.week_end|date:"j-M" }}</td>
+                            <td class="weekly_count_value">{{ week.pills_missed }}</td>
+                            <td>{{ week.received_on }}</td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
                 </tbody>
                 <tfoot>
-                  <tr><td colspan="5">{% paginate %}</td>
+                  <tr><td colspan="5"></td>
+                </tfoot>
+            </table>
+            <br />
+            <table id="pill_count_aggregates" class="pagination" style="margin: auto">
+                <thead>
+                    <tr>
+                        <th colspan=4 class="table_superheader">Pills Missed Per Week</th>
+                    </tr>
+                    <tr>
+                        {% for week in pm_weekly %}
+                            <th>{{ week.week_start|date:"j-M" }} to {{ week.week_end|date:"j-M" }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="{% cycle 'odd' 'even' %}">
+                        {% for week in pm_weekly %}
+                            <td class="weekly_count_value">{{ week.count }}</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <br />
+            <br />
+            <h2>Patient Messages in: <b>{{ report_month }}</b></h2>
+            {% autopaginate pat_messages 20 %}
+            <table id="patient_messages" class='sortable pagination'>
+                <thead>
+                    <tr>
+                        <th>Text</th>
+                        <th>Date</th>
+                        <th>Direction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in pat_messages %}
+                        <tr class="{% cycle 'odd' 'even' %}">
+                            <td class="patient_message m_text">{{ message.text }}</td>
+                            <td class="patient_message m_date">{{ message.date }}</td>
+                            <td class="patient_message m_direction">{{ message.direction }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    {% if paginator.count > paginator.per_page %}
+                    <tr>
+                        <td colspan='3'>
+                            {% paginate %}
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tfoot>
             </table>
         </div>

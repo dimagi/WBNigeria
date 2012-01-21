@@ -59,15 +59,17 @@
 
         dailyDose = 0
         $(".missed_pill_patient_id").each (function (idx) {
+            sLineOpts = {
+                type: 'bar',  //general sparkline init params
+                barWidth: 46,
+                barColor: 'black',
+                zeroBarColor: 'green',
+                negBarColor: 'red',
+                chartRangeMax: 10,
+                chartRangeMin: 1
+            };
             var patient_id = $(this).text();
-            sLineOpts["type"] = 'tristate';
-            sLineOpts["barWidth"] = 46;
-//            sLineOpts["zeroAxis"] = true;
-            sLineOpts["posBarColor"] = 'black';
-            sLineOpts["zeroBarColor"] = 'green';
-            sLineOpts["negBarColor"] = 'red';
             dailyDose = parseInt($($(this).parent().find('td')[5]).text());
-//            sLineOpts['chartRangeMin'] = -5; //each bar is pills missed *per week*
             $(this).sparkline(pmsparklines[patient_id], sLineOpts);
             var table = $('<table class="pm_legend_table"></table>');
             var row = $('<tr></tr>');
@@ -104,8 +106,7 @@
     <h2>Patient Stats</h2>
     <p><a class='button add' title='Add a New Patient' href="{% url patient-create %}" >Add a patient...</a></p>
     {% autosort patients %}
-    {% autopaginate patients 20 %}
-    <table class='sortable pagination'>
+    <table class='sortable'>
         <thead>
             <tr>
                 <th>{% anchor subject_number "Subject ID" %}</th>

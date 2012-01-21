@@ -193,3 +193,21 @@ input.ui-combo-input {
     text-align:center;
     width:14.2%;
 }
+
+
+.table_superheader {
+    text-align:center;
+    font-weight: bold;
+}
+
+.patient_message.m_text {
+    width: 40%
+}
+
+#pill_count_aggregates {
+    width: 100%;
+}
+
+#pill_count_messages {
+    width: 100%;
+}

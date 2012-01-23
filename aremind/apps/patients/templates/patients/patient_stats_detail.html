@@ -1,5 +1,6 @@
 {% extends "aremind/layout-split-2.html" %}
 {% load pagination_tags sorting_tags humanize %}
+{% load timezone_filters %}
 
 
 
@@ -25,6 +26,22 @@
     <script src="{{ STATIC_URL }}patients/js/patients.js" type="text/javascript"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            $('#edit_patient').button({
+                 icons: {
+                     primary: "ui-icon-pencil"
+                 }
+            }).click(function () {
+                location.href='{% url patient-detail patients.0.pk %}';
+            });
+
+            $('#onetime_reminder').button({
+                icons: {
+                    primary: "ui-icon-mail-closed"
+                }
+            }).click(function () {
+                location.href='{% url patient-onetime-message patients.0.pk %}'
+            });
+            
             var isSinglePatient = (parseInt( {{ patients|length }} ) === 1);
 
             if (isSinglePatient) {
@@ -64,9 +81,13 @@
     </script>
 {% endblock %}
 
+{% block title %}Patient: {{ patients.0.subject_number }}{% endblock %}
+
     {% block content %}
         <div class="module">
-            <h1>Detailed Usage for Patient: {{ patients.0.subject_number }}</h1>
+            <h1>Detailed Usage for Patient: {{ patients.0.subject_number }}.</h1>
+            <button id="edit_patient" title="Edit Patient Info">Edit Patient</button>
+            <button id="onetime_reminder" title="Send One Time Reminder">Send One Time Reminder</button>
             <form class="date-form buttons" action="" method="get">
                 <div class='form-action'>
                     {{ report_form }}
@@ -91,8 +112,11 @@
             </form>
 
         </div>
+        <div class="module">
+        <h2>Simple Adherence Score: {{ patients.0.adherence }}%</h2>
+        </div>
+        <br />
         {{ block.super }}
-
 {#        <div class="module">#}
 {##}
 {#        </div>#}
@@ -141,9 +165,9 @@
                 {% for patient, weeks in pm_weeks.items %}
                     {% for week in weeks %}
                         <tr class="{% cycle 'odd' 'even' %}">
-                            <td>{{ week.week_start|date:"j-M" }} to {{ week.week_end|date:"j-M" }}</td>
+                            <td>{{ week.week_start|localtime:"Pacific/Honolulu"|date:"j-M" }} to {{ week.week_end|localtime:"Pacific/Honolulu"|date:"j-M" }}</td>
                             <td class="weekly_count_value">{{ week.pills_missed }}</td>
-                            <td>{{ week.received_on }}</td>
+                            <td>{{ week.received_on|localtime:"Pacific/Honolulu" }}</td>
                         </tr>
                     {% endfor %}
                 {% endfor %}
@@ -190,7 +214,7 @@
                     {% for message in pat_messages %}
                         <tr class="{% cycle 'odd' 'even' %}">
                             <td class="patient_message m_text">{{ message.text }}</td>
-                            <td class="patient_message m_date">{{ message.date }}</td>
+                            <td class="patient_message m_date">{{ message.date|localtime:"Pacific/Honolulu" }}</td>
                             <td class="patient_message m_direction">{{ message.direction }}</td>
                         </tr>
                     {% endfor %}

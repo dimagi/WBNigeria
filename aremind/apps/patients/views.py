@@ -21,7 +21,7 @@ from threadless_router.router import Router
 
 from aremind.decorators import has_perm_or_basicauth
 from aremind.apps.adherence.models import (get_contact_message, PatientSurvey,
-                                           PillsMissed)
+                                           PillsMissed, Reminder)
 from aremind.apps.adherence.types import *
 from aremind.apps.patients import models as patients
 from aremind.apps.patients.models import Patient
@@ -215,7 +215,10 @@ def get_patient_stats_detail_context(report_date, patient_id):
         messages = Message.objects.filter(contact=patient_contact)
 
     messages = messages.exclude(text__contains='start tree').exclude(text__contains='TimeOut') #exclude internal messages
-    messages = messages.filter(date__range=(datetime_start_month, datetime_end_month)) #stick to the report month
+    messages = messages.filter(date__range=(datetime_start_month, datetime_end_month)).order_by('-date') #stick to the report month
+
+    reminders = Reminder.objects.all()
+
     context["pat_messages"] = messages
     context["wp_usage_rows"] = wp_usage_rows
     context["pm_weeks"] = pills_missed_data

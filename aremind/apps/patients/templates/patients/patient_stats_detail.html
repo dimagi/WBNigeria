@@ -48,7 +48,7 @@
                     var count = parseInt(text);
                     if (count && count > 0) {
                         cell.css('background-color', 'yellow');
-                    } else if (text && text.toLowerCase() === 'no response') {
+                    } else if (text && text.toLowerCase().indexOf('no response') !== -1) {
                         cell.css('background-color', '#FF9900');
                     }
                 });
@@ -100,8 +100,8 @@
 
     {% block left %}
         <div class="module">
-            <h2>Wisepill Activity by day (<b>{{ report_month }}</b>)</h2>
-            <table class="pagination sortable adherence-report" style="margin:auto">
+            <h2>Wisepill Activity By Day (<b>{{ report_month }}</b>)</h2>
+            <table id="patient_activity_by_day" class="pagination sortable adherence-report" style="margin:auto">
                 <thead>
                     <tr>
                         <th>Date</th>
@@ -111,7 +111,7 @@
                 <tbody>
                     {% for row in wp_usage_rows %}
                         <tr class="{% cycle 'odd' 'even' %}">
-                            <td>{{ row.0 }}</td>
+                            <td class="wisepill_day_date">{{ row.0 }}</td>
                             <td class="wisepill_day_count">{{ row.1 }}</td>
                         </tr>
                     {% endfor %}
@@ -125,14 +125,14 @@
 
     {% block right %}
         <div class="module">
-            <h2>Pills Missed by weekly pill count: (<b>{{ report_month }}</b>)</h2>
+            <h2>Pills Missed by Weekly Pill Count: (<b>{{ report_month }}</b>)</h2>
             <table id="pill_count_messages" class="pagination sortable adherence-report" style="margin:auto">
                 <thead>
                     <tr>
-                        <th colspan=3 class="table_superheader">Pill Count Messages</th>
+                        <th colspan=3 class="table_superheader">Pill Count Messages Received</th>
                     </tr>
                     <tr>
-                        <th>Date</th>
+                        <th>For Week</th>
                         <th>Response</th>
                         <th>Message Received Date</th>
                     </tr>
@@ -167,7 +167,7 @@
                 <tbody>
                     <tr class="{% cycle 'odd' 'even' %}">
                         {% for week in pm_weekly %}
-                            <td class="weekly_count_value">{{ week.count }}</td>
+                            <td class="weekly_count_value">{{ week.sum }}</td>
                         {% endfor %}
                     </tr>
                 </tbody>
@@ -176,14 +176,14 @@
 
             <br />
             <br />
-            <h2>Patient Messages in: <b>{{ report_month }}</b></h2>
+            <h2>Patient Messages for: <b>{{ report_month }}</b></h2>
             {% autopaginate pat_messages 20 %}
             <table id="patient_messages" class='sortable pagination'>
                 <thead>
                     <tr>
                         <th>Text</th>
                         <th>Date</th>
-                        <th>Direction</th>
+                        <th>Direction (In/Out)</th>
                     </tr>
                 </thead>
                 <tbody>

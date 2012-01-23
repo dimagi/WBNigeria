@@ -182,6 +182,10 @@ input.ui-combo-input {
     border-right: 1px solid black;
 }
 
+.pm_legend_table {
+width: 187px;
+}
+
 .pm_legend_table tbody td {
     padding-top: 0;
     padding-bottom: 0;
@@ -210,4 +214,28 @@ input.ui-combo-input {
 
 #pill_count_messages {
     width: 100%;
+}
+
+#patient_activity_by_day {
+    width: 100%;
+}
+
+#patient_activity_by_day td {
+}
+
+.wisepill_day_count {  /* Second column in Patient detail wisepill activity table */
+    width:70%;
+    text-align: center;
+}
+
+.wisepill_day_date { /* First column in Patient details wisepill activity table */
+    width:30%
+}
+
+.patient_message.m_text {
+    width:50%;
+}
+
+.patient_message.m_direction {
+    width: 15%;
 }

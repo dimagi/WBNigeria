@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
@@ -93,7 +93,7 @@ def get_patient_stats_context(appt_date):
         dateStartWeek = appt_date - datetime.timedelta(days=7)
         for week in range(4):
             if not isWeeksFilled:
-                pmSparklineWeeks.insert(0, (dateStartWeek, dateEndWeek))
+                pmSparklineWeeks.append((dateStartWeek, dateEndWeek))
                 if week == 3:
                     isWeeksFilled = True
             if not is_patient_out_of_date_range(patient,dateStartWeek,dateEndWeek):
@@ -191,10 +191,12 @@ def get_patient_stats_detail_context(report_date, patient_id):
 
             pills_missed_set = patient.pillsmissed_set.filter(date__gt=week_start, date__lt=week_end, source=1) # source = 1 means SMS
             if len(pills_missed_set) > 0:
-                pills_missed_week = pills_missed_set.aggregate(Count('num_missed'))["num_missed__count"]
+                pills_missed_week = pills_missed_set.aggregate(Sum('num_missed'))["num_missed__sum"]
             else:
-                pills_missed_week = "No Response"
-            pm_week_data["count"] = pills_missed_week
+                pills_missed_week = "No Response/No Query"
+
+
+            pm_week_data["sum"] = pills_missed_week
             pm_week_data["week_start"] = week_start
             pm_week_data["week_end"] = week_end
             pm_weekly_aggregate.append(pm_week_data)

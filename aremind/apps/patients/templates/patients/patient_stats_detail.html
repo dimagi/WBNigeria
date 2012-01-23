@@ -165,6 +165,15 @@
                 {% for patient, weeks in pm_weeks.items %}
                     {% for week in weeks %}
                         <tr class="{% cycle 'odd' 'even' %}">
+
+{#                        #######################CONVERSION TO HONOLULU!!############################################ #}
+{#                            Since We screwed up how we capture dates (datetime.now()) versus#}
+{#                            how rapidsms does(datetime.utcnow()), AND neglected to notice that postgres#}
+{#                            stored all our dates with a +2 TZ, we convert the dates here to 'Honolulu (-10 TZ)'#}
+{#                            to display correctly :(#}
+{#                            ########################################################################################## #}
+
+
                             <td>{{ week.week_start|localtime:"Pacific/Honolulu"|date:"j-M" }} to {{ week.week_end|localtime:"Pacific/Honolulu"|date:"j-M" }}</td>
                             <td class="weekly_count_value">{{ week.pills_missed }}</td>
                             <td>{{ week.received_on|localtime:"Pacific/Honolulu" }}</td>

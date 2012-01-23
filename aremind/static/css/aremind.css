@@ -153,5 +153,89 @@ input.ui-combo-input {
 }
 
 .missed_pill_patient_id canvas{
-    margin-left:20px;
+    /*margin-left:20px;*/
+}
+
+
+.legend_table {
+    /*border: 1px solid black;*/
+    width:181px;
+    
+}
+
+.legend_table tbody td {
+    /*border: 1px solid black;*/
+    padding: 0;
+    margin: 2px;
+    font-size:8px;
+    /*width:25px;*/
+    text-align:center;
+    width:14.2%;
+}
+
+.legend_table tbody tr {
+    /*width:100%;*/
+}
+
+.pm_weeks_td {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+.pm_legend_table {
+width: 187px;
+}
+
+.pm_legend_table tbody td {
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin: 2px;
+    font-size:8px;
+    /*width:25px;*/
+    text-align:center;
+    width:14.2%;
+}
+
+
+.table_superheader {
+    text-align:center;
+    font-weight: bold;
+}
+
+.patient_message.m_text {
+    width: 40%
+}
+
+#pill_count_aggregates {
+    width: 100%;
+}
+
+#pill_count_messages {
+    width: 100%;
+}
+
+#patient_activity_by_day {
+    width: 100%;
+}
+
+#patient_activity_by_day td {
+}
+
+.wisepill_day_count {  /* Second column in Patient detail wisepill activity table */
+    width:70%;
+    text-align: center;
+}
+
+.wisepill_day_date { /* First column in Patient details wisepill activity table */
+    width:30%
+}
+
+.patient_message.m_text {
+    width:50%;
+}
+
+.patient_message.m_direction {
+    width: 15%;
 }

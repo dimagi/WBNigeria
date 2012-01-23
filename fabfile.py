@@ -77,7 +77,6 @@ def staging():
     env.server_port = '9002'
     env.server_name = 'noneset'
     env.hosts = ['204.232.206.181']
-    env.hosts = ['204.232.206.181']
     env.settings = '%(project)s.localsettings' % env
     env.remote_os = None
     env.db = '%s_%s' % (env.project, env.environment)

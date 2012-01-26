@@ -246,8 +246,12 @@ STATICFILES_FINDERS =(
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
+PYTHON_ENV_PATH = os.path.join(PROJECT_PATH,'..','..','python_env')
+DJ_SELECTABLE_STATIC_PATH = os.path.join(PYTHON_ENV_PATH,'src','django-selectable','selectable','static')
+
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
-                    os.path.join(PROJECT_PATH, 'templates'))
+                    os.path.join(PROJECT_PATH, 'templates'),
+                    os.path.join(DJ_SELECTABLE_STATIC_PATH))
 
 
 

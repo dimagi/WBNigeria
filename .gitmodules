@@ -1,6 +1,6 @@
-[submodule "submodules/touchforms"]
-	path = submodules/touchforms
-	url = git://github.com/dimagi/touchforms.git
 [submodule "submodules/rapidsms-smsforms"]
 	path = submodules/rapidsms-smsforms
 	url = git://github.com/dimagi/rapidsms-smsforms.git
+[submodule "submodules/touchforms"]
+	path = submodules/touchforms
+	url = git://github.com/dimagi/touchforms.git

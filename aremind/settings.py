@@ -71,11 +71,11 @@ INSTALLED_APPS = [
     #"rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
     "touchforms.formplayer",
-    "smsforms",
+#    "smsforms",
 
 #    "timezones",
 
-#    "couchlog",
+    "couchlog",
     # this app should be last, as it will always reply with a help message
     "aremind.apps.catch_all",
 ]

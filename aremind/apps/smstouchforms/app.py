@@ -1,65 +1,60 @@
 from rapidsms.apps.base import AppBase
 from django.core.exceptions import ObjectDoesNotExist
-from rapidsms.messages import OutgoingMessage
-from fakit import fakit
-from models import XFormsSession, XFormSurvey
+from models import XFormsSession
 from datetime import datetime
+from touchforms.formplayer import api
+from touchforms.formplayer.models import XForm
+import json
 
 class TouchFormsApp(AppBase):
-
-    f = None
-
     def start(self):
-        self.f = fakit()
         self.info('Started TouchFormsApp')
 
     def handle(self, msg):
-        print msg.text
-        #check if this contact is in a form session:
-        session = None
-        try:
-            print 'down in there'
-            session = XFormsSession.objects.get(contact=msg.contact)
-            print 'fucking failing silently'
-        except ObjectDoesNotExist:
-            print 'up in here'
-        if not session:
-            print 'MSG TEXT WAS: %s, == "startform"? %s' % (msg.text, msg.text=='startform')
-            if msg.text == 'startform':
-                #create a session
-                try:
-                    session = XFormsSession(start_date=datetime.now(), touch_time=datetime.now(), contact=msg.contact)
-                except:
-                    raise Exception('SHIT!')
-                session.session_id = self.f.start_session()
-                session.started = True
-                session.save()
-                msg.respond(self.f.get_question(session.session_id))
-                print 'sent a response message'
+        print 'LOGGER NAME %s' % self._logger_name()
+        def _next(xformsresponse, message, session):
+            # if there's a valid session id (typically on a new form)
+            # update our mapping
+            self.debug('QUESTION RESPONSE: %s' % response)
+            session.current_response = response
+            session.save()
+            if xformsresponse.event.type == "question":
+                # send the next question
+                message.respond(xformsresponse.event.text_prompt)
                 return True
-                #start a form
-            else:
-                print 'MSG TEXT WAS: %s, == "startform"? %s' % (msg.text, msg.text=='startform')
-                return
-        else:
-            ans = msg.text
-            if ans == 'get_question':
-                session.touch_time = datetime.now()
+            elif xformsresponse.event.type == "form-complete":
+                message.respond("you're done! thanks!")
+                session.end_time = datetime.now()
+                session.ended = True
                 session.save()
-                msg.respond(self.f.get_question(session.session_id))
                 return True
 
-            resp = self.f.give_answer(session.session_id, ans)
-            if resp != 'CORRECT_ANSWER':
-                session.touch_time = datetime.now()
-                session.save()
-                msg.respond(resp)
-            elif resp == 'DONE':
-                msg.respond("Congratulations! You're done.")
-                session.touch_time = datetime.now()
-                session.end_date = datetime.now()
-                session.save()
-            else:
-                #I don't think we should ever get here.
-                self.error("WE'RE NOT SUPPOSED TO BE THIS FAR DOWN IN THE ELSE TREE in smstouchforms/app.py")
-                msg.respond(self.f.get_question(session.session_id))
+        #check if this Connection is in a form session:
+        session = None
+        try:
+            session = XFormsSession.objects.get(connection=msg.connection)
+        except ObjectDoesNotExist:
+            pass
+        if not session:
+            if not msg.text.lower().startswith('startform'):
+                return
+
+            #create a session
+            session = XFormsSession(start_time=datetime.now(), touch_time=datetime.now(), connection=msg.connection, ended=False)
+            form_id = int(msg.text.split()[1])
+            form = XForm.objects.get(pk=form_id)
+            response = api.start_form_session(form.file.path)
+            session.session_id = response.session_id
+            session.started = True
+            session.save()
+            return _next(response, msg, session)
+        else:
+            def _format(text):
+                # touchforms likes ints to be ints so force it if necessary
+                try:
+                    return int(text)
+                except ValueError:
+                    return text
+
+            response = api.answer_question(int(session.session_id),_format(msg.text))
+            return _next(response, msg, session)

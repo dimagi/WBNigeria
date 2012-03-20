@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     "decisiontree",
 
     #audit utils
-    "auditcare",
+#    "auditcare",
 
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "aremind.apps.adherence",
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
+    "aremind.apps.smstouchforms",
 
     # the rapidsms contrib apps.
     # "rapidsms.contrib.export",
@@ -69,10 +70,12 @@ INSTALLED_APPS = [
     # "rapidsms.contrib.registration",
     #"rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
+    "touchforms.formplayer",
+    "smsforms",
 
-    "timezones",
+#    "timezones",
 
-    "couchlog",
+#    "couchlog",
     # this app should be last, as it will always reply with a help message
     "aremind.apps.catch_all",
 ]
@@ -172,7 +175,7 @@ MIDDLEWARE_CLASSES = [
     'pagination.middleware.PaginationMiddleware',
     'django_sorting.middleware.SortingMiddleware',
 #    'aremind.login_required_everything.RequireLoginMiddleware',
-    'auditcare.middleware.AuditMiddleware',
+#    'auditcare.middleware.AuditMiddleware',
 ]
     
 # -------------------------------------------------------------------- #
@@ -239,7 +242,7 @@ PRIMARY_BACKEND = 'tropo'
 # if set, the message tester app will always use this backend
 TEST_MESSAGER_BACKEND = 'tropo'
 
-RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog","djcelery"]
+#RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog","djcelery"]
 
 STATICFILES_FINDERS =(
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -347,3 +350,6 @@ NO_LOGIN_REQUIRED_FOR = ["/tropo",
                          "/tropo/",
                          "/ajax/",
                          "/ajax",]
+
+
+XFORMS_PLAYER_URL = "http://127.0.0.1:4444"

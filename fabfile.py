@@ -37,7 +37,7 @@ RSYNC_EXCLUDE = (
 )
 env.home = '/home/aremind'
 env.project = 'aremind'
-env.code_repo = 'git://github.com/dimagi/aremind.git'
+env.code_repo = 'git://github.com/dimagi/wbnigeria.git'
 
 
 def _setup_path():

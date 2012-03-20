@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "rosetta",
     "selectable",
     # "gunicorn",
+    "aremind.apps.smstouchforms",
     "aremind.apps.groups",
     "aremind.apps.broadcast",
     "aremind.apps.reminders",
@@ -59,7 +60,7 @@ INSTALLED_APPS = [
     "aremind.apps.adherence",
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
-    "aremind.apps.smstouchforms",
+
 
     # the rapidsms contrib apps.
     # "rapidsms.contrib.export",

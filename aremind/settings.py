@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "selectable",
     # "gunicorn",
     "aremind.apps.smstouchforms",
+    "aremind.apps.wbn_registration",
     "aremind.apps.groups",
     "aremind.apps.broadcast",
     "aremind.apps.reminders",
@@ -135,6 +136,7 @@ MEDIA_URL = "/media/"
 ADMIN_MEDIA_PREFIX = "/static/admin/"
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(PROJECT_PATH, '..', 'static_files')
+STATIC_DOC_ROOT = STATIC_ROOT
 
 
 # Specify a logo URL for the dashboard layout.html. This logo will show up

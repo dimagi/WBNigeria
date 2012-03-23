@@ -11,7 +11,6 @@ class TouchFormsApp(AppBase):
         self.info('Started TouchFormsApp')
 
     def handle(self, msg):
-        print 'LOGGER NAME %s' % self._logger_name()
         def _next(xformsresponse, message, session):
             # if there's a valid session id (typically on a new form)
             # update our mapping
@@ -20,6 +19,8 @@ class TouchFormsApp(AppBase):
             session.save()
             if xformsresponse.event.type == "question":
                 # send the next question
+                session.touch_time = datetime.now()
+                session.save()
                 message.respond(xformsresponse.event.text_prompt)
                 return True
             elif xformsresponse.event.type == "form-complete":
@@ -32,7 +33,7 @@ class TouchFormsApp(AppBase):
         #check if this Connection is in a form session:
         session = None
         try:
-            session = XFormsSession.objects.get(connection=msg.connection)
+            session = XFormsSession.objects.get(connection=msg.connection, ended=False)
         except ObjectDoesNotExist:
             pass
         if not session:

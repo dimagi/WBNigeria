@@ -12,3 +12,5 @@ static_files/
 requirements/src/
 projectFilesBackup/
 *.pid
+aremind/static/xforms
+tropotest.py

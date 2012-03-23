@@ -14,3 +14,4 @@ projectFilesBackup/
 *.pid
 aremind/static/xforms
 build/
+tropotest.py

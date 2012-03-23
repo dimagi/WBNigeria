@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 # encoding=utf-8
@@ -88,20 +89,20 @@ INSTALLED_APPS = [
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     ("aremind.apps.broadcast.views.dashboard", "Dashboard"),    
-    ("aremind.apps.broadcast.views.send_message", "Send a Message"),
-    ("aremind.apps.adherence.views.dashboard", "Adherence"),
-    ("aremind.apps.reminders.views.dashboard", "Appointments"),
-    ("aremind.apps.patients.views.list_patients", "Patients"),
-    ("broadcast-forwarding", "Forwarding"),
+#    ("aremind.apps.broadcast.views.send_message", "Send a Message"),
+#    ("aremind.apps.adherence.views.dashboard", "Adherence"),
+#    ("aremind.apps.reminders.views.dashboard", "Appointments"),
+#    ("aremind.apps.patients.views.list_patients", "Patients"),
+#    ("broadcast-forwarding", "Forwarding"),
     ("aremind.apps.groups.views.list_groups", "Groups"),
     ("aremind.apps.groups.views.list_contacts","People"),
 #    ("settings", "Settings"),
-#    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
 
     ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
 #    ("rapidsms.contrib.locations.views.locations",          "Map"),
 #    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
- #   ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
+    ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
 
 #    ("aremind.apps.reminder.views.dashboard", "Reminder"),
 ]
@@ -357,3 +358,104 @@ NO_LOGIN_REQUIRED_FOR = ["/tropo",
 
 XFORMS_PLAYER_URL = "http://127.0.0.1:4444"
 BROKER_URL = "amqp://guest:guest@localhost:5672//"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+
+#        %(name)s            Name of the logger (logging channel)
+#        %(levelno)s         Numeric logging level for the message (DEBUG, INFO,
+#                            WARNING, ERROR, CRITICAL)
+#        %(levelname)s       Text logging level for the message ("DEBUG", "INFO",
+#                            "WARNING", "ERROR", "CRITICAL")
+#        %(pathname)s        Full pathname of the source file where the logging
+#                            call was issued (if available)
+#        %(filename)s        Filename portion of pathname
+#        %(module)s          Module (name portion of filename)
+#        %(lineno)d          Source line number where the logging call was issued
+#                            (if available)
+#        %(funcName)s        Function name
+#        %(created)f         Time when the LogRecord was created (time.time()
+#                            return value)
+#        %(asctime)s         Textual time when the LogRecord was created
+#        %(msecs)d           Millisecond portion of the creation time
+#        %(relativeCreated)d Time in milliseconds when the LogRecord was created,
+#                            relative to the time the logging module was loaded
+#                            (typically at application startup time)
+#        %(thread)d          Thread ID (if available)
+#        %(threadName)s      Thread name (if available)
+#        %(process)d         Process ID (if available)
+#        %(message)s         The result of record.getMessage(), computed just as
+#                            the record is emitted
+        'verbose': {
+            # %(process)d %(thread)d
+            'format': '%(levelname)s %(asctime)s - [%(module)s] - %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s - [%(module)s] - %(message)s'
+        },
+    },
+    'filters': {
+#        'special': {
+#            '()': 'project.logging.SpecialFilter',
+#            'foo': 'bar',
+#        }
+    },
+    'handlers': {
+#        'null': {
+#            'level':'DEBUG',
+#            'class':'django.utils.log.NullHandler',
+#        },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+#            'filters': ['special']
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers':['console'],
+            'propagate': True,
+            'level':'INFO',
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+#        'aremind': {
+#            'handlers': ['console', 'mail_admins'],
+#            'level': 'DEBUG',
+#            'formatter': 'verbose'
+##            'filters': ['special']
+#        },
+        'backend/httptester': {
+                    'handlers': ['console'],
+                    'level': 'INFO',
+                    'formatter': 'verbose'
+        #            'filters': ['special']
+        },
+        'app.wbn_registration' : {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'formatter': 'verbose'
+                #            'filters': ['special']
+        },
+#        'router' : {
+#            'handlers': ['console'],
+#            'level': 'DEBUG',
+#            'formatter': 'verbose'
+#        },
+        'xformsresponse': {
+                    'handlers': ['console'],
+                    'level': 'DEBUG',
+                    'formatter': 'verbose'
+                },
+    }
+}

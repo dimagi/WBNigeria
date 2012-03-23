@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     "django_nose",
     "rosetta",
     "selectable",
-    # "gunicorn",
+    "gunicorn",
     "aremind.apps.smstouchforms",
     "aremind.apps.groups",
     "aremind.apps.broadcast",
@@ -97,7 +97,7 @@ RAPIDSMS_TABS = [
 #    ("settings", "Settings"),
 #    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
 
-#    ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
+    ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
 #    ("rapidsms.contrib.locations.views.locations",          "Map"),
 #    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
  #   ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
@@ -321,10 +321,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "aremind.apps.reminders.tasks.ReminderSchedulerTask",
         "schedule": crontab(), # every minute
     },
-#    "reminders-email-task": {
-#        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
-#        "schedule": crontab(hour=12, minute=0),
-#    },
+    "reminders-email-task": {
+        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
+        "schedule": crontab(hour=12, minute=0),
+    },
     "decisiontree-tick": {
         "task": "decisiontree.tasks.PeriodicTask",
         "schedule": crontab(),  # every minute
@@ -336,7 +336,7 @@ CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 CELERYD_MAX_TASKS_PER_CHILD = 2
 
-INSTALLED_BACKENDS = {}
+#INSTALLED_BACKENDS = {}
 
 #STATICFILES_EXCLUDED_APPS = (
 #    'django.contrib.admin',
@@ -354,3 +354,4 @@ NO_LOGIN_REQUIRED_FOR = ["/tropo",
 
 
 XFORMS_PLAYER_URL = "http://127.0.0.1:4444"
+BROKER_URL = "amqp://guest:guest@localhost:5672//"

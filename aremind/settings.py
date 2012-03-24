@@ -64,6 +64,12 @@ INSTALLED_APPS = [
     "aremind.apps.default_connection",
 
 
+    "eav",
+    "uni_form",
+    "django_digest",
+    "rapidsms_xforms",
+
+
     # the rapidsms contrib apps.
     # "rapidsms.contrib.export",
     "threadless_router.backends.httptester",
@@ -103,11 +109,12 @@ RAPIDSMS_TABS = [
 #    ("rapidsms.contrib.locations.views.locations",          "Map"),
 #    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
     ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
+    ('xforms', 'XForms'),
 
 #    ("aremind.apps.reminder.views.dashboard", "Reminder"),
 ]
 
-
+XFORMS_HOST = 'www.rapidsms-server.com'
 
 # -------------------------------------------------------------------- #
 #                         BORING CONFIGURATION                         #

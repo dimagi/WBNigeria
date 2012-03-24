@@ -47,6 +47,7 @@ urlpatterns = patterns('',
     (r'^selectable/', include('selectable.urls')),
 #    (r'^formplayer/', include('touchforms.urls')),
     (r'^webforms/', include('touchforms.formplayer.urls')),
+    ('', include('rapidsms_xforms.urls')),
     url(r'^tropo/$', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),
 
     (r'^couchlog/', include('couchlog.urls')),

@@ -7,19 +7,20 @@ from aremind.settings import *
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "aremind",
-        "USER": "",
+        "NAME": "wbnigeria3",
+        "USER": "postgres",
         "PASSWORD": "",
-        "HOST": "",
+        "HOST": "localhost",
+        "PORT": "5433"
     }
 }
-
+#
 COUCH_SERVER_ROOT='localhost:5984'
-COUCH_USERNAME='aremind_db_user'
-COUCH_PASSWORD='SECRET'
-COUCH_DATABASE_NAME='aremind'
+COUCH_USERNAME='aremind'
+COUCH_PASSWORD=''
+COUCH_DATABASE_NAME='wbnigeria2'
 
-COUCHDB_APPS=['auditcare',]
+COUCHDB_APPS=['auditcare', 'couchlog', 'formplayer']
 
 ####### Couch Forms & Couch DB Kit Settings #######
 def get_server_url(server_root, username, password):
@@ -44,14 +45,8 @@ TESTING_DATABASES= {
 }
 
 INSTALLED_BACKENDS = {
-    "tropo": {
-        "ENGINE": "rtropo.outgoing",
-        'config': {
-            'encoding' : 'UTF-8'
-            'number': '+1-xxx-yyy-zzzz',
-            'messaging_token': 'longhexstring',
-            'voice_token': 'anotherlonghexstring',
-        }
+        "httptester": {
+        "ENGINE": "threadless_router.backends.httptester.backend",
     },
 }
 
@@ -75,10 +70,30 @@ COUNTRY_CODE = '1'
 # INSTALLED_APPS.append('debug_toolbar')
 # DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 
-
+# kill auditcare
+#INSTALLED_APPS.remove('auditcare')
+#MIDDLEWARE_CLASSES.remove('auditcare.middleware.AuditMiddleware')
 
 BROKER_HOST = "localhost"
 BROKER_PORT = 5672
-BROKER_VHOST = "aremind_staging"
+BROKER_VHOST = "aremind_vhost"
 BROKER_USER = "aremind"
 BROKER_PASSWORD = "" # In local settings
+
+
+DEBUG=TEMPLATE_DEBUG=True
+
+BROADCAST_SENDER_BACKEND='httptester'
+
+
+#The default backend to be used when creating new patient contacts
+#on POST submission of patient data from their server
+DEFAULT_BACKEND_NAME = "httptester"
+# unless overridden, all outgoing messages will be sent using this backend
+PRIMARY_BACKEND = 'httptester'
+# if set, the message tester app will always use this backend
+TEST_MESSAGER_BACKEND = 'httptester'
+
+#STATICFILES_DIRS += ()
+
+XFORMS_HOST = 'localhost:8000'

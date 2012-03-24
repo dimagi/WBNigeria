@@ -27,6 +27,7 @@ sys.path.append(os.path.join(filedir,'..','submodules','dimagi-utils'))
 #sys.path.append(os.path.join(filedir,'..','submodules','couchlog'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'touchforms'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'rapidsms-smsforms'))
+sys.path.append(os.path.join(filedir, '..', 'submodules', 'rapidsms-xforms'))
 
 if __name__ == "__main__":
     # all imports should begin with the full Python package ('aremind.'):

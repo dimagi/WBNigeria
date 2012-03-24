@@ -87,7 +87,7 @@ def production():
     env.code_branch = 'master'
     env.sudo_user = 'aremind'
     env.environment = 'production'
-    env.server_port = '9010'
+    env.server_port = '9001'
     env.server_name = 'aremind-production'
 #    env.hosts = ['10.84.168.98']
     env.hosts = ['173.203.221.48']
@@ -216,7 +216,7 @@ def deploy():
             sudo('git pull', user=env.sudo_user)
             sudo('git submodule init', user=env.sudo_user)
             sudo('git submodule update', user=env.sudo_user)
-#        update_requirements()
+        update_requirements()
         update_services()
         migrate()
         collectstatic()
@@ -254,6 +254,7 @@ def update_services():
         stop()
     upload_supervisor_conf()
     upload_apache_conf()
+    upload_touchforms_conf()
     start()
     netstat_plnt()
 
@@ -271,6 +272,14 @@ def apache_reload():
         sudo('/etc/init.d/httpd reload')
     elif what_os() == 'ubuntu':
         sudo('/etc/init.d/apache2 reload')
+
+
+def touchforms_restart():
+    """ reload Apache on remote host """
+    require('root', provided_by=('staging', 'production'))
+
+    sudo('services touchforms restart')
+
 
 
 def apache_restart():
@@ -426,6 +435,27 @@ def upload_apache_conf():
 
     sudo('ln -s %s/apache/%s.conf %s' % (env.services, env.environment, sites_enabled_dirfile))
     apache_reload()
+
+def upload_touchforms_conf():
+    """Upload and link Supervisor configuration from the template."""
+    require('environment', provided_by=('staging', 'demo', 'production'))
+    _set_apache_user()
+    template = posixpath.join(os.path.dirname(__file__), 'services', 'templates', 'touchforms.conf')
+    destination = '/var/tmp/touchforms.conf.temp'
+    files.upload_template(template, destination, context=env, use_sudo=True)
+    enabled =  posixpath.join(env.services, u'touchforms/%(environment)s.conf' % env)
+    sudo('chown -R %s %s' % (env.sudo_user, destination))
+    sudo('chgrp -R %s %s' % (env.apache_user, destination))
+    sudo('chmod -R g+w %s' % destination)
+    sudo('mv -f %s %s' % (destination, enabled))
+
+    upstart_dirfile = '/etc/init/touchforms.conf'
+    with settings(warn_only=True):
+        if files.exists(upstart_dirfile):
+            sudo('rm %s' % upstart_dirfile)
+
+    sudo('ln -s %s/touchforms/touchforms.conf %s' % (env.services, upstart_dirfile))
+    touchforms_restart()
 
 def _supervisor_command(command):
     require('hosts', provided_by=('staging', 'production'))

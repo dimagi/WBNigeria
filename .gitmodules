@@ -6,4 +6,4 @@
 	url = git://github.com/dimagi/touchforms.git
 [submodule "submodules\\rapidsms-xforms"]
 	path = submodules\\rapidsms-xforms
-	url = git://github.com/nyaruka/rapidsms-xforms.git
+	url = git://github.com/adewinter/rapidsms-xforms.git

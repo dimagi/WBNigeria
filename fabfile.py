@@ -37,7 +37,7 @@ RSYNC_EXCLUDE = (
 )
 env.home = '/home/aremind'
 env.project = 'aremind'
-env.code_repo = 'git://github.com/dimagi/wbnigeria.git'
+env.code_repo = '/opt/wbnigeria.git'
 
 
 def _setup_path():
@@ -67,6 +67,7 @@ def setup_dirs():
     # sudo('mkdir -p %(project_static)s' % env, user=env.sudo_user)
     sudo('mkdir -p %(services)s/apache' % env, user=env.sudo_user)
     sudo('mkdir -p %(services)s/supervisor' % env, user=env.sudo_user)
+    sudo('mkdir -p %(services)s/touchforms' % env, user=env.sudo_user)
 
 
 def staging():
@@ -90,7 +91,8 @@ def production():
     env.server_port = '9001'
     env.server_name = 'aremind-production'
 #    env.hosts = ['10.84.168.98']
-    env.hosts = ['173.203.221.48']
+#    env.hosts = ['173.203.221.48']
+    env.hosts = ['wbnigeria']
     env.settings = '%(project)s.localsettings' % env
     env.remote_os = None # e.g. 'ubuntu' or 'redhat'.  Gets autopopulated by what_os() if you don't know what it is or don't want to specify.
     env.db = '%s_%s' % (env.project, env.environment)
@@ -123,7 +125,7 @@ def upgrade_packages():
     require('environment', provided_by=('staging', 'production'))
     if what_os() == 'ubuntu':
         sudo("apt-get update -y")
-        sudo("apt-get upgrade -y")
+#        sudo("apt-get upgrade -y")
     else:
         return #disabled for RedHat (see docstring)
 
@@ -189,7 +191,7 @@ def create_virtualenv():
     require('virtualenv_root', provided_by=('staging', 'production'))
     with settings(warn_only=True):
         sudo('rm -rf %(virtualenv_root)s' % env, shell=False)
-    args = '--clear --distribute --no-site-packages'
+    args = '--clear --distribute'
     sudo('virtualenv %s %s' % (args, env.virtualenv_root), shell=False, user=env.sudo_user)
 
 
@@ -277,8 +279,9 @@ def apache_reload():
 def touchforms_restart():
     """ reload Apache on remote host """
     require('root', provided_by=('staging', 'production'))
-
-    sudo('services touchforms restart')
+    with settings(warn_only=True):
+        sudo('service touchforms stop')
+    sudo('service touchforms start')
 
 
 
@@ -443,18 +446,12 @@ def upload_touchforms_conf():
     template = posixpath.join(os.path.dirname(__file__), 'services', 'templates', 'touchforms.conf')
     destination = '/var/tmp/touchforms.conf.temp'
     files.upload_template(template, destination, context=env, use_sudo=True)
-    enabled =  posixpath.join(env.services, u'touchforms/%(environment)s.conf' % env)
+    enabled =  posixpath.join('/etc/init', u'touchforms.conf' % env)
     sudo('chown -R %s %s' % (env.sudo_user, destination))
     sudo('chgrp -R %s %s' % (env.apache_user, destination))
     sudo('chmod -R g+w %s' % destination)
     sudo('mv -f %s %s' % (destination, enabled))
 
-    upstart_dirfile = '/etc/init/touchforms.conf'
-    with settings(warn_only=True):
-        if files.exists(upstart_dirfile):
-            sudo('rm %s' % upstart_dirfile)
-
-    sudo('ln -s %s/touchforms/touchforms.conf %s' % (env.services, upstart_dirfile))
     touchforms_restart()
 
 def _supervisor_command(command):

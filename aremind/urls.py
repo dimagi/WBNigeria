@@ -14,7 +14,7 @@ urlpatterns = patterns('',
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     (r'^admin/', include(admin.site.urls)),
-    (r'^', include('decisiontree.urls')),
+#    (r'^', include('decisiontree.urls')),
     (r'^', include('auditcare.urls')),
 
     # RapidSMS core URLs
@@ -37,7 +37,7 @@ urlpatterns = patterns('',
     (r'^registration/', include('rapidsms.contrib.registration.urls')),
 #    (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^broadcast/', include('aremind.apps.broadcast.urls')),
-    (r'^adherence/', include('aremind.apps.adherence.urls')),
+#    (r'^adherence/', include('aremind.apps.adherence.urls')),
     (r'^appointments/', include('aremind.apps.reminders.urls')),
     (r'^patients/', include('aremind.apps.patients.urls')),
     (r'^wisepill/', include('aremind.apps.wisepill.urls')),

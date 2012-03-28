@@ -20,10 +20,10 @@ INSTALLED_APPS = [
     "aremind.apps.wisepill",
 
     # the essentials.
-    "djtables",
+#    "djtables",
     "rapidsms",
 
-    "djcelery",
+#    "djcelery",
     "threadless_router.celery",
     "decisiontree",
 
@@ -309,37 +309,6 @@ AUDIT_VIEWS = [
     'aremind.apps.test_messager.views.message_form'
 ]
 
-import djcelery
-djcelery.setup_loader()
-
-from celery.schedules import crontab
-
-CELERYBEAT_SCHEDULE = {
-    "adherence-reminder-scheduler": {
-        "task": "aremind.apps.adherence.tasks.ReminderSchedulerTask",
-        "schedule": crontab(),
-    },
-    "adherence-update-feeds": {
-        "task": "aremind.apps.adherence.tasks.FeedUpdatesTask",
-        "schedule": crontab(minute=15), # Quarter after every hour
-    },
-    "broadcast-task": {
-        "task": "aremind.apps.broadcast.tasks.BroadcastCronTask",
-        "schedule": crontab(), # every minute
-    },
-    "reminders-scheduler-task": {
-        "task": "aremind.apps.reminders.tasks.ReminderSchedulerTask",
-        "schedule": crontab(), # every minute
-    },
-    "reminders-email-task": {
-        "task": "aremind.apps.reminders.tasks.ReminderEmailTask",
-        "schedule": crontab(hour=12, minute=0),
-    },
-    "decisiontree-tick": {
-        "task": "decisiontree.tasks.PeriodicTask",
-        "schedule": crontab(),  # every minute
-    },
-}
 
 # Store the schedule in the Django database
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'

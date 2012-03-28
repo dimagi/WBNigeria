@@ -28,6 +28,7 @@ sys.path.append(os.path.join(filedir,'..','submodules','dimagi-utils'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'touchforms'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'rapidsms-smsforms'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'rapidsms-xforms'))
+#sys.path.append(os.path.join('/', 'home/aremind/www/production/python_env/lib/python2.6/site-packages'))
 
 if __name__ == "__main__":
     # all imports should begin with the full Python package ('aremind.'):

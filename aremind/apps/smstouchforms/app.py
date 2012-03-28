@@ -37,12 +37,13 @@ class TouchFormsApp(AppBase):
         except ObjectDoesNotExist:
             pass
         if not session:
-            if not msg.text.lower().startswith('startform'):
+            words = msg.text.lower().split()
+            if not len(words) == 1 and not words[0] == 'fadama':
                 return
 
             #create a session
             session = XFormsSession(start_time=datetime.now(), touch_time=datetime.now(), connection=msg.connection, ended=False)
-            form_id = int(msg.text.split()[1])
+            form_id = 1
             form = XForm.objects.get(pk=form_id)
             response = api.start_form_session(form.file.path)
             session.session_id = response.session_id

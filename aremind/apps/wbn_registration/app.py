@@ -18,12 +18,14 @@ class WBN_RegistrationApp(AppBase):
     def _logger_name(self):
         return "app.%s" % self.name
 
-    STRING_REG_CONFIRMED = _('Great! Thanks for registering! How was your service rendered to you?')
+    STRING_REG_CONFIRMED = _('Great! Thanks for registereing.  How was the service rendered to you? Send 1 for GOOD and 2 for NEEDS IMPROVEMENT, 3 for Not satisfied.')
     STRING_REG_REQUEST_YESNO = _('Sorry, please send 1 for Yes or 2 for No')
     STRING_REG_RESPONSE_BAD_LOC = _("Ok.  Please try registering again with the correct location code")
     STRING_REG_ALREADY_REGISTERED = _('You are already registered for this location: %s. To unregister send \'unregister\' LOCATION_CODE')
-    STRING_REG_REQUEST_CONFIRM = _('Thanks for registering! Is your location %s? Send 1 for YES and 2 for NO')
-    STRING_SURVEY_ANS = _('Thanks for your response! Would you like to participate in other tests? Send 1 for YES and 2 for NO')
+    STRING_REG_REQUEST_CONFIRM = _('Thanks for registering! Is your location near %s? Send 1 for YES and 2 for NO')
+    STRING_SURVEY_ANS = _('%s Thanks for your response! Would you like to participate in other tests? Send 1 for YES and 2 for NO')
+    GOOD_RESPONSE = 'Glad to hear it!'
+    BAD_RESPONSE = 'Sorry to hear it.'
     DOES_WANT_MORE_SURVEY = _('OK. Thanks for trying our system!')
     DOES_NOT_WANT_MORE_SURVEY = _('OK. Thanks for trying our system!')
     STANDARD_ERROR = _('The system did not understand. Please try again.')
@@ -131,7 +133,7 @@ class WBN_RegistrationApp(AppBase):
                     self.debug('User sent a "1", to respond to the survey question post survey')
                     wbu.survey_question_ans = msg.text
                     wbu.save()
-                    msg.respond(self.STRING_SURVEY_ANS)
+                    msg.respond(self.STRING_SURVEY_ANS % self.GOOD_RESPONSE)
                     return True
                 else: #user is reg'd, has answered the initial post survey question and is responding to the queury about them wanting to participate more
                     self.debug("user is reg'd, has answered the initial post survey question and is responding to the queury about them wanting to participate more (ans:'1')")
@@ -149,7 +151,7 @@ class WBN_RegistrationApp(AppBase):
                     self.debug('User sent a "2", to respond to the survey question post survey')
                     wbu.survey_question_ans = msg.text
                     wbu.save()
-                    msg.respond(self.STRING_SURVEY_ANS)
+                    msg.respond(self.STRING_SURVEY_ANS % self.BAD_RESPONSE)
                     return True
                 else:
                     self.debug("user is reg'd, has answered the initial post survey question and is responding to the queury about them wanting to participate more (ans:'2')")
@@ -162,7 +164,7 @@ class WBN_RegistrationApp(AppBase):
                     self.debug('User sent a "3", to respond to the survey question post survey')
                     wbu.survey_question_ans = msg.text
                     wbu.save()
-                    msg.respond(self.STRING_SURVEY_ANS)
+                    msg.respond(self.STRING_SURVEY_ANS % self.BAD_RESPONSE)
                     return True
                 else:
                     msg.respond(self.STANDARD_ERROR)

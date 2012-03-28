@@ -321,7 +321,7 @@ CELERYD_MAX_TASKS_PER_CHILD = 2
 #    'django.contrib.admin',
 #)
 
-DEFAULT_MESSAGE = "Unfortunately, we did not understand your message. Please call Elizabeth at 617 414 7022 if you need help."
+DEFAULT_MESSAGE = "Message not understood. Please try again"
 
 AUDIT_DJANGO_USER = True
 AUDIT_MODEL_SAVE = []

@@ -423,11 +423,11 @@ LOGGING = {
             'formatter': 'verbose'
                 #            'filters': ['special']
         },
-#        'router' : {
-#            'handlers': ['console'],
-#            'level': 'DEBUG',
-#            'formatter': 'verbose'
-#        },
+        'router' : {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'formatter': 'verbose'
+        },
         'xformsresponse': {
                     'handlers': ['console'],
                     'level': 'DEBUG',

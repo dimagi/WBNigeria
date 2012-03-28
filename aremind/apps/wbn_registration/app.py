@@ -120,8 +120,7 @@ class WBN_RegistrationApp(AppBase):
             #Verify that they are confirming or rejecting this location as 'theirs'
             if msg.text.lower() != "1" and msg.text.lower() != "2" and msg.text.lower() != "3":
                 self.debug('User did not send "1" or "2" or "3", we ask them to do so. They sent: "%s" isinstance(msg.text,int)? %s' % (msg.text, isinstance(msg.text, int)))
-                msg.respond(self.STANDARD_ERROR)
-                return True
+                return
             if msg.text.lower() == "1":
                 if not wbu.is_registered:
                     self.debug('User sent a "1", confirm their registration')

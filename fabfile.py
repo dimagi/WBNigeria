@@ -218,10 +218,13 @@ def deploy():
             sudo('git pull', user=env.sudo_user)
             sudo('git submodule init', user=env.sudo_user)
             sudo('git submodule update', user=env.sudo_user)
-        update_requirements()
-        update_services()
+#        update_requirements()
+#        update_services()
         migrate()
         collectstatic()
+        stop()
+        upload_supervisor_conf()
+        upload_apache_conf()
         touch()
     finally:
         # hopefully bring the server back to life if anything goes wrong

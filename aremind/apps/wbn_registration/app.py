@@ -44,6 +44,44 @@ class WBN_RegistrationApp(AppBase):
     def start(self):
         self.info('Starting WBN_Regsitration App')
 
+    def handle_list_register(self,msg):
+        if msg.text.lower().strip() != 'list register':
+            return
+        locs = []
+        wbu = WBUser.objects.filter(connection=msg.connection, is_registered=True)
+        for w in wbu:
+            locs.append((w.location_code, self.locations[w.location_code],))
+        if len(locs) == 0:
+            msg.respond('You are not registered at any locations!')
+        else:
+            out = 'You are registered at the following locations:'
+            for loc in locs:
+                out += '%s(%s),' % (loc[1], loc[0])
+            msg.respond(out)
+            return True
+
+
+    def handle_unregister(self, msg):
+        words = msg.text.lower().split()
+        if len(words) <= 0:
+            return None
+        if words[0] != 'unregister':
+            return None
+
+        if len(words) == 1:
+            msg.respond('Must include location code to unregister! To list everywhere you are registered send: list register')
+
+        loc_code = words[1]
+        try:
+            wbu = WBUser.objects.get(connection=msg.connection, location_code=loc_code, is_registered=True)
+        except ObjectDoesNotExist:
+            msg.respond('You are either not registered for this location or you sent a bad code')
+            return True
+
+        wbu.delete()
+        msg.respond('You have succesfully unregistered at %s.' % self.locations[loc_code])
+        return True
+
     def handle(self, msg):
         """
         This app is for basic user registration using a location code.
@@ -52,8 +90,15 @@ class WBN_RegistrationApp(AppBase):
         and we finalize the registration, or delete and start fresh, respectively.
         """
         self.debug('In WBN Registration app')
-        if msg.text.lower() == "loc":
-            msg.respond("Locations:%s" % str(self.locations))
+
+        ret = self.handle_unregister(msg)
+        if ret:
+            return ret
+
+        ret = self.handle_list_register(msg)
+        if ret:
+            return ret
+
 
         #We will find a WBUser if they have sent in a location code but haven't done the final confirmation
         wbu = WBUser.objects.filter(connection=msg.connection, is_registered=False)

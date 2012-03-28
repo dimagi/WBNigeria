@@ -69,7 +69,7 @@ class WBN_RegistrationApp(AppBase):
         words = msg.text.lower().split()
         if len(words) <= 0:
             return None
-        if words[0] != 'unregister':
+        if words[0] != 'unregister' and words[0] != 'u':
             return None
 
         if len(words) == 1:

@@ -121,44 +121,45 @@ class RemindersApp(AppBase):
         Updates the SentNotification status to 'confirmed' for the given user
         and replies with a thank you message.
         """
-        msg_parts = msg.text.split()
-        if not msg_parts:
-            return False
-        response = msg_parts[0]
-        if response != self.conf_keyword and not self.pin_regex.match(response):
-            return False
-        contact = msg.connection.contact
-        if not contact:
-            msg.respond(self.not_registered)
-            return True
-        if contact.pin and response == self.conf_keyword:
-            msg.respond(self.pin_required)
-            return True
-        if contact.pin and response != contact.pin:
-            msg.respond(self.incorrect_pin)
-            return True
-        notifs = reminders.SentNotification.objects.filter(recipient=contact,
-                                                           status='sent')
-        if not notifs.exists():
-            msg.respond(self.no_reminders)
-            return True
-        now = datetime.datetime.now()        
-        sent_notification = notifs.order_by('-date_sent')[0]
-        sent_notification.status = 'confirmed'
-        sent_notification.date_confirmed = now
-        sent_notification.save()
-        msg_text = u'Appointment on %s confirmed.' % sent_notification.appt_date
-        full_msg = u'From {number}: {body}'.format(
-            number=msg.connection.identity, body=msg_text
-        )
-        broadcast = Broadcast.objects.create(
-            date_created=now, date=now,
-            schedule_frequency='one-time', body=full_msg
-        )
-        group_name = settings.DEFAULT_CONFIRMATIONS_GROUP_NAME
-        group, _ = groups.Group.objects.get_or_create(name=group_name)
-        broadcast.groups.add(group)
-        msg.respond(self.thank_you)
+        return
+#        msg_parts = msg.text.split()
+#        if not msg_parts:
+#            return False
+#        response = msg_parts[0]
+#        if response != self.conf_keyword and not self.pin_regex.match(response):
+#            return False
+#        contact = msg.connection.contact
+#        if not contact:
+#            msg.respond(self.not_registered)
+#            return True
+#        if contact.pin and response == self.conf_keyword:
+#            msg.respond(self.pin_required)
+#            return True
+#        if contact.pin and response != contact.pin:
+#            msg.respond(self.incorrect_pin)
+#            return True
+#        notifs = reminders.SentNotification.objects.filter(recipient=contact,
+#                                                           status='sent')
+#        if not notifs.exists():
+#            msg.respond(self.no_reminders)
+#            return True
+#        now = datetime.datetime.now()
+#        sent_notification = notifs.order_by('-date_sent')[0]
+#        sent_notification.status = 'confirmed'
+#        sent_notification.date_confirmed = now
+#        sent_notification.save()
+#        msg_text = u'Appointment on %s confirmed.' % sent_notification.appt_date
+#        full_msg = u'From {number}: {body}'.format(
+#            number=msg.connection.identity, body=msg_text
+#        )
+#        broadcast = Broadcast.objects.create(
+#            date_created=now, date=now,
+#            schedule_frequency='one-time', body=full_msg
+#        )
+#        group_name = settings.DEFAULT_CONFIRMATIONS_GROUP_NAME
+#        group, _ = groups.Group.objects.get_or_create(name=group_name)
+#        broadcast.groups.add(group)
+#        msg.respond(self.thank_you)
 
     def queue_outgoing_notifications(self):
         """ generate queued appointment reminders """

@@ -18,11 +18,15 @@ class WBN_RegistrationApp(AppBase):
     def _logger_name(self):
         return "app.%s" % self.name
 
-    STRING_REG_CONFIRMED = _('Great! Thanks for registering! We will be in touch shortly')
+    STRING_REG_CONFIRMED = _('Great! Thanks for registering! . Survey Question HERE?')
     STRING_REG_REQUEST_YESNO = _('Sorry, please send 1 for Yes or 2 for No')
     STRING_REG_RESPONSE_BAD_LOC = _("Ok.  Please try registering again with the correct location code")
-    STRING_REG_ALREADY_REGISTERED = _('You are already registered for this location! %s')
+    STRING_REG_ALREADY_REGISTERED = _('You are already registered for this location: %s. To unregister send \'unregister\' LOCATION_CODE')
     STRING_REG_REQUEST_CONFIRM = _('Thanks for registering! Is your location %s? Send 1 for YES and 2 for NO')
+    STRING_SURVEY_ANS = _('Thanks for your response! Would you like to participate in other tests? Send 1 for YES and 2 for NO')
+    DOES_WANT_MORE_SURVEY = _('OK. Thanks for trying our system!')
+    DOES_NOT_WANT_MORE_SURVEY = _('OK. Thanks for trying our system!')
+    STANDARD_ERROR = _('The system did not understand. Please try again.')
 
     locations = None
     def __init__(self, router):
@@ -82,6 +86,7 @@ class WBN_RegistrationApp(AppBase):
         msg.respond('You have succesfully unregistered at %s.' % self.locations[loc_code])
         return True
 
+
     def handle(self, msg):
         """
         This app is for basic user registration using a location code.
@@ -101,7 +106,7 @@ class WBN_RegistrationApp(AppBase):
 
 
         #We will find a WBUser if they have sent in a location code but haven't done the final confirmation
-        wbu = WBUser.objects.filter(connection=msg.connection, is_registered=False)
+        wbu = WBUser.objects.filter(connection=msg.connection)
         if wbu.count() > 0:
             wbu = wbu[0] #just grab the first unconfirmed one. TODO: we should probably clear out hanging unconfirmed regs periodically
             self.debug('Found a WBUser. State, is_registered=False: %s' % wbu)
@@ -111,21 +116,59 @@ class WBN_RegistrationApp(AppBase):
 
         if wbu:
             #Verify that they are confirming or rejecting this location as 'theirs'
-            if msg.text.lower() != "1" and msg.text.lower() != "2":
-                self.debug('User did not send "1" or "2", we ask them to do so. They sent: "%s" isinstance(msg.text,int)? %s' % (msg.text, isinstance(msg.text, int)))
-                msg.respond(self.STRING_REG_REQUEST_YESNO)
+            if msg.text.lower() != "1" and msg.text.lower() != "2" and msg.text.lower() != "3":
+                self.debug('User did not send "1" or "2" or "3", we ask them to do so. They sent: "%s" isinstance(msg.text,int)? %s' % (msg.text, isinstance(msg.text, int)))
+                msg.respond(self.STANDARD_ERROR)
                 return True
             if msg.text.lower() == "1":
-                self.debug('User sent a "1", confirm their registration')
-                wbu.is_registered = True
-                wbu.save()
-                msg.respond(self.STRING_REG_CONFIRMED)
-                return True
-            else:
-                self.debug('User sent a "2", so delete their WBUser object and have them start from the top')
-                wbu.delete()
-                msg.respond(self.STRING_REG_RESPONSE_BAD_LOC)
-                return True
+                if not wbu.is_registered:
+                    self.debug('User sent a "1", confirm their registration')
+                    wbu.is_registered = True
+                    wbu.save()
+                    msg.respond(self.STRING_REG_CONFIRMED)
+                    return True
+                elif wbu.is_registered and not wbu.survey_question_ans:  #registered and now answering post-survey question
+                    self.debug('User sent a "1", to respond to the survey question post survey')
+                    wbu.survey_question_ans = msg.text
+                    wbu.save()
+                    msg.respond(self.STRING_SURVEY_ANS)
+                    return True
+                else: #user is reg'd, has answered the initial post survey question and is responding to the queury about them wanting to participate more
+                    self.debug("user is reg'd, has answered the initial post survey question and is responding to the queury about them wanting to participate more (ans:'1')")
+                    wbu.want_more_surveys = True
+                    wbu.save()
+                    msg.respond(self.DOES_WANT_MORE_SURVEY)
+                    return True
+            elif msg.text.lower() == "2":
+                if not wbu.is_registered:
+                    self.debug('User sent a "2", so delete their WBUser object and have them start from the top')
+                    wbu.delete()
+                    msg.respond(self.STRING_REG_RESPONSE_BAD_LOC)
+                    return True
+                elif wbu.is_registered and not wbu.survey_question_ans:  #registered and now answering post-survey question
+                    self.debug('User sent a "2", to respond to the survey question post survey')
+                    wbu.survey_question_ans = msg.text
+                    wbu.save()
+                    msg.respond(self.STRING_SURVEY_ANS)
+                    return True
+                else:
+                    self.debug("user is reg'd, has answered the initial post survey question and is responding to the queury about them wanting to participate more (ans:'2')")
+                    wbu.want_more_surveys = False
+                    wbu.save()
+                    msg.respond(self.DOES_NOT_WANT_MORE_SURVEY)
+                    return True
+            elif msg.text.lower() == "3":
+                if wbu.is_registered and not wbu.survey_question_ans:
+                    self.debug('User sent a "3", to respond to the survey question post survey')
+                    wbu.survey_question_ans = msg.text
+                    wbu.save()
+                    msg.respond(self.STRING_SURVEY_ANS)
+                    return True
+                else:
+                    msg.respond(self.STANDARD_ERROR)
+                    return True
+
+
 
         #Initial registration process (user sends in a location code)
         if msg.text.lower() in self.locations:

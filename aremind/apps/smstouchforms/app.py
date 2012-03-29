@@ -38,26 +38,19 @@ class TouchFormsApp(AppBase):
             pass
         if not session:
             words = msg.text.lower().split()
-            if len(words) == 1 and words[0] == 'fadama':
+            if len(words) == 1 and (words[0] == 'fadama' or words[0] == 'health'):
                 #create a session
                 session = XFormsSession(start_time=datetime.now(), touch_time=datetime.now(), connection=msg.connection, ended=False)
-                form_id = 4
+                if words[0] == 'fadama':
+                    form_id = 4
+                else:
+                    form_id = 3
                 form = XForm.objects.get(pk=form_id)
                 response = api.start_form_session(form.file.path)
                 session.session_id = response.session_id
                 session.started = True
                 session.save()
                 return _next(response, msg, session)
-            elif len(words) == 1 and words[0] == 'health':
-                            #create a session
-                            session = XFormsSession(start_time=datetime.now(), touch_time=datetime.now(), connection=msg.connection, ended=False)
-                            form_id = 3
-                            form = XForm.objects.get(pk=form_id)
-                            response = api.start_form_session(form.file.path)
-                            session.session_id = response.session_id
-                            session.started = True
-                            session.save()
-                            return _next(response, msg, session)
             else:
                 return None
         else:

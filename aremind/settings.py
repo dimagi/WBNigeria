@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     "rosetta",
     "selectable",
     "gunicorn",
-    "aremind.apps.smstouchforms",
+    "aremind.apps.rapidsms-smsforms",
     "aremind.apps.wbn_registration",
     "aremind.apps.groups",
     "aremind.apps.broadcast",

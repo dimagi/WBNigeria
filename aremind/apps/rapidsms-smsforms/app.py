@@ -59,7 +59,7 @@ class TouchFormsApp(AppBase):
         def _next(xformsresponse, message, session):
             # if there's a valid session id (typically on a new form)
             # update our mapping
-            session.modified_time = datetime.now()  
+            session.modified_time = datetime.now()
             session.save()
             if xformsresponse.event.type == "question":
                 # send the next question

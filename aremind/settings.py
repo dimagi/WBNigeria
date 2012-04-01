@@ -323,6 +323,11 @@ CELERYD_MAX_TASKS_PER_CHILD = 2
 
 DEFAULT_MESSAGE = "Message not understood. Please try again"
 
+DECISION_TREE_TRIGGER_KEYWORDS = {
+    'fadama': '4',
+    'health': '3',
+}
+
 AUDIT_DJANGO_USER = True
 AUDIT_MODEL_SAVE = []
 

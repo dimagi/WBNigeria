@@ -111,6 +111,7 @@ RAPIDSMS_TABS = [
     ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
     ('xforms', 'Reporter Scenario'),
     ('touchforms.formplayer.views.xform_list', 'Decision Tree XForms'),
+    ('smsforms.views.view_triggers', 'Decision Tree Triggers'),
 
 #    ("aremind.apps.reminder.views.dashboard", "Reminder"),
 ]

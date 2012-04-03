@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     "aremind.apps.wisepill",
 
     # the essentials.
-#    "djtables",
+    "djtables",
     "rapidsms",
 
 #    "djcelery",
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     "rosetta",
     "selectable",
     "gunicorn",
-    "aremind.apps.smstouchforms",
+    "smsforms",
     "aremind.apps.wbn_registration",
     "aremind.apps.groups",
     "aremind.apps.broadcast",
@@ -100,16 +100,18 @@ RAPIDSMS_TABS = [
 #    ("aremind.apps.reminders.views.dashboard", "Appointments"),
 #    ("aremind.apps.patients.views.list_patients", "Patients"),
 #    ("broadcast-forwarding", "Forwarding"),
-    ("aremind.apps.groups.views.list_groups", "Groups"),
-    ("aremind.apps.groups.views.list_contacts","People"),
+#    ("aremind.apps.groups.views.list_groups", "Groups"),
+#    ("aremind.apps.groups.views.list_contacts","People"),
 #    ("settings", "Settings"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
 
-    ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
+#    ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
 #    ("rapidsms.contrib.locations.views.locations",          "Map"),
 #    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
     ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
-    ('xforms', 'XForms'),
+    ('xforms', 'Reporter Scenario'),
+    ('touchforms.formplayer.views.xform_list', 'Decision Tree XForms'),
+    ('smsforms.views.view_triggers', 'Decision Tree Triggers'),
 
 #    ("aremind.apps.reminder.views.dashboard", "Reminder"),
 ]
@@ -199,8 +201,11 @@ AJAX_PROXY_PORT = 9988
 
 MEDIA_ROOT = os.path.join(PROJECT_PATH, 'static')
 
+PYTHON_ENV_PATH = os.path.join(PROJECT_PATH,'..','..','python_env')
+
 TEMPLATE_DIRS = [
     os.path.join(PROJECT_PATH, 'templates'),
+    os.path.join(PYTHON_ENV_PATH, 'src', 'djtables', 'lib', 'djtables')
 ]
 
 # these apps should not be started by rapidsms in your tests, however,
@@ -260,12 +265,13 @@ STATICFILES_FINDERS =(
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
-PYTHON_ENV_PATH = os.path.join(PROJECT_PATH,'..','..','python_env')
 DJ_SELECTABLE_STATIC_PATH = os.path.join(PYTHON_ENV_PATH,'src','django-selectable','selectable','static')
 
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'),
-                    os.path.join(DJ_SELECTABLE_STATIC_PATH))
+                    os.path.join(DJ_SELECTABLE_STATIC_PATH),
+                    os.path.join(PROJECT_PATH, 'submodules', 'formdesigner'),
+    )
 
 
 
@@ -322,6 +328,11 @@ CELERYD_MAX_TASKS_PER_CHILD = 2
 #)
 
 DEFAULT_MESSAGE = "Message not understood. Please try again"
+
+DECISION_TREE_TRIGGER_KEYWORDS = {
+    'fadama': '4',
+    'health': '3',
+}
 
 AUDIT_DJANGO_USER = True
 AUDIT_MODEL_SAVE = []

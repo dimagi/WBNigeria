@@ -270,7 +270,7 @@ DJ_SELECTABLE_STATIC_PATH = os.path.join(PYTHON_ENV_PATH,'src','django-selectabl
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'),
                     os.path.join(DJ_SELECTABLE_STATIC_PATH),
-                    os.path.join(PROJECT_PATH, 'submodules', 'formdesigner'),
+                    os.path.join(PROJECT_PATH, '..', 'submodules', 'formdesigner'),
     )
 
 

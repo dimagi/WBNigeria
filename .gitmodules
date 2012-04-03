@@ -7,3 +7,6 @@
 [submodule "submodules/rapidsms-xforms"]
 	path = submodules/rapidsms-xforms
 	url = /opt/rapidsms-xforms.git
+[submodule "submodules/formdesigner"]
+	path = submodules/formdesigner
+	url = c:/Users/adewinter/workspace-dimagi/formdesigner

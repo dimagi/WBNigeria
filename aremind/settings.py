@@ -105,7 +105,7 @@ RAPIDSMS_TABS = [
 #    ("settings", "Settings"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
 
-    ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
+#    ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
 #    ("rapidsms.contrib.locations.views.locations",          "Map"),
 #    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
     ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
@@ -269,7 +269,9 @@ DJ_SELECTABLE_STATIC_PATH = os.path.join(PYTHON_ENV_PATH,'src','django-selectabl
 
 STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
                     os.path.join(PROJECT_PATH, 'templates'),
-                    os.path.join(DJ_SELECTABLE_STATIC_PATH))
+                    os.path.join(DJ_SELECTABLE_STATIC_PATH),
+                    os.path.join(PROJECT_PATH, 'submodules', 'formdesigner'),
+    )
 
 
 

@@ -31,3 +31,5 @@ django-timezones==0.2
 django-uni-form==0.8.0
 python-digest
 django-digest
+
+-e git+ssh://github.com/caktus/rapidsms-decisiontree.git@develop#egg=decisiontree

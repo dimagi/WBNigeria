@@ -67,17 +67,21 @@ urlpatterns += patterns('django.contrib.auth.views',
     url(r'^account/password/reset/done/$', 'password_reset_done', name='auth_password_reset_done'),
 )
 
-
+FORMDESIGNER_PATH = getattr(settings, 'FORMDESIGNER_ROOT', 'C:\\Users\\adewinter\\workspace-dimagi\\wbnigeria\\submodules\\formdesigner')
 if settings.DEBUG:
     urlpatterns += patterns('',
         # helper URLs file that automatically serves the 'static' folder in
         # INSTALLED_APPS via the Django static media server (NOT for use in
         # production)
         (r'^', include('rapidsms.urls.static_media')),
+        (r'^formdesigner/(?P<path>.*)',
+         'django.views.static.serve',
+         {'document_root': FORMDESIGNER_PATH, 'show_indexes': True}
+        ),
         (r'^%s(?P<path>.*)' % settings.MEDIA_URL.lstrip('/'),
          'django.views.static.serve',
          {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}
-        )
+        ),
     )
 
     # For testing

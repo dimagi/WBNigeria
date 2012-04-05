@@ -5,6 +5,7 @@
 import os
 
 PROJECT_PATH = os.path.abspath('%s' % os.path.dirname(__file__))
+FORMDESIGNER_ROOT = os.path.join(PROJECT_PATH, '..', 'submodules', 'formdesigner')
 
 # -------------------------------------------------------------------- #
 #                          MAIN CONFIGURATION                          #
@@ -110,7 +111,7 @@ RAPIDSMS_TABS = [
 #    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
     ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
     ('xforms', 'Reporter Scenario'),
-    ('touchforms.formplayer.views.xform_list', 'Decision Tree XForms'),
+    ('smsforms.views.list_forms', 'Decision Tree XForms'),
     ('smsforms.views.view_triggers', 'Decision Tree Triggers'),
 
 #    ("aremind.apps.reminder.views.dashboard", "Reminder"),
@@ -447,3 +448,4 @@ LOGGING = {
                 },
     }
 }
+

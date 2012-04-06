@@ -10,3 +10,6 @@
 [submodule "submodules/formdesigner"]
 	path = submodules/formdesigner
 	url = ssh://wbnigeria@wbnigeria/opt/vellum.git
+[submodule "submodules/rapidsms-smscouchforms"]
+	path = submodules/rapidsms-smscouchforms
+	url = git://github.com/dimagi/rapidsms-smscouchforms.git

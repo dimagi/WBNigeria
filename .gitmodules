@@ -1,24 +1,24 @@
 [submodule "submodules/rapidsms-smsforms"]
 	path = submodules/rapidsms-smsforms
-	url = /opt/rapidsms-smsforms.git
+	url = git://github.com/dimagi/rapidsms-smsforms.git
 [submodule "submodules/touchforms"]
 	path = submodules/touchforms
-	url = /opt/touchforms.git
+	url = git://github.com/dimagi/touchforms.git
 [submodule "submodules/rapidsms-xforms"]
 	path = submodules/rapidsms-xforms
-	url = /opt/rapidsms-xforms.git
+	url = git://github.com/dimagi/rapidsms-xforms.git
 [submodule "submodules/formdesigner"]
 	path = submodules/formdesigner
-	url = ssh://wbnigeria@wbnigeria/opt/vellum.git
+	url = git://github.com/dimagi/vellum.git
 [submodule "submodules/rapidsms-smscouchforms"]
 	path = submodules/rapidsms-smscouchforms
 	url = git://github.com/dimagi/rapidsms-smscouchforms.git
 [submodule "submodules/couchexport"]
 	path = submodules/couchexport
-	url = git://github.com/wbnigeria/couchexport.git
+	url = git://github.com/dimagi/couchexport.git
 [submodule "submodules/django-soil"]
 	path = submodules/django-soil
-	url = git://github.com/wbnigeria/django-soil.git
+	url = git://github.com/dimagi/django-soil.git
 [submodule "submodules/couchforms"]
 	path = submodules/couchforms
-	url = git://github.com/wbnigeria/couchforms.git
+	url = git://github.com/dimagi/couchforms.git

@@ -48,6 +48,8 @@ urlpatterns = patterns('',
     (r'^webforms/', include('touchforms.formplayer.urls')),
     (r'^smsforms/', include('smsforms.urls')),
     ('', include('rapidsms_xforms.urls')),
+    (r'^smscouchforms/', include('smscouchforms.urls')),
+    (r'^couchexport/', include("couchexport.urls")),
 
     url(r'^tropo/$', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),
 

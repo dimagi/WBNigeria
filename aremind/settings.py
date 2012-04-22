@@ -81,6 +81,9 @@ INSTALLED_APPS = [
     #"rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
     "touchforms.formplayer",
+    "smscouchforms",
+    "couchforms",
+    "couchexport",
 #    "smsforms",
 
 #    "timezones",
@@ -96,8 +99,7 @@ INSTALLED_APPS = [
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     ("aremind.apps.broadcast.views.dashboard", "Dashboard"),    
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
-
+    ("smscouchforms.views.download",       "View Data"),
     ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
     ('xforms', 'Reporter Scenario'),
     ('smsforms.views.list_forms', 'Decision Tree XForms'),

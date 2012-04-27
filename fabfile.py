@@ -91,8 +91,8 @@ def production():
     env.server_port = '8000'
     env.server_name = 'aremind-production'
 #    env.hosts = ['10.84.168.98']
-#    env.hosts = ['173.203.221.48']
-    env.hosts = ['wbnigeria']
+    env.hosts = ['173.203.221.48']
+#    env.hosts = ['wbnigeria']
     env.settings = '%(project)s.localsettings' % env
     env.remote_os = None # e.g. 'ubuntu' or 'redhat'.  Gets autopopulated by what_os() if you don't know what it is or don't want to specify.
     env.db = '%s_%s' % (env.project, env.environment)

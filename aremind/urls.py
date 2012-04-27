@@ -19,7 +19,8 @@ urlpatterns = patterns('',
 
     # RapidSMS core URLs
     (r'^account/', include('rapidsms.urls.login_logout')),
-    url(r'^$', 'aremind.apps.broadcast.views.dashboard', name='rapidsms-dashboard'),
+    url(r'old/$', 'aremind.apps.broadcast.views.dashboard', name='broadcast-dashboard'),
+    url(r'^$', 'smscouchforms.views.download', name='rapidsms-dashboard'),
 
     url(r'^settings/$', direct_to_template,
         {'template': 'aremind/not_implemented.html'}, name='settings'),

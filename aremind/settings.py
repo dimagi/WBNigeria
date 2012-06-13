@@ -81,6 +81,9 @@ INSTALLED_APPS = [
     #"rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
     "touchforms.formplayer",
+    "smscouchforms",
+    "couchforms",
+    "couchexport",
 #    "smsforms",
 
 #    "timezones",
@@ -96,25 +99,12 @@ INSTALLED_APPS = [
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     ("aremind.apps.broadcast.views.dashboard", "Dashboard"),    
-#    ("aremind.apps.broadcast.views.send_message", "Send a Message"),
-#    ("aremind.apps.adherence.views.dashboard", "Adherence"),
-#    ("aremind.apps.reminders.views.dashboard", "Appointments"),
-#    ("aremind.apps.patients.views.list_patients", "Patients"),
-#    ("broadcast-forwarding", "Forwarding"),
-#    ("aremind.apps.groups.views.list_groups", "Groups"),
-#    ("aremind.apps.groups.views.list_contacts","People"),
-#    ("settings", "Settings"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
-
-#    ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
-#    ("rapidsms.contrib.locations.views.locations",          "Map"),
-#    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
+    ("smscouchforms.views.download",       "View Data"),
     ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
     ('xforms', 'Reporter Scenario'),
     ('smsforms.views.list_forms', 'Decision Tree XForms'),
     ('smsforms.views.view_triggers', 'Decision Tree Triggers'),
 
-#    ("aremind.apps.reminder.views.dashboard", "Reminder"),
 ]
 
 XFORMS_HOST = 'www.rapidsms-server.com'
@@ -160,7 +150,7 @@ STATIC_DOC_ROOT = STATIC_ROOT
 # at top left for every tab
 LOGO_LEFT_URL = '%simages/blank.png' % STATIC_URL
 LOGO_RIGHT_URL = '%simages/blank.png' % STATIC_URL
-SITE_TITLE = "ARemind"
+SITE_TITLE = "WB Nigeria"
 BASE_TEMPLATE = "layout.html"
 
 # this is required for the django.contrib.sites tests to run, but also

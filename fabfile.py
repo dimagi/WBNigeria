@@ -91,8 +91,8 @@ def production():
     env.server_port = '8000'
     env.server_name = 'aremind-production'
 #    env.hosts = ['10.84.168.98']
-#    env.hosts = ['173.203.221.48']
-    env.hosts = ['wbnigeria']
+    env.hosts = ['173.203.221.48']
+#    env.hosts = ['wbnigeria']
     env.settings = '%(project)s.localsettings' % env
     env.remote_os = None # e.g. 'ubuntu' or 'redhat'.  Gets autopopulated by what_os() if you don't know what it is or don't want to specify.
     env.db = '%s_%s' % (env.project, env.environment)
@@ -259,7 +259,6 @@ def update_services():
         stop()
     upload_supervisor_conf()
     upload_apache_conf()
-    upload_touchforms_conf()
     start()
     netstat_plnt()
 
@@ -309,25 +308,25 @@ def stop():
 def start():
     """ start server and celery on remote host """
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('start %(project)s-%(environment)s:*' % env)
+    _supervisor_command('start %(project)s:*' % env)
 
 
 def servers_start():
     ''' Start the gunicorn servers '''
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('start  %(project)s-%(environment)s:%(project)s-%(environment)s-server' % env)
+    _supervisor_command('start  %(project)s:server' % env)
 
 
 def servers_stop():
     ''' Stop the gunicorn servers '''
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('stop  %(project)s-%(environment)s:%(project)s-%(environment)s-server' % env)
+    _supervisor_command('stop  %(project)s:server' % env)
 
 
 def servers_restart():
     ''' Start the gunicorn servers '''
     require('environment', provided_by=('staging', 'demo', 'production'))
-    _supervisor_command('restart  %(project)s-%(environment)s:%(project)s-%(environment)s-server' % env)
+    _supervisor_command('restart %(project)s:server' % env)
 
 
 def migrate():
@@ -441,21 +440,6 @@ def upload_apache_conf():
 
     sudo('ln -s %s/apache/%s.conf %s' % (env.services, env.environment, sites_enabled_dirfile))
     apache_reload()
-
-def upload_touchforms_conf():
-    """Upload and link Supervisor configuration from the template."""
-    require('environment', provided_by=('staging', 'demo', 'production'))
-    _set_apache_user()
-    template = posixpath.join(os.path.dirname(__file__), 'services', 'templates', 'touchforms.conf')
-    destination = '/var/tmp/touchforms.conf.temp'
-    files.upload_template(template, destination, context=env, use_sudo=True)
-    enabled =  posixpath.join('/etc/init', u'touchforms.conf' % env)
-    sudo('chown -R %s %s' % (env.sudo_user, destination))
-    sudo('chgrp -R %s %s' % (env.apache_user, destination))
-    sudo('chmod -R g+w %s' % destination)
-    sudo('mv -f %s %s' % (destination, enabled))
-
-    touchforms_restart()
 
 def _supervisor_command(command):
     require('hosts', provided_by=('staging', 'production'))

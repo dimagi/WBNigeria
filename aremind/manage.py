@@ -22,9 +22,12 @@ if not settings_specified and len(sys.argv) >= 2:
 
 
 filedir = os.path.dirname(__file__)
-#sys.path.append(os.path.join(filedir,'..','submodules','auditcare'))
+sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-smscouchforms'))
 sys.path.append(os.path.join(filedir,'..','submodules','dimagi-utils'))
-#sys.path.append(os.path.join(filedir,'..','submodules','couchlog'))
+sys.path.append(os.path.join(filedir,'..','submodules','couchforms'))
+sys.path.append(os.path.join(filedir,'..','submodules','couchexport'))
+sys.path.append(os.path.join(filedir,'..','submodules','django-soil'))
+sys.path.append(os.path.join(filedir,'..','submodules','formdesigner'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'touchforms'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'rapidsms-smsforms'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'rapidsms-xforms'))

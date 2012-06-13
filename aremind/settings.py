@@ -119,6 +119,12 @@ XFORMS_HOST = 'www.rapidsms-server.com'
 # when reporting bugs. don't forget to turn this off in production.
 DEBUG = TEMPLATE_DEBUG = True
 
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+#     'django.template.loaders.eggs.Loader',
+)
+
 
 # after login (which is handled by django.contrib.auth), redirect to the
 # dashboard rather than 'accounts/profile' (the default).

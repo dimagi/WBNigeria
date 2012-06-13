@@ -18,7 +18,7 @@ class WBN_RegistrationApp(AppBase):
     def _logger_name(self):
         return "app.%s" % self.name
 
-    STRING_REG_CONFIRMED = _('Great! Thanks for registereing.  How was the service rendered to you? Send 1 for GOOD and 2 for NEEDS IMPROVEMENT, 3 for Not satisfied.')
+    STRING_REG_CONFIRMED = _('Great!  How was your last visit to the hospital? For good Send 1. For Not Satisfied Send 2.')
     STRING_REG_REQUEST_YESNO = _('Sorry, please send 1 for Yes or 2 for No')
     STRING_REG_RESPONSE_BAD_LOC = _("Ok.  Please try registering again with the correct location code")
     STRING_REG_ALREADY_REGISTERED = _('You are already registered for this location: %s. To unregister send \'unregister\' LOCATION_CODE')

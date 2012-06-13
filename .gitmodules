@@ -9,4 +9,4 @@
 	url = /opt/rapidsms-xforms.git
 [submodule "submodules/formdesigner"]
 	path = submodules/formdesigner
-	url = ssh://wbnigeria@wbnigeria/opt/vellum.git
+	url = ssh://wbnigeria:wbnigeria@wbnigeria/opt/vellum.git

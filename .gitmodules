@@ -9,7 +9,7 @@
 	url = git://github.com/dimagi/rapidsms-xforms.git
 [submodule "submodules/formdesigner"]
 	path = submodules/formdesigner
-	url = git://github.com/dimagi/vellum.git
+	url = git://github.com/dimagi/Vellum.git
 [submodule "submodules/rapidsms-smscouchforms"]
 	path = submodules/rapidsms-smscouchforms
 	url = git://github.com/dimagi/rapidsms-smscouchforms.git

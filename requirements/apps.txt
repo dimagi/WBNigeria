@@ -16,21 +16,22 @@ feedparser==5.0.1
 gevent==0.13.6
 greenlet==0.3.1
 distribute>=0.6.19
+couchdbkit==0.5.4
+rapidsms-xforms==0.4.1
+django-uni-form==0.8.0
+django-eav==0.9.2
+python-digest==1.7
+django-digest==1.13
+django-timezones==0.2
+pytz==2012c
+openpyxl==1.5.8
+unidecode==0.04.9
 -e hg+https://bitbucket.org/mlavin/django-selectable#egg=django-selectable
 -e git+https://github.com/dimagi/rapidsms-tropo.git@develop#egg=rtropo
 -e git+https://github.com/caktus/rapidsms-threadless-router.git#egg=threadless_router
 -e git+https://github.com/dimagi/rapidsms.git#egg=rapidsms
 -e git+https://github.com/adammck/djtables#egg=djtables
-couchdbkit==0.5.4
-pytz
 -e git+https://github.com/dimagi/couchlog.git#egg=couchlog
 -e git+https://github.com/dimagi/auditcare.git#egg=auditcare
 -e git+https://github.com/dimagi/dimagi-utils.git#egg=dimagi_utils
-django-timezones==0.2
--e git+http://github.com/mvpdev/django-eav.git#egg=django-eav
-django-uni-form==0.8.0
-python-digest
-django-digest
-openpyxl
-unidecode
 -e git+https://github.com/caktus/rapidsms-decisiontree-app.git@develop#egg=decisiontree

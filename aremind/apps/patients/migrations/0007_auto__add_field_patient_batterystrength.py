@@ -10,14 +10,15 @@ class Migration(SchemaMigration):
         
         # Adding field 'Patient.batterystrength'
         db.add_column('patients_patient', 'batterystrength', self.gf('django.db.models.fields.IntegerField')(default=0), keep_default=False)
-        # set its value
-        for patient in orm.Patient.objects.all():
-            try:
-                last_message = orm['wisepill.WisepillMessage'].objects.filter(patient=patient).order_by('-timestamp')[0]
-                patient.batterystrength = last_message.batterystrength
-                patient.save()
-            except IndexError:
-                pass
+        if not db.dry_run:
+            # set its value
+            for patient in orm.Patient.objects.all():
+                try:
+                    last_message = orm['wisepill.WisepillMessage'].objects.filter(patient=patient).order_by('-timestamp')[0]
+                    patient.batterystrength = last_message.batterystrength
+                    patient.save()
+                except IndexError:
+                    pass
 
     def backwards(self, orm):
         

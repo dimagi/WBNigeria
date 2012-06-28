@@ -10,9 +10,10 @@ class Migration(SchemaMigration):
         
         # Adding field 'Patient.daily_doses'
         db.add_column('patients_patient', 'daily_doses', self.gf('django.db.models.fields.IntegerField')(default=0), keep_default=False)
-        for patient in orm.Patient.objects.all():
-            patient.daily_doses = 0
-            patient.save()
+        if not db.dry_run:
+            for patient in orm.Patient.objects.all():
+                patient.daily_doses = 0
+                patient.save()
 
 
     def backwards(self, orm):

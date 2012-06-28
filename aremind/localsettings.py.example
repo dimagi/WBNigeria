@@ -70,9 +70,17 @@ COUNTRY_CODE = '1'
 # INSTALLED_APPS.append('debug_toolbar')
 # DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 
-# kill auditcare
-#INSTALLED_APPS.remove('auditcare')
-#MIDDLEWARE_CLASSES.remove('auditcare.middleware.AuditMiddleware')
+# Disable audit logging locally
+if 'auditcare' in INSTALLED_APPS:
+    INSTALLED_APPS.remove('auditcare')
+if 'auditcare.middleware.AuditMiddleware' in MIDDLEWARE_CLASSES:
+    MIDDLEWARE_CLASSES.remove('auditcare.middleware.AuditMiddleware')
+if 'couchlog' in INSTALLED_APPS:
+    INSTALLED_APPS.remove('couchlog')
+AUDIT_DJANGO_USER = False
+AUDIT_ALL_VIEWS = False
+AUDIT_VIEWS = []
+AUDIT_MODEL_SAVE = []
 
 BROKER_HOST = "localhost"
 BROKER_PORT = 5672

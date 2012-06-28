@@ -26,6 +26,13 @@ Developer Setup
 
     sudo apt-get install couchdb
 
+* Jython is required for the Touchforms player::
+
+    wget http://sourceforge.net/projects/jython/files/jython/2.5.2/jython_installer-2.5.2.jar
+    sudo java -jar jython_installer-2.5.2.jar
+    # Default answers. Target directory /usr/local/lib/jython
+    sudo ln -s /usr/local/lib/jython/bin/jython /usr/local/bin/
+
 See
   http://wiki.apache.org/couchdb/Installing_on_Ubuntu
 for more information about couch.
@@ -66,6 +73,11 @@ for more information about couch.
 #. In a terminal, start the Django development server::
 
     ./manage.py runserver
+
+#. In another terminal, start the XForms player::
+
+    cd submodules/touchforms/touchforms/backend/
+    jython xformserver.py 4444
 
 #. Open http://localhost:8000 in your web browser and you should see an
    **Installation Successful!** screen.

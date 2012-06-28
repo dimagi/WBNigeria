@@ -16,13 +16,14 @@ Developer Setup
 * PostgreSQL and the appropriate Python bindings (``psycopg2``).  In
   Debian-based distributions, you can install these using ``apt-get``, e.g.::
 
-    sudo apt-get install postgresql python-psycopg2 libpq-dev
+    sudo apt-get install postgresql libpq-dev
 
 * The following additional build dependencies::
 
     sudo apt-get install libxslt1-dev libxml2-dev mercurial
 
-* CouchDB is required for logging and audit tracking purposes::
+* CouchDB is required for logging and audit tracking purposes. See
+  http://wiki.apache.org/couchdb/Installing_on_Ubuntu for more information about CouchDB::
 
     sudo apt-get install couchdb
 
@@ -33,16 +34,12 @@ Developer Setup
     # Default answers. Target directory /usr/local/lib/jython
     sudo ln -s /usr/local/lib/jython/bin/jython /usr/local/bin/
 
-See
-  http://wiki.apache.org/couchdb/Installing_on_Ubuntu
-for more information about couch.
-
-
 * Install pip and virtualenv, and make sure virtualenv is up to date, e.g.::
 
     easy_install pip
     pip install -U virtualenv
     pip install -U virtualenvwrapper
+
 
 **To setup a local development environment, follow these steps:**
 

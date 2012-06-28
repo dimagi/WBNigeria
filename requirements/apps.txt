@@ -36,7 +36,7 @@ RapidSMS==0.9.6a
 djtables==0.1.2
 django-selectable==0.2.0
 rapidsms-threadless-router==0.1.1
--e git+https://github.com/dimagi/rapidsms-tropo.git@develop#egg=rtropo
+rapidsms-tropo==0.1.0
 -e git+https://github.com/dimagi/couchlog.git#egg=couchlog
 -e git+https://github.com/dimagi/auditcare.git#egg=auditcare
 -e git+https://github.com/dimagi/dimagi-utils.git#egg=dimagi_utils

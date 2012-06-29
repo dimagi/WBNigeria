@@ -16,3 +16,4 @@ aremind/static/xforms
 build/
 tropotest.py
 smsforms_report.csv
+media/

@@ -11,6 +11,17 @@ FORMDESIGNER_ROOT = os.path.join(PROJECT_PATH, '..', 'submodules', 'formdesigner
 #                          MAIN CONFIGURATION                          #
 # -------------------------------------------------------------------- #
 
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "wbnigeria",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "",
+        "PORT": ""
+    }
+}
+
 VERSION = '0.2.1' #This doesn't do anything yet, but what the hey.
 
 BROADCAST_SENDER_BACKEND='message_tester'
@@ -438,3 +449,4 @@ LOGGING = {
     }
 }
 
+COUCHDB_APPS = ['auditcare', 'couchlog', 'formplayer', 'couchforms', 'couchexport']

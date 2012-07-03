@@ -1,0 +1,82 @@
+{% extends "dashboard/fadama/base.html" %}
+
+{% block content %}
+    {{ block.super }}
+    
+    <div class="row-fluid">
+        <div class="span12">
+            <form id="detail-filter" class="form-inline filter-form">
+                <label>Feedback of</label>
+                <select id="feedback">
+                    <option>Current feedback</option>
+                    <option>Feedback #1</option>
+                    <option>Feedback #2</option>
+                </select>
+                <label>in</label>
+                <select id="location">
+                    <option>Current location</option>
+                    <option>Location #1</option>
+                    <option>Location #2</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span8">
+            <h3>All {Current location} Report by Month</h3>
+            <p>
+                Chart here
+            </p>
+            <p style="height: 100px"></p> <!-- Remove later -->
+        </div>
+        <div class="span4">
+            <h3>Experience <small>Farmers reported being...</h3>
+            <p>
+                Chart here
+            </p>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <span class="large">Detailed Reports</span>
+            {% include "dashboard/_table_filter.html" %}
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <table id="reports-table" class="table table-bordered table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th>Report #</th>
+                        <th>FCA</th>
+                        <th>Date &amp; Time</th>
+                        <th>Farmer Satisfied</th>
+                        <th>Service Providers</th>
+                        <th>Fadama Staff</th>
+                        <th>Land Issues</th>
+                        <th>Information Issues</th>
+                        <th>Financial Challenges</th>
+                        <th>Faciliator Last Seen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}

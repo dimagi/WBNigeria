@@ -1,0 +1,21 @@
+{% extends "aremind/layout.html" %}
+
+{% block stylesheets %}
+{{ block.super }}
+<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/style.css" />
+{% endblock stylesheets %}
+
+{% block javascripts %}
+{{ block.super }}
+{% endblock javascripts %}
+
+{% block content %}
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container">
+                {% block dashboard_navigation %}
+                {% endblock dashboard_navigation %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

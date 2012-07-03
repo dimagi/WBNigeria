@@ -1,0 +1,53 @@
+{% extends "dashboard/pbf/base.html" %}
+
+{% block content %}
+    {{ block.super }}
+    
+    <div class="row-fluid">
+        <div class="span12">
+            {% include "dashboard/_map.html" %}
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <span class="large">Detailed Reports</span>
+            {% include "dashboard/_table_filter.html" %}
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th>Report #</th>
+                        <th>Site</th>
+                        <th>Date &amp; Time</th>
+                        <th>Patient Satisfied</th>
+                        <th>Waiting Time</th>
+                        <th>Clean Clinic</th>
+                        <th>Staff Friendly</th>
+                        <th>Drugs Available</th>
+                        <th>Prices Displayed</th>
+                        <th>Free-form Entries</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}

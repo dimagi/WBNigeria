@@ -1,0 +1,116 @@
+// Core variables and mixins
+@import "bootstrap/less/variables.less"; // Modify this for custom colors, font-sizes, etc
+@import "bootstrap/less/mixins.less";
+
+// Base CSS
+@import "bootstrap/less/type.less";
+@import "bootstrap/less/code.less";
+@import "bootstrap/less/forms.less";
+@import "bootstrap/less/tables.less";
+
+
+// Grid system and page structure
+@import "bootstrap/less/scaffolding.less";
+@import "bootstrap/less/grid.less";
+@import "bootstrap/less/layouts.less";
+
+// Components: Buttons & Alerts
+@import "bootstrap/less/buttons.less";
+@import "bootstrap/less/button-groups.less";
+@import "bootstrap/less/alerts.less"; // Note: alerts share common CSS with buttons and thus have styles in buttons.less
+
+// Components: Nav
+@import "bootstrap/less/navs.less";
+@import "bootstrap/less/navbar.less";
+
+body {
+    span.large {
+        margin: 0px 8px 8px 0px;
+        font-size: 1.6em;
+        font-weight: bolder;
+    }
+
+    form { 
+        &.filter-form {
+            label {
+                margin-left: 15px;
+            }
+
+            input, select {
+                margin-left: 12px;
+            }
+        }
+
+        &#detail-filter {
+            display: block;
+            margin-bottom: 15px;
+
+            label {
+                margin: 0px;
+                font-size: 1.3em;
+            }
+
+            input, select {
+                margin: 0px 10px;
+            }
+        }
+    }
+
+    #reports-table {
+        margin-top: 20px;
+    }
+
+    // Header text fix
+    #header {
+        #branding {
+            span {
+                position: absolute;
+                margin-top: 10px;
+                margin-left: 78px;
+            }
+        }
+    }
+
+    // Do not know whether or not we will be scrapping current UI
+    // so we have to change up the navbar styling for now
+    .navbar {
+        .navbar-inner {
+            margin: 0px;
+            padding: 0px;
+            background: transparent;
+            .box-shadow(none);
+
+            .nav {
+                color: @textColor;
+                margin: 0px;
+                padding: 0px;
+
+                .brand {
+                    padding-left: 20px;
+                }
+
+                .brand, a {
+                    color: inherit;
+                }
+            }
+        }
+    }
+
+    // Fix clash with rapidsms table styling
+    table {
+        color: inherit;
+
+        th, td {
+            color: inherit;
+            border: 0px;
+            background: none;
+        }
+    }
+
+    // Fix class with rapidsms form styling
+    form {
+        border: 0px;
+        padding: 0px;
+        display: inline;
+    }
+}

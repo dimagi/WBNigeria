@@ -1,0 +1,7 @@
+{% extends "dashboard/pbf/base.html" %}
+{% load url from future %}
+
+{% block content %}
+    {{ block.super }}
+    {% include "dashboard/_dashboard_data.html" %}
+{% endblock content %}

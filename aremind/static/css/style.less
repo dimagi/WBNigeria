@@ -23,12 +23,13 @@
 @import "bootstrap/less/navs.less";
 @import "bootstrap/less/navbar.less";
 
+// Components: common
+@import "bootstrap/less/sprites.less";
+
 body {
-    span.large {
-        margin: 0px 8px 8px 0px;
-        font-size: 1.6em;
-        font-weight: bolder;
-    }
+    /******************************
+        General HTML Entities
+    *******************************/
 
     form { 
         &.filter-form {
@@ -56,9 +57,49 @@ body {
         }
     }
 
+    a {
+        &.btn {
+            // Remove icons are "off"
+            i[class*="remove"] {
+                margin-top: 1px;
+            }
+        }
+    }
+
+    span {
+        &.large {
+            margin: 0px 8px 8px 0px;
+            font-size: 1.6em;
+            font-weight: bolder;
+        }
+    }
+
+
+    /*******************************
+        General classes
+    *******************************/
+
+    .pull-right {
+        float: right;
+    }
+
+    .alert {
+        min-height: 60px
+    }
+
+
+    /*******************************
+        Specific ids/elements
+    *******************************/
+
     #reports-table {
         margin-top: 20px;
     }
+
+
+    /*******************************
+        Clashes/fixes
+    *******************************/
 
     // Header text fix
     #header {

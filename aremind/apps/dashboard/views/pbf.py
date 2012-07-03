@@ -10,3 +10,8 @@ def dashboard(request):
 @login_required
 def reports(request):
     return render(request, 'dashboard/pbf/reports.html')
+
+
+@login_required
+def report_detail(request, pk):
+    return render(request, 'dashboard/pbf/report_detail.html')

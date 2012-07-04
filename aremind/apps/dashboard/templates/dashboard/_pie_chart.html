@@ -15,7 +15,7 @@
 <script type="text/javascript">
     var wrapper;
 
-    function monthChange(month) {
+    function monthChange(date) {
         function chartData(data, status, xhr) {
             var dataTable = google.visualization.arrayToDataTable([
                 ['Category', ''],
@@ -27,7 +27,7 @@
         }
 
         // Make request for data
-        // $.getJSON(url, {'month': month}, chartData);
+        // $.getJSON(url, {'date': date}, chartData);
         // For now, fake it
         chartData({
             'satisfied': Math.floor(Math.random() * 100),

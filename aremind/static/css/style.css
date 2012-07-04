@@ -556,6 +556,7 @@ body a.btn i[class*="remove"]{margin-top:1px;}
 body span.large{margin:0px 8px 8px 0px;font-size:1.6em;font-weight:bolder;}
 body .pull-right{float:right;}
 body .alert{min-height:60px;}
+body .map{min-height:275px;margin-bottom:20px;}
 body #reports-table{margin-top:20px;}
 body #header #branding span{position:absolute;margin-top:10px;margin-left:78px;}
 body .navbar .navbar-inner{margin:0px;padding:0px;background:transparent;-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none;}body .navbar .navbar-inner .nav{color:#333333;margin:0px;padding:0px;}body .navbar .navbar-inner .nav .brand{padding-left:20px;}

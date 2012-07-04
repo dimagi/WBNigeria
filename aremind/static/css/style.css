@@ -558,7 +558,8 @@ body .pull-right{float:right;}
 body .alert{min-height:60px;}
 body .map{height:275px;margin-bottom:20px;}
 body .mini{width:80px;height:80px;}
-body .chart{min-height:275px;}
+body .chart{height:275px;}
+body .date-control .month{text-align:center;}
 body .contact-modal .contact-form{display:block;margin-bottom:20px;}body .contact-modal .contact-form dl{margin-top:0px;}
 body .contact-modal .contact-form legend{margin-bottom:15px;}
 body .contact-modal .contact-form textarea{height:7em;}

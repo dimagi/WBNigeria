@@ -1,3 +1,32 @@
-<script type="text/javascript">
+<div id="bar-chart" class="chart"></div>
 
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Category', ''],
+            ['Waiting Time', 14],
+            ['Staff Friendliness', 18],
+            ['Price Display', 20],
+            ['Drug Availability', 23],
+            ['Cleanliness', 20]
+        ]);
+
+        var options = {
+            vAxis: {
+                textPosition: 'in'
+            },
+            chartArea: {
+                top: 0,
+                left: 0,
+                width: '100%'
+            }
+        };
+
+        var chart = new google.visualization.BarChart(document.getElementById('bar-chart'));
+        chart.draw(data, options);
+    }
+
+    google.load('visualization', '1', { packages: ['corechart'] });
+    google.setOnLoadCallback(drawChart);
 </script>

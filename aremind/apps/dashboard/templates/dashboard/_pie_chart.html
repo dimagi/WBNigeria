@@ -1,0 +1,29 @@
+<div id="pie-chart" class="chart"></div>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Category', ''],
+            ['Satisfied', 43],
+            ['Unsatisfied', 21]
+        ]);
+
+        var options = {
+            vAxis: {
+                textPosition: 'in'
+            },
+            chartArea: {
+                top: 10,
+                left: 0,
+                width: '100%'
+            }
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('pie-chart'));
+        chart.draw(data, options);
+    }
+
+    google.load('visualization', '1', { packages: ['corechart'] });
+    google.setOnLoadCallback(drawChart);
+</script>

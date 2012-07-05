@@ -1,0 +1,85 @@
+<div id="map" class="map {% if mini %}mini{% endif %}"></div>
+
+<script type="text/javascript">
+    var mini = '{{ mini }}';
+    var locations = {
+        'one': {
+            'latlng': new google.maps.LatLng(7.8219, 6.9743),
+            'radius': 15000
+        },
+        'two': {
+            'latlng': new google.maps.LatLng(7.6219, 7.4743),
+            'radius': 8000
+        },
+        'three': {
+            'latlng': new google.maps.LatLng(7.2219, 6.4743),
+            'radius': 18000
+        }
+    };
+
+    var options = {
+        center: new google.maps.LatLng(7.6219, 6.9743),
+        zoom: 8,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    var map = new google.maps.Map(document.getElementById('map'), options);
+
+    if(mini) {
+        var dotOptions = {
+            strokeColor: '#000000',
+            strokeOpacity: 1.0,
+            strokeWeight: 1,
+            fillColor: '#000000',
+            fillOpacity: 1.0,
+            map: map,
+            center: new google.maps.LatLng(7.6219, 6.9743),
+            radius: 800
+        };
+
+        map.setOptions({
+            'mapTypeControl': false,
+            'panControl': false,
+            'streetViewControl': false,
+            'zoomControl': false,
+            'draggable': false,
+            'zoom': 10
+        });
+
+        var dot = new google.maps.Circle(dotOptions);
+    } else {
+        for(var loc in locations) {
+            var circleOptions = {
+                strokeColor: '#DA4F49',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#DA4F49',
+                fillOpacity: 0.35,
+                map: map,
+                center: locations[loc].latlng,
+                radius: locations[loc].radius
+            };
+
+            var dotOptions = {
+                strokeColor: '#000000',
+                strokeOpacity: 1.0,
+                strokeWeight: 1,
+                fillColor: '#000000',
+                fillOpacity: 1.0,
+                map: map,
+                center: locations[loc].latlng,
+                radius: 1600
+            };
+
+            var circle = new google.maps.Circle(circleOptions);
+            var dot = new google.maps.Circle(dotOptions);
+
+            google.maps.event.addListener(circle, 'click', function() {
+                // We should be able to implement some sort of get_absolute_url
+                // for a location. For now, we fake it.
+                // location.href = {{ location.get_absolute_url }};
+                location.href = '1/'
+            });
+        }
+    }
+</script>

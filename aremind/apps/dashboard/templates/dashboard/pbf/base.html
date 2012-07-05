@@ -1,0 +1,16 @@
+{% extends "dashboard/base.html" %}
+{% load url from future %}
+
+{% block dashboard_navigation %}
+    <ul class="nav">
+        <li><a class="brand" href="{% url 'pbf_dashboard' %}">Patient Feedback</a></li>
+        <li><a href="{% url 'pbf_dashboard' %}">Home</a></li>
+        <li><a href="{% url 'pbf_reports' %}">All Reports</a></li>
+        <li><a href="#">Help</a></li>
+    </ul>
+
+    <ul class="nav pull-right">
+        <li><a href="#">Welcome back {{ request.user }}</a></li>
+        <li><a href="#">Logout</a></li>
+    </ul>
+{% endblock dashboard_navigation %}

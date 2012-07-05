@@ -1,0 +1,25 @@
+{% extends "aremind/layout.html" %}
+
+{% block stylesheets %}
+{{ block.super }}
+<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/style.css" />
+{% endblock stylesheets %}
+
+{% block javascripts %}
+{{ block.super }}
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap/js/bootstrap-alert.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/general.js"></script>
+{% endblock javascripts %}
+
+{% block content %}
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container">
+                {% block dashboard_navigation %}
+                {% endblock dashboard_navigation %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

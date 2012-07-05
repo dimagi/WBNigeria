@@ -1,0 +1,16 @@
+<!-- 
+    This should be replaced with some kind of model form with
+    a django-selectable field for filtering by the object.
+    Using regular bootstrap form for now just for display purposes.
+-->
+<form class="form-inline filter-form" action="#">
+    <label class="control-label" for="object_filter">Filter by:</label>
+    <input type="text" id="object_filter" class="input-medium" placeholder="All" />
+    <select id="feedback">
+        <option>All feedback</option>
+        <option>Feedback #1</option>
+        <option>Feedback #2</option>
+    </select>
+    <input type="text" id="date" class="input-mini calendar" placeholder="Date" />
+    <input type="text" id="search" placeholder="Search..." />
+</form>

@@ -33,7 +33,7 @@
         <div class="span4">
             <h3>Experience <small>Farmers reported being...</h3>
             <p>
-                Chart here
+                {% include "dashboard/_pie_chart.html" %}
             </p>
         </div>
     </div>
@@ -59,10 +59,30 @@
                 </thead>
                 <tbody>
                     <tr>
+                        <td>741</td>
+                        <td>Paiko FCA</td>
+                        <td>05/30/2012 - 13:45</td>
+                        <td><input type="checkbox" checked="checked" /></td>
+                        <td>If there was a free-form entry it would be displayed here</td>
+                        
+                        <!-- Modal should be included for each report in table -->
+                        <div class="span8 contact-modal" style="display: none">{% include "dashboard/fadama/_contact_form.html" %}</div>
+                    </tr>
+                    <tr>
+                        <td>398</td>
+                        <td>Paiko FCA</td>
+                        <td>05/30/2012 - 16:45</td>
+                        <td><input type="checkbox" /></td>
                         <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        
+                        <!-- Modal should be included for each report in table -->
+                        <div class="span8 contact-modal" style="display: none">{% include "dashboard/fadama/_contact_form.html" %}</div>
+                    </tr>
+                    <tr>
+                        <td>281</td>
+                        <td>Paiko FCA</td>
+                        <td>05/31/2012 - 13:45</td>
+                        <td><input type="checkbox" checked="checked" /></td>
                         <td></td>
                         
                         <!-- Modal should be included for each report in table -->

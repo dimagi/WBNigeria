@@ -44,7 +44,8 @@
             'zoomControl': false,
             'draggable': false,
             'zoom': 10
-        })
+        });
+
         var dot = new google.maps.Circle(dotOptions);
     } else {
         for(var loc in locations) {
@@ -72,6 +73,13 @@
 
             var circle = new google.maps.Circle(circleOptions);
             var dot = new google.maps.Circle(dotOptions);
+
+            google.maps.event.addListener(circle, 'click', function() {
+                // We should be able to implement some sort of get_absolute_url
+                // for a location. For now, we fake it.
+                // location.href = {{ location.get_absolute_url }};
+                location.href = '1/'
+            });
         }
     }
 </script>

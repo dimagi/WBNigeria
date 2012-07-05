@@ -555,7 +555,7 @@ body form#detail-filter input,body form#detail-filter select{margin:0px 10px;}
 body a.btn i[class*="remove"]{margin-top:1px;}
 body span.large{margin:0px 8px 8px 0px;font-size:1.6em;font-weight:bolder;}
 body .pull-right{float:right;}
-body .alert{min-height:60px;}
+body .alert{min-height:60px;padding-right:14px;}
 body .map{height:275px;margin-bottom:20px;}
 body .mini{width:80px;height:80px;}
 body .chart{height:275px;}
@@ -566,7 +566,9 @@ body .contact-modal .contact-form textarea{height:7em;}
 body .contact-modal .contact-form input{display:block;}
 body .filter-form{display:inline;}
 body #reports-table{margin-top:20px;}
+body #wrapper{width:100%;min-height:800px;}
 body #header #branding span{position:absolute;margin-top:10px;margin-left:78px;}
+body #footer{margin-top:100px;}
 body .navbar .navbar-inner{margin:0px;padding:0px;background:transparent;-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none;}body .navbar .navbar-inner .nav{color:#333333;margin:0px;padding:0px;}body .navbar .navbar-inner .nav .brand{padding-left:20px;}
 body .navbar .navbar-inner .nav .brand,body .navbar .navbar-inner .nav a{color:inherit;}
 body table{color:inherit;}body table th,body table td{color:inherit;border:0px;background:none;}

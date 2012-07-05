@@ -2,7 +2,26 @@
 
 {% block content %}
     {{ block.super }}
-    
+
+    <div class="row-fluid">
+        <div class="span12">
+            <form id="detail-filter" class="form-inline filter-form">
+                <label>Feedback on</label>
+                <select id="feedback">
+                    <option>All</option>
+                    <option>Feedback #1</option>
+                    <option>Feedback #2</option>
+                </select>
+                <label>in</label>
+                <select id="location">
+                    <option>All Clinics</option>
+                    <option>Location #1</option>
+                    <option>Location #2</option>
+                </select>
+            </form>
+        </div>
+    </div>
+
     <div class="row-fluid">
         <div class="span12">
             {% include "dashboard/_map.html" %}
@@ -35,16 +54,16 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td>742</td>
+                        <td>Arum Health Center</td>
+                        <td>05/30/2012 - 13:45</td>
+                        <td><input type="checkbox" checked="checked" /></td>
+                        <td>Less than 2 hours</td>
+                        <td><input type="checkbox" checked="checked" /></td>
+                        <td><input type="checkbox" checked="checked" /></td>
+                        <td><input type="checkbox" /></td>
+                        <td><input type="checkbox" checked="checked" /></td>
+                        <td><input type="checkbox" checked="checked" /></td>
                     </tr>
                 </tbody>
             </table>

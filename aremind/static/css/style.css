@@ -560,10 +560,13 @@ body .map{height:275px;margin-bottom:20px;}
 body .mini{width:80px;height:80px;}
 body .chart{height:275px;}
 body .date-control .month{text-align:center;}
-body .contact-modal .contact-form{display:block;margin-bottom:20px;}body .contact-modal .contact-form dl{margin-top:0px;}
+body .contact-modal{display:none;}body .contact-modal .contact-form{display:block;margin-bottom:20px;}body .contact-modal .contact-form dl{margin-top:0px;}
 body .contact-modal .contact-form legend{margin-bottom:15px;}
 body .contact-modal .contact-form textarea{height:7em;}
 body .contact-modal .contact-form input{display:block;}
+body .report-info{display:none !important;}
+body .reports-info-content dl{margin-top:0px;}
+body .reports-info-content input[type="submit"].btn,body .reports-info-content button.btn{margin-top:0px;}
 body .filter-form{display:inline;}
 body #reports-table{margin-top:20px;}
 body #wrapper{width:100%;min-height:800px;}

@@ -59,34 +59,33 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>741</td>
+                        <td><a data-target="741">741</td>
                         <td>Paiko FCA</td>
                         <td>05/30/2012 - 13:45</td>
                         <td><input type="checkbox" checked="checked" /></td>
                         <td>If there was a free-form entry it would be displayed here</td>
                         
                         <!-- Modal should be included for each report in table -->
-                        <div class="span8 contact-modal" style="display: none">{% include "dashboard/fadama/_contact_form.html" %}</div>
+                        <div data-report="741" class="span8 contact-modal">{% include "dashboard/fadama/_contact_form.html" %}</div>
+
+                        <!-- Report info should be included for each report in table -->
+                        <div data-report="741" class="span12 report-info">{% include "dashboard/fadama/_report_info.html" with report_id="741" %}</div>
                     </tr>
+
                     <tr>
-                        <td>398</td>
+                        <td><a data-target="741">398</a></td>
                         <td>Paiko FCA</td>
                         <td>05/30/2012 - 16:45</td>
                         <td><input type="checkbox" /></td>
                         <td></td>
-                        
-                        <!-- Modal should be included for each report in table -->
-                        <div class="span8 contact-modal" style="display: none">{% include "dashboard/fadama/_contact_form.html" %}</div>
                     </tr>
+
                     <tr>
-                        <td>281</td>
+                        <td><a data-target="741">281</a></td>
                         <td>Paiko FCA</td>
                         <td>05/31/2012 - 13:45</td>
                         <td><input type="checkbox" checked="checked" /></td>
                         <td></td>
-                        
-                        <!-- Modal should be included for each report in table -->
-                        <div class="span8 contact-modal" style="display: none">{% include "dashboard/fadama/_contact_form.html" %}</div>
                     </tr>
                 </tbody>
             </table>

@@ -21,6 +21,19 @@ $(function() {
         'sDom': '<t>'
     });
 
+    // Add a row of content for the report info when clicked
+    $('#reports-table a[data-target]').click(function(e) {
+        var report = $(this).data('target'),
+            content = $('.report-info[data-report=' + report + ']').html(),
+            row = $(this).parents('tr')[0];
+
+        if(table.fnIsOpen(row)) {
+            table.fnClose(row);
+        } else {
+            table.fnOpen(row, content, 'class');
+        }
+    });
+
     // Attach search fields to tables
     $('#search').keyup(function(e) {
         table.fnFilter($(this).val());

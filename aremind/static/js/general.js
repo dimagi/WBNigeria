@@ -14,4 +14,13 @@ $(function() {
         'minHeight': 400,
         'minWidth': $('div.contact-modal').width()
     });
+
+    //DataTable-ify all tables
+    var table = $('table#reports-table').dataTable({
+        'sDom': '<t>'
+    });
+
+    $('#search').keyup(function(e) {
+        table.fnFilter($(this).val());
+    });
 });

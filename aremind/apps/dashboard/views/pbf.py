@@ -13,5 +13,5 @@ def reports(request):
 
 
 @login_required
-def report_detail(request, pk):
-    return render(request, 'dashboard/pbf/report_detail.html')
+def site_detail(request, pk):
+    return render(request, 'dashboard/pbf/site_detail.html')

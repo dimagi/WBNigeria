@@ -1,4 +1,4 @@
-{% extends "dashboard/fadama/base.html" %}
+{% extends "dashboard/pbf/base.html" %}
 
 {% block content %}
     {{ block.super }}
@@ -8,9 +8,12 @@
             <form id="detail-filter" class="form-inline filter-form">
                 <label>Feedback on</label>
                 <select id="feedback">
-                    <option>Current feedback</option>
-                    <option>Feedback #1</option>
-                    <option>Feedback #2</option>
+                    <option value="overall">Overall Experience</option>
+                    <option value="price">Price Display</option>
+                    <option value="drug-availability">Drug Availability</option>
+                    <option value="cleanliness">Cleanliness &amp; Hygiene</option>
+                    <option value="friendliness">Staff Friendliness</option>
+                    <option value="waiting">Waiting Time</option>
                 </select>
                 <label>in</label>
                 <select id="location">
@@ -24,11 +27,10 @@
 
     <div class="row-fluid">
         <div class="span8">
-            <h3>All {Current location} Report by Month</h3>
+            <h3>All Current location Reports by Month</h3>
             <p>
-                Chart here
+                {% include "dashboard/_multi_month_chart.html" %}
             </p>
-            <p style="height: 100px"></p> <!-- Remove later -->
         </div>
         <div class="span4">
             <h3>Experience <small>Patients reported being...</h3>

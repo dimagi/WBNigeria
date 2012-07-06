@@ -1,6 +1,9 @@
 // General shared functionality throughout the site
 // Mostly for things contained in both PBF and Fadama dashboards
 
+// Test data url
+var data_url = '/dashboard/load/';
+
 $(function() {
     // Make datepickers from any date inputs across the site
     $('form input.calendar').datepicker({
@@ -19,6 +22,19 @@ $(function() {
     //DataTable-ify all tables
     var table = $('table#reports-table').dataTable({
         'sDom': '<t>'
+    });
+
+    // Add a row of content for the report info when clicked
+    $('#reports-table a[data-target]').click(function(e) {
+        var report = $(this).data('target'),
+            content = $('.report-info[data-report=' + report + ']').html(),
+            row = $(this).parents('tr')[0];
+
+        if(table.fnIsOpen(row)) {
+            table.fnClose(row);
+        } else {
+            table.fnOpen(row, content, 'class');
+        }
     });
 
     // Attach search fields to tables

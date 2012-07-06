@@ -1,3 +1,55 @@
+
+<script src="http://knockoutjs.com/js/knockout-2.1.0.js"></script>
+<script>
+
+if (!window.console) {
+    window.console = {
+        log: function () { }
+    };
+}
+
+$(document).ready(function() {
+    main_dashboard_init();
+  });
+
+function main_dashboard_init() {
+  var model = PBFViewModel();
+
+  $.get('/dashboard/pbf/api/main', function(data) {
+      console.log(data);
+      model.load(data);
+    }, 'json');
+}
+
+
+
+function PBFViewModel() {
+  this.facilities = ko.observableArray();
+  this.stats = ko.observableArray();
+
+  this.load = function(data) {
+    this.facilities($.map(data.facilities, function(fac) {
+        return new FacilityModel(fac);
+      }));
+    this.stats($.map(data.stats, function(st) {
+        return new MonthlyStatsModel(st);
+      }));
+  };
+}
+
+function FacilityModel(data) {
+  this.id = ko.observable(data.id);
+  this.name = ko.observable(data.name);
+  this.lat = ko.observable(data.lat);
+  this.lon = ko.observable(data.lon);
+}
+
+function MonthlyStatsModel(data) {
+  
+}
+
+</script>
+
 <div class="row-fluid">
     <div class="span4">
         <h2>Feedback by facility</h2>

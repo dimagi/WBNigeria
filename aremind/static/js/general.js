@@ -1,6 +1,9 @@
 // General shared functionality throughout the site
 // Mostly for things contained in both PBF and Fadama dashboards
 
+// Test data url
+var data_url = '/dashboard/load/';
+
 $(function() {
     // Make datepickers from any date inputs across the site
     $('form input.calendar').datepicker({

@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.conf.urls.defaults import *
 
 from aremind.apps.dashboard.views import pbf
 from aremind.apps.dashboard.views import fadama
+from aremind.apps.dashboard.views import load_test_data
 
 urlpatterns = patterns('',
     url(r'^pbf/$', pbf.dashboard, name='pbf_dashboard'),
@@ -12,3 +14,8 @@ urlpatterns = patterns('',
     url(r'^fadama/reports/$', fadama.reports, name='fadama_reports'),
     url(r'^fadama/reports/(?P<pk>\d+)/$', fadama.site_detail, name='fadama_site_detail'),
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(r'^load/$', load_test_data, name='load_test_data')
+    )

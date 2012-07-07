@@ -20,12 +20,6 @@ $(document).ready(function() {
 function detail_report_init() {
   var model = new PBFDetailViewModel();
   ko.applyBindings(model);
-
-  $.get('/dashboard/pbf/api/detail', function(data) {
-      console.log(data);
-      model.load(data);
-    }, 'json');
-
 }
 
 function PBFDetailViewModel() {
@@ -38,16 +32,28 @@ function PBFDetailViewModel() {
   this.active_month = ko.observable();
 
   this.load = function(data) {
-    this.facilities($.map(data.facilities, function(f) {
-        return new FacilityModel(f);
-      }));
-    this.facilities.splice(0, 0, this.__all_clinics);
-    this.active_facility(this.__all_clinics);
+    if (this.facilities().length == 0) {
+      var facs = $.map(data.facilities, function(f) {
+          return new FacilityModel(f);
+        })
+      facs.splice(0, 0, this.__all_clinics);
+      this.facilities(facs);
+    }
+
     this.logs($.map(data.logs, function(l) {
         return new LogModel(l);
       }));
     //this.active_month(this.stats.slice(-1)[0]);
   };
+
+  this.ajax_load = function(facility_id) {
+    var params = facility_id != null ? {site: facility_id} : {};
+    var model = this;
+    $.get('/dashboard/pbf/api/detail', params, function(data) {
+        console.log(params, data);
+        model.load(data);
+      }, 'json');
+  }
 
   this.prevmonth = function() {
     this.month_incr(-1);
@@ -67,6 +73,12 @@ function PBFDetailViewModel() {
   this.is_metric_active = function(code) {
     return (this.active_metric() == 'all' || this.active_metric() == code);
   }
+
+  var model = this;
+  this._facility_reload = ko.computed(function() {
+      var fac = model.active_facility();
+      model.ajax_load(fac != null && fac.id() != -1 ? fac.id() : null);
+    });
 }
 
 function FacilityModel(data) {

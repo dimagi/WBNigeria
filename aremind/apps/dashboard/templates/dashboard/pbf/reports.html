@@ -13,6 +13,9 @@ if (!window.console) {
     };
 }
 
+DEFAULT_SITE = {{ default_site|default:"null" }};
+DEFAULT_METRIC = "{{ default_metric }}";
+
 $(document).ready(function() {
     detail_report_init();
   });
@@ -28,7 +31,7 @@ function PBFDetailViewModel() {
   this.__all_clinics = new FacilityModel({id: -1, name: 'All Clinics'});
 
   this.active_facility = ko.observable();
-  this.active_metric = ko.observable();
+  this.active_metric = ko.observable(DEFAULT_METRIC || null);
   this.active_month = ko.observable();
 
   this.load = function(data) {
@@ -38,6 +41,12 @@ function PBFDetailViewModel() {
         })
       facs.splice(0, 0, this.__all_clinics);
       this.facilities(facs);
+
+      var default_facility = this.facility_by_id(DEFAULT_SITE);
+      if (default_facility) {
+        this.active_metric('satisf');
+        this.active_facility(default_facility);
+      }
     }
 
     var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
@@ -84,6 +93,17 @@ function PBFDetailViewModel() {
       var fac = model.active_facility();
       model.ajax_load(fac != null && fac.id() != -1 ? fac.id() : null);
     });
+
+  this.facility_by_id = function(id) {
+    var f = null;
+    $.each(this.facilities(), function(i, e) {
+        if (id != null && e.id() == id) {
+          f = e;
+          return false;
+        }
+      });
+    return f;
+  }
 }
 
 function FacilityModel(data) {
@@ -334,13 +354,7 @@ ko.bindingHandlers.map_volume = {
         element.ovl.push(circle);
 
         var select_clinic = function() {
-	    var clinic = null;
-            $.each(viewModel.facilities(), function(i, e) {
-                if (e.id() == facility.id) {
-                  clinic = e;
-                  return false;
-                }
-              });
+	    var clinic = viewModel.facility_by_id(facility.id);
             viewModel.active_metric('satisf');
             viewModel.active_facility(clinic);
           };
@@ -355,6 +369,7 @@ ko.bindingHandlers.map_volume = {
     }
   }
 };
+
 
 
 </script>

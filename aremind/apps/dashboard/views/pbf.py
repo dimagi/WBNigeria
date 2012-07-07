@@ -9,7 +9,10 @@ def dashboard(request):
 
 @login_required
 def reports(request):
-    return render(request, 'dashboard/pbf/reports.html')
+    return render(request, 'dashboard/pbf/reports.html', {
+            'default_site': request.GET.get('site'),
+            'default_metric': request.GET.get('metric'),
+        })
 
 
 @login_required

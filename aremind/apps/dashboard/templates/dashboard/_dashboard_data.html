@@ -126,6 +126,14 @@ ko.bindingHandlers.category_barchart = {
           containerId: $(element).attr('id')
         });
 
+        var bar_clicked = function() {
+          var opt = element.wrapper.getChart().getSelection()[0].row;
+          var metric = ['wait', 'friendly', 'pricedisp', 'drugavail', 'clean'][opt];
+          window.location.href = '/dashboard/pbf/reports/?metric=' + metric;
+        };
+
+        google.visualization.events.addListener(element.wrapper, 'select', bar_clicked);
+
         valueAccessor(valueAccessor());
       });
     },
@@ -204,12 +212,12 @@ ko.bindingHandlers.map_volume = {
         element.ovl.push(dot);
         element.ovl.push(circle);
 
-        google.maps.event.addListener(circle, 'click', function() {
-            // We should be able to implement some sort of get_absolute_url
-            // for a location. For now, we fake it.
-            // location.href = {{ location.get_absolute_url }};
-            location.href = '1/'
-          });
+        var goto_detail = function() {
+            window.location.href = '/dashboard/pbf/reports/?site=' + facility.id;
+          };
+
+        google.maps.event.addListener(circle, 'click', goto_detail);
+        google.maps.event.addListener(dot, 'click', goto_detail);
       });
     element.map.fitBounds(bounds);
   }

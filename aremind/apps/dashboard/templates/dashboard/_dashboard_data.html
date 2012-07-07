@@ -62,8 +62,8 @@ function MonthlyStatsModel(data) {
   this.data = data;
 }
 
+// this must be called outside of a knockout bind handler init, or else everything freaks out
 google.load('visualization', '1', { packages: ['corechart'] });
-
 
 ko.bindingHandlers.satisfaction_piechart = {
   init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
@@ -88,21 +88,21 @@ ko.bindingHandlers.satisfaction_piechart = {
 
         valueAccessor(valueAccessor());
       });
-    },
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-      var active = ko.utils.unwrapObservable(valueAccessor());
-      if (!element.wrapper || !active) {
-        return;
-      }
-
-      var dataTable = google.visualization.arrayToDataTable([
-        ['Category', ''],
-        ['Satisfied', active.data.satisfaction.True],
-        ['Unsatisfied', active.data.satisfaction.False],
-      ]);
-      element.wrapper.setDataTable(dataTable);
-      element.wrapper.draw();
+  },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    if (!element.wrapper || !active) {
+      return;
     }
+
+    var dataTable = google.visualization.arrayToDataTable([
+      ['Category', ''],
+      ['Satisfied', active.data.satisfaction.True],
+      ['Unsatisfied', active.data.satisfaction.False],
+    ]);
+    element.wrapper.setDataTable(dataTable);
+    element.wrapper.draw();
+  }
 };
 
 ko.bindingHandlers.category_barchart = {
@@ -129,28 +129,91 @@ ko.bindingHandlers.category_barchart = {
         valueAccessor(valueAccessor());
       });
     },
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-      var active = ko.utils.unwrapObservable(valueAccessor());
-      if (!element.wrapper || !active) {
-        return;
-      }
-
-      var dataTable = google.visualization.arrayToDataTable([
-        ['Category', ''],
-	['Waiting Time', active.data.by_category.waiting_time],
-        ['Staff Friendliness', active.data.by_category.staff_friendliness],
-        ['Price Display', active.data.by_category.price_display],
-        ['Drug Availability', active.data.by_category.drug_availability],
-        ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
-      ]);
-      element.wrapper.setDataTable(dataTable);
-      element.wrapper.draw();
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    if (!element.wrapper || !active) {
+      return;
     }
+
+    var dataTable = google.visualization.arrayToDataTable([
+      ['Category', ''],
+      ['Waiting Time', active.data.by_category.waiting_time],
+      ['Staff Friendliness', active.data.by_category.staff_friendliness],
+      ['Price Display', active.data.by_category.price_display],
+      ['Drug Availability', active.data.by_category.drug_availability],
+      ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
+    ]);
+    element.wrapper.setDataTable(dataTable);
+    element.wrapper.draw();
+  }
 };
 
+ko.bindingHandlers.map_volume = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+console.log('here');
+    var options = {
+	center: new google.maps.LatLng(0, 0),
+        zoom: 5,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    element.map = new google.maps.Map(element, options);
+    element.ovl = [];
+  },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    if (!active) {
+      return;
+    }
 
-</script>
+    $.each(element.ovl, function(i, e) {
+        e.setMap(null);
+      });
 
+    var bounds = new google.maps.LatLngBounds();
+    $.each(active.data.by_clinic, function(i, e) {
+        var facility = e[0];
+        var volume = e[1];
+
+        var pos = new google.maps.LatLng(facility.lat, facility.lon);
+        bounds.extend(pos);
+
+        var circleOptions = {
+          strokeColor: '#DA4F49',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#DA4F49',
+          fillOpacity: 0.35,
+          map: element.map,
+          center: pos,
+          radius: 30000 * Math.sqrt(volume)
+        };
+
+        var dotOptions = {
+          strokeColor: '#000000',
+          strokeOpacity: 1.0,
+          strokeWeight: 1,
+          fillColor: '#000000',
+          fillOpacity: 1.0,
+          map: element.map,
+          center: pos,
+          radius: 7000
+        };
+
+        var circle = new google.maps.Circle(circleOptions);
+        var dot = new google.maps.Circle(dotOptions);
+        element.ovl.push(circle);
+        element.ovl.push(dot);
+
+        google.maps.event.addListener(circle, 'click', function() {
+            // We should be able to implement some sort of get_absolute_url
+            // for a location. For now, we fake it.
+            // location.href = {{ location.get_absolute_url }};
+            location.href = '1/'
+          });
+      });
+    element.map.fitBounds(bounds);
+  }
+};
 
 </script>
 

@@ -23,17 +23,17 @@ from datetime import datetime, timedelta
 import collections
 
 FACILITIES = [
-    {'id': 1, 'name': 'Wamba General Hospital', 'lat': 0, 'lon': 0},
-    {'id': 2, 'name': 'Arum Health Center', 'lat': 0, 'lon': 0},
-    {'id': 3, 'name': 'Mangar Health Center', 'lat': 0, 'lon': 0},
-    {'id': 4, 'name': 'Gitta Health Center', 'lat': 0, 'lon': 0},
-    {'id': 5, 'name': 'Nakere Health Center', 'lat': 0, 'lon': 0},
-    {'id': 6, 'name': 'Konvah Health Center', 'lat': 0, 'lon': 0},
-    {'id': 7, 'name': 'Wayo Health Center', 'lat': 0, 'lon': 0},
-    {'id': 8, 'name': 'Wamba West Health Center', 'lat': 0, 'lon': 0},
-    {'id': 9, 'name': 'Wamba East Health Center (Model Clinic)', 'lat': 0, 'lon': 0},
-    {'id': 10, 'name': 'Kwara Health Center', 'lat': 0, 'lon': 0},
-    {'id': 11, 'name': 'Jimiya Health Center', 'lat': 0, 'lon': 0},
+    {'id': 1, 'name': 'Wamba General Hospital', 'lat': 9.2, 'lon': 7.18},
+    {'id': 2, 'name': 'Arum Health Center', 'lat': 9.1, 'lon': 6.02},
+    {'id': 3, 'name': 'Mangar Health Center', 'lat': 4.97, 'lon': 8.35},
+    {'id': 4, 'name': 'Gitta Health Center', 'lat': 6.47, 'lon': 7.55},
+    {'id': 5, 'name': 'Nakere Health Center', 'lat': 12.17, 'lon': 6.7},
+    {'id': 6, 'name': 'Konvah Health Center', 'lat': 7.43, 'lon': 3.9},
+    {'id': 7, 'name': 'Wayo Health Center', 'lat': 8.48, 'lon': 4.58},
+    {'id': 8, 'name': 'Wamba West Health Center', 'lat': 9.87, 'lon': 8.9},
+    {'id': 9, 'name': 'Wamba East Health Center (Model Clinic)', 'lat': 10.6, 'lon': 7.45},
+    {'id': 10, 'name': 'Kwara Health Center', 'lat': 12.05, 'lon': 8.53},
+    {'id': 11, 'name': 'Jimiya Health Center', 'lat': 6.58, 'lon': 3.33},
 ]
 
 def load_reports(path):

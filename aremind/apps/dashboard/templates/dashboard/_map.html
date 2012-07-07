@@ -1,6 +1,7 @@
-<div id="map" class="map {% if mini %}mini{% endif %}"></div>
+<div id="map" data-bind="map_volume: active_month" class="map {% if mini %}mini{% endif %}"></div>
 
 <script type="text/javascript">
+/*
     var mini = '{{ mini }}';
     var locations = {
         'one': {
@@ -23,8 +24,6 @@
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
 
-    var map = new google.maps.Map(document.getElementById('map'), options);
-
     if(mini) {
         var dotOptions = {
             strokeColor: '#000000',
@@ -37,17 +36,10 @@
             radius: 800
         };
 
-        map.setOptions({
-            'mapTypeControl': false,
-            'panControl': false,
-            'streetViewControl': false,
-            'zoomControl': false,
-            'draggable': false,
-            'zoom': 10
-        });
-
         var dot = new google.maps.Circle(dotOptions);
     } else {
+        var map = new google.maps.Map(document.getElementById('map'), options);
+
         for(var loc in locations) {
             var circleOptions = {
                 strokeColor: '#DA4F49',
@@ -82,4 +74,5 @@
             });
         }
     }
+*/
 </script>

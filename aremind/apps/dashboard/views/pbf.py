@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.conf import settings
 
 @login_required
 def dashboard(request):
@@ -84,8 +85,6 @@ def make_reports(path, n):
     with open(path, 'w') as f:
         json.dump(reports, f)
 
-TEST_DATA = '/tmp/data'
-
 def api_main(request):
     payload = {
         'stats': main_dashboard_stats(),
@@ -103,7 +102,7 @@ def api_detail(request):
     return HttpResponse(json.dumps(payload), 'text/json')
 
 def main_dashboard_stats():
-    data = load_reports(TEST_DATA)
+    data = load_reports(settings.DASHBOARD_SAMPLE_DATA)
 
     facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
 
@@ -126,7 +125,7 @@ def main_dashboard_stats():
     return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
 
 def detail_stats(facility_id):
-    data = load_reports(TEST_DATA)
+    data = load_reports(settings.DASHBOARD_SAMPLE_DATA)
 
     facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
 

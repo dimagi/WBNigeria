@@ -1,4 +1,4 @@
-<div id="pie-chart" class="chart"></div>
+<div id="pie-chart" data-bind="satisfaction_piechart: active_month" class="chart"></div>
 <div class="row-fluid date-control">
     <div class="span4">
         <a href="#" data-bind="click: prevmonth, style: { color: stats().indexOf(active_month()) == 0 ? '#888' : '' }">Prev</a>
@@ -12,54 +12,4 @@
 </div>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript">
-    var wrapper;
 
-    function monthChange(date) {
-        function chartData(data, status, xhr) {
-            var dataTable = google.visualization.arrayToDataTable([
-                ['Category', ''],
-                ['Satisfied', data['satisfied']],
-                ['Unsatisfied', data['unsatisfied']]
-            ]);
-            wrapper.setDataTable(dataTable);
-            wrapper.draw();
-        }
-
-        // Make request for data
-        // $.getJSON(url, {'date': date}, chartData);
-        // For now, fake it
-        chartData({
-            'satisfied': Math.floor(Math.random() * 100),
-            'unsatisfied': Math.floor(Math.random() * 100)
-        });
-    }
-
-    function drawChart() {
-        var options = {
-            vAxis: {
-                textPosition: 'in'
-            },
-            chartArea: {
-                top: 10,
-                left: 0,
-                width: '100%'
-            }
-        };
-
-        wrapper = new google.visualization.ChartWrapper({
-            chartType: 'PieChart',
-            dataTable: [
-                ['Category', ''],
-                ['Satisfied', 43],
-                ['Unsatisfied', 21]
-            ],
-            options: options,
-            containerId: 'pie-chart'
-        });
-        wrapper.draw();
-    }
-
-    google.load('visualization', '1', { packages: ['corechart'] });
-    google.setOnLoadCallback(drawChart);
-</script>

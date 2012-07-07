@@ -57,7 +57,51 @@ function PBFViewModel() {
 function MonthlyStatsModel(data) {
   this.total = ko.observable(data.total);
   this.month_label = ko.observable(data.month);
+
+  this.data = data;
 }
+
+
+
+ko.bindingHandlers.satisfaction_piechart = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+      var options = {
+        vAxis: {
+          textPosition: 'in'
+        },
+        chartArea: {
+          top: 10,
+          left: 0,
+          width: '100%'
+        }
+      };
+
+      this.wrapper = new google.visualization.ChartWrapper({
+        chartType: 'PieChart',
+        options: options,
+        containerId: $(element).attr('id')
+      });
+
+      google.load('visualization', '1', { packages: ['corechart'] });
+      google.setOnLoadCallback(function() {
+          valueAccessor(valueAccessor());
+        });
+    },
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+      var active = ko.utils.unwrapObservable(valueAccessor());
+      if (!active) {
+        return;
+      }
+
+      var dataTable = google.visualization.arrayToDataTable([
+        ['Category', ''],
+        ['Satisfied', active.data.satisfaction.True],
+        ['Unsatisfied', active.data.satisfaction.False],
+      ]);
+      this.wrapper.setDataTable(dataTable);
+      this.wrapper.draw();  
+    }
+};
 
 </script>
 

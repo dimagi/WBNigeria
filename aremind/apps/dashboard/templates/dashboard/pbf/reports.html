@@ -40,10 +40,11 @@ function PBFDetailViewModel() {
       this.facilities(facs);
     }
 
+    var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
     this.monthly($.map(data.monthly, function(m) {
         return new MonthlyDetailModel(m);
       }));
-    this.active_month(this.monthly.slice(-1)[0]);
+    this.active_month(this.monthly.slice(active_month_ix)[0]);
   };
 
   this.ajax_load = function(facility_id) {
@@ -233,7 +234,11 @@ ko.bindingHandlers.historicalchart = {
     var minmonthix = curmonthix - 2;
     var maxmonthix = curmonthix + 2;
 
-    var ordering = ['True', 'False', '<2', '2-4', '>4'];
+    if (metric == 'wait') {
+      var ordering = ['<2', '2-4', '>4'];
+    } else {
+      var ordering = ['True', 'False'];
+    }
     var captions = {
       True: '+',
       False: '\u2013',
@@ -245,9 +250,7 @@ ko.bindingHandlers.historicalchart = {
     var labels = ['Month'];
     var raw_data = monthly_datapoints(active, metric);
     $.each(ordering, function(i, e) {
-        if (raw_data[e] != null) {
-          labels.push(captions[e]);
-        }
+        labels.push(captions[e]);
       });
     var data = [labels];
 
@@ -263,9 +266,7 @@ ko.bindingHandlers.historicalchart = {
         var raw_data = monthly_datapoints(m, metric);
         row.push(m.month_label());
         $.each(ordering, function(i, e) {
-            if (raw_data[e] != null) {
-              row.push(raw_data[e]);
-            }
+            row.push(raw_data[e] || 0);
           });
       }
       data.push(row);
@@ -332,12 +333,20 @@ ko.bindingHandlers.map_volume = {
         element.ovl.push(dot);
         element.ovl.push(circle);
 
-        google.maps.event.addListener(circle, 'click', function() {
-            // We should be able to implement some sort of get_absolute_url
-            // for a location. For now, we fake it.
-            // location.href = {{ location.get_absolute_url }};
-            location.href = '1/'
-          });
+        var select_clinic = function() {
+	    var clinic = null;
+            $.each(viewModel.facilities(), function(i, e) {
+                if (e.id() == facility.id) {
+                  clinic = e;
+                  return false;
+                }
+              });
+            viewModel.active_metric('satisf');
+            viewModel.active_facility(clinic);
+          };
+
+        google.maps.event.addListener(circle, 'click', select_clinic);
+        google.maps.event.addListener(dot, 'click', select_clinic);
       });
     element.map.fitBounds(bounds);
     var MAX_ZOOM = 7;

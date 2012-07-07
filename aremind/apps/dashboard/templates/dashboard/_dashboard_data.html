@@ -1,5 +1,6 @@
 
 <script src="http://knockoutjs.com/js/knockout-2.1.0.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script>
 
 if (!window.console) {
@@ -61,35 +62,36 @@ function MonthlyStatsModel(data) {
   this.data = data;
 }
 
+google.load('visualization', '1', { packages: ['corechart'] });
 
 
 ko.bindingHandlers.satisfaction_piechart = {
-    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-      var options = {
-        vAxis: {
-          textPosition: 'in'
-        },
-        chartArea: {
-          top: 10,
-          left: 0,
-          width: '100%'
-        }
-      };
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    google.load('visualization', '1', { packages: ['corechart'] });
+    google.setOnLoadCallback(function() {
+        var options = {
+          vAxis: {
+            textPosition: 'in'
+          },
+          chartArea: {
+            top: 10,
+            left: 0,
+            width: '100%'
+          }
+        };
 
-      this.wrapper = new google.visualization.ChartWrapper({
-        chartType: 'PieChart',
-        options: options,
-        containerId: $(element).attr('id')
-      });
-
-      google.load('visualization', '1', { packages: ['corechart'] });
-      google.setOnLoadCallback(function() {
-          valueAccessor(valueAccessor());
+        element.wrapper = new google.visualization.ChartWrapper({
+          chartType: 'PieChart',
+          options: options,
+          containerId: $(element).attr('id')
         });
+
+        valueAccessor(valueAccessor());
+      });
     },
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
       var active = ko.utils.unwrapObservable(valueAccessor());
-      if (!active) {
+      if (!element.wrapper || !active) {
         return;
       }
 
@@ -98,10 +100,57 @@ ko.bindingHandlers.satisfaction_piechart = {
         ['Satisfied', active.data.satisfaction.True],
         ['Unsatisfied', active.data.satisfaction.False],
       ]);
-      this.wrapper.setDataTable(dataTable);
-      this.wrapper.draw();  
+      element.wrapper.setDataTable(dataTable);
+      element.wrapper.draw();
     }
 };
+
+ko.bindingHandlers.category_barchart = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    google.load('visualization', '1', { packages: ['corechart'] });
+    google.setOnLoadCallback(function() {
+        var options = {
+          vAxis: {
+            textPosition: 'in'
+          },
+          chartArea: {
+            top: 0,
+            left: 0,
+            width: '100%'
+          }
+        };
+
+        element.wrapper = new google.visualization.ChartWrapper({
+          chartType: 'BarChart',
+          options: options,
+          containerId: $(element).attr('id')
+        });
+
+        valueAccessor(valueAccessor());
+      });
+    },
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+      var active = ko.utils.unwrapObservable(valueAccessor());
+      if (!element.wrapper || !active) {
+        return;
+      }
+
+      var dataTable = google.visualization.arrayToDataTable([
+        ['Category', ''],
+	['Waiting Time', active.data.by_category.waiting_time],
+        ['Staff Friendliness', active.data.by_category.staff_friendliness],
+        ['Price Display', active.data.by_category.price_display],
+        ['Drug Availability', active.data.by_category.drug_availability],
+        ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
+      ]);
+      element.wrapper.setDataTable(dataTable);
+      element.wrapper.draw();
+    }
+};
+
+
+</script>
+
 
 </script>
 

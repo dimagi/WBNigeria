@@ -96,6 +96,7 @@ function MonthlyDetailModel(data) {
     }));
   this.month_label = ko.observable(data.month);
   this.stats = data.stats;
+  this.clinic_totals = data.clinic_totals;
 }
 
 function LogModel(data) {
@@ -275,6 +276,77 @@ ko.bindingHandlers.historicalchart = {
   }
 };
 
+ko.bindingHandlers.map_volume = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var options = {
+	center: new google.maps.LatLng(0, 0),
+        zoom: 5,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    element.map = new google.maps.Map(element, options);
+    element.ovl = [];
+  },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    if (!active) {
+      return;
+    }
+
+    $.each(element.ovl, function(i, e) {
+        e.setMap(null);
+      });
+    element.ovl = [];
+
+    var bounds = new google.maps.LatLngBounds();
+    $.each(active.clinic_totals, function(i, e) {
+        var facility = e[0];
+        var volume = e[1];
+
+        var pos = new google.maps.LatLng(facility.lat, facility.lon);
+        bounds.extend(pos);
+
+        var circleOptions = {
+          strokeColor: '#DA4F49',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#DA4F49',
+          fillOpacity: 0.35,
+          map: element.map,
+          center: pos,
+          radius: 30000 * Math.sqrt(volume)
+        };
+
+        var dotOptions = {
+          strokeColor: '#000000',
+          strokeOpacity: 1.0,
+          strokeWeight: 1,
+          fillColor: '#000000',
+          fillOpacity: 1.0,
+          map: element.map,
+          center: pos,
+          radius: 7000
+        };
+
+        var circle = new google.maps.Circle(circleOptions);
+        var dot = new google.maps.Circle(dotOptions);
+        element.ovl.push(dot);
+        element.ovl.push(circle);
+
+        google.maps.event.addListener(circle, 'click', function() {
+            // We should be able to implement some sort of get_absolute_url
+            // for a location. For now, we fake it.
+            // location.href = {{ location.get_absolute_url }};
+            location.href = '1/'
+          });
+      });
+    element.map.fitBounds(bounds);
+    var MAX_ZOOM = 7;
+    if (element.map.getZoom() > MAX_ZOOM) {
+      element.map.setZoom(MAX_ZOOM);
+    }
+  }
+};
+
 
 </script>
 
@@ -312,7 +384,7 @@ ko.bindingHandlers.historicalchart = {
         </div>
     </div>
 
-    <div class="row-fluid">
+    <div class="row-fluid" data-bind="visible: active_metric() != 'all'">
         <div class="span8">
             <h3>Reports by Month</h3>
             <p>
@@ -327,13 +399,11 @@ ko.bindingHandlers.historicalchart = {
         </div>
     </div>
 
-<!--
-    <div class="row-fluid">
+    <div class="row-fluid" data-bind="visible: active_metric() == 'all'">
         <div class="span12">
-            {% include "dashboard/_map.html" %}
+	  <div id="map" data-bind="map_volume: active_month" class="map"></div>
         </div>
     </div>
--->
 
     <div class="row-fluid">
         <div class="span12">

@@ -145,6 +145,7 @@ def detail_stats(facility_id):
                 'drug_availability',
                 'cleanliness',
             )),
+            'clinic_totals': [[facilities[k], v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
             'month': label[0],
             '_month': label[1],
         }

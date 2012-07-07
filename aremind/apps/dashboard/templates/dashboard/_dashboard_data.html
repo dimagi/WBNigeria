@@ -13,7 +13,8 @@ $(document).ready(function() {
   });
 
 function main_dashboard_init() {
-  var model = PBFViewModel();
+  var model = new PBFViewModel();
+  ko.applyBindings(model);
 
   $.get('/dashboard/pbf/api/main', function(data) {
       console.log(data);
@@ -22,30 +23,40 @@ function main_dashboard_init() {
 }
 
 
-
 function PBFViewModel() {
-  this.facilities = ko.observableArray();
   this.stats = ko.observableArray();
+  this.active_month = ko.observable();
 
   this.load = function(data) {
-    this.facilities($.map(data.facilities, function(fac) {
-        return new FacilityModel(fac);
-      }));
     this.stats($.map(data.stats, function(st) {
         return new MonthlyStatsModel(st);
       }));
+    this.active_month(this.stats.slice(-1)[0]);
   };
-}
 
-function FacilityModel(data) {
-  this.id = ko.observable(data.id);
-  this.name = ko.observable(data.name);
-  this.lat = ko.observable(data.lat);
-  this.lon = ko.observable(data.lon);
+  this.prevmonth = function() {
+    this.month_incr(-1);
+  }
+
+  this.nextmonth = function() {
+    this.month_incr(1);
+  }
+ 
+  this.month_incr = function(k) {
+    var i = this.stats.indexOf(this.active_month());
+    i += k;
+    if (i >= this.stats().length) {
+      i = this.stats().length - 1;
+    } else if (i <= 0) {
+      i = 0;
+    }
+    this.active_month(this.stats()[i]);
+  }
 }
 
 function MonthlyStatsModel(data) {
-  
+  this.total = ko.observable(data.total);
+  this.month_label = ko.observable(data.month);
 }
 
 </script>
@@ -66,7 +77,7 @@ function MonthlyStatsModel(data) {
     </div>
 
     <div class="span4">
-        <h2>Based on reports</h2>
+        <h2>Based on <span data-bind="text: active_month() ? active_month().total() : ''"></span> reports</h2>
         <p>
             {% include "dashboard/_pie_chart.html" %}
         </p>

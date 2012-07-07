@@ -19,6 +19,7 @@ $(function() {
         'minWidth': $('div.contact-modal').width()
     });
 
+    /*
     //DataTable-ify all tables
     var table = $('table#reports-table').dataTable({
         'sDom': '<t>'
@@ -41,6 +42,7 @@ $(function() {
     $('#search').keyup(function(e) {
         table.fnFilter($(this).val());
     });
+    */
 
     // Enable all alerts
     $('.alert').alert().bind('close', function(e) {

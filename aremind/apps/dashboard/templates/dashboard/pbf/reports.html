@@ -30,9 +30,19 @@ function detail_report_init() {
 
 function PBFDetailViewModel() {
   this.logs = ko.observableArray();
+  this.facilities = ko.observableArray();
+  this.__all_clinics = new FacilityModel({id: -1, name: 'All Clinics'});
+
+  this.active_facility = ko.observable();
+  this.active_metric = ko.observable();
   this.active_month = ko.observable();
 
   this.load = function(data) {
+    this.facilities($.map(data.facilities, function(f) {
+        return new FacilityModel(f);
+      }));
+    this.facilities.splice(0, 0, this.__all_clinics);
+    this.active_facility(this.__all_clinics);
     this.logs($.map(data.logs, function(l) {
         return new LogModel(l);
       }));
@@ -53,6 +63,15 @@ function PBFDetailViewModel() {
     }
     this.active_month(this.stats()[i]);
   }
+
+  this.is_metric_active = function(code) {
+    return (this.active_metric() == 'all' || this.active_metric() == code);
+  }
+}
+
+function FacilityModel(data) {
+  this.id = ko.observable(data.id);
+  this.name = ko.observable(data.name);
 }
 
 function LogModel(data) {
@@ -80,12 +99,10 @@ ko.bindingHandlers.yn = {
   update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
     var val = ko.utils.unwrapObservable(valueAccessor());
 
-    console.log(val);
- 
+    $(element).empty();
     if (val != null) {
       var $img = $('<img />');
       $img.attr('src', 'http://whereis.dimagi.com/staticmedia/admin/img/icon_' + (val ? 'success' : 'error') + '.gif');
-      $(element).empty();
       $(element).append($img);
     }
 
@@ -99,16 +116,17 @@ ko.bindingHandlers.yn = {
         <div class="span12">
             <form id="detail-filter" class="form-inline filter-form">
                 <label>Feedback on</label>
-                <select id="feedback">
-                    <option>All</option>
-                    <option>Feedback #1</option>
-                    <option>Feedback #2</option>
+                <select data-bind="value: active_metric" id="feedback">
+                    <option value="all">All</option>
+                    <option value="satisf">Overall Satisfaction</option>
+                    <option value="wait">Waiting Time</option>
+                    <option value="clean">Cleanliness &amp; Hygiene</option>
+                    <option value="friendly">Staff Friendliness</option>
+                    <option value="drugavail">Drug Availability</option>
+                    <option value="pricedisp">Prices Displayed</option>
                 </select>
                 <label>in</label>
-                <select id="location">
-                    <option>All Clinics</option>
-                    <option>Location #1</option>
-                    <option>Location #2</option>
+                <select data-bind="options: facilities, value: active_facility, optionsText: 'name'" id="location">
                 </select>
             </form>
         </div>
@@ -135,13 +153,14 @@ ko.bindingHandlers.yn = {
                         <th>Report #</th>
                         <th style="width: 12em;">Site</th>
                         <th>Date &amp; Time</th>
-                        <th>Patient Satisfied</th>
-                        <th>Waiting Time</th>
-                        <th>Clean Clinic</th>
-                        <th>Staff Friendly</th>
-                        <th>Drugs Available</th>
-                        <th>Prices Displayed</th>
-                        <th>Free-form Entries</th>
+                        <th data-bind="visible: is_metric_active('satisf')">Patient Satisfied</th>
+                        <th data-bind="visible: is_metric_active('wait')">Waiting Time</th>
+                        <th data-bind="visible: is_metric_active('clean')">Clean Clinic</th>
+                        <th data-bind="visible: is_metric_active('friendly')">Staff Friendly</th>
+                        <th data-bind="visible: is_metric_active('drugavail')">Drugs Available</th>
+                        <th data-bind="visible: is_metric_active('pricedisp')">Prices Displayed</th>
+                        <th data-bind="visible: $root.active_metric() == 'all'">Free-form Entries</th>
+			<th data-bind="visible: active_metric() != 'all'">Free-form message</th>
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: logs">
@@ -149,13 +168,14 @@ ko.bindingHandlers.yn = {
                         <td data-bind="text: id"></td>
                         <td data-bind="text: site"></td>
                         <td data-bind="text: date"></td>
-                        <td data-bind="yn: satisfied"></td>
-                        <td data-bind="text: disp_wait"></td>
-                        <td data-bind="yn: cleanliness"></td>
-                        <td data-bind="yn: friendliness"></td>
-                        <td data-bind="yn: drugs_avail"></td>
-                        <td data-bind="yn: price_display"></td>
-                        <td data-bind="yn: message() != null"></td>
+                        <td data-bind="yn: satisfied, visible: $root.is_metric_active('satisf')"></td>
+                        <td data-bind="text: disp_wait, visible: $root.is_metric_active('wait')"></td>
+                        <td data-bind="yn: cleanliness, visible: $root.is_metric_active('clean')"></td>
+                        <td data-bind="yn: friendliness, visible: $root.is_metric_active('friendly')"></td>
+                        <td data-bind="yn: drugs_avail, visible: $root.is_metric_active('drugavail')"></td>
+                        <td data-bind="yn: price_display, visible: $root.is_metric_active('pricedisp')"></td>
+                        <td data-bind="yn: message() != null, visible: $root.active_metric() == 'all'"></td>
+			<td data-bind="text: message, visible: $root.active_metric() != 'all'"></td>
                     </tr>
                 </tbody>
             </table>

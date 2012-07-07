@@ -95,6 +95,7 @@ function MonthlyDetailModel(data) {
       return new LogModel(l);
     }));
   this.month_label = ko.observable(data.month);
+  this.stats = data.stats;
 }
 
 function LogModel(data) {
@@ -128,6 +129,83 @@ ko.bindingHandlers.yn = {
       $img.attr('src', 'http://whereis.dimagi.com/staticmedia/admin/img/icon_' + (val ? 'success' : 'error') + '.gif');
       $(element).append($img);
     }
+
+  }
+};
+
+// this must be called outside of a knockout bind handler init, or else everything freaks out
+google.load('visualization', '1', { packages: ['corechart'] });
+
+function monthly_datapoints(month, metric) {
+  return month.stats[{
+    satisf: 'satisfied',
+    wait: 'wait_bucket',
+    clean: 'cleanliness',
+    friendly: 'staff_friendliness',
+    drugavail: 'drug_availability',
+    pricedisp: 'price_display',
+  }[metric]];
+}
+
+ko.bindingHandlers.currentchart = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    google.load('visualization', '1', { packages: ['corechart'] });
+    google.setOnLoadCallback(function() {
+        valueAccessor(valueAccessor());
+        element.charts_init = true;
+      });
+  },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    var metric = viewModel.active_metric();
+    if (!element.charts_init || !active || !metric || metric == 'all') {
+      return;
+    }
+
+    var options = {
+      vAxis: {
+        textPosition: 'in'
+      },
+      chartArea: {
+        top: 10,
+        left: 0,
+        width: '100%'
+      }
+    };
+
+    var ordering = ['True', 'False', '<2', '2-4', '>4'];
+    var captions = {
+      True: '+',
+      False: '\u2013',
+      '<2': '< 2 hrs',
+      '2-4': '2\u20134 hrs',
+      '>4': '> 4 hrs',
+    };
+
+    var data = [['Category', '']];
+    var raw_data = monthly_datapoints(active, metric);
+    $.each(ordering, function(i, e) {
+        if (raw_data[e] != null) {
+          data.push([captions[e], raw_data[e]]);
+        }
+      });
+
+    if (metric == 'wait') {
+      var chart_type = 'ColumnChart';
+    } else {
+      var chart_type = 'PieChart';
+    }
+
+    var chart = new google.visualization[chart_type](element);
+    chart.draw(google.visualization.arrayToDataTable(data), options);
+  }
+};
+
+ko.bindingHandlers.historicalchart = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+
+  },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
 
   }
 };
@@ -173,11 +251,13 @@ ko.bindingHandlers.yn = {
         <div class="span8">
             <h3>Reports by Month</h3>
             <p>
+	      <div id="multi-month-chart" data-bind="historicalchart: active_month" class="chart"></div>
             </p>
         </div>
         <div class="span4">
             <h3>Patients reported&hellip;</h3>
             <p>
+	      <div id="multi-month-chart" data-bind="currentchart: active_month" class="chart"></div>
             </p>
         </div>
     </div>

@@ -137,6 +137,14 @@ def detail_stats(facility_id):
         return {
             'total': len(data),
             'logs': sorted(data, key=lambda r: r['timestamp'], reverse=True)[:LIMIT],
+            'stats': dict((k, map_reduce(data, lambda r: [(r[k],)], len)) for k in (
+                'satisfied',
+                'wait_bucket',
+                'staff_friendliness',
+                'price_display',
+                'drug_availability',
+                'cleanliness',
+            )),
             'month': label[0],
             '_month': label[1],
         }

@@ -23,7 +23,7 @@ function detail_report_init() {
 }
 
 function PBFDetailViewModel() {
-  this.logs = ko.observableArray();
+  this.monthly = ko.observableArray();
   this.facilities = ko.observableArray();
   this.__all_clinics = new FacilityModel({id: -1, name: 'All Clinics'});
 
@@ -40,10 +40,10 @@ function PBFDetailViewModel() {
       this.facilities(facs);
     }
 
-    this.logs($.map(data.logs, function(l) {
-        return new LogModel(l);
+    this.monthly($.map(data.monthly, function(m) {
+        return new MonthlyDetailModel(m);
       }));
-    //this.active_month(this.stats.slice(-1)[0]);
+    this.active_month(this.monthly.slice(-1)[0]);
   };
 
   this.ajax_load = function(facility_id) {
@@ -59,15 +59,19 @@ function PBFDetailViewModel() {
     this.month_incr(-1);
   }
 
+  this.nextmonth = function() {
+    this.month_incr(1);
+  }
+
   this.month_incr = function(k) {
-    var i = this.stats.indexOf(this.active_month());
+    var i = this.monthly.indexOf(this.active_month());
     i += k;
-    if (i >= this.stats().length) {
-      i = this.stats().length - 1;
+    if (i >= this.monthly().length) {
+      i = this.monthly().length - 1;
     } else if (i <= 0) {
       i = 0;
     }
-    this.active_month(this.stats()[i]);
+    this.active_month(this.monthly()[i]);
   }
 
   this.is_metric_active = function(code) {
@@ -84,6 +88,13 @@ function PBFDetailViewModel() {
 function FacilityModel(data) {
   this.id = ko.observable(data.id);
   this.name = ko.observable(data.name);
+}
+
+function MonthlyDetailModel(data) {
+  this.logs = ko.observableArray($.map(data.logs, function(l) {
+      return new LogModel(l);
+    }));
+  this.month_label = ko.observable(data.month);
 }
 
 function LogModel(data) {
@@ -125,7 +136,21 @@ ko.bindingHandlers.yn = {
 </script>
 
     <div class="row-fluid">
-        <div class="span12">
+      <table class="date-control" style="float: right;">
+	<tr>
+	  <td style="width: 4em; vertical-align: top; text-align: left;">
+            <a href="#" data-bind="click: prevmonth, style: { color: monthly().indexOf(active_month()) == 0 ? '#888' : '' }">Prev</a>
+	  </td>
+	  <td class="month" style="width: 8em; vertical-align: top; text-align: center;">
+            <p data-bind="text: active_month() ? active_month().month_label() : ''"></p>
+	  </td>
+	  <td style="width: 4em; vertical-align: top; text-align: right;">
+            <a href="#" data-bind="click: nextmonth, style: { color: monthly().indexOf(active_month()) == monthly().length - 1 ? '#888' : '' }">Next</a>
+	  </td>
+	</tr>
+      </table>
+
+        <div class="span8">
             <form id="detail-filter" class="form-inline filter-form">
                 <label>Feedback on</label>
                 <select data-bind="value: active_metric" id="feedback">
@@ -145,10 +170,25 @@ ko.bindingHandlers.yn = {
     </div>
 
     <div class="row-fluid">
+        <div class="span8">
+            <h3>Reports by Month</h3>
+            <p>
+            </p>
+        </div>
+        <div class="span4">
+            <h3>Patients reported&hellip;</h3>
+            <p>
+            </p>
+        </div>
+    </div>
+
+<!--
+    <div class="row-fluid">
         <div class="span12">
             {% include "dashboard/_map.html" %}
         </div>
     </div>
+-->
 
     <div class="row-fluid">
         <div class="span12">
@@ -175,7 +215,7 @@ ko.bindingHandlers.yn = {
 			<th data-bind="visible: active_metric() != 'all'">Free-form message</th>
                     </tr>
                 </thead>
-                <tbody data-bind="foreach: logs">
+                <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
                     <tr>
                         <td data-bind="text: id"></td>
                         <td data-bind="text: site"></td>

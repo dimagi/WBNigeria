@@ -95,8 +95,8 @@ def api_detail(request):
 
     payload = {
         'facilities': FACILITIES,
+        'monthly': detail_stats(site),
     }
-    payload.update(detail_stats(site))
     return HttpResponse(json.dumps(payload), 'text/json')
 
 def main_dashboard_stats():
@@ -133,9 +133,15 @@ def detail_stats(facility_id):
         r['site_name'] = facilities[r['facility']]['name']
 
     LIMIT = 50
-    return {
-        'logs': sorted(filtered_data, key=lambda r: r['timestamp'], reverse=True)[:LIMIT],
-    }
+    def month_detail(data, label):
+        return {
+            'total': len(data),
+            'logs': sorted(data, key=lambda r: r['timestamp'], reverse=True)[:LIMIT],
+            'month': label[0],
+            '_month': label[1],
+        }
+
+    return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
 
 def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
     """perform a "map-reduce" on the data

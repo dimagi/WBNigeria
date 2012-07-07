@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'^pbf/reports/(?P<pk>\d+)/$', pbf.site_detail, name='pbf_site_detail'),
 
     url(r'^pbf/api/main/$', pbf.api_main),
+    url(r'^pbf/api/detail/$', pbf.api_detail),
 
     url(r'^fadama/$', fadama.dashboard, name='fadama_dashboard'),
     url(r'^fadama/reports/$', fadama.reports, name='fadama_reports'),

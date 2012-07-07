@@ -3,6 +3,98 @@
 {% block content %}
     {{ block.super }}
 
+<script src="http://knockoutjs.com/js/knockout-2.1.0.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script>
+
+if (!window.console) {
+    window.console = {
+        log: function () { }
+    };
+}
+
+$(document).ready(function() {
+    detail_report_init();
+  });
+
+function detail_report_init() {
+  var model = new PBFDetailViewModel();
+  ko.applyBindings(model);
+
+  $.get('/dashboard/pbf/api/detail', function(data) {
+      console.log(data);
+      model.load(data);
+    }, 'json');
+
+}
+
+function PBFDetailViewModel() {
+  this.logs = ko.observableArray();
+  this.active_month = ko.observable();
+
+  this.load = function(data) {
+    this.logs($.map(data.logs, function(l) {
+        return new LogModel(l);
+      }));
+    //this.active_month(this.stats.slice(-1)[0]);
+  };
+
+  this.prevmonth = function() {
+    this.month_incr(-1);
+  }
+
+  this.month_incr = function(k) {
+    var i = this.stats.indexOf(this.active_month());
+    i += k;
+    if (i >= this.stats().length) {
+      i = this.stats().length - 1;
+    } else if (i <= 0) {
+      i = 0;
+    }
+    this.active_month(this.stats()[i]);
+  }
+}
+
+function LogModel(data) {
+  this.id = ko.observable(data.id);
+  this.site = ko.observable(data.site_name);
+  this.date = ko.observable(data.display_time);
+  this.satisfied = ko.observable(data.satisfied);
+  this.wait_bucket = ko.observable(data.wait_bucket);
+  this.cleanliness = ko.observable(data.cleanliness);
+  this.friendliness = ko.observable(data.staff_friendliness);
+  this.drugs_avail = ko.observable(data.drug_availability);
+  this.price_display = ko.observable(data.price_display);
+  this.message = ko.observable(data.message);
+
+  this.disp_wait = ko.computed(function() {
+	return {
+	  '<2': '< 2 hrs',
+	  '2-4': '2\u20134 hrs',
+          '>4': '> 4 hrs',
+        }[this.wait_bucket()];
+    }, this);
+}
+
+ko.bindingHandlers.yn = {
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var val = ko.utils.unwrapObservable(valueAccessor());
+
+    console.log(val);
+ 
+    if (val != null) {
+      var $img = $('<img />');
+      $img.attr('src', 'http://whereis.dimagi.com/staticmedia/admin/img/icon_' + (val ? 'success' : 'error') + '.gif');
+      $(element).empty();
+      $(element).append($img);
+    }
+
+  }
+};
+
+
+</script>
+
     <div class="row-fluid">
         <div class="span12">
             <form id="detail-filter" class="form-inline filter-form">
@@ -41,7 +133,7 @@
                 <thead>
                     <tr>
                         <th>Report #</th>
-                        <th>Site</th>
+                        <th style="width: 12em;">Site</th>
                         <th>Date &amp; Time</th>
                         <th>Patient Satisfied</th>
                         <th>Waiting Time</th>
@@ -52,18 +144,18 @@
                         <th>Free-form Entries</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody data-bind="foreach: logs">
                     <tr>
-                        <td>742</td>
-                        <td>Arum Health Center</td>
-                        <td>05/30/2012 - 13:45</td>
-                        <td><input type="checkbox" checked="checked" /></td>
-                        <td>Less than 2 hours</td>
-                        <td><input type="checkbox" checked="checked" /></td>
-                        <td><input type="checkbox" checked="checked" /></td>
-                        <td><input type="checkbox" /></td>
-                        <td><input type="checkbox" checked="checked" /></td>
-                        <td><input type="checkbox" checked="checked" /></td>
+                        <td data-bind="text: id"></td>
+                        <td data-bind="text: site"></td>
+                        <td data-bind="text: date"></td>
+                        <td data-bind="yn: satisfied"></td>
+                        <td data-bind="text: disp_wait"></td>
+                        <td data-bind="yn: cleanliness"></td>
+                        <td data-bind="yn: friendliness"></td>
+                        <td data-bind="yn: drugs_avail"></td>
+                        <td data-bind="yn: price_display"></td>
+                        <td data-bind="yn: message() != null"></td>
                     </tr>
                 </tbody>
             </table>

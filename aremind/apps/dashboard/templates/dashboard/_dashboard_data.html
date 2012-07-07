@@ -117,7 +117,7 @@ ko.bindingHandlers.category_barchart = {
             top: 0,
             left: 0,
             width: '100%'
-          }
+         }
         };
 
         element.wrapper = new google.visualization.ChartWrapper({
@@ -168,6 +168,7 @@ console.log('here');
     $.each(element.ovl, function(i, e) {
         e.setMap(null);
       });
+    element.ovl = [];
 
     var bounds = new google.maps.LatLngBounds();
     $.each(active.data.by_clinic, function(i, e) {
@@ -201,8 +202,8 @@ console.log('here');
 
         var circle = new google.maps.Circle(circleOptions);
         var dot = new google.maps.Circle(dotOptions);
-        element.ovl.push(circle);
         element.ovl.push(dot);
+        element.ovl.push(circle);
 
         google.maps.event.addListener(circle, 'click', function() {
             // We should be able to implement some sort of get_absolute_url

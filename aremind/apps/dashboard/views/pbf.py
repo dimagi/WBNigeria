@@ -40,10 +40,16 @@ def load_reports(path):
     with open(path) as f:
         reports = json.load(f)
 
+    wait_buckets = [(2, '<2'), (4, '2-4'), (None, '>4')]
+
     for r in reports:
         ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')
+        for thresh, label in wait_buckets:
+            if thresh is None or r['waiting_time'] < thresh:
+                r['wait_bucket'] = label
+                break
 
     return reports
 
@@ -83,6 +89,15 @@ def api_main(request):
     }
     return HttpResponse(json.dumps(payload), 'text/json')
 
+def api_detail(request):
+    _site = request.GET.get('site')
+    site = int(_site) if _site else None
+
+    payload = {
+        'facilities': FACILITIES,
+    }
+    payload.update(detail_stats(site))
+    return HttpResponse(json.dumps(payload), 'text/json')
 
 def main_dashboard_stats():
     data = load_reports(TEST_DATA)
@@ -107,6 +122,20 @@ def main_dashboard_stats():
 
     return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
 
+def detail_stats(facility_id):
+    data = load_reports(TEST_DATA)
+
+    facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
+
+    filtered_data = [r for r in data if facility_id is None or r['facility'] == facility_id]
+    for r in filtered_data:
+        r['display_time'] = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S').strftime('%d/%m/%y %H:%M')
+        r['site_name'] = facilities[r['facility']]['name']
+
+    LIMIT = 50
+    return {
+        'logs': sorted(filtered_data, key=lambda r: r['timestamp'], reverse=True)[:LIMIT],
+    }
 
 def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
     """perform a "map-reduce" on the data

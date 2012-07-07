@@ -11,37 +11,3 @@
     </div>
 </div>
 
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript">
-    var wrapper;
-
-    function drawChart() {
-        var options = {
-            chartArea: {
-                top: 10,
-                left: 0,
-                width: '92%'
-            },
-            legend: {
-                position: 'in'
-            }
-        };
-
-        wrapper = new google.visualization.ChartWrapper({
-            chartType: 'ColumnChart',
-            dataTable: [
-                ['Month', 'Satisfied', 'Unsatisfied'],
-                ['March', 12, 18],
-                ['April', 29, 22],
-                ['May', 19, 8],
-                ['June', 26, 21]
-            ],
-            options: options,
-            containerId: 'multi-month-chart'
-        });
-        wrapper.draw();
-    }
-
-    google.load('visualization', '1', { packages: ['corechart'] });
-    google.setOnLoadCallback(drawChart);
-</script>

@@ -55,9 +55,18 @@ def load_reports(path):
 def make_reports(path, n):
     def mk_report(i):
         messages = [
-            'wait too long doctor no come',
-            'waiting room too dirty',
-            'no medicine',
+            'wait too long, doctor no come',
+            'no doctor, no drug',
+            'good clinic, god bless',
+            'clinic is good, doctor is good',
+            'People at clinic ask for 5000 naira, i have no money',
+            'clinic people help with malaria',
+            'feel better now',
+            'wait all morning, too many people waiting',
+            'clinic is very dirty',
+            'bring picken so them no go catch polio',
+            'where you see price of treatment?',
+            'breast milk only or water for baby',
         ]
 
         def tf():

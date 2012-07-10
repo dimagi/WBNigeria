@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     "aremind.apps.adherence",
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
+    'aremind.apps.dashboard',
 
 
     "eav",
@@ -109,13 +110,14 @@ INSTALLED_APPS = [
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aremind.apps.broadcast.views.dashboard", "Dashboard"),    
+    #("aremind.apps.broadcast.views.dashboard", "Dashboard"), # Old dashboard
     ("smscouchforms.views.download",       "View Data"),
     ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
     ('xforms', 'Reporter Scenario'),
     ('smsforms.views.list_forms', 'Decision Tree XForms'),
     ('smsforms.views.view_triggers', 'Decision Tree Triggers'),
-
+    ('aremind.apps.dashboard.views.pbf.dashboard', 'PBF Dashboard'),
+    ('aremind.apps.dashboard.views.fadama.dashboard', 'Fadama Dashboard'),
 ]
 
 XFORMS_HOST = 'www.rapidsms-server.com'

@@ -155,6 +155,36 @@ ko.bindingHandlers.yn = {
   }
 };
 
+function get_caption(metric, value) {
+  return {
+    satisf: {
+      True: 'Satisfied',
+      False: 'Unsatisfied',
+    },
+    clean: {
+      True: 'Clean',
+      False: 'Dirty',
+    },
+    friendly: {
+      True: 'Friendly',
+      False: 'Not friendly',
+    },
+    drugavail: {
+      True: 'Available',
+      False: 'Unavailable',
+    },
+    pricedisp: {
+      True: 'Displayed',
+      False: 'Not on display',
+    },
+    wait: {
+      '<2': '< 2 hrs',
+      '2-4': '2\u20134 hrs',
+      '>4': '> 4 hrs',
+    },
+  }[metric][value];
+}
+
 // this must be called outside of a knockout bind handler init, or else everything freaks out
 google.load('visualization', '1', { packages: ['corechart'] });
 
@@ -196,19 +226,12 @@ ko.bindingHandlers.currentchart = {
     };
 
     var ordering = ['True', 'False', '<2', '2-4', '>4'];
-    var captions = {
-      True: '+',
-      False: '\u2013',
-      '<2': '< 2 hrs',
-      '2-4': '2\u20134 hrs',
-      '>4': '> 4 hrs',
-    };
 
     var data = [['Category', '']];
     var raw_data = monthly_datapoints(active, metric);
     $.each(ordering, function(i, e) {
         if (raw_data[e] != null) {
-          data.push([captions[e], raw_data[e]]);
+          data.push([get_caption(metric, e), raw_data[e]]);
         }
       });
 
@@ -259,18 +282,11 @@ ko.bindingHandlers.historicalchart = {
     } else {
       var ordering = ['True', 'False'];
     }
-    var captions = {
-      True: '+',
-      False: '\u2013',
-      '<2': '< 2 hrs',
-      '2-4': '2\u20134 hrs',
-      '>4': '> 4 hrs',
-    };
 
     var labels = ['Month'];
     var raw_data = monthly_datapoints(active, metric);
     $.each(ordering, function(i, e) {
-        labels.push(captions[e]);
+        labels.push(get_caption(metric, e));
       });
     var data = [labels];
 

@@ -159,7 +159,7 @@ ko.bindingHandlers.category_barchart = {
 ko.bindingHandlers.map_volume = {
   init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
     var options = {
-	center: new google.maps.LatLng(0, 0),
+	center: new google.maps.LatLng(9.05, 8.35),
         zoom: 5,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
@@ -193,18 +193,16 @@ ko.bindingHandlers.map_volume = {
           fillOpacity: 0.35,
           map: element.map,
           center: pos,
-          radius: 30000 * Math.sqrt(volume)
+          radius: 1500 * Math.sqrt(volume)
         };
 
         var dotOptions = {
-          strokeColor: '#000000',
-          strokeOpacity: 1.0,
-          strokeWeight: 1,
+          strokeWeight: 0,
           fillColor: '#000000',
-          fillOpacity: 1.0,
+          fillOpacity: 0.6,
           map: element.map,
           center: pos,
-          radius: 7000
+          radius: 400
         };
 
         var circle = new google.maps.Circle(circleOptions);

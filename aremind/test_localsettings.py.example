@@ -32,6 +32,12 @@ DATABASES = {
 #    }
 #}
 
+INSTALLED_BACKENDS = {
+    "httptester": {
+        "ENGINE": "threadless_router.backends.httptester.backend",
+    },
+}
+
 # south configuration
 SKIP_SOUTH_TESTS = True
 
@@ -42,3 +48,15 @@ ADMINS = (
     ('Development Team', 'aremind-dev@dimagi.com'),
 )
 MANAGERS = ADMINS
+
+# Disable audit logging while running the test suite
+if 'auditcare' in INSTALLED_APPS:
+    INSTALLED_APPS.remove('auditcare')
+if 'auditcare.middleware.AuditMiddleware' in MIDDLEWARE_CLASSES:
+    MIDDLEWARE_CLASSES.remove('auditcare.middleware.AuditMiddleware')
+if 'couchlog' in INSTALLED_APPS:
+    INSTALLED_APPS.remove('couchlog')
+AUDIT_DJANGO_USER = False
+AUDIT_ALL_VIEWS = False
+AUDIT_VIEWS = []
+AUDIT_MODEL_SAVE = []

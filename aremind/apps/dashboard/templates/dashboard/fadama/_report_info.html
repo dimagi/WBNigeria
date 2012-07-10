@@ -1,0 +1,43 @@
+<div class="reports-info-content row-fluid">
+    <div class="span1">
+        <div class="map mini">
+            {% include "dashboard/_map.html" with mini="true" %}
+        </div>
+    </div>
+    <div class="span3">
+        <p><strong>Location:</strong> {Location}</p>
+        <p>01/01/2012 - 10:00</p>
+        <p><strong>Satisfied:</strong> No</p>
+        <p><a href="#">View (2) previous reports</a></p>
+    </div>
+    <div class="span5">
+        <dl>
+            <dt>Free-form response:</dt>
+            <dd>This is a free form response text here</dd>
+            <dt>Notes:</dt>
+            <dd>
+                <p>
+                    These are some notes here<br />
+                    <strong>Marcus A.</strong>, 4 days ago
+                </p>
+            </dd>
+            <hr />
+            <form class="form-inline" method="post">
+                <input type="text" placeholder="Leave a note..." />
+                <input type="submit" class="btn" value="Add Note" />
+            </form>
+        </dl>
+    </div>
+    <div class="span2">
+        <a data-target="{{ report_id }}" class="btn btn-primary contact-farmer">Contact Farmer</a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Open the modals when clicking the contact button
+    $('.contact-farmer').click(function(e) {
+        var report = $(this).data('target'),
+            elem = $('.contact-modal[data-report=' + report + ']');
+        $(elem).dialog('open');
+    });
+</script>

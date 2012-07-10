@@ -1,26 +1,9 @@
 from aremind.settings import *
 
-# you should configure your database here before doing any real work.
-# see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
-
-# for postgresql:
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "wbnigeria3",
-        "USER": "postgres",
-        "PASSWORD": "",
-        "HOST": "localhost",
-        "PORT": "5433"
-    }
-}
-#
 COUCH_SERVER_ROOT='localhost:5984'
 COUCH_USERNAME='aremind'
 COUCH_PASSWORD=''
 COUCH_DATABASE_NAME='wbnigeria2'
-
-COUCHDB_APPS=['auditcare', 'couchlog', 'formplayer']
 
 ####### Couch Forms & Couch DB Kit Settings #######
 def get_server_url(server_root, username, password):
@@ -33,22 +16,11 @@ def get_server_url(server_root, username, password):
 
 COUCH_SERVER = get_server_url(COUCH_SERVER_ROOT, COUCH_USERNAME, COUCH_PASSWORD)
 
-COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME }
+COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME}
 
 COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
 
-TESTING_DATABASES= {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",#
-        "NAME": "aremind.sqlite3",
-    }
-}
-
-INSTALLED_BACKENDS = {
-        "httptester": {
-        "ENGINE": "threadless_router.backends.httptester.backend",
-    },
-}
+XFORMS_POST_URL = "%s/_design/couchforms/_update/xform/" % COUCH_DATABASE
 
 # Change this to True if we should use https:// on URLs we send to tropo
 # to retrieve audio files from us
@@ -70,9 +42,17 @@ COUNTRY_CODE = '1'
 # INSTALLED_APPS.append('debug_toolbar')
 # DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 
-# kill auditcare
-#INSTALLED_APPS.remove('auditcare')
-#MIDDLEWARE_CLASSES.remove('auditcare.middleware.AuditMiddleware')
+# Disable audit logging locally
+if 'auditcare' in INSTALLED_APPS:
+    INSTALLED_APPS.remove('auditcare')
+if 'auditcare.middleware.AuditMiddleware' in MIDDLEWARE_CLASSES:
+    MIDDLEWARE_CLASSES.remove('auditcare.middleware.AuditMiddleware')
+if 'couchlog' in INSTALLED_APPS:
+    INSTALLED_APPS.remove('couchlog')
+AUDIT_DJANGO_USER = False
+AUDIT_ALL_VIEWS = False
+AUDIT_VIEWS = []
+AUDIT_MODEL_SAVE = []
 
 BROKER_HOST = "localhost"
 BROKER_PORT = 5672
@@ -80,11 +60,9 @@ BROKER_VHOST = "aremind_vhost"
 BROKER_USER = "aremind"
 BROKER_PASSWORD = "" # In local settings
 
+DEBUG = TEMPLATE_DEBUG = True
 
-DEBUG=TEMPLATE_DEBUG=True
-
-BROADCAST_SENDER_BACKEND='httptester'
-
+BROADCAST_SENDER_BACKEND = 'httptester'
 
 #The default backend to be used when creating new patient contacts
 #on POST submission of patient data from their server
@@ -93,7 +71,5 @@ DEFAULT_BACKEND_NAME = "httptester"
 PRIMARY_BACKEND = 'httptester'
 # if set, the message tester app will always use this backend
 TEST_MESSAGER_BACKEND = 'httptester'
-
-#STATICFILES_DIRS += ()
 
 XFORMS_HOST = 'localhost:8000'

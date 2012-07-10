@@ -1,0 +1,37 @@
+<div class="row contact-form">
+    <div class="span8">
+        <form method="post" action="">
+            {% csrf_token %}
+            <legend>Send an SMS to the Beneficiary</legend>
+            <textarea class="span8" id="message"></textarea>
+            <input type="submit" class="btn btn-primary" value="Send" />
+        </form>
+        <hr />
+        <div class="row-fluid">
+            <div class="span2">
+                <div class="map mini">
+                    {% include "dashboard/_map.html" with mini="true" %}
+                </div>
+            </div>
+            <div class="span4">
+                <p><strong>Location:</strong> {Location}</p>
+                <p>01/01/2012 - 10:00</p>
+            </div>
+            <div class="span6">
+                <dl>
+                    <dt>Feedback category:</dt>
+                    <dd>Information issues</dd>
+                    <dt>Free-form response:</dt>
+                    <dd>This is a free form response text here</dd>
+                    <dt>Notes:</dt>
+                    <dd>These are some notes here</dd>
+                </dl>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span3">
+                <p><strong>Satisfied:</strong> No</p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -11,6 +11,17 @@ FORMDESIGNER_ROOT = os.path.join(PROJECT_PATH, '..', 'submodules', 'formdesigner
 #                          MAIN CONFIGURATION                          #
 # -------------------------------------------------------------------- #
 
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "wbnigeria",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "",
+        "PORT": ""
+    }
+}
+
 VERSION = '0.2.1' #This doesn't do anything yet, but what the hey.
 
 BROADCAST_SENDER_BACKEND='message_tester'
@@ -63,6 +74,7 @@ INSTALLED_APPS = [
     "aremind.apps.adherence",
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
+    'aremind.apps.dashboard',
 
 
     "eav",
@@ -98,13 +110,14 @@ INSTALLED_APPS = [
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aremind.apps.broadcast.views.dashboard", "Dashboard"),    
+    #("aremind.apps.broadcast.views.dashboard", "Dashboard"), # Old dashboard
     ("smscouchforms.views.download",       "View Data"),
     ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
     ('xforms', 'Reporter Scenario'),
     ('smsforms.views.list_forms', 'Decision Tree XForms'),
     ('smsforms.views.view_triggers', 'Decision Tree Triggers'),
-
+    ('aremind.apps.dashboard.views.pbf.dashboard', 'PBF Dashboard'),
+    ('aremind.apps.dashboard.views.fadama.dashboard', 'Fadama Dashboard'),
 ]
 
 XFORMS_HOST = 'www.rapidsms-server.com'
@@ -141,10 +154,21 @@ TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 # but it is needed for static assets to be linkable.
 MEDIA_URL = "/media/"
 ADMIN_MEDIA_PREFIX = "/static/admin/"
+MEDIA_ROOT = os.path.join(PROJECT_PATH, '..', 'media')
+
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(PROJECT_PATH, '..', 'static_files')
-STATIC_DOC_ROOT = STATIC_ROOT
 
+STATICFILES_FINDERS =(
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+)
+
+STATICFILES_DIRS = (
+    os.path.join(PROJECT_PATH, 'static'),
+    ('formdesigner', FORMDESIGNER_ROOT),
+    ('formdesigner', os.path.join(FORMDESIGNER_ROOT, 'lib', 'xpath')),
+)
 
 # Specify a logo URL for the dashboard layout.html. This logo will show up
 # at top left for every tab
@@ -196,14 +220,9 @@ MIDDLEWARE_CLASSES = [
 AJAX_PROXY_HOST = '127.0.0.1'
 AJAX_PROXY_PORT = 9988
 
-MEDIA_ROOT = os.path.join(PROJECT_PATH, 'static')
-
-PYTHON_ENV_PATH = os.path.join(PROJECT_PATH,'..','..','python_env')
-
-TEMPLATE_DIRS = [
+TEMPLATE_DIRS = (
     os.path.join(PROJECT_PATH, 'templates'),
-    os.path.join(PYTHON_ENV_PATH, 'src', 'djtables', 'lib', 'djtables')
-]
+)
 
 # these apps should not be started by rapidsms in your tests, however,
 # the models and bootstrap will still be available through django.
@@ -255,24 +274,15 @@ PRIMARY_BACKEND = 'tropo'
 # if set, the message tester app will always use this backend
 TEST_MESSAGER_BACKEND = 'tropo'
 
+INSTALLED_BACKENDS = {
+    "httptester": {
+        "ENGINE": "threadless_router.backends.httptester.backend",
+    },
+}
+
+DEFAULT_MESSAGE = "Message not understood. Please try again"
+
 #RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog","djcelery"]
-
-STATICFILES_FINDERS =(
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-)
-
-DJ_SELECTABLE_STATIC_PATH = os.path.join(PYTHON_ENV_PATH,'src','django-selectable','selectable','static')
-
-STATICFILES_DIRS = (os.path.join(PROJECT_PATH, 'static'),
-                    os.path.join(PROJECT_PATH, 'templates'),
-                    os.path.join(DJ_SELECTABLE_STATIC_PATH),
-                    ('formdesigner', os.path.join(PROJECT_PATH, '..', 'submodules', 'formdesigner')),
-                    ('formdesigner', os.path.join(PROJECT_PATH, '..', 'submodules', 'formdesigner', 'lib', 'xpath')),
-    )
-
-
-
 
 AUDIT_VIEWS = [
     'aremind.apps.adherence.views.create_edit_schedule',
@@ -319,14 +329,6 @@ CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 CELERYD_MAX_TASKS_PER_CHILD = 2
 
-#INSTALLED_BACKENDS = {}
-
-#STATICFILES_EXCLUDED_APPS = (
-#    'django.contrib.admin',
-#)
-
-DEFAULT_MESSAGE = "Message not understood. Please try again"
-
 DECISION_TREE_TRIGGER_KEYWORDS = {
     'fadama': '4',
     'health': '3',
@@ -335,14 +337,18 @@ DECISION_TREE_TRIGGER_KEYWORDS = {
 AUDIT_DJANGO_USER = True
 AUDIT_MODEL_SAVE = []
 
-NO_LOGIN_REQUIRED_FOR = ["/tropo",
-                         "/tropo/",
-                         "/ajax/",
-                         "/ajax",]
+NO_LOGIN_REQUIRED_FOR = (
+    "/tropo",
+    "/tropo/",
+    "/ajax/",
+    "/ajax",
+)
 
 
 XFORMS_PLAYER_URL = "http://127.0.0.1:4444"
 BROKER_URL = "amqp://guest:guest@localhost:5672//"
+
+GMAPS_API_KEY = ''
 
 LOGGING = {
     'version': 1,
@@ -445,3 +451,4 @@ LOGGING = {
     }
 }
 
+COUCHDB_APPS = ['auditcare', 'couchlog', 'formplayer', 'couchforms', 'couchexport']

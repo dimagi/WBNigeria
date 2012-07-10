@@ -1,0 +1,20 @@
+<!-- 
+    This should be replaced with some kind of model form with
+    a django-selectable field for filtering by the object.
+    Using regular bootstrap form for now just for display purposes.
+-->
+<form class="form-inline filter-form" action="#">
+    <label class="control-label" for="object_filter">Filter by:</label>
+    <select data-bind="options: facilities, value: active_facility, optionsText: 'name'" id="location"></select>
+    <select data-bind="value: active_metric" id="feedback">
+      <option value="all">All</option>
+      <option value="satisf">Overall Satisfaction</option>
+      <option value="wait">Waiting Time</option>
+      <option value="clean">Cleanliness &amp; Hygiene</option>
+      <option value="friendly">Staff Friendliness</option>
+      <option value="drugavail">Drug Availability</option>
+      <option value="pricedisp">Prices Displayed</option>
+    </select>
+    <input type="text" id="date" class="input-mini calendar" placeholder="Date" />
+    <input type="text" id="search" placeholder="Search..." />
+</form>

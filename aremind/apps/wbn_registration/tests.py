@@ -13,7 +13,7 @@ from django.test import TestCase
 import unittest
 from rapidsms.messages.incoming import IncomingMessage
 #from rapidsms.tests.scripted import TestScript
-from wbn_registration.app import WBN_RegistrationApp as WBApp
+from aremind.apps.wbn_registration.app import WBN_RegistrationApp as WBApp
 from aremind.apps.reminders.tests import RemindersCreateDataTest, MockRouter
 
 

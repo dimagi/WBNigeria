@@ -15,7 +15,6 @@ urlpatterns = patterns('',
 
     (r'^admin/', include(admin.site.urls)),
 #    (r'^', include('decisiontree.urls')),
-    (r'^', include('auditcare.urls')),
 
     # RapidSMS core URLs
     (r'^account/', include('rapidsms.urls.login_logout')),
@@ -51,13 +50,25 @@ urlpatterns = patterns('',
     ('', include('rapidsms_xforms.urls')),
     (r'^smscouchforms/', include('smscouchforms.urls')),
     (r'^couchexport/', include("couchexport.urls")),
+    url(r'^tropo/$', 'rtropo.views.message_received', kwargs={'backend_name': 'tropo'}, name='tropo'),
 
-    url(r'^tropo/$', 'rtropo.views.message_received', name = 'tropo', kwargs = { 'backend_name': 'tropo'} ),
-
-
-    (r'^couchlog/', include('couchlog.urls')),
-    (r'^touchforms/', include('touchforms.urls')),
+    url(r'dashboard/pbf/$', 'aremind.apps.dashboard.views.pbf.dashboard', name='pbf_dashboard'),
+    url(r'dashboard/fadama/$', 'aremind.apps.dashboard.views.fadama.dashboard', name='fadama_dashboard'),
+    (r'^dashboard/', include('aremind.apps.dashboard.urls')),
 )
+
+
+if 'couchlog' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('',
+        (r'^couchlog/', include('couchlog.urls')),
+    )
+
+
+if 'auditcare' in settings.INSTALLED_APPS:
+    urlpatterns += patterns('',
+        (r'^', include('auditcare.urls')),
+    )
+
 
  # Contrib Auth Password Management
 urlpatterns += patterns('django.contrib.auth.views',   

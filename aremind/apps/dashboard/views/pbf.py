@@ -16,11 +16,6 @@ def reports(request):
         })
 
 
-@login_required
-def site_detail(request, pk):
-    return render(request, 'dashboard/pbf/site_detail.html')
-
-
 import json
 import random
 from datetime import datetime, timedelta

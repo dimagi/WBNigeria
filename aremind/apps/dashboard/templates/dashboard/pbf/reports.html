@@ -17,7 +17,8 @@ DEFAULT_SITE = {{ default_site|default:"null" }};
 DEFAULT_METRIC = "{{ default_metric }}";
 
 $(document).ready(function() {
-    detail_report_init();
+    var model = new PBFDetailViewModel();
+    ko.applyBindings(model);
 
     // Attach an event listener to map div
     // Specifically, this solves the problem when the maps container
@@ -26,13 +27,12 @@ $(document).ready(function() {
     $('.map').bind('showmap', function(event) {
         $(this).parents('div[data-bind].row-fluid').show();
         google.maps.event.trigger(map, 'resize');
+
+
+        // Have it run the update function
+        model.month_incr(0);
     });
 });
-
-function detail_report_init() {
-    var model = new PBFDetailViewModel();
-    ko.applyBindings(model);
-}
 
 function PBFDetailViewModel() {
     this.monthly = ko.observableArray();

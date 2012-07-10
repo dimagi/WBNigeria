@@ -120,9 +120,9 @@ function FacilityModel(data) {
 }
 
 function MonthlyDetailModel(data) {
-  //this.logs = ko.observableArray($.map(data.logs, function(l) {
-  //    return new LogModel(l);
-  //  }));
+  this.logs = ko.observableArray($.map(data.logs, function(l) {
+      return new LogModel(l);
+    }));
   this.month_label = ko.observable(data.month);
   this.stats = data.stats;
   this.clinic_totals = data.clinic_totals;
@@ -133,20 +133,34 @@ function LogModel(data) {
   this.site = ko.observable(data.site_name);
   this.date = ko.observable(data.display_time);
   this.satisfied = ko.observable(data.satisfied);
-  this.wait_bucket = ko.observable(data.wait_bucket);
-  this.cleanliness = ko.observable(data.cleanliness);
-  this.friendliness = ko.observable(data.staff_friendliness);
-  this.drugs_avail = ko.observable(data.drug_availability);
-  this.price_display = ko.observable(data.price_display);
+
+  var categories = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'];
+  var category = null;
+  $.each(categories, function(i, e) {
+      if (data[e] != null) {
+        category = e;
+        return false;
+      }
+    });
+  
+  this.category = ko.observable(category);
+  this.subcategory = ko.observable(data[category]);
   this.message = ko.observable(data.message);
 
-  this.disp_wait = ko.computed(function() {
-	return {
-	  '<2': '< 2 hrs',
-	  '2-4': '2\u20134 hrs',
-          '>4': '> 4 hrs',
-        }[this.wait_bucket()];
-    }, this);
+  var model = this;
+  this.category_caption = ko.computed(function() {
+      return {
+        'serviceprovider': 'Service Providers',
+        'people': 'People from Fadama',
+        'land': 'Land Issues',
+        'info': 'Information Issues',
+        'ldp': 'LDP Approval',
+        'financial': 'Financial Issues',
+      }[model.category()];
+    });
+  this.subcategory_caption = ko.computed(function() {
+      return get_caption(model.category(), model.subcategory());
+    });
 }
 
 ko.bindingHandlers.yn = {
@@ -473,7 +487,30 @@ ko.bindingHandlers.map_volume = {
 
     <div class="row-fluid">
         <div class="span12">
-
+            <table id="reports-table" class="table table-bordered table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th>Report #</th>
+                        <th style="width: 12em;">Site</th>
+                        <th>Date &amp; Time</th>
+                        <th>Patient Satisfied</th>
+			<th>Feedback Category</th>
+			<th>Sub-category</th>
+			<th>Free-form message</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
+                    <tr data-bind="visible: category() == $root.active_metric() || $root.active_metric() == 'all' || $root.active_metric() == 'satisf'">
+                        <td data-bind="text: id"></td>
+                        <td data-bind="text: site"></td>
+                        <td data-bind="text: date"></td>
+                        <td data-bind="yn: satisfied"></td>
+			<td data-bind="text: category_caption"></td>
+			<td data-bind="text: subcategory_caption"></td>
+			<td style="width: 25em;" data-bind="text: message"></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 {% endblock content %}

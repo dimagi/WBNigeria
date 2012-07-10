@@ -35,7 +35,7 @@ FACILITIES = [
     {'id': 11, 'name': 'Jimiya Health Center', 'lat': 8.9485, 'lon': 8.8334},
 ]
 
-def load_reports(path):
+def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
     with open(path) as f:
         reports = json.load(f)
 
@@ -106,7 +106,7 @@ def api_detail(request):
     return HttpResponse(json.dumps(payload), 'text/json')
 
 def main_dashboard_stats():
-    data = load_reports(settings.DASHBOARD_SAMPLE_DATA)
+    data = load_reports()
 
     facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
 
@@ -129,7 +129,7 @@ def main_dashboard_stats():
     return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
 
 def detail_stats(facility_id):
-    data = load_reports(settings.DASHBOARD_SAMPLE_DATA)
+    data = load_reports()
 
     facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
 

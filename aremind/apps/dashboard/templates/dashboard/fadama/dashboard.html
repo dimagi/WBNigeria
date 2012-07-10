@@ -3,5 +3,281 @@
 
 {% block content %}
     {{ block.super }}
-    {% include "dashboard/_dashboard_data.html" %}
+
+
+
+<script src="{{ STATIC_URL }}js/knockout-2.1.0.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script>
+
+if (!window.console) {
+    window.console = {
+        log: function () { }
+    };
+}
+
+$(document).ready(function() {
+    main_dashboard_init();
+  });
+
+function main_dashboard_init() {
+  var model = new FadamaViewModel();
+  ko.applyBindings(model);
+
+  $.get('/dashboard/fadama/api/main', function(data) {
+      console.log(data);
+      model.load(data);
+    }, 'json');
+}
+
+
+function FadamaViewModel() {
+  this.stats = ko.observableArray();
+  this.active_month = ko.observable();
+
+  this.load = function(data) {
+    this.stats($.map(data.stats, function(st) {
+        return new MonthlyStatsModel(st);
+      }));
+    this.active_month(this.stats.slice(-1)[0]);
+  };
+
+  this.prevmonth = function() {
+    this.month_incr(-1);
+  }
+
+  this.nextmonth = function() {
+    this.month_incr(1);
+  }
+ 
+  this.month_incr = function(k) {
+    var i = this.stats.indexOf(this.active_month());
+    i += k;
+    if (i >= this.stats().length) {
+      i = this.stats().length - 1;
+    } else if (i <= 0) {
+      i = 0;
+    }
+    this.active_month(this.stats()[i]);
+  }
+}
+
+function MonthlyStatsModel(data) {
+  this.total = ko.observable(data.total);
+  this.month_label = ko.observable(data.month);
+
+  this.data = data;
+}
+
+// this must be called outside of a knockout bind handler init, or else everything freaks out
+google.load('visualization', '1', { packages: ['corechart'] });
+
+ko.bindingHandlers.satisfaction_piechart = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    google.load('visualization', '1', { packages: ['corechart'] });
+    google.setOnLoadCallback(function() {
+        var options = {
+          vAxis: {
+            textPosition: 'in'
+          },
+          chartArea: {
+            top: 10,
+            left: 0,
+            width: '100%'
+          }
+        };
+
+        element.wrapper = new google.visualization.ChartWrapper({
+          chartType: 'PieChart',
+          options: options,
+          containerId: $(element).attr('id')
+        });
+
+        valueAccessor(valueAccessor());
+      });
+  },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    if (!element.wrapper || !active) {
+      return;
+    }
+
+    var dataTable = google.visualization.arrayToDataTable([
+      ['Category', ''],
+      ['Satisfied', active.data.satisfaction.True],
+      ['Unsatisfied', active.data.satisfaction.False],
+    ]);
+    element.wrapper.setDataTable(dataTable);
+    element.wrapper.draw();
+  }
+};
+
+ko.bindingHandlers.category_barchart = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    google.load('visualization', '1', { packages: ['corechart'] });
+    google.setOnLoadCallback(function() {
+        var options = {
+          vAxis: {
+            textPosition: 'in'
+          },
+          chartArea: {
+            top: 0,
+            left: 0,
+            width: '100%'
+         }
+        };
+
+        element.wrapper = new google.visualization.ChartWrapper({
+          chartType: 'BarChart',
+          options: options,
+          containerId: $(element).attr('id')
+        });
+
+        var bar_clicked = function() {
+          var opt = element.wrapper.getChart().getSelection()[0].row;
+          var metric = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'];
+          window.location.href = '/dashboard/fadama/reports/?metric=' + metric;
+        };
+
+        google.visualization.events.addListener(element.wrapper, 'select', bar_clicked);
+
+        valueAccessor(valueAccessor());
+      });
+    },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    if (!element.wrapper || !active) {
+      return;
+    }
+
+    var dataTable = google.visualization.arrayToDataTable([
+      ['Category', ''],
+      ['Service Providers', active.data.by_category.serviceprovider],
+      ['People from Fadama', active.data.by_category.people],
+      ['Land Issues', active.data.by_category.land],
+      ['Information Issues', active.data.by_category.info],
+      ['LDP Approval', active.data.by_category.ldp],
+      ['Financial Issues', active.data.by_category.financial],
+    ]);
+    element.wrapper.setDataTable(dataTable);
+    element.wrapper.draw();
+  }
+};
+
+ko.bindingHandlers.map_volume = {
+  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var options = {
+	center: new google.maps.LatLng(9.05, 8.35),
+        zoom: 5,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    element.map = new google.maps.Map(element, options);
+    element.ovl = [];
+  },
+  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    if (!active) {
+      return;
+    }
+
+    $.each(element.ovl, function(i, e) {
+        e.setMap(null);
+      });
+    element.ovl = [];
+
+    var bounds = new google.maps.LatLngBounds();
+    $.each(active.data.by_clinic, function(i, e) {
+        var facility = e[0];
+        var volume = e[1];
+
+        var pos = new google.maps.LatLng(facility.lat, facility.lon);
+        bounds.extend(pos);
+
+        var circleOptions = {
+          strokeColor: '#DA4F49',
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: '#DA4F49',
+          fillOpacity: 0.35,
+          map: element.map,
+          center: pos,
+          radius: 1500 * Math.sqrt(volume)
+        };
+
+        var dotOptions = {
+          strokeWeight: 0,
+          fillColor: '#000000',
+          fillOpacity: 0.6,
+          map: element.map,
+          center: pos,
+          radius: 400
+        };
+
+        var circle = new google.maps.Circle(circleOptions);
+        var dot = new google.maps.Circle(dotOptions);
+        element.ovl.push(dot);
+        element.ovl.push(circle);
+
+        var goto_detail = function() {
+            window.location.href = '/dashboard/fadama/reports/?site=' + facility.id;
+          };
+
+        google.maps.event.addListener(circle, 'click', goto_detail);
+        google.maps.event.addListener(dot, 'click', goto_detail);
+      });
+    element.map.fitBounds(bounds);
+  }
+};
+
+</script>
+
+<div class="row-fluid">
+    <div class="span4">
+        <h2>Feedback by facility</h2>
+        <p>
+            {% include "dashboard/_map.html" %}
+        </p>
+    </div>
+
+    <div class="span4">
+        <h2>Feedback by category</h2>
+        <p>
+            {% include "dashboard/_bar_chart.html" %}
+        </p>
+    </div>
+
+    <div class="span4">
+        <h2>Based on <span data-bind="text: active_month() ? active_month().total() : ''"></span> reports</h2>
+        <p>
+            {% include "dashboard/_pie_chart.html" %}
+        </p>
+    </div>
+</div>
+
+<div class="row-fluid">
+    <div class="span12">
+        <div class="alert alert-info" id="1"> <!-- Unique id should be pk; allows us to use bootstrap-alert.js -->
+            <p>
+                Alert content
+            </p>
+            <span class="pull-right">
+                <a class="btn btn-primary"><i class="icon-white icon-th-list"></i> Alert Details</a>
+                <a class="btn btn-danger" data-dismiss="alert" data-target="#1"><i class="icon-white icon-remove"></i> Dismiss</a>
+            </span>
+        </div>
+        <div class="alert alert-info" id="2">
+            <p>
+                Alert content
+            </p>
+            <span class="pull-right">
+                <a class="btn btn-primary"><i class="icon-white icon-th-list"></i> Alert Details</a>
+                <a class="btn btn-danger" data-dismiss="alert" data-target="#2"><i class="icon-white icon-remove"></i> Dismiss</a>
+            </span>
+        </div>
+    </div>
+</div>
+
+
+
+
 {% endblock content %}

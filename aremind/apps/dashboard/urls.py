@@ -14,6 +14,9 @@ urlpatterns = patterns('',
 
     url(r'^fadama/$', fadama.dashboard, name='fadama_dashboard'),
     url(r'^fadama/reports/$', fadama.reports, name='fadama_reports'),
+
+    url(r'^fadama/api/main/$', fadama.api_main),
+    url(r'^fadama/api/detail/$', fadama.api_detail),
 )
 
 if settings.DEBUG:

@@ -120,9 +120,9 @@ function FacilityModel(data) {
 }
 
 function MonthlyDetailModel(data) {
-  this.logs = ko.observableArray($.map(data.logs, function(l) {
-      return new LogModel(l);
-    }));
+  //this.logs = ko.observableArray($.map(data.logs, function(l) {
+  //    return new LogModel(l);
+  //  }));
   this.month_label = ko.observable(data.month);
   this.stats = data.stats;
   this.clinic_totals = data.clinic_totals;
@@ -407,7 +407,7 @@ ko.bindingHandlers.map_volume = {
         <div class="span8">
             <form id="detail-filter" class="form-inline filter-form">
                 <label>Feedback on</label>
-                <select data-bind="value: active_metric" id="feedback">
+                <select data-bind="value: active_metric">
                     <option value="all">All</option>
                     <option value="satisf">Overall Satisfaction</option>
                     <option value="serviceprovider">Service Providers</option>
@@ -448,7 +448,26 @@ ko.bindingHandlers.map_volume = {
     <div class="row-fluid">
         <div class="span12">
             <span class="large">Detailed Reports</span>
-            {% include "dashboard/_table_filter.html" %}
+
+
+<form class="form-inline filter-form" action="#">
+    <label class="control-label" for="object_filter">Filter by:</label>
+    <select data-bind="options: facilities, value: active_facility, optionsText: 'name'" id="location"></select>
+    <select data-bind="value: active_metric" id="feedback">
+                    <option value="all">All</option>
+                    <option value="satisf">Overall Satisfaction</option>
+                    <option value="serviceprovider">Service Providers</option>
+                    <option value="people">People from Fadama</option>
+                    <option value="land">Land Issues</option>
+                    <option value="info">Information Issues</option>
+                    <option value="ldp">LDP Approval</option>
+                    <option value="financial">Financial Issues</option>
+    </select>
+    <input type="text" id="date" class="input-mini calendar" placeholder="Date" />
+    <input type="text" id="search" placeholder="Search..." />
+</form>
+
+
         </div>
     </div>
 

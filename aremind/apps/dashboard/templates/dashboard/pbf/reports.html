@@ -235,9 +235,9 @@ ko.bindingHandlers.currentchart = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
         google.load('visualization', '1', { packages: ['corechart'] });
         google.setOnLoadCallback(function() {
-                valueAccessor(valueAccessor());
-                element.charts_init = true;
-            });
+            valueAccessor(valueAccessor());
+            element.charts_init = true;
+        });
     },
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
         var active = ko.utils.unwrapObservable(valueAccessor());
@@ -262,10 +262,10 @@ ko.bindingHandlers.currentchart = {
         var data = [['Category', '']];
         var raw_data = monthly_datapoints(active, metric);
         $.each(ordering, function(i, e) {
-                if (raw_data[e] != null) {
-                    data.push([get_caption(metric, e), raw_data[e]]);
-                }
-            });
+            if (raw_data[e] != null) {
+                data.push([get_caption(metric, e), raw_data[e]]);
+            }
+        });
 
         if (metric == 'wait') {
             var chart_type = 'ColumnChart';

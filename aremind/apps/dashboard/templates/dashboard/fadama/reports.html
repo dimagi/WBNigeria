@@ -131,6 +131,7 @@ function MonthlyDetailModel(data) {
 function LogModel(data) {
   this.id = ko.observable(data.id);
   this.site = ko.observable(data.site_name);
+  this.fug = ko.observable(data.fug);
   this.date = ko.observable(data.display_time);
   this.satisfied = ko.observable(data.satisfied);
 
@@ -171,6 +172,7 @@ ko.bindingHandlers.yn = {
     if (val != null) {
       var $img = $('<img />');
       $img.attr('src', 'http://whereis.dimagi.com/staticmedia/admin/img/icon_' + (val ? 'success' : 'error') + '.gif');
+      $img.attr('alt', val ? 'Yes' : 'No');
       $(element).append($img);
     }
 
@@ -496,7 +498,8 @@ ko.bindingHandlers.map_volume = {
                 <thead>
                     <tr>
                         <th>Report #</th>
-                        <th style="width: 12em;">Site</th>
+                        <th style="width: 12em;">FCA</th>
+                        <th style="width: 12em;">FUG</th>
                         <th>Date &amp; Time</th>
                         <th>Patient Satisfied</th>
 			<th>Feedback Category</th>
@@ -508,7 +511,8 @@ ko.bindingHandlers.map_volume = {
                     <tr data-bind="visible: category() == $root.active_metric() || $root.active_metric() == 'all' || $root.active_metric() == 'satisf'">
                         <td data-bind="text: id"></td>
                         <td data-bind="text: site"></td>
-                        <td data-bind="text: date"></td>
+                        <td data-bind="text: fug"></td>
+                        <td style="white-space: nowrap" data-bind="text: date"></td>
                         <td data-bind="yn: satisfied"></td>
 			<td data-bind="text: category_caption"></td>
 			<td data-bind="text: subcategory_caption"></td>

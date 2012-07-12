@@ -236,7 +236,14 @@ ko.bindingHandlers.map_volume = {
         google.maps.event.addListener(circle, 'mouseout', function() { hover(false); });
 
       });
-    element.map.fitBounds(bounds);
+    if (!element.map.boundsSet) {
+      element.map.fitBounds(bounds);
+      var MAX_ZOOM = 12;
+      if (element.map.getZoom() > MAX_ZOOM) {
+        element.map.setZoom(MAX_ZOOM);
+      }
+      element.map.boundsSet = true;
+    }
   }
 };
 

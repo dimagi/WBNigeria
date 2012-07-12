@@ -395,8 +395,19 @@ ko.bindingHandlers.map_volume = {
             viewModel.active_facility(clinic);
           };
 
+        var hover = function(in_) {
+	  circle.setOptions({
+            strokeColor: in_ ? "#ff0" : '#DA4F49',
+            fillColor: in_ ? '#ff0' : '#DA4F49', 
+          });
+          site_name(in_ ? facility.name : null, element.map);
+        };
+
         google.maps.event.addListener(circle, 'click', select_clinic);
         google.maps.event.addListener(dot, 'click', select_clinic);
+        google.maps.event.addListener(circle, 'mouseover', function() { hover(true); });
+        google.maps.event.addListener(circle, 'mouseout', function() { hover(false); });
+
       });
     element.map.fitBounds(bounds);
     var MAX_ZOOM = 12;
@@ -406,9 +417,42 @@ ko.bindingHandlers.map_volume = {
   }
 };
 
-
+function site_name(name, map) {
+  if (name == null) {
+    if (map.$sitename_ovl) {
+      map.$sitename_ovl.remove();
+      map.$sitename_ovl = null;
+    }
+  } else {
+    if (!map.$sitename_ovl) {
+      var $ovl = $('<div />');
+      $ovl.css('z-index', 50000);
+      $ovl.css('position', 'absolute');
+      $ovl.css('bottom', 5);
+      $ovl.css('left', 5);
+      $ovl.addClass('sitename');
+      $(map.getDiv()).append($ovl);
+      map.$sitename_ovl = $ovl;
+    }
+    map.$sitename_ovl.text(name);
+  }
+}
 
 </script>
+
+<style>
+
+.sitename {
+  background: rgba(255, 255, 255, .7);
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  padding: 5px 10px;
+  font-weight: bold;
+  font-style: italic;
+}
+
+</style>
 
     <div class="row-fluid">
       <table class="date-control" style="float: right;">

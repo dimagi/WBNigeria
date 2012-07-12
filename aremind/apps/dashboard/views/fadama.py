@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.conf import settings
+from apps.dashboard.models import *
+from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def dashboard(request):
@@ -119,10 +121,14 @@ def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
     facs = facilities_by_id()
     reports = [r for r in reports if state is None or state == facs[r['facility']]['state']]
 
+    comments = ReportComment.objects.all()
+    by_report = map_reduce(comments, lambda c: [(c.report_id, c)])
+
     for r in reports:
         ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')
+        r['thread'] = [c.json() for c in sorted(by_report.get(r['id'], []), key=lambda c: c.date)]
 
     return reports
 
@@ -166,8 +172,8 @@ def make_reports(path, n, window=6):
             'need information for my seed',
         ]
 
-        def tf():
-            return (random.random() < .5)
+        def tf(ratio=1.):
+            return (random.random() < (ratio / (ratio + 1.)))
 
         choices = {
             'serviceprovider': [
@@ -222,7 +228,8 @@ def make_reports(path, n, window=6):
             'timestamp': (datetime.utcnow() - timedelta(days=random.uniform(0, 30.44*window))).strftime('%Y-%m-%dT%H:%M:%S'),
             'satisfied': tf(),
             type: value,
-            'message': random.choice(messages) if random.random() < .5 else None,
+            'message': random.choice(messages) if tf() else None,
+            'proxy': tf(.4),
         }
 
     reports = [mk_report(i + 1) for i in range(n)]
@@ -318,4 +325,14 @@ def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
 
 
 
+@csrf_exempt
+def new_message(request):
+    rc = ReportComment()
+    rc.report_id = int(request.POST.get('id'))
+    rc.comment_type = request.POST.get('type')
+    rc.author = request.POST.get('user')
+    rc.text = request.POST.get('text')
+    rc.save()
+    return HttpResponse(json.dumps(rc.json()), 'text/json')
 
+ 

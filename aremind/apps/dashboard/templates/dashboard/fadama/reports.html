@@ -171,6 +171,15 @@ function LogModel(data) {
   this.fug = ko.observable(data.fug);
   this.date = ko.observable(data.display_time);
   this.satisfied = ko.observable(data.satisfied);
+  this.proxy = ko.observable(data.proxy);
+  this.thread = ko.observableArray($.map(data.thread, function(c) {
+      return new CommModel(c);
+    }));
+
+  this.expanded = ko.observable(false);
+  this.toggle = function() {
+    this.expanded(!this.expanded());
+  }
 
   var categories = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'];
   var category = null;
@@ -184,6 +193,40 @@ function LogModel(data) {
   this.category = ko.observable(category);
   this.subcategory = ko.observable(data[category]);
   this.message = ko.observable(data.message);
+
+  var model = this;
+  this.inquiry = ko.observable();
+  this._inquiry = ko.computed({
+        read: function () {
+            return (model.proxy() ? 'you cannot message the beneficiary because they reported through a proxy' : model.inquiry());
+        },
+        write: function (value) {
+            if (!model.proxy()) {
+              model.inquiry(value);
+            }
+        },
+        owner: this
+    });
+  this.note = ko.observable();
+
+  this.send_message = function() {
+    this.new_thread_msg('inquiry', this.inquiry());
+  }
+
+  this.new_note = function() {
+    this.new_thread_msg('note', this.note());
+  }
+
+  this.new_thread_msg = function(type, content) {
+    var model = this;
+    $.post('/dashboard/fadama/message/', {id: this.id(), type: type, text: content, user: 'demo user'}, function(data) {
+        model.thread.push(new CommModel(data));
+	model[type == 'inquiry' ? 'inquiry' : 'note'](null);
+        if (type == 'inquiry') {
+          alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
+        }
+      });
+  }
 
   var model = this;
   this.category_caption = ko.computed(function() {
@@ -205,6 +248,24 @@ function LogModel(data) {
            (this.fug() == root.active_fug() || root.active_fug() == 'All FUGs') &&
            (this.subcategory() == root.active_subcategory().val || root.active_subcategory().val == 'all');
    }
+}
+
+function CommModel(data) {
+  this.author = ko.observable(data.author);
+  this.type = ko.observable(data.type);
+  this.date = ko.observable(data.date_fmt);
+  this.text = ko.observable(data.text);
+
+  var model = this;
+  this.display = ko.computed(function() {
+      if (model.type() == 'note') {
+	return ['note', 'left by', model.author()];
+      } else if (model.type() == 'inquiry') {
+	return ['message to beneficiary', 'sent by', model.author()];
+      } else if (model.type() == 'response') {
+	return ['response', 'from', 'beneficiary'];
+      }
+    });
 }
 
 ko.bindingHandlers.yn = {
@@ -591,8 +652,13 @@ function site_name(name, map) {
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
-                    <tr data-bind="visible: is_relevant($root)">
-                        <td data-bind="text: id"></td>
+                    <tr data-bind="visible: is_relevant($root), click: toggle">
+                        <td>
+			  <span data-bind="text: id"></span>
+			  <a href="#" style="font-size: 80%;" data-bind="visible: !expanded()">(expand)</a>
+			  <a href="#" style="font-size: 80%;" data-bind="visible: expanded">(collapse)</a>
+			  <span data-bind="visible: thread().length" style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span>
+			</td>
                         <td data-bind="text: site"></td>
                         <td data-bind="text: fug"></td>
                         <td style="white-space: nowrap" data-bind="text: date"></td>
@@ -601,6 +667,36 @@ function site_name(name, map) {
 			<td data-bind="text: subcategory_caption"></td>
 			<td style="width: 25em;" data-bind="text: message"></td>
                     </tr>
+                    <tr>
+		      <td colspan="8" data-bind="visible: expanded">
+			<div data-bind="foreach: thread">
+			<p style="margin: .5em 6em; clear: both;">
+			  <div style="float: left; width: 30em; text-align: right; margin-right: 3em; font-style: italic;">
+			    <span style="font-weight: bold;" data-bind="text: display()[0]"></span>
+			    <span data-bind="text: display()[1]"></span>
+			    <span style="font-weight: bold;" data-bind="text: display()[2]"></span>
+			    at
+			    <span style="white-space: nowrap;" data-bind="text: date"></span>
+			  </div>
+			  <span style="font-size: 120%" data-bind="text: text"></span>
+			</p>
+			</div>
+			<div style="padding-top: 1em;">
+			  <p style="margin: .5em 6em; clear: both;">
+			    <div style="float: left; width: 30em; text-align: right; margin-right: 3em;">
+			      send a message to the beneficiary
+			    </div>
+			    <input data-bind="disable: proxy, value: _inquiry" style="width: 40em" maxlen="160"></input><button data-bind="disable: proxy, click: send_message">Send</button>
+			  </p>
+			  <p style="margin: .3em 6em; clear: both;">
+			    <div style="float: left; width: 30em; text-align: right; margin-right: 3em;">
+			      leave a note for other fadama staff
+			    </div>
+			    <input data-bind="value: note" style="width: 40em"></input><button data-bind="click: new_note">Save Note</button>
+			  </p>
+			</div>
+		      </td>
+		    </tr>
                 </tbody>
             </table>
           <div style="font-style: italic; margin-top: 1.5em; margin-left: 4em;" data-bind="visible: !(active_month() ? active_month().any_logs_relevant($root) : true)">
@@ -608,5 +704,6 @@ function site_name(name, map) {
           </div>
         </div>
     </div>
+
 {% endblock content %}
 

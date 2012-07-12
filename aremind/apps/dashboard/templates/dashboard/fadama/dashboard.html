@@ -153,9 +153,9 @@ ko.bindingHandlers.category_barchart = {
     var dataTable = google.visualization.arrayToDataTable([
       ['Category', ''],
       ['Service Providers', active.data.by_category.serviceprovider],
-      ['People from Fadama', active.data.by_category.people],
+      ['Stakeholders', active.data.by_category.people],
       ['Land Issues', active.data.by_category.land],
-      ['Information Issues', active.data.by_category.info],
+      ['Lack of Information', active.data.by_category.info],
       ['LDP Approval', active.data.by_category.ldp],
       ['Financial Issues', active.data.by_category.financial],
     ]);
@@ -233,7 +233,7 @@ ko.bindingHandlers.map_volume = {
 
 <div class="row-fluid">
     <div class="span4">
-        <h2>Feedback by facility</h2>
+        <h2>Feedback by FCA</h2>
         <p>
             {% include "dashboard/_map.html" %}
         </p>

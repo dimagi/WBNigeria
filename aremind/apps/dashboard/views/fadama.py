@@ -27,7 +27,8 @@ def gen_fugs(prefix, num):
 FACILITIES = [
     {'id': 1, 'name': 'Destined FCA', 'lat': 8.958, 'lon': 7.0697, 'state': 'fct', 'fugs': gen_fugs('D', 9)},
     {'id': 2, 'name': 'Unity FCA', 'lat': 8.9268, 'lon': 7.0858, 'state': 'fct', 'fugs': gen_fugs('U', 7)},
-    {'id': 3, 'name': 'Anagada', 'lat': 9.0333, 'lon': 7.1667, 'state': 'fct', 'fugs': gen_fugs('A', 14)},
+    {'id': 3, 'name': 'Anagada 1', 'lat': 9.0333, 'lon': 7.1667, 'state': 'fct', 'fugs': gen_fugs('A1', 14)},
+    {'id': 11, 'name': 'Anagada 2', 'lat': 9.0333, 'lon': 7.1617, 'state': 'fct', 'fugs': gen_fugs('A2', 14)},
     {'id': 4, 'name': 'Paiko', 'lat': 9.4354, 'lon': 6.6344, 'state': 'fct', 'fugs': gen_fugs('P', 17)},
     {'id': 5, 'name': 'Chibiri', 'lat': 8.9014, 'lon': 7.1988, 'state': 'fct', 'fugs': gen_fugs('C', 10)},
     {'id': 6, 'name': 'Wamba', 'lat': 8.936, 'lon': 8.6057, 'state': 'nasarawa', 'fugs': gen_fugs('W', 6)},
@@ -94,8 +95,10 @@ def make_reports(path, n, window=6):
         choices = {
             'serviceprovider': [
                 'notfind',
+                'notstarted',
                 'delay',
                 'stopped',
+                'substandard',
                 'other',
             ],
             'people': [
@@ -105,9 +108,16 @@ def make_reports(path, n, window=6):
                 'facilitator',
                 'other',
             ],
+            'land': [
+                'notfind',
+                'suitability',
+                'ownership',
+                'other',
+            ],
             'info': [
                 'market',
                 'input',
+                'credit',
                 'other',
             ],
             'ldp': [
@@ -127,9 +137,11 @@ def make_reports(path, n, window=6):
         except KeyError:
             value = tf()
 
+        facility = random.choice(FACILITIES)
         return {
             'id': i,
-            'facility': random.choice(FACILITIES)['id'],
+            'facility': facility['id'],
+            'fug': random.choice(facility['fugs']),
             'timestamp': (datetime.utcnow() - timedelta(days=random.uniform(0, 30.44*window))).strftime('%Y-%m-%dT%H:%M:%S'),
             'satisfied': tf(),
             type: value,

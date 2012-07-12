@@ -151,9 +151,9 @@ function LogModel(data) {
   this.category_caption = ko.computed(function() {
       return {
         'serviceprovider': 'Service Providers',
-        'people': 'People from Fadama',
+        'people': 'Stakeholders',
         'land': 'Land Issues',
-        'info': 'Information Issues',
+        'info': 'Lack of Information',
         'ldp': 'LDP Approval',
         'financial': 'Financial Issues',
       }[model.category()];
@@ -185,8 +185,10 @@ function get_caption(metric, value) {
     },
     serviceprovider: {
       notfind: 'Not Finding',
+      notstarted: 'Not Started',
       delay: 'Delays',
-      stopped: 'Stopped Project',
+      stopped: 'Abandoned Project',
+      substandard: 'Substandard Service',
       other: 'Other',
     },
     people: {
@@ -197,12 +199,15 @@ function get_caption(metric, value) {
       other: 'Other',
     },
     land: {
-      True: 'Yes',
-      False: 'No',
+      notfind: 'Not Finding',
+      suitability: 'Not Suitable',
+      ownership: 'Ownership',
+      other: 'Other',
     },
     info: {
       market: 'Market',
       input: 'Input',
+      credit: 'Access to Credit',
       other: 'Other',
     },
     ldp: {
@@ -220,10 +225,10 @@ function get_caption(metric, value) {
 function get_ordering(metric) {
   return {
     satisf: ['True', 'False'],
-    serviceprovider: ['notfind', 'delay', 'stopped', 'other'],
+    serviceprovider: ['notfind', 'notstarted', 'delay', 'stopped', 'substandard', 'other'],
     people: ['state', 'fug', 'fca', 'facilitator', 'other'],
-    land: ['True', 'False'],
-    info: ['market', 'input', 'other'],
+    land: ['notfind', 'suitability', 'ownership', 'other'],
+    info: ['market', 'input', 'credit', 'other'],
     ldp: ['delay', 'other'],
     financial: ['bank', 'delay', 'other'],
   }[metric];
@@ -422,12 +427,12 @@ ko.bindingHandlers.map_volume = {
             <form id="detail-filter" class="form-inline filter-form">
                 <label>Feedback on</label>
                 <select data-bind="value: active_metric">
-                    <option value="all">All</option>
+                    <option value="all">All Categories</option>
                     <option value="satisf">Overall Satisfaction</option>
                     <option value="serviceprovider">Service Providers</option>
-                    <option value="people">People from Fadama</option>
+                    <option value="people">Stakeholders</option>
                     <option value="land">Land Issues</option>
-                    <option value="info">Information Issues</option>
+                    <option value="info">Lack of Information</option>
                     <option value="ldp">LDP Approval</option>
                     <option value="financial">Financial Issues</option>
                 </select>
@@ -468,12 +473,12 @@ ko.bindingHandlers.map_volume = {
     <label class="control-label" for="object_filter">Filter by:</label>
     <select data-bind="options: facilities, value: active_facility, optionsText: 'name'" id="location"></select>
     <select data-bind="value: active_metric" id="feedback">
-                    <option value="all">All</option>
+                    <option value="all">All Categories</option>
                     <option value="satisf">Overall Satisfaction</option>
                     <option value="serviceprovider">Service Providers</option>
-                    <option value="people">People from Fadama</option>
+                    <option value="people">Stakeholders</option>
                     <option value="land">Land Issues</option>
-                    <option value="info">Information Issues</option>
+                    <option value="info">Lack of Information</option>
                     <option value="ldp">LDP Approval</option>
                     <option value="financial">Financial Issues</option>
     </select>

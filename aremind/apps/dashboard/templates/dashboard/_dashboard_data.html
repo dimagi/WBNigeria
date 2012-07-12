@@ -11,214 +11,238 @@ if (!window.console) {
 
 $(document).ready(function() {
     main_dashboard_init();
-  });
+});
 
 function main_dashboard_init() {
-  var model = new PBFViewModel();
-  ko.applyBindings(model);
+    model = new PBFViewModel();
+    ko.applyBindings(model);
 
-  $.get('/dashboard/pbf/api/main', function(data) {
-      console.log(data);
-      model.load(data);
+    $.get('/dashboard/pbf/api/main', function(data) {
+        console.log(data);
+        model.load(data);
     }, 'json');
 }
 
 
 function PBFViewModel() {
-  this.stats = ko.observableArray();
-  this.active_month = ko.observable();
+    this.stats = ko.observableArray();
+    this.active_month = ko.observable();
 
-  this.load = function(data) {
-    this.stats($.map(data.stats, function(st) {
-        return new MonthlyStatsModel(st);
-      }));
-    this.active_month(this.stats.slice(-1)[0]);
-  };
+    this.load = function(data) {
+        this.stats($.map(data.stats, function(st) {
+            return new MonthlyStatsModel(st);
+        }));
+        this.active_month(this.stats.slice(-1)[0]);
+    };
 
-  this.prevmonth = function() {
-    this.month_incr(-1);
-  }
-
-  this.nextmonth = function() {
-    this.month_incr(1);
-  }
- 
-  this.month_incr = function(k) {
-    var i = this.stats.indexOf(this.active_month());
-    i += k;
-    if (i >= this.stats().length) {
-      i = this.stats().length - 1;
-    } else if (i <= 0) {
-      i = 0;
+    this.prevmonth = function() {
+        this.month_incr(-1);
     }
-    this.active_month(this.stats()[i]);
-  }
+
+    this.nextmonth = function() {
+        this.month_incr(1);
+    }
+ 
+    this.month_incr = function(k) {
+        var i = this.stats.indexOf(this.active_month());
+        i += k;
+        if (i >= this.stats().length) {
+            i = this.stats().length - 1;
+        } else if (i <= 0) {
+            i = 0;
+        }
+        this.active_month(this.stats()[i]);
+    }
 }
 
 function MonthlyStatsModel(data) {
-  this.total = ko.observable(data.total);
-  this.month_label = ko.observable(data.month);
+    this.total = ko.observable(data.total);
+    this.month_label = ko.observable(data.month);
 
-  this.data = data;
+    this.data = data;
 }
 
 // this must be called outside of a knockout bind handler init, or else everything freaks out
 google.load('visualization', '1', { packages: ['corechart'] });
 
 ko.bindingHandlers.satisfaction_piechart = {
-  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    google.load('visualization', '1', { packages: ['corechart'] });
-    google.setOnLoadCallback(function() {
-        var options = {
-          vAxis: {
-            textPosition: 'in'
-          },
-          chartArea: {
-            top: 10,
-            left: 0,
-            width: '100%'
-          }
-        };
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        google.setOnLoadCallback(function() {
+            var options = {
+                vAxis: {
+                    textPosition: 'in'
+                },
+                chartArea: {
+                    top: 10,
+                    left: 0,
+                    width: '100%'
+                }
+            };
 
-        element.wrapper = new google.visualization.ChartWrapper({
-          chartType: 'PieChart',
-          options: options,
-          containerId: $(element).attr('id')
+            element.wrapper = new google.visualization.ChartWrapper({
+                chartType: 'PieChart',
+                options: options,
+                containerId: $(element).attr('id')
+            });
+
+            var active = ko.utils.unwrapObservable(valueAccessor());
+
+            if(active) {
+                // Add the data to the chart and then draw it
+                var dataTable = google.visualization.arrayToDataTable([
+                    ['Category', ''],
+                    ['Satisfied', active.data.satisfaction.True],
+                    ['Unsatisfied', active.data.satisfaction.False],
+                ]);
+                element.wrapper.setDataTable(dataTable);
+                element.wrapper.draw();
+            }
         });
+    },
 
-        valueAccessor(valueAccessor());
-      });
-  },
-  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    var active = ko.utils.unwrapObservable(valueAccessor());
-    if (!element.wrapper || !active) {
-      return;
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        var active = ko.utils.unwrapObservable(valueAccessor());
+        if (!element.wrapper || !active) {
+            return;
+        }
+
+        var dataTable = google.visualization.arrayToDataTable([
+            ['Category', ''],
+            ['Satisfied', active.data.satisfaction.True],
+            ['Unsatisfied', active.data.satisfaction.False],
+        ]);
+        element.wrapper.setDataTable(dataTable);
+        element.wrapper.draw();
     }
-
-    var dataTable = google.visualization.arrayToDataTable([
-      ['Category', ''],
-      ['Satisfied', active.data.satisfaction.True],
-      ['Unsatisfied', active.data.satisfaction.False],
-    ]);
-    element.wrapper.setDataTable(dataTable);
-    element.wrapper.draw();
-  }
 };
 
 ko.bindingHandlers.category_barchart = {
-  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    google.load('visualization', '1', { packages: ['corechart'] });
-    google.setOnLoadCallback(function() {
-        var options = {
-          vAxis: {
-            textPosition: 'in'
-          },
-          chartArea: {
-            top: 0,
-            left: 0,
-            width: '100%'
-         }
-        };
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        google.setOnLoadCallback(function() {
+            var options = {
+                vAxis: {
+                    textPosition: 'in'
+                },
+                chartArea: {
+                    top: 0,
+                    left: 0,
+                    width: '100%'
+                }
+            };
 
-        element.wrapper = new google.visualization.ChartWrapper({
-          chartType: 'BarChart',
-          options: options,
-          containerId: $(element).attr('id')
+            element.wrapper = new google.visualization.ChartWrapper({
+                chartType: 'BarChart',
+                options: options,
+                containerId: $(element).attr('id')
+            });
+
+            var bar_clicked = function() {
+                var opt = element.wrapper.getChart().getSelection()[0].row;
+                var metric = ['wait', 'friendly', 'pricedisp', 'drugavail', 'clean'][opt];
+                window.location.href = '/dashboard/pbf/reports/?metric=' + metric;
+            };
+
+            google.visualization.events.addListener(element.wrapper, 'select', bar_clicked);
+
+            var active = ko.utils.unwrapObservable(valueAccessor());
+
+            if(active) {
+                // Add the data to the chart and then draw it
+                var dataTable = google.visualization.arrayToDataTable([
+                    ['Category', ''],
+                    ['Waiting Time', active.data.by_category.waiting_time],
+                    ['Staff Friendliness', active.data.by_category.staff_friendliness],
+                    ['Price Display', active.data.by_category.price_display],
+                    ['Drug Availability', active.data.by_category.drug_availability],
+                    ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
+                ]);
+                element.wrapper.setDataTable(dataTable);
+                element.wrapper.draw();
+            }
         });
-
-        var bar_clicked = function() {
-          var opt = element.wrapper.getChart().getSelection()[0].row;
-          var metric = ['wait', 'friendly', 'pricedisp', 'drugavail', 'clean'][opt];
-          window.location.href = '/dashboard/pbf/reports/?metric=' + metric;
-        };
-
-        google.visualization.events.addListener(element.wrapper, 'select', bar_clicked);
-
-        valueAccessor(valueAccessor());
-      });
     },
-  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    var active = ko.utils.unwrapObservable(valueAccessor());
-    if (!element.wrapper || !active) {
-      return;
-    }
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        var active = ko.utils.unwrapObservable(valueAccessor());
+        if (!element.wrapper || !active) {
+            return;
+        }
 
-    var dataTable = google.visualization.arrayToDataTable([
-      ['Category', ''],
-      ['Waiting Time', active.data.by_category.waiting_time],
-      ['Staff Friendliness', active.data.by_category.staff_friendliness],
-      ['Price Display', active.data.by_category.price_display],
-      ['Drug Availability', active.data.by_category.drug_availability],
-      ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
-    ]);
-    element.wrapper.setDataTable(dataTable);
-    element.wrapper.draw();
-  }
+        var dataTable = google.visualization.arrayToDataTable([
+            ['Category', ''],
+            ['Waiting Time', active.data.by_category.waiting_time],
+            ['Staff Friendliness', active.data.by_category.staff_friendliness],
+            ['Price Display', active.data.by_category.price_display],
+            ['Drug Availability', active.data.by_category.drug_availability],
+            ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
+        ]);
+        element.wrapper.setDataTable(dataTable);
+        element.wrapper.draw();
+    }
 };
 
 ko.bindingHandlers.map_volume = {
-  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    var options = {
-	center: new google.maps.LatLng(9.05, 8.35),
-        zoom: 5,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    element.map = new google.maps.Map(element, options);
-    element.ovl = [];
-  },
-  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    var active = ko.utils.unwrapObservable(valueAccessor());
-    if (!active) {
-      return;
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        var options = {
+            center: new google.maps.LatLng(9.05, 8.35),
+            zoom: 5,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        element.map = new google.maps.Map(element, options);
+        element.ovl = [];
+    },
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        var active = ko.utils.unwrapObservable(valueAccessor());
+        if (!active) {
+            return;
+        }
+
+        $.each(element.ovl, function(i, e) {
+            e.setMap(null);
+        });
+        element.ovl = [];
+
+        var bounds = new google.maps.LatLngBounds();
+        $.each(active.data.by_clinic, function(i, e) {
+            var facility = e[0];
+            var volume = e[1];
+
+            var pos = new google.maps.LatLng(facility.lat, facility.lon);
+            bounds.extend(pos);
+
+            var circleOptions = {
+                strokeColor: '#DA4F49',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#DA4F49',
+                fillOpacity: 0.35,
+                map: element.map,
+                center: pos,
+                radius: 1500 * Math.sqrt(volume)
+            };
+
+            var dotOptions = {
+                strokeWeight: 0,
+                fillColor: '#000000',
+                fillOpacity: 0.6,
+                map: element.map,
+                center: pos,
+                radius: 400
+            };
+
+            var circle = new google.maps.Circle(circleOptions);
+            var dot = new google.maps.Circle(dotOptions);
+            element.ovl.push(dot);
+            element.ovl.push(circle);
+
+            var goto_detail = function() {
+                window.location.href = '/dashboard/pbf/reports/?site=' + facility.id;
+            };
+
+            google.maps.event.addListener(circle, 'click', goto_detail);
+            google.maps.event.addListener(dot, 'click', goto_detail);
+        });
+        element.map.fitBounds(bounds);
     }
-
-    $.each(element.ovl, function(i, e) {
-        e.setMap(null);
-      });
-    element.ovl = [];
-
-    var bounds = new google.maps.LatLngBounds();
-    $.each(active.data.by_clinic, function(i, e) {
-        var facility = e[0];
-        var volume = e[1];
-
-        var pos = new google.maps.LatLng(facility.lat, facility.lon);
-        bounds.extend(pos);
-
-        var circleOptions = {
-          strokeColor: '#DA4F49',
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          fillColor: '#DA4F49',
-          fillOpacity: 0.35,
-          map: element.map,
-          center: pos,
-          radius: 1500 * Math.sqrt(volume)
-        };
-
-        var dotOptions = {
-          strokeWeight: 0,
-          fillColor: '#000000',
-          fillOpacity: 0.6,
-          map: element.map,
-          center: pos,
-          radius: 400
-        };
-
-        var circle = new google.maps.Circle(circleOptions);
-        var dot = new google.maps.Circle(dotOptions);
-        element.ovl.push(dot);
-        element.ovl.push(circle);
-
-        var goto_detail = function() {
-            window.location.href = '/dashboard/pbf/reports/?site=' + facility.id;
-          };
-
-        google.maps.event.addListener(circle, 'click', goto_detail);
-        google.maps.event.addListener(dot, 'click', goto_detail);
-      });
-    element.map.fitBounds(bounds);
-  }
 };
 
 </script>

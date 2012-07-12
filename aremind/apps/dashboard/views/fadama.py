@@ -97,10 +97,17 @@ FACILITIES = [
     {'id': 10, 'name': 'Yashi Madaki', 'lat': 9.1712, 'lon': 8.673, 'state': 'nasarawa', 'fugs': gen_fugs('Yashi', 8)},
 ]
 
+def facilities_by_id():
+    return map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
 
-def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
+
+
+def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
     with open(path) as f:
         reports = json.load(f)
+
+    facs = facilities_by_id()
+    reports = [r for r in reports if state is None or state == facs[r['facility']]['state']]
 
     for r in reports:
         ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
@@ -218,10 +225,14 @@ def api_main(request):
     }
     return HttpResponse(json.dumps(payload), 'text/json')
 
-def main_dashboard_stats():
-    data = load_reports()
+def user_state():
+    # return state for logged-in user
+    return 'fct'
 
-    facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
+def main_dashboard_stats():
+    data = load_reports(user_state())
+
+    facilities = facilities_by_id()
 
     def month_stats(data, label):
         return {
@@ -240,15 +251,15 @@ def api_detail(request):
     site = int(_site) if _site else None
 
     payload = {
-        'facilities': FACILITIES,
+        'facilities': [f for f in FACILITIES if f['state'] == user_state()],
         'monthly': detail_stats(site),
     }
     return HttpResponse(json.dumps(payload), 'text/json')
 
 def detail_stats(facility_id):
-    data = load_reports()
+    data = load_reports(user_state())
 
-    facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
+    facilities = facilities_by_id()
 
     filtered_data = [r for r in data if facility_id is None or r['facility'] == facility_id]
     for r in filtered_data:

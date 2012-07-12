@@ -118,12 +118,12 @@ ko.bindingHandlers.category_barchart = {
     google.setOnLoadCallback(function() {
         var options = {
           vAxis: {
-            textPosition: 'in'
+            textPosition: 'left'
           },
           chartArea: {
             top: 0,
-            left: 0,
-            width: '100%'
+            left: 110,
+            width: '90%'
          }
         };
 
@@ -155,7 +155,7 @@ ko.bindingHandlers.category_barchart = {
       ['Service Providers', active.data.by_category.serviceprovider],
       ['Stakeholders', active.data.by_category.people],
       ['Land Issues', active.data.by_category.land],
-      ['Lack of Information', active.data.by_category.info],
+      ['Lack of Info', active.data.by_category.info],
       ['LDP Approval', active.data.by_category.ldp],
       ['Financial Issues', active.data.by_category.financial],
     ]);

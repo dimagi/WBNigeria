@@ -14,7 +14,7 @@ if (!window.console) {
 }
 
 DEFAULT_SITE = {{ default_site|default:"null" }};
-DEFAULT_METRIC = "{{ default_metric }}";
+DEFAULT_METRIC = "{{ default_metric|default:"" }}";
 
 $(document).ready(function() {
     detail_report_init();
@@ -43,6 +43,23 @@ function FadamaDetailViewModel() {
   this.active_month = ko.observable();
 
   this.active_fug = ko.observable();
+  this.active_subcategory = ko.observable();
+
+  var model = this;
+
+  this.subcategories = ko.computed(function() {
+      var __all = {val: 'all', text: 'All Sub-categories'};
+
+      if (!model.active_metric() || model.active_metric() == 'all' || model.active_metric() == 'satisf') {
+        return [__all];
+      }
+
+      var opts = $.map(get_ordering(model.active_metric()), function(e) {
+          return {val: e, text: get_caption(model.active_metric(), e)};
+        });
+      opts.splice(0, 0, __all);
+      return opts;
+    });
 
   this.load = function(data) {
     if (this.facilities().length == 0) {
@@ -135,6 +152,17 @@ function MonthlyDetailModel(data) {
   this.month_label = ko.observable(data.month);
   this.stats = data.stats;
   this.clinic_totals = data.clinic_totals;
+
+  this.any_logs_relevant = function(root) {
+    var relev = false;
+    $.each(this.logs(), function(i, e) {
+       if (e.is_relevant(root)) {
+         relev = true;
+         return false;
+       }
+      });
+    return relev;
+  }
 }
 
 function LogModel(data) {
@@ -171,6 +199,12 @@ function LogModel(data) {
   this.subcategory_caption = ko.computed(function() {
       return get_caption(model.category(), model.subcategory());
     });
+
+  this.is_relevant = function(root) {
+    return (this.category() == root.active_metric() || root.active_metric() == 'all' || root.active_metric() == 'satisf') &&
+           (this.fug() == root.active_fug() || root.active_fug() == 'All FUGs') &&
+           (this.subcategory() == root.active_subcategory().val || root.active_subcategory().val == 'all');
+   }
 }
 
 ko.bindingHandlers.yn = {
@@ -497,6 +531,7 @@ function site_name(name, map) {
         </div>
     </div>
 
+<div id="summary">
     <div class="row-fluid" data-bind="visible: active_metric() != 'all'">
         <div class="span8">
             <h3>Reports by Month</h3>
@@ -517,6 +552,7 @@ function site_name(name, map) {
 	  <div id="map" data-bind="map_volume: active_month" class="map"></div>
         </div>
     </div>
+</div>
 
     <div class="row-fluid">
         <div class="span12">
@@ -526,11 +562,7 @@ function site_name(name, map) {
 <form class="form-inline filter-form" action="#">
     <label class="control-label" for="object_filter">Filter by:</label>
     <select data-bind="options: active_facility() ? active_facility().fugs : [], value: active_fug"></select>
-
-
-    <select id="feedback">
-                    <option value="all">All Sub-categories</option>
-    </select>
+    <select id="feedback" data-bind="options: subcategories, optionsText: 'text', value: active_subcategory"></select>
     <input type="text" id="date" class="input-mini calendar" placeholder="Date" />
     <input type="text" id="search" placeholder="Search..." />
 </form>
@@ -541,7 +573,8 @@ function site_name(name, map) {
 
     <div class="row-fluid">
         <div class="span12">
-            <table id="reports-table" class="table table-bordered table-striped table-condensed">
+            <table id="reports-table" class="table table-bordered table-striped table-condensed"
+                data-bind="visible: (active_month() ? active_month().any_logs_relevant($root) : true)">
                 <thead>
                     <tr>
                         <th>Report #</th>
@@ -555,7 +588,7 @@ function site_name(name, map) {
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
-                    <tr data-bind="visible: (category() == $root.active_metric() || $root.active_metric() == 'all' || $root.active_metric() == 'satisf') && (fug() == $root.active_fug() || $root.active_fug() == 'All FUGs')">
+                    <tr data-bind="visible: is_relevant($root)">
                         <td data-bind="text: id"></td>
                         <td data-bind="text: site"></td>
                         <td data-bind="text: fug"></td>
@@ -567,6 +600,9 @@ function site_name(name, map) {
                     </tr>
                 </tbody>
             </table>
+          <div style="font-style: italic; margin-top: 1.5em; margin-left: 4em;" data-bind="visible: !(active_month() ? active_month().any_logs_relevant($root) : true)">
+	    There are no reports matching the current filters and time period
+          </div>
         </div>
     </div>
 {% endblock content %}

@@ -42,6 +42,8 @@ function FadamaDetailViewModel() {
   this.active_metric = ko.observable(DEFAULT_METRIC || null);
   this.active_month = ko.observable();
 
+  this.active_fug = ko.observable();
+
   this.load = function(data) {
     if (this.facilities().length == 0) {
       var facs = $.map(data.facilities, function(f) {
@@ -117,6 +119,13 @@ function FadamaDetailViewModel() {
 function FacilityModel(data) {
   this.id = ko.observable(data.id);
   this.name = ko.observable(data.name);
+
+  if (data.id == -1) {
+    data.fugs = [];
+  }
+  this.__all_fugs = 'All FUGs';
+  data.fugs.splice(0, 0, this.__all_fugs);
+  this.fugs = ko.observable(data.fugs);
 }
 
 function MonthlyDetailModel(data) {
@@ -483,8 +492,7 @@ function site_name(name, map) {
                     <option value="financial">Financial Issues</option>
                 </select>
                 <label>in</label>
-                <select data-bind="options: facilities, value: active_facility, optionsText: 'name'" id="location">
-                </select>
+                <select data-bind="options: facilities, value: active_facility, optionsText: 'name'" id="location"></select>
             </form>
         </div>
     </div>
@@ -517,16 +525,11 @@ function site_name(name, map) {
 
 <form class="form-inline filter-form" action="#">
     <label class="control-label" for="object_filter">Filter by:</label>
-    <select data-bind="options: facilities, value: active_facility, optionsText: 'name'" id="location"></select>
-    <select data-bind="value: active_metric" id="feedback">
-                    <option value="all">All Categories</option>
-                    <option value="satisf">Overall Satisfaction</option>
-                    <option value="serviceprovider">Service Providers</option>
-                    <option value="people">Stakeholders</option>
-                    <option value="land">Land Issues</option>
-                    <option value="info">Lack of Information</option>
-                    <option value="ldp">LDP Approval</option>
-                    <option value="financial">Financial Issues</option>
+    <select data-bind="options: active_facility() ? active_facility().fugs : [], value: active_fug"></select>
+
+
+    <select id="feedback">
+                    <option value="all">All Sub-categories</option>
     </select>
     <input type="text" id="date" class="input-mini calendar" placeholder="Date" />
     <input type="text" id="search" placeholder="Search..." />
@@ -545,14 +548,14 @@ function site_name(name, map) {
                         <th style="width: 12em;">FCA</th>
                         <th style="width: 12em;">FUG</th>
                         <th>Date &amp; Time</th>
-                        <th>Patient Satisfied</th>
+                        <th>Beneficiary Satisfied</th>
 			<th>Feedback Category</th>
 			<th>Sub-category</th>
 			<th>Free-form message</th>
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
-                    <tr data-bind="visible: category() == $root.active_metric() || $root.active_metric() == 'all' || $root.active_metric() == 'satisf'">
+                    <tr data-bind="visible: (category() == $root.active_metric() || $root.active_metric() == 'all' || $root.active_metric() == 'satisf') && (fug() == $root.active_fug() || $root.active_fug() == 'All FUGs')">
                         <td data-bind="text: id"></td>
                         <td data-bind="text: site"></td>
                         <td data-bind="text: fug"></td>

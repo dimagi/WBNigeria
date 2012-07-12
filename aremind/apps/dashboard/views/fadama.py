@@ -21,17 +21,20 @@ import random
 from datetime import datetime, timedelta
 import collections
 
+def gen_fugs(prefix, num):
+    return ['FUG %s-%d' % (prefix, i + 1) for i in range(num)]
+
 FACILITIES = [
-    {'id': 1, 'name': 'Destined FCA', 'lat': 8.958, 'lon': 7.0697},
-    {'id': 2, 'name': 'Unity FCA', 'lat': 8.9268, 'lon': 7.0858},
-    {'id': 3, 'name': 'Anagada', 'lat': 9.0333, 'lon': 7.1667},
-    {'id': 4, 'name': 'Paiko', 'lat': 9.4354, 'lon': 6.6344},
-    {'id': 5, 'name': 'Chibiri', 'lat': 8.9014, 'lon': 7.1988},
-    {'id': 6, 'name': 'Wamba', 'lat': 8.936, 'lon': 8.6057},
-    {'id': 7, 'name': 'Akwanga', 'lat': 8.9063, 'lon': 8.4085},
-    {'id': 8, 'name': 'Angwa Zaria', 'lat': 9.0133, 'lon': 8.2755},
-    {'id': 9, 'name': 'Arum Tumara', 'lat': 9.0994, 'lon': 8.6504},
-    {'id': 10, 'name': 'Yashi Madaki', 'lat': 9.1712, 'lon': 8.673},
+    {'id': 1, 'name': 'Destined FCA', 'lat': 8.958, 'lon': 7.0697, 'state': 'fct', 'fugs': gen_fugs('D', 9)},
+    {'id': 2, 'name': 'Unity FCA', 'lat': 8.9268, 'lon': 7.0858, 'state': 'fct', 'fugs': gen_fugs('U', 7)},
+    {'id': 3, 'name': 'Anagada', 'lat': 9.0333, 'lon': 7.1667, 'state': 'fct', 'fugs': gen_fugs('A', 14)},
+    {'id': 4, 'name': 'Paiko', 'lat': 9.4354, 'lon': 6.6344, 'state': 'fct', 'fugs': gen_fugs('P', 17)},
+    {'id': 5, 'name': 'Chibiri', 'lat': 8.9014, 'lon': 7.1988, 'state': 'fct', 'fugs': gen_fugs('C', 10)},
+    {'id': 6, 'name': 'Wamba', 'lat': 8.936, 'lon': 8.6057, 'state': 'nasarawa', 'fugs': gen_fugs('W', 6)},
+    {'id': 7, 'name': 'Akwanga', 'lat': 8.9063, 'lon': 8.4085, 'state': 'nasarawa', 'fugs': gen_fugs('Ak', 13)},
+    {'id': 8, 'name': 'Angwa Zaria', 'lat': 9.0133, 'lon': 8.2755, 'state': 'nasarawa', 'fugs': gen_fugs('AZ', 15)},
+    {'id': 9, 'name': 'Arum Tumara', 'lat': 9.0994, 'lon': 8.6504, 'state': 'nasarawa', 'fugs': gen_fugs('AT', 10)},
+    {'id': 10, 'name': 'Yashi Madaki', 'lat': 9.1712, 'lon': 8.673, 'state': 'nasarawa', 'fugs': gen_fugs('YM', 8)},
 ]
 
 def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['fadama']):

@@ -198,7 +198,7 @@ function LogModel(data) {
   this.inquiry = ko.observable();
   this._inquiry = ko.computed({
         read: function () {
-            return (model.proxy() ? 'you cannot message the beneficiary because they reported through a proxy' : model.inquiry());
+            return (model.proxy() ? 'it is not possible to message the beneficiary because they reported through a proxy' : model.inquiry());
         },
         write: function (value) {
             if (!model.proxy()) {

@@ -143,34 +143,98 @@ complaint_type = [
 
 def make_reports(path, n, window=6):
     def mk_report(i):
-        messages = [
-            'The project is good because it helps a lot,for example some people don\'t have money 2 feed but with the help of the world bank, people can feed their for them 2',
-            'because i have benefited & continue the enterprise',
-            'we have been asisted by fadahma with input nd output has inprove',
-            'Kiwon kaji da kiwon kifi',
-            'facilitator did not come for long time',
-            'service provider is too expensive. help',
-            'people in FCA are leaving their project, chicken project',
-            'i have no money',
-            'no bank in my village',
-            'Project is good, god bless',
-            'my brother wants to do Fadama project too',
-            'no answer to my complaint',
-            'fertilizers are late, yams do not grow',
-            'people from my group are cheating',
-            'FCA chairman only go to training, I want go to training also',
-            'Fadama money not coming',
-            'group is formed but there is no land',
-            'waiting on ldp',
-            'facilitator writes in ldp that project is fish farming. I want chicken farming',
-            'travel 2 hours but desk officer never at the office',
-            'call the fadama people but no reply',
-            'service provider chop my money',
-            'service provider dont come, construction is late',
-            'where to sell my yams?',
-            'dont know price for selling my fish',
-            'need information for my seed',
-        ]
+        messages = {
+            'satisfied': [
+                'The project is good because it helps a lot,for example some people don\'t have money 2 feed but with the help of the world bank, people can feed their for them 2',
+                'because i have benefited & continue the enterprise',
+                'we have been asisted by fadahma with input nd output has inprove',
+                'Project is good, god bless',
+            ],
+            ('people', 'state'): [
+                'no answer to my complaint',
+                'call the fadama people but no reply',
+                'other village say Fadama people visited. no visit here',
+            ],
+            ('people', 'facilitator'): [
+                'facilitator did not come for long time',
+                'facilitator not doing anything',
+                'you people say facilitator supposed to help. no help',
+            ],
+            ('people', 'other'): [
+                'no answer to my complaint',
+                'travel 2 hours but desk officer never at the office',
+            ],
+            ('people', 'fca'): [
+                'people in FCA are leaving their project, chicken project',
+                'my brother wants to do Fadama project too',
+                'people from my group are cheating',
+                'FCA chairman only go to training, I want go to training also',
+            ],
+            ('people', 'fug'): [
+                'people in FCA are leaving their project, chicken project',
+                'my brother wants to do Fadama project too',
+                'people from my group are cheating',
+                'FCA chairman only go to training, I want go to training also',
+            ],
+            ('financial', 'bank'): [
+                'no bank in my village',
+                'how to open bank account?',
+            ],
+            ('financial', 'delay'): [
+                'i have no money',
+                'Fadama money not coming',
+            ],
+            ('info', 'input'): [
+                'fertilizers are late, yams do not grow',
+                'need information for my seedlings',
+            ],
+            ('info', 'market'): [
+                'where to sell my yams?',
+                'dont know price for selling my fish',
+            ],
+            ('info', 'credit'): [
+                'need credit',
+                'facilitator say there is no credit for my group',
+            ],
+            ('serviceprovider', 'notfind'): [
+                'service provider is too expensive. Help',
+                'not finding service provider',
+                'no service provider in abuja, only in kaduna state',
+            ],
+            ('serviceprovider', 'notstarted'): [
+                'service provider dont come, construction is late',
+                'construction not started',
+            ],
+            ('serviceprovider', 'delays'): [
+                'service provider dont come, construction is late',
+                'construction should be completed. now a month late',
+            ],
+            ('serviceprovider', 'abandon'): [
+                'service provider stop working on project',
+                'service provider did not come for long time',
+            ],
+            ('serviceprovider', 'substandard'): [
+                'service provider chop my money',
+                'construction is bad, door break with the wind',
+                'service provider did not deliver on his promise ',
+            ],
+            ('land', 'notfind'): [
+                'group is formed but there is no land',
+                'we give the money but Fadama say need land. where to find land?',
+            ],
+            ('land', 'suitability'): [
+                'we found land but people say land not good',
+                'why Fadama no accept my land?',
+            ],
+            ('land', 'ownership'): [
+                'someone claims ownership of land',
+                'land from council but people want to take it from my group',
+            ],
+            ('ldp', 'delay'): [
+                'waiting on ldp',
+                'facilitator writes in ldp that project is fish farming. I want chicken farming',
+            ],
+        }
 
         def tf(ratio=1.):
             return (random.random() < (ratio / (ratio + 1.)))
@@ -214,11 +278,26 @@ def make_reports(path, n, window=6):
             ],
         }
 
+        satisfied = tf(.3)
         type = random.choice(complaint_type)
         try:
             value = random.choice(choices[type])
         except KeyError:
             value = tf()
+
+        if satisfied:
+            messageshuffle = messages['satisfied']
+            messagelikelihood = .2
+        else:
+            try:
+                messageshuffle = messages[(type, value)]
+                messagelikelihood = .8
+            except KeyError:
+                messagelikelihood = .5
+                messageshuffle = messages['satisfied']
+                for k, v in messages.iteritems():
+                    if k[0] == type:
+                        messageshuffle.extend(messages[k])
 
         facility = random.choice(FACILITIES)
         return {
@@ -226,9 +305,9 @@ def make_reports(path, n, window=6):
             'facility': facility['id'],
             'fug': random.choice(facility['fugs']),
             'timestamp': (datetime.utcnow() - timedelta(days=random.uniform(0, 30.44*window))).strftime('%Y-%m-%dT%H:%M:%S'),
-            'satisfied': tf(),
+            'satisfied': satisfied,
             type: value,
-            'message': random.choice(messages) if tf() else None,
+            'message': random.choice(messageshuffle) if random.random() < messagelikelihood else None,
             'proxy': tf(.4),
         }
 

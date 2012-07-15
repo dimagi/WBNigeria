@@ -371,9 +371,7 @@ ko.bindingHandlers.currentchart = {
     var data = [['Category', '']];
     var raw_data = monthly_datapoints(active, metric);
     $.each(get_ordering(metric), function(i, e) {
-        if (raw_data[e] != null) {
-          data.push([get_caption(metric, e), raw_data[e]]);
-        }
+        data.push([get_caption(metric, e), raw_data[e] || 0.]);
       });
 
     var chart_type = 'PieChart';

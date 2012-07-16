@@ -4,42 +4,39 @@
     {{ block.super }}
 
     <script>
+        if (!window.console) {
+            window.console = {
+                log: function () { }
+            };
+        }
 
-    if (!window.console) {
-        window.console = {
-            log: function () { }
-        };
-    }
-
-    $(document).ready(function() {
-        detail_report_init();
-    });
-
-    charts_init = false;
-
-    function detail_report_init() {
-        var model = new FadamaDetailViewModel();
-        ko.applyBindings(model);
-
-        google.setOnLoadCallback(function() {
-            model.active_month(model.active_month());
-            charts_init = true;
+        $(document).ready(function() {
+            detail_report_init();
         });
-    }
+
+        charts_init = false;
+
+        function detail_report_init() {
+            var model = new FadamaDetailViewModel();
+            ko.applyBindings(model);
+
+            google.setOnLoadCallback(function() {
+                model.active_month(model.active_month());
+                charts_init = true;
+            });
+        }
     </script>
 
     <style>
-
-    .sitename {
-        background: rgba(255, 255, 255, .7);
-        border-radius: 5px;
-        -moz-border-radius: 5px;
-        -webkit-border-radius: 5px;
-        padding: 5px 10px;
-        font-weight: bold;
-        font-style: italic;
-    }
-
+        .sitename {
+            background: rgba(255, 255, 255, .7);
+            border-radius: 5px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-style: italic;
+        }
     </style>
 
     <div class="row-fluid">

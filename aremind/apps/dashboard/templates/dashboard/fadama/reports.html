@@ -78,7 +78,7 @@ function FadamaDetailViewModel() {
 
     var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
     this.monthly($.map(data.monthly, function(m) {
-        return new MonthlyDetailModel(m);
+        return new MonthlyDetailModel(m, model);
       }));
     this.active_month(this.monthly.slice(active_month_ix)[0]);
   };
@@ -131,6 +131,16 @@ function FadamaDetailViewModel() {
       });
     return f;
   }
+
+  this.collapse_logs = function(active) {
+    $.each(this.monthly(), function(i, e) {
+        $.each(e.logs(), function(i, e) {
+            if (e != active) {
+              e.expanded(false);
+            }
+          });
+      });
+  }
 }
 
 function FacilityModel(data) {
@@ -145,9 +155,9 @@ function FacilityModel(data) {
   this.fugs = ko.observable(data.fugs);
 }
 
-function MonthlyDetailModel(data) {
+function MonthlyDetailModel(data, root) {
   this.logs = ko.observableArray($.map(data.logs, function(l) {
-      return new LogModel(l);
+      return new LogModel(l, root);
     }));
   this.month_label = ko.observable(data.month);
   this.stats = data.stats;
@@ -165,7 +175,7 @@ function MonthlyDetailModel(data) {
   }
 }
 
-function LogModel(data) {
+function LogModel(data, root) {
   this.id = ko.observable(data.id);
   this.site = ko.observable(data.site_name);
   this.fug = ko.observable(data.fug);
@@ -179,6 +189,7 @@ function LogModel(data) {
   this.expanded = ko.observable(false);
   this.toggle = function() {
     this.expanded(!this.expanded());
+    root.collapse_logs(this);
   }
 
   var categories = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'];
@@ -690,8 +701,8 @@ function site_name(name, map) {
 			<td data-bind="text: subcategory_caption"></td>
 			<td style="width: 25em;" data-bind="text: message"></td>
                     </tr>
-                    <tr>
-		      <td colspan="8" data-bind="visible: expanded">
+                    <tr data-bind="visible: is_relevant($root) && expanded()">
+		      <td colspan="8">
 			<div data-bind="foreach: thread">
 			<p style="margin: .5em 6em; clear: both;">
 			  <div style="float: left; width: 30em; text-align: right; margin-right: 3em; font-style: italic;">
@@ -704,6 +715,7 @@ function site_name(name, map) {
 			  <span style="font-size: 120%" data-bind="text: text"></span>
 			</p>
 			</div>
+			<hr>
 			<div style="margin-left: 15em; padding-top: 1em;">
 			  <p style="">
 			    <label>send a message to the <b>beneficiary</b></label>

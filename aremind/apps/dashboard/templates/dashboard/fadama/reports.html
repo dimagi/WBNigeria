@@ -674,9 +674,8 @@ function site_name(name, map) {
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
                     <tr data-bind="visible: is_relevant($root), click: toggle">
                         <td>
+			  <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (expanded() ? 'expanded' : 'collapsed') + '.png' }" />
 			  <span data-bind="text: id"></span>
-			  <a href="#" style="font-size: 80%;" data-bind="visible: !expanded()">(expand)</a>
-			  <a href="#" style="font-size: 80%;" data-bind="visible: expanded">(collapse)</a>
 			  <span data-bind="visible: thread().length" style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span>
 			</td>
                         <td data-bind="text: site"></td>

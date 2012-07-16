@@ -13,65 +13,6 @@ function urlParam(name) {
     return param;
 }
 
-function get_caption(metric, value) {
-    return {
-        satisf: {
-            True: 'Satisfied',
-            False: 'Unsatisfied'
-        },
-        serviceprovider: {
-            notfind: 'Not Finding',
-            delay: 'Delays',
-            stopped: 'Stopped Project',
-            other: 'Other'
-        },
-        people: {
-            state: 'State Officials',
-            fug: 'FUG',
-            fca: 'FCA',
-            facilitator: 'Facilitators',
-            other: 'Other'
-        },
-        land: {
-            True: 'Yes',
-            False: 'No'
-        },
-        info: {
-            market: 'Market',
-            input: 'Input',
-            other: 'Other'
-        },
-        ldp: {
-            delay: 'Delays',
-            other: 'Other'
-        },
-        financial: {
-            bank: 'Bank Account Opening',
-            delay: 'Delayed Funding',
-            other: 'Other'
-        }
-    }[metric][value];
-}
-
-function get_ordering(metric) {
-    return {
-        satisf: ['True', 'False'],
-        serviceprovider: ['notfind', 'delay', 'stopped', 'other'],
-        people: ['state', 'fug', 'fca', 'facilitator', 'other'],
-        land: ['True', 'False'],
-        info: ['market', 'input', 'other'],
-        ldp: ['delay', 'other'],
-        financial: ['bank', 'delay', 'other']
-    }[metric];
-}
-
-function monthly_datapoints(month, metric) {
-    var key = {
-        satisf: 'satisfied'
-    }[metric] || metric;
-    return month.stats[key];
-}
-
 function MonthlyStatsModel(data) {
     this.total = ko.observable(data.total);
     this.month_label = ko.observable(data.month);
@@ -210,16 +151,21 @@ function PBFDetailViewModel() {
 function FadamaDetailViewModel() {
     this.monthly = ko.observableArray();
     this.facilities = ko.observableArray();
-    this.__all_clinics = new FacilityModel({id: -1, name: 'All Sites'});
+    this.__all_clinics = new FadamaFacilityModel({id: -1, name: 'All Sites'});
 
     this.active_facility = ko.observable();
     this.active_metric = ko.observable(DEFAULT_METRIC || null);
     this.active_month = ko.observable();
 
+    this.active_fug = ko.observable();
+    this.active_subcategory = ko.observable();
+
+    var model = this;
+
     this.load = function(data) {
         if (this.facilities().length === 0) {
             var facs = $.map(data.facilities, function(f) {
-                return new FacilityModel(f);
+                return new FadamaFacilityModel(f);
             });
             facs.splice(0, 0, this.__all_clinics);
             this.facilities(facs);
@@ -233,10 +179,24 @@ function FadamaDetailViewModel() {
 
         var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
         this.monthly($.map(data.monthly, function(m) {
-            return new MonthlyDetailModel(m);
+            return new FadamaMonthlyDetailModel(m, model);
         }));
         this.active_month(this.monthly.slice(active_month_ix)[0]);
     };
+
+    this.subcategories = ko.computed(function() {
+        var __all = {val: 'all', text: 'All Sub-categories'};
+
+        if (!model.active_metric() || model.active_metric() == 'all' || model.active_metric() == 'satisf') {
+            return [__all];
+        }
+
+        var opts = $.map(get_ordering(model.active_metric()), function(e) {
+            return {val: e, text: get_caption(model.active_metric(), e)};
+        });
+        opts.splice(0, 0, __all);
+        return opts;
+    });
 
     this.ajax_load = function(facility_id) {
         var params = facility_id != null ? {site: facility_id} : {};
@@ -278,29 +238,172 @@ function FadamaDetailViewModel() {
 
     this.facility_by_id = function(id) {
         var f = null;
+
+        if(id === null) {
+            return f;
+        }
+
         $.each(this.facilities(), function(i, e) {
-            if (id != null && e.id() == id) {
+            if(e.id() == id) {
                 f = e;
                 return false;
             }
         });
         return f;
     };
+
+    this.collapse_logs = function(active) {
+        $.each(this.monthly(), function(i, e) {
+            $.each(e.logs(), function(i, e) {
+                if (e != active) {
+                    e.expanded(false);
+                }
+            });
+        });
+    };
 }
 
-
-function FacilityModel(data) {
+function FadamaFacilityModel(data) {
     this.id = ko.observable(data.id);
     this.name = ko.observable(data.name);
+
+    if (data.id == -1) {
+        data.fugs = [];
+    }
+    
+    this.__all_fugs = 'All FUGs';
+    data.fugs.splice(0, 0, this.__all_fugs);
+    this.fugs = ko.observable(data.fugs);
 }
 
-function MonthlyDetailModel(data) {
+function FadamaMonthlyDetailModel(data, root) {
     this.logs = ko.observableArray($.map(data.logs, function(l) {
-        return new LogModel(l);
+        return new FadamaLogModel(l, root);
     }));
     this.month_label = ko.observable(data.month);
     this.stats = data.stats;
     this.clinic_totals = data.clinic_totals;
+
+    this.any_logs_relevant = function(root) {
+        var relev = false;
+        $.each(this.logs(), function(i, e) {
+            if (e.is_relevant(root)) {
+                relev = true;
+                return false;
+            }
+        });
+        
+        return relev;
+    };
+}
+
+function FadamaLogModel(data, root) {
+    this.id = ko.observable(data.id);
+    this.site = ko.observable(data.site_name);
+    this.fug = ko.observable(data.fug);
+    this.date = ko.observable(data.display_time);
+    this.satisfied = ko.observable(data.satisfied);
+    this.proxy = ko.observable(data.proxy);
+    this.thread = ko.observableArray($.map(data.thread, function(c) {
+        return new CommModel(c);
+    }));
+
+    this.expanded = ko.observable(false);
+    this.toggle = function() {
+        this.expanded(!this.expanded());
+        root.collapse_logs(this);
+    };
+
+    var categories = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'];
+    var category = null;
+    $.each(categories, function(i, e) {
+        if (data[e] != null) {
+            category = e;
+            return false;
+        }
+    });
+  
+    this.category = ko.observable(category);
+    this.subcategory = ko.observable(data[category]);
+    this.message = ko.observable(data.message);
+
+    var model = this;
+    this.inquiry = ko.observable();
+    this._inquiry = ko.computed({
+        read: function () {
+            return (model.proxy() ? 'it is not possible to message the beneficiary because they reported through a proxy' : model.inquiry());
+        },
+        write: function (value) {
+            if (!model.proxy()) {
+              model.inquiry(value);
+            }
+        },
+        owner: this
+    });
+    this.note = ko.observable();
+
+    this.send_message = function() {
+        this.new_thread_msg('inquiry', this.inquiry());
+    };
+
+    this.new_note = function() {
+        this.new_thread_msg('note', this.note());
+    };
+
+    this.new_thread_msg = function(type, content) {
+        var model = this;
+        $.post('/dashboard/fadama/message/', {id: this.id(), type: type, text: content, user: 'demo user'}, function(data) {
+        model.thread.push(new CommModel(data));
+        model[type == 'inquiry' ? 'inquiry' : 'note'](null);
+            if (type == 'inquiry') {
+            alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
+            }
+        });
+    };
+    
+    this.category_caption = ko.computed(function() {
+        return {
+            'serviceprovider': 'Service Providers',
+            'people': 'Stakeholders',
+            'land': 'Land Issues',
+            'info': 'Lack of Information',
+            'ldp': 'LDP Approval',
+            'financial': 'Financial Issues'
+        }[model.category()];
+    });
+    this.subcategory_caption = ko.computed(function() {
+        return get_fadama_caption(model.category(), model.subcategory());
+    });
+
+    this.is_relevant = function(root) {
+        return (this.category() == root.active_metric() || root.active_metric() == 'all' || root.active_metric() == 'satisf') &&
+           (this.fug() == root.active_fug() || root.active_fug() == 'All FUGs') &&
+           (this.subcategory() == root.active_subcategory().val || root.active_subcategory().val == 'all');
+    };
+    
+    this._autocollapse = ko.computed(function() {
+        if (!model.is_relevant(root)) {
+            model.expanded(false);
+        }
+    });
+}
+
+function CommModel(data) {
+    this.author = ko.observable(data.author);
+    this.type = ko.observable(data.type);
+    this.date = ko.observable(data.date_fmt);
+    this.text = ko.observable(data.text);
+
+    var model = this;
+    this.display = ko.computed(function() {
+        if (model.type() == 'note') {
+            return ['note', 'left by', model.author()];
+        } else if (model.type() == 'inquiry') {
+            return ['message to beneficiary', 'sent by', model.author()];
+        } else if (model.type() == 'response') {
+            return ['response', 'from', 'beneficiary'];
+        }
+    });
 }
 
 function LogModel(data) {

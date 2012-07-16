@@ -52,7 +52,8 @@ $(function() {
             $(element).empty();
             if (val != null) {
                 var $img = $('<img />');
-                $img.attr('src', 'http://whereis.dimagi.com/staticmedia/admin/img/icon_' + (val ? 'success' : 'error') + '.gif');
+                $img.attr('src', '/static/images/icon_' + (val ? 'success' : 'error') + '.gif');
+                $img.attr('alt', val ? 'Yes' : 'No');
                 $(element).append($img);
             }
         }

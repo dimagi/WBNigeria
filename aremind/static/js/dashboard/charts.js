@@ -182,12 +182,12 @@ ko.bindingHandlers.fadama_category_barchart = {
     }
 };
 
-ko.bindingHandlers.current_chart = {
+ko.bindingHandlers.fadama_current_chart = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        // google.setOnLoadCallback(function() {
-        //     valueAccessor(valueAccessor());
-        //     element.charts_init = true;
-        // });
+        google.setOnLoadCallback(function() {
+            valueAccessor(valueAccessor());
+            element.charts_init = true;
+        });
     },
 
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
@@ -212,8 +212,8 @@ ko.bindingHandlers.current_chart = {
 
         var data = [['Category', '']];
         var raw_data = monthly_datapoints(active, metric);
-        $.each(get_ordering(metric), function(i, e) {
-            data.push([get_caption(metric, e), raw_data[e] || 0]);
+        $.each(get_fadama_ordering(metric), function(i, e) {
+            data.push([get_fadama_caption(metric, e), raw_data[e] || 0]);
         });
 
         var chart_type = 'PieChart';
@@ -235,12 +235,12 @@ ko.bindingHandlers.current_chart = {
     }
 };
 
-ko.bindingHandlers.historical_chart = {
+ko.bindingHandlers.fadama_historical_chart = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        // google.setOnLoadCallback(function() {
-        //     valueAccessor(valueAccessor());
-        //     element.charts_init = true;
-        // });
+        google.setOnLoadCallback(function() {
+            valueAccessor(valueAccessor());
+            element.charts_init = true;
+        });
     },
 
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
@@ -268,8 +268,8 @@ ko.bindingHandlers.historical_chart = {
 
         var labels = ['Month'];
         var raw_data = monthly_datapoints(active, metric);
-        $.each(get_ordering(metric), function(i, e) {
-            labels.push(get_caption(metric, e));
+        $.each(get_fadama_ordering(metric), function(i, e) {
+            labels.push(get_fadama_caption(metric, e));
         });
         var data = [labels];
 
@@ -284,7 +284,7 @@ ko.bindingHandlers.historical_chart = {
                 var m = viewModel.monthly()[i];
                 raw_data = monthly_datapoints(m, metric);
                 row.push(m.month_label());
-                $.each(get_ordering(metric), function(i, e) {
+                $.each(get_fadama_ordering(metric), function(i, e) {
                     row.push(raw_data[e] || 0);
                 });
             }

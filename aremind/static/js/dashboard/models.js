@@ -191,8 +191,8 @@ function FadamaDetailViewModel() {
             return [__all];
         }
 
-        var opts = $.map(get_ordering(model.active_metric()), function(e) {
-            return {val: e, text: get_caption(model.active_metric(), e)};
+        var opts = $.map(get_fadama_ordering(model.active_metric()), function(e) {
+            return {val: e, text: get_fadama_caption(model.active_metric(), e)};
         });
         opts.splice(0, 0, __all);
         return opts;

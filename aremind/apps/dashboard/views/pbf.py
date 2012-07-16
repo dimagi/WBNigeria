@@ -3,6 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.conf import settings
 
+from aremind.apps.utils.functional import map_reduce
+
+
 @login_required
 def dashboard(request):
     return render(request, 'dashboard/pbf/dashboard.html')
@@ -19,7 +22,6 @@ def reports(request):
 import json
 import random
 from datetime import datetime, timedelta
-import collections
 
 FACILITIES = [
     {'id': 1, 'name': 'Wamba General Hospital', 'lat': 8.936, 'lon': 8.6057},
@@ -157,29 +159,3 @@ def detail_stats(facility_id):
         }
 
     return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
-
-def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
-    """perform a "map-reduce" on the data
-
-    emitfunc(datum): return an iterable of key-value pairings as (key, value). alternatively, may
-        simply emit (key,) (useful for reducefunc=len)
-    reducefunc(values): applied to each list of values with the same key; defaults to just
-        returning the list
-    data: iterable of data to operate on
-    """
-    mapped = collections.defaultdict(list)
-    for rec in data:
-        for emission in emitfunc(rec):
-            try:
-                k, v = emission
-            except ValueError:
-                k, v = emission[0], None
-            mapped[k].append(v)
-
-    def _reduce(k, v):
-        try:
-            return reducefunc(v, k)
-        except TypeError:
-            return reducefunc(v)
-
-    return dict((k, _reduce(k, v)) for k, v in mapped.iteritems())

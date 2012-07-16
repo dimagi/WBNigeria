@@ -673,10 +673,14 @@ function site_name(name, map) {
                 </thead>
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
                     <tr data-bind="visible: is_relevant($root), click: toggle">
-                        <td>
+                        <td style="white-space: nowrap;">
+			  <div style="float: right;">
+			    <span data-bind="visible: thread().length" style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span>
+			    <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (proxy() ? 'noreply' : 'reply') + '.png', title: proxy() ? 'Not possible to message this beneficiary beacuse they reported through a proxy' : '' }" />
+			  </div>
+			 
 			  <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (expanded() ? 'expanded' : 'collapsed') + '.png' }" />
-			  <span data-bind="text: id"></span>
-			  <span data-bind="visible: thread().length" style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span>
+			  <span data-bind="text: id"></span>&nbsp;
 			</td>
                         <td data-bind="text: site"></td>
                         <td data-bind="text: fug"></td>
@@ -700,17 +704,14 @@ function site_name(name, map) {
 			  <span style="font-size: 120%" data-bind="text: text"></span>
 			</p>
 			</div>
-			<div style="padding-top: 1em;">
-			  <p style="margin: .5em 6em; clear: both;">
-			    <div style="float: left; width: 30em; text-align: right; margin-right: 3em;">
-			      send a message to the beneficiary
-			    </div>
+			<div style="margin-left: 15em; padding-top: 1em;">
+			  <p style="">
+			    <label>send a message to the <b>beneficiary</b></label>
 			    <input data-bind="disable: proxy, value: _inquiry" style="width: 40em" maxlen="160"></input><button data-bind="disable: proxy, click: send_message">Send</button>
 			  </p>
-			  <p style="margin: .3em 6em; clear: both;">
-			    <div style="float: left; width: 30em; text-align: right; margin-right: 3em;">
-			      leave a note for other fadama staff
-			    </div>
+			  <p style="font-style: italic;">-or-</p>
+			  <p style="">
+			    <label>leave a note for other <b>fadama staff</b></label>
 			    <input data-bind="value: note" style="width: 40em"></input><button data-bind="click: new_note">Save Note</button>
 			  </p>
 			</div>

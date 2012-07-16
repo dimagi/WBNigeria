@@ -52,43 +52,6 @@ def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
 
     return reports
 
-def make_reports(path, n):
-    def mk_report(i):
-        messages = [
-            'wait too long, doctor no come',
-            'no doctor, no drug',
-            'good clinic, god bless',
-            'clinic is good, doctor is good',
-            'People at clinic ask for 5000 naira, i have no money',
-            'clinic people help with malaria',
-            'feel better now',
-            'wait all morning, too many people waiting',
-            'clinic is very dirty',
-            'bring picken so them no go catch polio',
-            'where you see price of treatment?',
-            'breast milk only or water for baby',
-        ]
-
-        def tf():
-            return (random.random() < .5)
-
-        return {
-            'id': i,
-            'facility': random.choice(FACILITIES)['id'],
-            'timestamp': (datetime.utcnow() - timedelta(days=random.uniform(0, 180))).strftime('%Y-%m-%dT%H:%M:%S'),
-            'satisfied': tf(),
-            'waiting_time': random.randint(0, 7),
-            'staff_friendliness': tf(),
-            'price_display': tf(),
-            'drug_availability': tf(),
-            'cleanliness': tf(),
-            'message': random.choice(messages) if random.random() < .3 else None,
-        }
-
-    reports = [mk_report(i + 1) for i in range(n)]
-    with open(path, 'w') as f:
-        json.dump(reports, f)
-
 def api_main(request):
     payload = {
         'stats': main_dashboard_stats(),

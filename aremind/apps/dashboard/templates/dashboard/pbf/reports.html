@@ -1,10 +1,8 @@
 {% extends "dashboard/pbf/base.html" %}
 
 {% block content %}
-        {{ block.super }}
+    {{ block.super }}
 
-<script src="{{ STATIC_URL }}js/knockout-2.1.0.js"></script>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script>
 
 if (!window.console) {
@@ -12,9 +10,6 @@ if (!window.console) {
         log: function () { }
     };
 }
-
-DEFAULT_SITE = {{ default_site|default:"null" }};
-DEFAULT_METRIC = "{{ default_metric }}";
 
 $(document).ready(function() {
     var model = new PBFDetailViewModel();
@@ -27,7 +22,6 @@ $(document).ready(function() {
     $('.map').bind('showmap', function(event) {
         $(this).parents('div[data-bind].row-fluid').show();
         google.maps.event.trigger(map, 'resize');
-
 
         // Have it run the update function
         model.month_incr(0);
@@ -163,7 +157,6 @@ function LogModel(data) {
 }
 
 ko.bindingHandlers.yn = {
-<<<<<<< HEAD
   update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
     var val = ko.utils.unwrapObservable(valueAccessor());
 
@@ -173,17 +166,6 @@ ko.bindingHandlers.yn = {
       $img.attr('src', '{{ STATIC_URL }}images/icon_' + (val ? 'success' : 'error') + '.gif');
       $img.attr('alt', val ? 'Yes' : 'No');
       $(element).append($img);
-=======
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var val = ko.utils.unwrapObservable(valueAccessor());
-
-        $(element).empty();
-        if (val != null) {
-            var $img = $('<img />');
-            $img.attr('src', 'http://whereis.dimagi.com/staticmedia/admin/img/icon_' + (val ? 'success' : 'error') + '.gif');
-            $(element).append($img);
-        }
->>>>>>> refs #4 - Map resizes to full size
     }
 };
 
@@ -426,8 +408,6 @@ ko.bindingHandlers.map_volume = {
     }
 };
 
-
-
 </script>
         <div class="row-fluid">
             <table class="date-control" style="float: right;">
@@ -467,20 +447,20 @@ ko.bindingHandlers.map_volume = {
             <div class="span8">
                 <h3>Reports by Month</h3>
                 <p>
-                    <div id="multi-month-chart" data-bind="historicalchart: active_month" class="chart"></div>
+                    <div id="multi-month-chart" data-bind="historical_chart: active_month" class="chart"></div>
                 </p>
             </div>
             <div class="span4">
                 <h3>Patients reported&hellip;</h3>
                 <p>
-                    <div id="multi-month-chart" data-bind="currentchart: active_month" class="chart"></div>
+                    <div id="multi-month-chart" data-bind="current_chart: active_month" class="chart"></div>
                 </p>
             </div>
         </div>
 
         <div class="row-fluid" data-bind="visible: displayMap()">
             <div class="span12">
-                <div id="map" data-bind="map_volume: active_month" class="map" width="100%"></div>
+                {% include "dashboard/_map.html" %}
             </div>
         </div>
 

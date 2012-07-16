@@ -73,3 +73,9 @@ PRIMARY_BACKEND = 'httptester'
 TEST_MESSAGER_BACKEND = 'httptester'
 
 XFORMS_HOST = 'localhost:8000'
+
+# Fake data for dashboards
+DASHBOARD_SAMPLE_DATA = {
+    'pbf': os.path.join(PROJECT_PATH, 'pbf.json'),
+    'fadama': os.path.join(PROJECT_PATH, 'fadama.json')
+}

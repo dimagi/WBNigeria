@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^fadama/reports/$', fadama.reports, name='fadama_reports'),
 
     url(r'^fadama/message/$', fadama.new_message),
+    url(r'^fadama/debug/frombene/$', fadama.msg_from_bene),
 
     url(r'^fadama/api/main/$', fadama.api_main),
     url(r'^fadama/api/detail/$', fadama.api_detail),

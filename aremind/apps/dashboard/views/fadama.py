@@ -414,4 +414,12 @@ def new_message(request):
     rc.save()
     return HttpResponse(json.dumps(rc.json()), 'text/json')
 
- 
+def msg_from_bene(request):
+    rc = ReportComment()
+    rc.report_id = int(request.GET.get('id'))
+    rc.comment_type = 'response'
+    rc.author = '_bene'
+    rc.text = request.GET.get('text')
+    rc.save()
+    return HttpResponse('ok', 'text/plain')
+

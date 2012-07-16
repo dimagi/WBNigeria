@@ -4,7 +4,6 @@
 {% block content %}
     {{ block.super }}
 
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script>
 
 if (!window.console) {
@@ -27,6 +26,7 @@ function main_dashboard_init() {
     }, 'json');
 }
 
+<<<<<<< HEAD
 // this must be called outside of a knockout bind handler init, or else everything freaks out
 google.load('visualization', '1', { packages: ['corechart'] });
 
@@ -144,22 +144,6 @@ ko.bindingHandlers.category_barchart = {
         element.wrapper.setDataTable(dataTable);
         element.wrapper.draw();
     }
-<<<<<<< HEAD
-
-    var dataTable = google.visualization.arrayToDataTable([
-      ['Category', ''],
-      ['Service Providers', active.data.by_category.serviceprovider],
-      ['Stakeholders', active.data.by_category.people],
-      ['Land Issues', active.data.by_category.land],
-      ['Lack of Info', active.data.by_category.info],
-      ['LDP Approval', active.data.by_category.ldp],
-      ['Financial Issues', active.data.by_category.financial],
-    ]);
-    element.wrapper.setDataTable(dataTable);
-    element.wrapper.draw();
-  }
-=======
->>>>>>> refs #3 - Add chart data on init
 };
 
 ko.bindingHandlers.map_volume = {
@@ -169,7 +153,6 @@ ko.bindingHandlers.map_volume = {
             zoom: 5,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
-<<<<<<< HEAD
 
         var circle = new google.maps.Circle(circleOptions);
         var dot = new google.maps.Circle(dotOptions);
@@ -181,10 +164,10 @@ ko.bindingHandlers.map_volume = {
           };
 
         var hover = function(in_) {
-	  circle.setOptions({
+	    circle.setOptions({
             strokeColor: in_ ? "#ff0" : '#DA4F49',
             fillColor: in_ ? '#ff0' : '#DA4F49', 
-          });
+        });
           site_name(in_ ? facility.name : null, element.map);
         };
 
@@ -194,16 +177,15 @@ ko.bindingHandlers.map_volume = {
         google.maps.event.addListener(circle, 'mouseout', function() { hover(false); });
 
       });
-    if (!element.map.boundsSet) {
-      element.map.fitBounds(bounds);
-      var MAX_ZOOM = 12;
-      if (element.map.getZoom() > MAX_ZOOM) {
-        element.map.setZoom(MAX_ZOOM);
-      }
-      element.map.boundsSet = true;
-    }
-  }
-=======
+        if (!element.map.boundsSet) {
+          element.map.fitBounds(bounds);
+          var MAX_ZOOM = 12;
+          if (element.map.getZoom() > MAX_ZOOM) {
+            element.map.setZoom(MAX_ZOOM);
+          }
+          element.map.boundsSet = true;
+        }
+        }
         element.map = new google.maps.Map(element, options);
         element.ovl = [];
     },
@@ -260,7 +242,6 @@ ko.bindingHandlers.map_volume = {
         });
         element.map.fitBounds(bounds);
     }
->>>>>>> refs #3 - Add chart data on init
 };
 
 function site_name(name, map) {
@@ -284,6 +265,8 @@ function site_name(name, map) {
   }
 }
 
+=======
+>>>>>>> refs #6, #7 - Moved more content over to the javascript files
 </script>
 
 <style>
@@ -311,7 +294,7 @@ function site_name(name, map) {
     <div class="span4">
         <h2>Feedback by category</h2>
         <p>
-            {% include "dashboard/_bar_chart.html" %}
+            {% include "dashboard/_bar_chart.html" with dashboard="fadama" %}
         </p>
     </div>
 

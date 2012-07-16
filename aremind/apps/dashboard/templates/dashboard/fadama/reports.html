@@ -378,6 +378,17 @@ ko.bindingHandlers.currentchart = {
 
     var chart = new google.visualization[chart_type](element);
     chart.draw(google.visualization.arrayToDataTable(data), options);
+
+    var bar_clicked = function() {
+      if (chart.getSelection().length == 0) {
+        return;
+      }
+
+      var opt = chart.getSelection()[0].row;
+      var subcat = viewModel.subcategories()[opt + 1]; // the first is 'all', so offset by 1
+      viewModel.active_subcategory(subcat);
+    };
+    google.visualization.events.addListener(chart, 'select', bar_clicked);
   }
 };
 
@@ -434,6 +445,17 @@ ko.bindingHandlers.historicalchart = {
 
     var chart = new google.visualization.ColumnChart(element);
     chart.draw(google.visualization.arrayToDataTable(data), options);
+
+    var bar_clicked = function() {
+      if (chart.getSelection().length == 0) {
+        return;
+      }
+
+      var opt = chart.getSelection()[0].column;
+      var subcat = viewModel.subcategories()[opt]; // the first is 'all', so don't offset by 1
+      viewModel.active_subcategory(subcat);
+    };
+    google.visualization.events.addListener(chart, 'select', bar_clicked);
   }
 };
 

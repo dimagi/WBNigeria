@@ -138,7 +138,7 @@ ko.bindingHandlers.fadama_category_barchart = {
 
             var bar_clicked = function() {
                 var opt = element.wrapper.getChart().getSelection()[0].row;
-                var metric = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'];
+                var metric = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'][opt];
                 window.location.href = '/dashboard/fadama/reports/?metric=' + metric;
             };
 

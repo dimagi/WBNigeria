@@ -10,10 +10,13 @@ from django.core.management.base import BaseCommand, CommandError
 from aremind.apps.dashboard import views
 
 
-true_false = lambda: (random.random() < .5)
+def true_false():
+    return random.random() < .5
 
 
 class Command(BaseCommand):
+    "Command to generate random report data in .json files for dashboard testing."
+
     args = u'<dashboard_name ...>'
     help = u'Generate random test data for dashboard reports.'
     option_list = BaseCommand.option_list + (
@@ -34,6 +37,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
+        "Main command body."
         mapping = getattr(settings, 'DASHBOARD_SAMPLE_DATA', None)
         if mapping is None:
             raise CommandError(u'You must define DASHBOARD_SAMPLE_DATA in your settings file. '

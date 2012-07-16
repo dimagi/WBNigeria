@@ -13,10 +13,68 @@ function urlParam(name) {
     return param;
 }
 
+function get_caption(metric, value) {
+    return {
+        satisf: {
+            True: 'Satisfied',
+            False: 'Unsatisfied'
+        },
+        serviceprovider: {
+            notfind: 'Not Finding',
+            delay: 'Delays',
+            stopped: 'Stopped Project',
+            other: 'Other'
+        },
+        people: {
+            state: 'State Officials',
+            fug: 'FUG',
+            fca: 'FCA',
+            facilitator: 'Facilitators',
+            other: 'Other'
+        },
+        land: {
+            True: 'Yes',
+            False: 'No'
+        },
+        info: {
+            market: 'Market',
+            input: 'Input',
+            other: 'Other'
+        },
+        ldp: {
+            delay: 'Delays',
+            other: 'Other'
+        },
+        financial: {
+            bank: 'Bank Account Opening',
+            delay: 'Delayed Funding',
+            other: 'Other'
+        }
+    }[metric][value];
+}
+
+function get_ordering(metric) {
+    return {
+        satisf: ['True', 'False'],
+        serviceprovider: ['notfind', 'delay', 'stopped', 'other'],
+        people: ['state', 'fug', 'fca', 'facilitator', 'other'],
+        land: ['True', 'False'],
+        info: ['market', 'input', 'other'],
+        ldp: ['delay', 'other'],
+        financial: ['bank', 'delay', 'other']
+    }[metric];
+}
+
+function monthly_datapoints(month, metric) {
+    var key = {
+        satisf: 'satisfied'
+    }[metric] || metric;
+    return month.stats[key];
+}
+
 function MonthlyStatsModel(data) {
     this.total = ko.observable(data.total);
     this.month_label = ko.observable(data.month);
-
     this.data = data;
 }
 
@@ -148,6 +206,88 @@ function PBFDetailViewModel() {
         return false;
     };
 }
+
+function FadamaDetailViewModel() {
+    this.monthly = ko.observableArray();
+    this.facilities = ko.observableArray();
+    this.__all_clinics = new FacilityModel({id: -1, name: 'All Sites'});
+
+    this.active_facility = ko.observable();
+    this.active_metric = ko.observable(DEFAULT_METRIC || null);
+    this.active_month = ko.observable();
+
+    this.load = function(data) {
+        if (this.facilities().length === 0) {
+            var facs = $.map(data.facilities, function(f) {
+                return new FacilityModel(f);
+            });
+            facs.splice(0, 0, this.__all_clinics);
+            this.facilities(facs);
+
+            var default_facility = this.facility_by_id(DEFAULT_SITE);
+            if (default_facility) {
+                this.active_metric('satisf');
+                this.active_facility(default_facility);
+            }
+        }
+
+        var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
+        this.monthly($.map(data.monthly, function(m) {
+            return new MonthlyDetailModel(m);
+        }));
+        this.active_month(this.monthly.slice(active_month_ix)[0]);
+    };
+
+    this.ajax_load = function(facility_id) {
+        var params = facility_id != null ? {site: facility_id} : {};
+        var model = this;
+        $.get('/dashboard/fadama/api/detail', params, function(data) {
+                console.log(params, data);
+                model.load(data);
+            }, 'json');
+    };
+
+    this.prevmonth = function() {
+        this.month_incr(-1);
+    };
+
+    this.nextmonth = function() {
+        this.month_incr(1);
+    };
+
+    this.month_incr = function(k) {
+        var i = this.monthly.indexOf(this.active_month());
+        i += k;
+        if (i >= this.monthly().length) {
+            i = this.monthly().length - 1;
+        } else if (i <= 0) {
+            i = 0;
+        }
+        this.active_month(this.monthly()[i]);
+    };
+
+    this.is_metric_active = function(code) {
+        return (this.active_metric() == 'all' || this.active_metric() == code);
+    };
+
+    var model = this;
+    this._facility_reload = ko.computed(function() {
+        var fac = model.active_facility();
+        model.ajax_load(fac != null && fac.id() != -1 ? fac.id() : null);
+    });
+
+    this.facility_by_id = function(id) {
+        var f = null;
+        $.each(this.facilities(), function(i, e) {
+            if (id != null && e.id() == id) {
+                f = e;
+                return false;
+            }
+        });
+        return f;
+    };
+}
+
 
 function FacilityModel(data) {
     this.id = ko.observable(data.id);

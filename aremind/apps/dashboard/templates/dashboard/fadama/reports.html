@@ -3,8 +3,6 @@
 {% block content %}
     {{ block.super }}
 
-<script src="{{ STATIC_URL }}js/knockout-2.1.0.js"></script>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script>
 
 if (!window.console) {
@@ -18,7 +16,7 @@ DEFAULT_METRIC = "{{ default_metric|default:"" }}";
 
 $(document).ready(function() {
     detail_report_init();
-  });
+});
 
 charts_init = false;
 google.load('visualization', '1', { packages: ['corechart'] });
@@ -580,7 +578,6 @@ function site_name(name, map) {
     map.$sitename_ovl.text(name);
   }
 }
-
 </script>
 
 <style>
@@ -598,19 +595,19 @@ function site_name(name, map) {
 </style>
 
     <div class="row-fluid">
-      <table class="date-control" style="float: right;">
-	<tr>
-	  <td style="width: 4em; vertical-align: top; text-align: left;">
-            <a href="#" data-bind="click: prevmonth, style: { color: monthly().indexOf(active_month()) == 0 ? '#888' : '' }">Prev</a>
-	  </td>
-	  <td class="month" style="width: 8em; vertical-align: top; text-align: center;">
-            <p data-bind="text: active_month() ? active_month().month_label() : ''"></p>
-	  </td>
-	  <td style="width: 4em; vertical-align: top; text-align: right;">
-            <a href="#" data-bind="click: nextmonth, style: { color: monthly().indexOf(active_month()) == monthly().length - 1 ? '#888' : '' }">Next</a>
-	  </td>
-	</tr>
-      </table>
+        <table class="date-control" style="float: right;">
+            <tr>
+                <td style="width: 4em; vertical-align: top; text-align: left;">
+                    <a href="#" data-bind="click: prevmonth, style: { color: monthly().indexOf(active_month()) == 0 ? '#888' : '' }">Prev</a>
+                  </td>
+                  <td class="month" style="width: 8em; vertical-align: top; text-align: center;">
+                    <p data-bind="text: active_month() ? active_month().month_label() : ''"></p>
+                  </td>
+                  <td style="width: 4em; vertical-align: top; text-align: right;">
+                    <a href="#" data-bind="click: nextmonth, style: { color: monthly().indexOf(active_month()) == monthly().length - 1 ? '#888' : '' }">Next</a>
+                </td>
+            </tr>
+        </table>
 
         <div class="span8">
             <form id="detail-filter" class="form-inline filter-form">
@@ -636,20 +633,20 @@ function site_name(name, map) {
         <div class="span8">
             <h3>Reports by Month</h3>
             <p>
-	      <div id="multi-month-chart" data-bind="historicalchart: active_month" class="chart"></div>
+                <div id="multi-month-chart" data-bind="historicalchart: active_month" class="chart"></div>
             </p>
         </div>
         <div class="span4">
             <h3>Beneficiaries reported&hellip;</h3>
             <p>
-	      <div id="multi-month-chart" data-bind="currentchart: active_month" class="chart"></div>
+                <div id="multi-month-chart" data-bind="currentchart: active_month" class="chart"></div>
             </p>
         </div>
     </div>
 
     <div class="row-fluid" data-bind="visible: active_metric() == 'all'">
         <div class="span12">
-	  <div id="map" data-bind="map_volume: active_month" class="map"></div>
+            {% include "dashboard/_map.html" %}
         </div>
     </div>
 </div>

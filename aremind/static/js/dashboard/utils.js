@@ -57,6 +57,36 @@ function get_fadama_ordering(metric) {
     }[metric];
 }
 
+function get_pbf_caption(metric, value) {
+    return {
+        satisf: {
+            True: 'Satisfied',
+            False: 'Unsatisfied'
+        },
+        clean: {
+            True: 'Clean',
+            False: 'Dirty'
+        },
+        friendly: {
+            True: 'Friendly',
+            False: 'Not friendly'
+        },
+        drugavail: {
+            True: 'Available',
+            False: 'Unavailable'
+        },
+        pricedisp: {
+            True: 'Displayed',
+            False: 'Not on display'
+        },
+        wait: {
+            '<2': '< 2 hrs',
+            '2-4': '2\u20134 hrs',
+            '>4': '> 4 hrs'
+        }
+    }[metric][value];
+}
+
 function site_name(name, map) {
     if (name === null) {
         if (map.$sitename_ovl) {
@@ -79,9 +109,25 @@ function site_name(name, map) {
     }
 }
 
+// function monthly_datapoints(month, metric) {
+//     return month.stats[{
+//         satisf: 'satisfied',
+//         wait: 'wait_bucket',
+//         clean: 'cleanliness',
+//         friendly: 'staff_friendliness',
+//         drugavail: 'drug_availability',
+//         pricedisp: 'price_display'
+//     }[metric]];
+// }
+
 function monthly_datapoints(month, metric) {
     var key = {
-        satisf: 'satisfied'
+        satisf: 'satisfied',
+        wait: 'wait_bucket',
+        clean: 'cleanliness',
+        friendly: 'staff_friendliness',
+        drugavail: 'drug_availability',
+        pricedisp: 'price_display'
     }[metric] || metric;
     return month.stats[key];
 }

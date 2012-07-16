@@ -182,6 +182,120 @@ ko.bindingHandlers.fadama_category_barchart = {
     }
 };
 
+ko.bindingHandlers.pbf_current_chart = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        google.setOnLoadCallback(function() {
+            valueAccessor(valueAccessor());
+            element.charts_init = true;
+        });
+    },
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        var active = ko.utils.unwrapObservable(valueAccessor());
+        var metric = viewModel.active_metric();
+        if (!element.charts_init || !active || !metric || metric == 'all') {
+            return;
+        }
+
+        var options = {
+            vAxis: {
+                textPosition: 'in'
+            },
+            chartArea: {
+                top: 10,
+                left: 0,
+                width: '100%'
+            }
+        };
+
+        var ordering = ['True', 'False', '<2', '2-4', '>4'];
+
+        var data = [['Category', '']];
+        var raw_data = monthly_datapoints(active, metric);
+        $.each(ordering, function(i, e) {
+            if (raw_data[e] != null) {
+                data.push([get_pbf_caption(metric, e), raw_data[e]]);
+            }
+        });
+
+        var chart_type = null;
+        if (metric == 'wait') {
+            chart_type = 'ColumnChart';
+        } else {
+            chart_type = 'PieChart';
+        }
+
+        var chart = new google.visualization[chart_type](element);
+        chart.draw(google.visualization.arrayToDataTable(data), options);
+    }
+};
+
+ko.bindingHandlers.pbf_historical_chart = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        google.setOnLoadCallback(function() {
+            valueAccessor(valueAccessor());
+            element.charts_init = true;
+        });
+    },
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+        var active = ko.utils.unwrapObservable(valueAccessor());
+        var metric = viewModel.active_metric();
+        if (!element.charts_init || !active || !metric || metric == 'all') {
+            return;
+        }
+
+        var options = {
+            vAxis: {
+                textPosition: 'in'
+            },
+            chartArea: {
+                top: 10,
+                left: 0,
+                width: '85%'
+            },
+        };
+
+        var FUZZ = 2;
+        var curmonthix = viewModel.monthly.indexOf(active);
+        var minmonthix = curmonthix - 2;
+        var maxmonthix = curmonthix + 2;
+
+        var ordering = null;
+        if (metric == 'wait') {
+            ordering = ['<2', '2-4', '>4'];
+        } else {
+            ordering = ['True', 'False'];
+        }
+
+        var labels = ['Month'];
+        var raw_data = monthly_datapoints(active, metric);
+        $.each(ordering, function(i, e) {
+            labels.push(get_pbf_caption(metric, e));
+        });
+        var data = [labels];
+
+        for (var i = minmonthix; i <= maxmonthix; i++) {
+            var row = [];
+            if (i < 0 || i >= viewModel.monthly().length) {
+                row.push('');
+                for (var j = 1; j < labels.length; j++) {
+                    row.push(null);
+                }
+            } else {
+                var m = viewModel.monthly()[i];
+                raw_data = monthly_datapoints(m, metric);
+                row.push(m.month_label());
+                $.each(ordering, function(i, e) {
+                    row.push(raw_data[e] || 0);
+                });
+            }
+            data.push(row);
+        }
+
+        var chart = new google.visualization.ColumnChart(element);
+        chart.draw(google.visualization.arrayToDataTable(data), options);
+    }
+};
+
 ko.bindingHandlers.fadama_current_chart = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
         google.setOnLoadCallback(function() {

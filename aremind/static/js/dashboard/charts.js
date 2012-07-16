@@ -212,6 +212,7 @@ ko.bindingHandlers.fadama_current_chart = {
 
         var data = [['Category', '']];
         var raw_data = monthly_datapoints(active, metric);
+
         $.each(get_fadama_ordering(metric), function(i, e) {
             data.push([get_fadama_caption(metric, e), raw_data[e] || 0]);
         });
@@ -288,7 +289,6 @@ ko.bindingHandlers.fadama_historical_chart = {
                     row.push(raw_data[e] || 0);
                 });
             }
-
             data.push(row);
         }
 

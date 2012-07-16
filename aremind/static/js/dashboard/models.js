@@ -249,6 +249,7 @@ function FadamaDetailViewModel() {
                 return false;
             }
         });
+
         return f;
     };
 

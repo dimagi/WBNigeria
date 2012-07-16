@@ -132,7 +132,7 @@ def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
 
     return reports
 
-complaint_type = [
+COMPLAINT_TYPES = [
     'serviceprovider',
     'people',
     'land',
@@ -279,7 +279,7 @@ def make_reports(path, n, window=6):
         }
 
         satisfied = tf(.3)
-        type = random.choice(complaint_type)
+        type = random.choice(COMPLAINT_TYPES)
         try:
             value = random.choice(choices[type])
         except KeyError:
@@ -334,7 +334,7 @@ def main_dashboard_stats():
         return {
             'total': len(data),
             'satisfaction': map_reduce(data, lambda r: [(r['satisfied'],)], len),
-            'by_category': dict((k, len([r for r in data if k in r])) for k in complaint_type),
+            'by_category': dict((k, len([r for r in data if k in r])) for k in COMPLAINT_TYPES),
             'by_clinic': [[facilities[k], v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
             'month': label[0],
             '_month': label[1],
@@ -364,7 +364,7 @@ def detail_stats(facility_id):
 
     def month_detail(data, label):
         categories = ['satisfied']
-        categories.extend(complaint_type)
+        categories.extend(COMPLAINT_TYPES)
         return {
             'total': len(data),
             'logs': sorted(data, key=lambda r: r['timestamp'], reverse=True),

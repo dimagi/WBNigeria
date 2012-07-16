@@ -1,9 +1,14 @@
+import collections
+import json
+from datetime import datetime
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.conf import settings
-from apps.dashboard.models import *
+from apps.dashboard.models import ReportComment
 from django.views.decorators.csrf import csrf_exempt
+
 
 @login_required
 def dashboard(request):
@@ -18,13 +23,9 @@ def reports(request):
         })
 
 
-import json
-import random
-from datetime import datetime, timedelta
-import collections
-
 def gen_fugs(prefix, num):
     return ['FUG %s-%d' % (prefix, i + 1) for i in range(num)]
+
 
 FACILITIES = [
     {'id': 1, 'name': 'Destined FCA', 'lat': 8.958, 'lon': 7.0697, 'state': 'fct', 'fugs': [
@@ -109,9 +110,9 @@ FACILITIES = [
     {'id': 10, 'name': 'Yashi Madaki', 'lat': 9.1712, 'lon': 8.673, 'state': 'nasarawa', 'fugs': gen_fugs('Yashi', 8)},
 ]
 
+
 def facilities_by_id():
     return map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
-
 
 
 def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
@@ -132,6 +133,7 @@ def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
 
     return reports
 
+
 COMPLAINT_TYPES = [
     'serviceprovider',
     'people',
@@ -141,15 +143,18 @@ COMPLAINT_TYPES = [
     'financial',
 ]
 
+
 def api_main(request):
     payload = {
         'stats': main_dashboard_stats(),
     }
     return HttpResponse(json.dumps(payload), 'text/json')
 
+
 def user_state():
     # return state for logged-in user
     return 'fct'
+
 
 def main_dashboard_stats():
     data = load_reports(user_state())
@@ -168,6 +173,7 @@ def main_dashboard_stats():
 
     return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
 
+
 def api_detail(request):
     _site = request.GET.get('site')
     site = int(_site) if _site else None
@@ -177,6 +183,7 @@ def api_detail(request):
         'monthly': detail_stats(site),
     }
     return HttpResponse(json.dumps(payload), 'text/json')
+
 
 def detail_stats(facility_id):
     data = load_reports(user_state())
@@ -201,6 +208,7 @@ def detail_stats(facility_id):
         }
 
     return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
+
 
 def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
     """perform a "map-reduce" on the data
@@ -229,7 +237,6 @@ def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
     return dict((k, _reduce(k, v)) for k, v in mapped.iteritems())
 
 
-
 @csrf_exempt
 def new_message(request):
     rc = ReportComment()
@@ -240,6 +247,7 @@ def new_message(request):
     rc.save()
     return HttpResponse(json.dumps(rc.json()), 'text/json')
 
+
 def msg_from_bene(request):
     rc = ReportComment()
     rc.report_id = int(request.GET.get('id'))
@@ -248,4 +256,3 @@ def msg_from_bene(request):
     rc.text = request.GET.get('text')
     rc.save()
     return HttpResponse('ok', 'text/plain')
-

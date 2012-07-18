@@ -3,406 +3,45 @@
 {% block content %}
     {{ block.super }}
 
-<script src="{{ STATIC_URL }}js/knockout-2.1.0.js"></script>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script>
-
-if (!window.console) {
-    window.console = {
-        log: function () { }
-    };
-}
-
-DEFAULT_SITE = {{ default_site|default:"null" }};
-DEFAULT_METRIC = "{{ default_metric }}";
-
-$(document).ready(function() {
-    detail_report_init();
-  });
-
-function detail_report_init() {
-  var model = new PBFDetailViewModel();
-  ko.applyBindings(model);
-}
-
-function PBFDetailViewModel() {
-  this.monthly = ko.observableArray();
-  this.facilities = ko.observableArray();
-  this.__all_clinics = new FacilityModel({id: -1, name: 'All Clinics'});
-
-  this.active_facility = ko.observable();
-  this.active_metric = ko.observable(DEFAULT_METRIC || null);
-  this.active_month = ko.observable();
-
-  this.load = function(data) {
-    if (this.facilities().length == 0) {
-      var facs = $.map(data.facilities, function(f) {
-          return new FacilityModel(f);
-        })
-      facs.splice(0, 0, this.__all_clinics);
-      this.facilities(facs);
-
-      var default_facility = this.facility_by_id(DEFAULT_SITE);
-      if (default_facility) {
-        this.active_metric('satisf');
-        this.active_facility(default_facility);
-      }
-    }
-
-    var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
-    this.monthly($.map(data.monthly, function(m) {
-        return new MonthlyDetailModel(m);
-      }));
-    this.active_month(this.monthly.slice(active_month_ix)[0]);
-  };
-
-  this.ajax_load = function(facility_id) {
-    var params = facility_id != null ? {site: facility_id} : {};
-    var model = this;
-    $.get('/dashboard/pbf/api/detail', params, function(data) {
-        console.log(params, data);
-        model.load(data);
-      }, 'json');
-  }
-
-  this.prevmonth = function() {
-    this.month_incr(-1);
-  }
-
-  this.nextmonth = function() {
-    this.month_incr(1);
-  }
-
-  this.month_incr = function(k) {
-    var i = this.monthly.indexOf(this.active_month());
-    i += k;
-    if (i >= this.monthly().length) {
-      i = this.monthly().length - 1;
-    } else if (i <= 0) {
-      i = 0;
-    }
-    this.active_month(this.monthly()[i]);
-  }
-
-  this.is_metric_active = function(code) {
-    return (this.active_metric() == 'all' || this.active_metric() == code);
-  }
-
-  var model = this;
-  this._facility_reload = ko.computed(function() {
-      var fac = model.active_facility();
-      model.ajax_load(fac != null && fac.id() != -1 ? fac.id() : null);
-    });
-
-  this.facility_by_id = function(id) {
-    var f = null;
-    $.each(this.facilities(), function(i, e) {
-        if (id != null && e.id() == id) {
-          f = e;
-          return false;
+    <script>
+        if (!window.console) {
+            window.console = {
+                log: function () { }
+            };
         }
-      });
-    return f;
-  }
-}
 
-function FacilityModel(data) {
-  this.id = ko.observable(data.id);
-  this.name = ko.observable(data.name);
-}
+        $(document).ready(function() {
+            var model = new PBFDetailViewModel();
+            ko.applyBindings(model);
 
-function MonthlyDetailModel(data) {
-  this.logs = ko.observableArray($.map(data.logs, function(l) {
-      return new LogModel(l);
-    }));
-  this.month_label = ko.observable(data.month);
-  this.stats = data.stats;
-  this.clinic_totals = data.clinic_totals;
-}
+            // Attach an event listener to map div
+            // Specifically, this solves the problem when the maps container
+            // isnt displayed, so the map needs to be alerted to the fact the 
+            // container has shown up
+            $('.map').bind('showmap', function(event) {
+                $(this).parents('div[data-bind].row-fluid').show();
+                google.maps.event.trigger(map, 'resize');
 
-function LogModel(data) {
-  this.id = ko.observable(data.id);
-  this.site = ko.observable(data.site_name);
-  this.date = ko.observable(data.display_time);
-  this.satisfied = ko.observable(data.satisfied);
-  this.wait_bucket = ko.observable(data.wait_bucket);
-  this.cleanliness = ko.observable(data.cleanliness);
-  this.friendliness = ko.observable(data.staff_friendliness);
-  this.drugs_avail = ko.observable(data.drug_availability);
-  this.price_display = ko.observable(data.price_display);
-  this.message = ko.observable(data.message);
-
-  this.disp_wait = ko.computed(function() {
-	return {
-	  '<2': '< 2 hrs',
-	  '2-4': '2\u20134 hrs',
-          '>4': '> 4 hrs',
-        }[this.wait_bucket()];
-    }, this);
-}
-
-ko.bindingHandlers.yn = {
-  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    var val = ko.utils.unwrapObservable(valueAccessor());
-
-    $(element).empty();
-    if (val != null) {
-      var $img = $('<img />');
-      $img.attr('src', '{{ STATIC_URL }}images/icon_' + (val ? 'success' : 'error') + '.gif');
-      $img.attr('alt', val ? 'Yes' : 'No');
-      $(element).append($img);
-    }
-
-  }
-};
-
-function get_caption(metric, value) {
-  return {
-    satisf: {
-      True: 'Satisfied',
-      False: 'Unsatisfied',
-    },
-    clean: {
-      True: 'Clean',
-      False: 'Dirty',
-    },
-    friendly: {
-      True: 'Friendly',
-      False: 'Not friendly',
-    },
-    drugavail: {
-      True: 'Available',
-      False: 'Unavailable',
-    },
-    pricedisp: {
-      True: 'Displayed',
-      False: 'Not on display',
-    },
-    wait: {
-      '<2': '< 2 hrs',
-      '2-4': '2\u20134 hrs',
-      '>4': '> 4 hrs',
-    },
-  }[metric][value];
-}
-
-// this must be called outside of a knockout bind handler init, or else everything freaks out
-google.load('visualization', '1', { packages: ['corechart'] });
-
-function monthly_datapoints(month, metric) {
-  return month.stats[{
-    satisf: 'satisfied',
-    wait: 'wait_bucket',
-    clean: 'cleanliness',
-    friendly: 'staff_friendliness',
-    drugavail: 'drug_availability',
-    pricedisp: 'price_display',
-  }[metric]];
-}
-
-ko.bindingHandlers.currentchart = {
-  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    google.load('visualization', '1', { packages: ['corechart'] });
-    google.setOnLoadCallback(function() {
-        valueAccessor(valueAccessor());
-        element.charts_init = true;
-      });
-  },
-  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    var active = ko.utils.unwrapObservable(valueAccessor());
-    var metric = viewModel.active_metric();
-    if (!element.charts_init || !active || !metric || metric == 'all') {
-      return;
-    }
-
-    var options = {
-      vAxis: {
-        textPosition: 'in'
-      },
-      chartArea: {
-        top: 10,
-        left: 0,
-        width: '100%'
-      },
-    };
-
-    var ordering = ['True', 'False', '<2', '2-4', '>4'];
-
-    var data = [['Category', '']];
-    var raw_data = monthly_datapoints(active, metric);
-    $.each(ordering, function(i, e) {
-        if (raw_data[e] != null) {
-          data.push([get_caption(metric, e), raw_data[e]]);
-        }
-      });
-
-    if (metric == 'wait') {
-      var chart_type = 'ColumnChart';
-    } else {
-      var chart_type = 'PieChart';
-    }
-
-    var chart = new google.visualization[chart_type](element);
-    chart.draw(google.visualization.arrayToDataTable(data), options);
-  }
-};
-
-ko.bindingHandlers.historicalchart = {
-  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    google.load('visualization', '1', { packages: ['corechart'] });
-    google.setOnLoadCallback(function() {
-        valueAccessor(valueAccessor());
-        element.charts_init = true;
-      });
-  },
-  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    var active = ko.utils.unwrapObservable(valueAccessor());
-    var metric = viewModel.active_metric();
-    if (!element.charts_init || !active || !metric || metric == 'all') {
-      return;
-    }
-
-    var options = {
-      vAxis: {
-        textPosition: 'in'
-      },
-      chartArea: {
-        top: 10,
-        left: 0,
-        width: '85%'
-      },
-    };
-
-    var FUZZ = 2;
-    var curmonthix = viewModel.monthly.indexOf(active);
-    var minmonthix = curmonthix - 2;
-    var maxmonthix = curmonthix + 2;
-
-    if (metric == 'wait') {
-      var ordering = ['<2', '2-4', '>4'];
-    } else {
-      var ordering = ['True', 'False'];
-    }
-
-    var labels = ['Month'];
-    var raw_data = monthly_datapoints(active, metric);
-    $.each(ordering, function(i, e) {
-        labels.push(get_caption(metric, e));
-      });
-    var data = [labels];
-
-    for (var i = minmonthix; i <= maxmonthix; i++) {
-      var row = [];
-      if (i < 0 || i >= viewModel.monthly().length) {
-        row.push('');
-        for (var j = 1; j < labels.length; j++) {
-          row.push(null);
-        }
-      } else {
-        var m = viewModel.monthly()[i];
-        var raw_data = monthly_datapoints(m, metric);
-        row.push(m.month_label());
-        $.each(ordering, function(i, e) {
-            row.push(raw_data[e] || 0);
-          });
-      }
-      data.push(row);
-    }
-
-    var chart = new google.visualization.ColumnChart(element);
-    chart.draw(google.visualization.arrayToDataTable(data), options);
-  }
-};
-
-ko.bindingHandlers.map_volume = {
-  init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    var options = {
-	center: new google.maps.LatLng(9.05, 8.35),
-        zoom: 5,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    element.map = new google.maps.Map(element, options);
-    element.ovl = [];
-  },
-  update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-    var active = ko.utils.unwrapObservable(valueAccessor());
-    if (!active) {
-      return;
-    }
-
-    $.each(element.ovl, function(i, e) {
-        e.setMap(null);
-      });
-    element.ovl = [];
-
-    var bounds = new google.maps.LatLngBounds();
-    $.each(active.clinic_totals, function(i, e) {
-        var facility = e[0];
-        var volume = e[1];
-
-        var pos = new google.maps.LatLng(facility.lat, facility.lon);
-        bounds.extend(pos);
-
-        var circleOptions = {
-          strokeColor: '#DA4F49',
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          fillColor: '#DA4F49',
-          fillOpacity: 0.35,
-          map: element.map,
-          center: pos,
-          radius: 1500 * Math.sqrt(volume)
-        };
-
-        var dotOptions = {
-          strokeWeight: 0,
-          fillColor: '#000000',
-          fillOpacity: 0.6,
-          map: element.map,
-          center: pos,
-          radius: 400
-        };
-
-        var circle = new google.maps.Circle(circleOptions);
-        var dot = new google.maps.Circle(dotOptions);
-        element.ovl.push(dot);
-        element.ovl.push(circle);
-
-        var select_clinic = function() {
-	    var clinic = viewModel.facility_by_id(facility.id);
-            viewModel.active_metric('satisf');
-            viewModel.active_facility(clinic);
-          };
-
-        google.maps.event.addListener(circle, 'click', select_clinic);
-        google.maps.event.addListener(dot, 'click', select_clinic);
-      });
-    element.map.fitBounds(bounds);
-    var MAX_ZOOM = 12;
-    if (element.map.getZoom() > MAX_ZOOM) {
-      element.map.setZoom(MAX_ZOOM);
-    }
-  }
-};
-
-
-
-</script>
+                // Have it run the update function
+                model.month_incr(0);
+            });
+        });
+    </script>
 
     <div class="row-fluid">
-      <table class="date-control" style="float: right;">
-	<tr>
-	  <td style="width: 4em; vertical-align: top; text-align: left;">
-            <a href="#" data-bind="click: prevmonth, style: { color: monthly().indexOf(active_month()) == 0 ? '#888' : '' }">Prev</a>
-	  </td>
-	  <td class="month" style="width: 8em; vertical-align: top; text-align: center;">
-            <p data-bind="text: active_month() ? active_month().month_label() : ''"></p>
-	  </td>
-	  <td style="width: 4em; vertical-align: top; text-align: right;">
-            <a href="#" data-bind="click: nextmonth, style: { color: monthly().indexOf(active_month()) == monthly().length - 1 ? '#888' : '' }">Next</a>
-	  </td>
-	</tr>
-      </table>
+        <table class="date-control" style="float: right;">
+            <tr>
+                <td style="width: 4em; vertical-align: top; text-align: left;">
+                    <a href="#" data-bind="click: prevmonth, style: { color: monthly().indexOf(active_month()) == 0 ? '#888' : '' }">Prev</a>
+                </td>
+                <td class="month" style="width: 8em; vertical-align: top; text-align: center;">
+                    <p data-bind="text: active_month() ? active_month().month_label() : ''"></p>
+                </td>
+                <td style="width: 4em; vertical-align: top; text-align: right;">
+                    <a href="#" data-bind="click: nextmonth, style: { color: monthly().indexOf(active_month()) == monthly().length - 1 ? '#888' : '' }">Next</a>
+                </td>
+            </tr>
+        </table>
 
         <div class="span8">
             <form id="detail-filter" class="form-inline filter-form">
@@ -427,20 +66,20 @@ ko.bindingHandlers.map_volume = {
         <div class="span8">
             <h3>Reports by Month</h3>
             <p>
-	      <div id="multi-month-chart" data-bind="historicalchart: active_month" class="chart"></div>
+                <div id="multi-month-chart" data-bind="pbf_historical_chart: active_month" class="chart"></div>
             </p>
         </div>
         <div class="span4">
             <h3>Patients reported&hellip;</h3>
             <p>
-	      <div id="multi-month-chart" data-bind="currentchart: active_month" class="chart"></div>
+                <div id="multi-month-chart" data-bind="pbf_current_chart: active_month" class="chart"></div>
             </p>
         </div>
     </div>
 
-    <div class="row-fluid" data-bind="visible: active_metric() == 'all'">
+    <div class="row-fluid" data-bind="visible: displayMap()">
         <div class="span12">
-	  <div id="map" data-bind="map_volume: active_month" class="map"></div>
+            {% include "dashboard/_map.html" %}
         </div>
     </div>
 
@@ -466,7 +105,7 @@ ko.bindingHandlers.map_volume = {
                         <th data-bind="visible: is_metric_active('drugavail')">Drugs Available</th>
                         <th data-bind="visible: is_metric_active('pricedisp')">Prices Displayed</th>
                         <th data-bind="visible: $root.active_metric() == 'all'">Free-form Entries</th>
-			<th data-bind="visible: active_metric() != 'all'">Free-form message</th>
+                        <th data-bind="visible: active_metric() != 'all'">Free-form message</th>
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
@@ -481,7 +120,7 @@ ko.bindingHandlers.map_volume = {
                         <td data-bind="yn: drugs_avail, visible: $root.is_metric_active('drugavail')"></td>
                         <td data-bind="yn: price_display, visible: $root.is_metric_active('pricedisp')"></td>
                         <td data-bind="yn: message() != null, visible: $root.active_metric() == 'all'"></td>
-			<td data-bind="text: message, visible: $root.active_metric() != 'all'"></td>
+                        <td data-bind="text: message, visible: $root.active_metric() != 'all'"></td>
                     </tr>
                 </tbody>
             </table>

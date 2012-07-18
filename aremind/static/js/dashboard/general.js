@@ -44,6 +44,21 @@ $(function() {
     });
     */
 
+    // Enable the marks on tables
+    ko.bindingHandlers.yn = {
+        update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+            var val = ko.utils.unwrapObservable(valueAccessor());
+
+            $(element).empty();
+            if (val != null) {
+                var $img = $('<img />');
+                $img.attr('src', '/static/images/icon_' + (val ? 'success' : 'error') + '.gif');
+                $img.attr('alt', val ? 'Yes' : 'No');
+                $(element).append($img);
+            }
+        }
+    };
+
     // Enable all alerts
     $('.alert').alert().bind('close', function(e) {
         // Handle the dismissing here

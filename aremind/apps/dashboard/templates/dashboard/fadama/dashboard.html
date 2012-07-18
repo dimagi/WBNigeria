@@ -1,42 +1,34 @@
 {% extends "dashboard/fadama/base.html" %}
 {% load url from future %}
 
+{% block javascripts %}
+{{ block.super }}
+
+<script type="text/javascript">
+    if (!window.console) {
+        window.console = {
+            log: function () { }
+        };
+    }
+
+    $(document).ready(function() {
+        main_dashboard_init();
+    });
+
+    function main_dashboard_init() {
+        var model = new DashboardViewModel();
+        ko.applyBindings(model);
+
+        $.get('/dashboard/fadama/api/main', function(data) {
+            console.log(data);
+            model.load(data);
+        }, 'json');
+    }
+</script>
+{% endblock javascripts %}
+
 {% block content %}
     {{ block.super }}
-
-    <script>
-        if (!window.console) {
-            window.console = {
-                log: function () { }
-            };
-        }
-
-        $(document).ready(function() {
-            main_dashboard_init();
-        });
-
-        function main_dashboard_init() {
-            var model = new DashboardViewModel();
-            ko.applyBindings(model);
-
-            $.get('/dashboard/fadama/api/main', function(data) {
-                console.log(data);
-                model.load(data);
-            }, 'json');
-        }
-    </script>
-
-    <style>
-        .sitename {
-            background: rgba(255, 255, 255, .7);
-            border-radius: 5px;
-            -moz-border-radius: 5px;
-            -webkit-border-radius: 5px;
-            padding: 5px 10px;
-            font-weight: bold;
-            font-style: italic;
-        }
-    </style>
 
     <div class="row-fluid">
         <div class="span4">

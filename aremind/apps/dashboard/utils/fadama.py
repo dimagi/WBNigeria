@@ -129,13 +129,8 @@ COMPLAINT_TYPES = [
 ]
 
 
-def user_state():
-    # return state for logged-in user
-    return 'fct'
-
-
-def main_dashboard_stats():
-    data = load_reports(user_state())
+def main_dashboard_stats(user_state):
+    data = load_reports(user_state)
 
     facilities = facilities_by_id()
 
@@ -152,19 +147,8 @@ def main_dashboard_stats():
     return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
 
 
-def api_detail(request):
-    _site = request.GET.get('site')
-    site = int(_site) if _site else None
-
-    payload = {
-        'facilities': [f for f in FACILITIES if f['state'] == user_state()],
-        'monthly': detail_stats(site),
-    }
-    return HttpResponse(json.dumps(payload), 'text/json')
-
-
-def detail_stats(facility_id):
-    data = load_reports(user_state())
+def detail_stats(facility_id, user_state):
+    data = load_reports(user_state)
 
     facilities = facilities_by_id()
 

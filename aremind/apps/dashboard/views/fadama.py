@@ -38,15 +38,15 @@ class MessageView(generic.CreateView):
 class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
     def get_payload(self, site):
         return {
-            'facilities': [f for f in utils.FACILITIES if f['state'] == utils.user_state()],
-            'monthly': utils.detail_stats(site),
+            'facilities': [f for f in utils.FACILITIES if f['state'] == self.get_user_state()],
+            'monthly': utils.detail_stats(site, self.get_user_state()),
         }
 
 
 class APIMainView(mixins.LoginMixin, mixins.APIMixin, generic.View):
     def get_payload(self, site):
         return {
-            'stats': utils.main_dashboard_stats(),
+            'stats': utils.main_dashboard_stats(self.get_user_state()),
         }
 
 

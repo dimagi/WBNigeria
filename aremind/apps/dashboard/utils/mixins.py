@@ -20,6 +20,10 @@ class ReportMixin(object):
 
 
 class APIMixin(object):
+    def get_user_state(self):
+        # return state for logged-in user
+        return 'fct'
+
     def get(self, request, *args, **kwargs):
         _site = request.GET.get('site')
         site = int(_site) if _site else None

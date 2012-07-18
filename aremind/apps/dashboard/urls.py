@@ -7,8 +7,8 @@ urlpatterns = patterns('',
     url(r'^pbf/$', pbf.DashboardView.as_view(), name='pbf_dashboard'),
     url(r'^pbf/reports/$', pbf.ReportView.as_view(), name='pbf_reports'),
 
-    url(r'^pbf/api/main/$', pbf.api_main),
-    url(r'^pbf/api/detail/$', pbf.api_detail),
+    url(r'^pbf/api/main/$', pbf.APIMainView.as_view(), name='pbf_api_main'),
+    url(r'^pbf/api/detail/$', pbf.APIDetailView.as_view(), name='pbf_api_detail'),
 
     url(r'^fadama/$', fadama.DashboardView.as_view(), name='fadama_dashboard'),
     url(r'^fadama/reports/$', fadama.ReportView.as_view(), name='fadama_reports'),

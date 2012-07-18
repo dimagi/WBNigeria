@@ -1,10 +1,10 @@
 import json
-import random
-from datetime import datetime, timedelta
-import collections
+from datetime import datetime
 
-from django.http import HttpResponse
 from django.conf import settings
+
+from aremind.apps.utils.functional import map_reduce
+
 
 FACILITIES = [
     {'id': 1, 'name': 'Wamba General Hospital', 'lat': 8.936, 'lon': 8.6057},
@@ -37,44 +37,6 @@ def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
                 break
 
     return reports
-
-
-def make_reports(path, n):
-    def mk_report(i):
-        messages = [
-            'wait too long, doctor no come',
-            'no doctor, no drug',
-            'good clinic, god bless',
-            'clinic is good, doctor is good',
-            'People at clinic ask for 5000 naira, i have no money',
-            'clinic people help with malaria',
-            'feel better now',
-            'wait all morning, too many people waiting',
-            'clinic is very dirty',
-            'bring picken so them no go catch polio',
-            'where you see price of treatment?',
-            'breast milk only or water for baby',
-        ]
-
-        def tf():
-            return (random.random() < .5)
-
-        return {
-            'id': i,
-            'facility': random.choice(FACILITIES)['id'],
-            'timestamp': (datetime.utcnow() - timedelta(days=random.uniform(0, 180))).strftime('%Y-%m-%dT%H:%M:%S'),
-            'satisfied': tf(),
-            'waiting_time': random.randint(0, 7),
-            'staff_friendliness': tf(),
-            'price_display': tf(),
-            'drug_availability': tf(),
-            'cleanliness': tf(),
-            'message': random.choice(messages) if random.random() < .3 else None,
-        }
-
-    reports = [mk_report(i + 1) for i in range(n)]
-    with open(path, 'w') as f:
-        json.dump(reports, f)
 
 
 def main_dashboard_stats():
@@ -131,30 +93,3 @@ def detail_stats(facility_id):
         }
 
     return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
-
-
-def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
-    """perform a "map-reduce" on the data
-
-    emitfunc(datum): return an iterable of key-value pairings as (key, value). alternatively, may
-        simply emit (key,) (useful for reducefunc=len)
-    reducefunc(values): applied to each list of values with the same key; defaults to just
-        returning the list
-    data: iterable of data to operate on
-    """
-    mapped = collections.defaultdict(list)
-    for rec in data:
-        for emission in emitfunc(rec):
-            try:
-                k, v = emission
-            except ValueError:
-                k, v = emission[0], None
-            mapped[k].append(v)
-
-    def _reduce(k, v):
-        try:
-            return reducefunc(v, k)
-        except TypeError:
-            return reducefunc(v)
-
-    return dict((k, _reduce(k, v)) for k, v in mapped.iteritems())

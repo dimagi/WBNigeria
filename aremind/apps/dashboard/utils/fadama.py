@@ -6,6 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse
 
 from aremind.apps.dashboard.models import ReportComment
+from aremind.apps.utils.functional import map_reduce
 
 
 def gen_fugs(prefix, num):
@@ -152,6 +153,17 @@ def main_dashboard_stats():
     return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
 
 
+def api_detail(request):
+    _site = request.GET.get('site')
+    site = int(_site) if _site else None
+
+    payload = {
+        'facilities': [f for f in FACILITIES if f['state'] == user_state()],
+        'monthly': detail_stats(site),
+    }
+    return HttpResponse(json.dumps(payload), 'text/json')
+
+
 def detail_stats(facility_id):
     data = load_reports(user_state())
 
@@ -165,40 +177,3 @@ def detail_stats(facility_id):
     def month_detail(data, label):
         categories = ['satisfied']
         categories.extend(COMPLAINT_TYPES)
-        return {
-            'total': len(data),
-            'logs': sorted(data, key=lambda r: r['timestamp'], reverse=True),
-            'stats': dict((k, map_reduce(data, lambda r: [(r[k],)] if r.get(k) is not None else [], len)) for k in categories),
-            'clinic_totals': [[facilities[k], v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
-            'month': label[0],
-            '_month': label[1],
-        }
-
-    return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
-
-
-def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
-    """perform a "map-reduce" on the data
-
-    emitfunc(datum): return an iterable of key-value pairings as (key, value). alternatively, may
-        simply emit (key,) (useful for reducefunc=len)
-    reducefunc(values): applied to each list of values with the same key; defaults to just
-        returning the list
-    data: iterable of data to operate on
-    """
-    mapped = collections.defaultdict(list)
-    for rec in data:
-        for emission in emitfunc(rec):
-            try:
-                k, v = emission
-            except ValueError:
-                k, v = emission[0], None
-            mapped[k].append(v)
-
-    def _reduce(k, v):
-        try:
-            return reducefunc(v, k)
-        except TypeError:
-            return reducefunc(v)
-
-    return dict((k, _reduce(k, v)) for k, v in mapped.iteritems())

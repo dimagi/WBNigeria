@@ -15,22 +15,16 @@ class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
     template_name = 'dashboard/pbf/reports.html'
 
 
-class APIDetailView(mixins.LoginMixin, generic.View):
-    def get(self, request, *args, **kwargs):
-        _site = request.GET.get('site')
-        site = int(_site) if _site else None
-
-        payload = {
+class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
+    def get_payload(self, site):
+        return {
             'facilities': utils.FACILITIES,
             'monthly': utils.detail_stats(site),
         }
-        return HttpResponse(json.dumps(payload), 'text/json')
 
 
-class APIMainView(mixins.LoginMixin, generic.View):
-    def get(self, request, *args, **kwargs):
-        payload = {
+class APIMainView(mixins.LoginMixin, mixins.APIMixin, generic.View):
+    def get_payload(self, site):
+        return {
             'stats': utils.main_dashboard_stats(),
         }
-        return HttpResponse(json.dumps(payload),
-            mimetype='application/json')

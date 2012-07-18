@@ -383,11 +383,16 @@ function FadamaLogModel(data, root) {
 
     this.new_thread_msg = function(type, content) {
         var model = this;
-        $.post('/dashboard/fadama/message/', {id: this.id(), type: type, text: content, user: 'demo user'}, function(data) {
-        model.thread.push(new CommModel(data));
-        model[type == 'inquiry' ? 'inquiry' : 'note'](null);
+        $.post('/dashboard/fadama/message/', {
+            report_id: this.id(),
+            comment_type: type,
+            text: content,
+            author: 'demo user'
+        }, function(data) {
+            model.thread.push(new CommModel(data));
+            model[type == 'inquiry' ? 'inquiry' : 'note'](null);
             if (type == 'inquiry') {
-            alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
+                alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
             }
         });
     };

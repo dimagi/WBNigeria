@@ -4,19 +4,47 @@ from datetime import datetime
 
 from django.http import HttpResponse
 from django.conf import settings
-from django.views.generic import TemplateView
+from django.utils.decorators import method_decorator
+from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 
+from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.models import ReportComment
 from aremind.apps.dashboard.utils import mixins
 
 
-class DashboardView(mixins.LoginMixin, TemplateView):
+class DashboardView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/dashboard.html'
 
 
-class ReportView(mixins.LoginMixin, mixins.ReportMixin, TemplateView):
+class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/reports.html'
+
+
+class MessageView(generic.CreateView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(MessageView, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = forms.ReportCommentForm(request.POST)
+
+        if form.is_valid():
+            rc = form.save()
+            return HttpResponse(json.dumps(rc.json()),
+                mimetype='application/json')
+
+        return HttpResponse('', mimetype='application/json')
+
+
+def msg_from_bene(request):
+    rc = ReportComment()
+    rc.report_id = int(request.GET.get('id'))
+    rc.comment_type = 'response'
+    rc.author = '_bene'
+    rc.text = request.GET.get('text')
+    rc.save()
+    return HttpResponse('ok', 'text/plain')
 
 
 def gen_fugs(prefix, num):
@@ -231,24 +259,3 @@ def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
             return reducefunc(v)
 
     return dict((k, _reduce(k, v)) for k, v in mapped.iteritems())
-
-
-@csrf_exempt
-def new_message(request):
-    rc = ReportComment()
-    rc.report_id = int(request.POST.get('id'))
-    rc.comment_type = request.POST.get('type')
-    rc.author = request.POST.get('user')
-    rc.text = request.POST.get('text')
-    rc.save()
-    return HttpResponse(json.dumps(rc.json()), 'text/json')
-
-
-def msg_from_bene(request):
-    rc = ReportComment()
-    rc.report_id = int(request.GET.get('id'))
-    rc.comment_type = 'response'
-    rc.author = '_bene'
-    rc.text = request.GET.get('text')
-    rc.save()
-    return HttpResponse('ok', 'text/plain')

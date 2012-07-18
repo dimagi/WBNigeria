@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.webdesign import lorem_ipsum
 from django.core.management.base import BaseCommand, CommandError
 
-from aremind.apps.dashboard import views
+from aremind.apps.dashboard import utils
 
 
 def true_false():
@@ -77,21 +77,21 @@ class Command(BaseCommand):
     def generate_pbf_report(self, index):
         "Additional PBF report fields."
         report = self.generate_report(index)
-        report['facility'] = random.choice(views.pbf.FACILITIES)['id']
+        report['facility'] = random.choice(utils.pbf.FACILITIES)['id']
         report['waiting_time'] = random.randint(0, 7)
         report['staff_friendliness'] = true_false()
-        report['price_display'] =  true_false()
-        report['drug_availability'] =  true_false()
-        report['cleanliness'] =  true_false()
+        report['price_display'] = true_false()
+        report['drug_availability'] = true_false()
+        report['cleanliness'] = true_false()
         return report
 
     def generate_fadama_report(self, index):
         "Additional Fadama report fields."
         report = self.generate_report(index)
-        facility = random.choice(views.fadama.FACILITIES)
+        facility = random.choice(utils.fadama.FACILITIES)
         report['facility'] = facility['id']
         report['fug'] = random.choice(facility['fugs']),
-        complaint_type = random.choice(views.fadama.COMPLAINT_TYPES)
+        complaint_type = random.choice(utils.fadama.COMPLAINT_TYPES)
         choices = {
             'serviceprovider': [
                 'notfind',

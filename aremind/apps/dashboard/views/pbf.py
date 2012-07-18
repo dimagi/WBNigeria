@@ -1,19 +1,16 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.conf import settings
+from django.views.generic import TemplateView
 
-@login_required
-def dashboard(request):
-    return render(request, 'dashboard/pbf/dashboard.html')
+from aremind.apps.dashboard.utils import mixins
 
 
-@login_required
-def reports(request):
-    return render(request, 'dashboard/pbf/reports.html', {
-            'default_site': request.GET.get('site'),
-            'default_metric': request.GET.get('metric'),
-        })
+class DashboardView(mixins.LoginMixin, TemplateView):
+    template_name = 'dashboard/pbf/dashboard.html'
+
+
+class ReportView(mixins.LoginMixin, mixins.ReportMixin, TemplateView):
+    template_name = 'dashboard/pbf/reports.html'
 
 
 import json

@@ -1,7 +1,12 @@
+import collections
+import json
+from datetime import datetime
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.conf import settings
+
 
 @login_required
 def dashboard(request):
@@ -16,11 +21,6 @@ def reports(request):
         })
 
 
-import json
-import random
-from datetime import datetime, timedelta
-import collections
-
 FACILITIES = [
     {'id': 1, 'name': 'Wamba General Hospital', 'lat': 8.936, 'lon': 8.6057},
     {'id': 2, 'name': 'Arum Health Center', 'lat': 9.0994, 'lon': 8.65049},
@@ -34,6 +34,7 @@ FACILITIES = [
     {'id': 10, 'name': 'Kwara Health Center', 'lat': 8.9967, 'lon': 8.7492},
     {'id': 11, 'name': 'Jimiya Health Center', 'lat': 8.9485, 'lon': 8.8334},
 ]
+
 
 def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
     with open(path) as f:
@@ -52,48 +53,13 @@ def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
 
     return reports
 
-def make_reports(path, n):
-    def mk_report(i):
-        messages = [
-            'wait too long, doctor no come',
-            'no doctor, no drug',
-            'good clinic, god bless',
-            'clinic is good, doctor is good',
-            'People at clinic ask for 5000 naira, i have no money',
-            'clinic people help with malaria',
-            'feel better now',
-            'wait all morning, too many people waiting',
-            'clinic is very dirty',
-            'bring picken so them no go catch polio',
-            'where you see price of treatment?',
-            'breast milk only or water for baby',
-        ]
-
-        def tf():
-            return (random.random() < .5)
-
-        return {
-            'id': i,
-            'facility': random.choice(FACILITIES)['id'],
-            'timestamp': (datetime.utcnow() - timedelta(days=random.uniform(0, 180))).strftime('%Y-%m-%dT%H:%M:%S'),
-            'satisfied': tf(),
-            'waiting_time': random.randint(0, 7),
-            'staff_friendliness': tf(),
-            'price_display': tf(),
-            'drug_availability': tf(),
-            'cleanliness': tf(),
-            'message': random.choice(messages) if random.random() < .3 else None,
-        }
-
-    reports = [mk_report(i + 1) for i in range(n)]
-    with open(path, 'w') as f:
-        json.dump(reports, f)
 
 def api_main(request):
     payload = {
         'stats': main_dashboard_stats(),
     }
     return HttpResponse(json.dumps(payload), 'text/json')
+
 
 def api_detail(request):
     _site = request.GET.get('site')
@@ -104,6 +70,7 @@ def api_detail(request):
         'monthly': detail_stats(site),
     }
     return HttpResponse(json.dumps(payload), 'text/json')
+
 
 def main_dashboard_stats():
     data = load_reports()
@@ -127,6 +94,7 @@ def main_dashboard_stats():
         }
 
     return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
+
 
 def detail_stats(facility_id):
     data = load_reports()
@@ -157,6 +125,7 @@ def detail_stats(facility_id):
         }
 
     return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
+
 
 def map_reduce(data, emitfunc=lambda rec: [(rec,)], reducefunc=lambda v, k: v):
     """perform a "map-reduce" on the data

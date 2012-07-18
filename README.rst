@@ -79,3 +79,14 @@ Developer Setup
 #. Open http://localhost:8000 in your web browser and you should see an
    **Installation Successful!** screen.
 
+
+Generating Report Data
+==============================
+
+For testing purposes you can generate random data for the report dashboards::
+
+    python manage.py generate_fake_reports --all
+
+This will generated 1000 reports per dashboard as defined by the ``DASHBOARD_SAMPLE_DATA``
+setting. See `python manage.py help generate_fake_reports` for additional options.
+

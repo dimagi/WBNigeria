@@ -1,4 +1,3 @@
-import collections
 import json
 from datetime import datetime
 
@@ -177,3 +176,13 @@ def detail_stats(facility_id):
     def month_detail(data, label):
         categories = ['satisfied']
         categories.extend(COMPLAINT_TYPES)
+        return {
+            'total': len(data),
+            'logs': sorted(data, key=lambda r: r['timestamp'], reverse=True),
+            'stats': dict((k, map_reduce(data, lambda r: [(r[k],)] if r.get(k) is not None else [], len)) for k in categories),
+            'clinic_totals': [[facilities[k], v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
+            'month': label[0],
+            '_month': label[1],
+        }
+
+    return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])

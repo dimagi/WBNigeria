@@ -77,24 +77,6 @@ def make_reports(path, n):
         json.dump(reports, f)
 
 
-def api_main(request):
-    payload = {
-        'stats': main_dashboard_stats(),
-    }
-    return HttpResponse(json.dumps(payload), 'text/json')
-
-
-def api_detail(request):
-    _site = request.GET.get('site')
-    site = int(_site) if _site else None
-
-    payload = {
-        'facilities': FACILITIES,
-        'monthly': detail_stats(site),
-    }
-    return HttpResponse(json.dumps(payload), 'text/json')
-
-
 def main_dashboard_stats():
     data = load_reports()
 

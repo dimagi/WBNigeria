@@ -60,3 +60,8 @@ AUDIT_DJANGO_USER = False
 AUDIT_ALL_VIEWS = False
 AUDIT_VIEWS = []
 AUDIT_MODEL_SAVE = []
+
+DASHBOARD_SAMPLE_DATA = {
+    'pbf': os.path.join(PROJECT_PATH, 'pbf.json'),
+    'fadama': os.path.join(PROJECT_PATH, 'fadama.json')
+}

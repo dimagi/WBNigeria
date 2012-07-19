@@ -21,22 +21,25 @@ FACILITIES = [
 ]
 
 
+WAIT_BUCKETS = [(2, '<2'), (4, '2-4'), (None, '>4')]
+
+
+def process_raw_report(report):
+    "Map report to a month/year group and include wait time bucket."
+    ts = datetime.strptime(report['timestamp'], '%Y-%m-%dT%H:%M:%S')
+    report['month'] = ts.strftime('%b %Y')
+    report['_month'] = ts.strftime('%Y-%m')
+    for thresh, label in WAIT_BUCKETS:
+        if thresh is None or report['waiting_time'] < thresh:
+            report['wait_bucket'] = label
+            break
+    return report
+
+
 def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
     with open(path) as f:
         reports = json.load(f)
-
-    wait_buckets = [(2, '<2'), (4, '2-4'), (None, '>4')]
-
-    for r in reports:
-        ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
-        r['month'] = ts.strftime('%b %Y')
-        r['_month'] = ts.strftime('%Y-%m')
-        for thresh, label in wait_buckets:
-            if thresh is None or r['waiting_time'] < thresh:
-                r['wait_bucket'] = label
-                break
-
-    return reports
+    return map(process_raw_report, reports)
 
 
 def main_dashboard_stats():

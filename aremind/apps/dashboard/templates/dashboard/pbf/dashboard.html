@@ -2,10 +2,78 @@
 {% load url from future %}
 
 {% block javascripts %}
-    {{ block.super }}
+{{ block.super }}
+
+<script type="text/javascript">
+    if (!window.console) {
+        window.console = {
+            log: function () { }
+        };
+    }
+
+    $(document).ready(function() {
+        main_dashboard_init();
+    });
+
+    function main_dashboard_init() {
+        model = new DashboardViewModel();
+        ko.applyBindings(model);
+
+        $.get('/dashboard/pbf/api/main', function(data) {
+            console.log(data);
+            model.load(data);
+        }, 'json');
+    }
+</script>
 {% endblock javascripts %}
 
 {% block content %}
     {{ block.super }}
-    {% include "dashboard/_dashboard_data.html" %}
+    
+    <div class="row-fluid">
+        <div class="span4">
+            <h2>Feedback by facility</h2>
+            <p>
+                {% include "dashboard/_map.html" %}
+            </p>
+        </div>
+
+        <div class="span4">
+            <h2>Feedback by category</h2>
+            <p>
+                {% include "dashboard/_bar_chart.html" with dashboard="pbf" %}
+            </p>
+        </div>
+
+        <div class="span4">
+            <h2>Based on <span data-bind="text: active_month() ? active_month().total() : ''"></span> reports</h2>
+            <p>
+                {% include "dashboard/_pie_chart.html" %}
+            </p>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span12">
+            <div class="alert alert-info" id="1"> <!-- Unique id should be pk; allows us to use bootstrap-alert.js -->
+                <p>
+                    Alert content
+                </p>
+                <span class="pull-right">
+                    <a class="btn btn-primary"><i class="icon-white icon-th-list"></i> Alert Details</a>
+                    <a class="btn btn-danger" data-dismiss="alert" data-target="#1"><i class="icon-white icon-remove"></i> Dismiss</a>
+                </span>
+            </div>
+            <div class="alert alert-info" id="2">
+                <p>
+                    Alert content
+                </p>
+                <span class="pull-right">
+                    <a class="btn btn-primary"><i class="icon-white icon-th-list"></i> Alert Details</a>
+                    <a class="btn btn-danger" data-dismiss="alert" data-target="#2"><i class="icon-white icon-remove"></i> Dismiss</a>
+                </span>
+            </div>
+        </div>
+    </div>
+
 {% endblock content %}

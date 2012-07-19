@@ -48,9 +48,11 @@ def main_dashboard_stats():
     facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
 
     def month_stats(data, label):
+        satisfaction = {True: 0, False: 0}
+        satisfaction.update(map_reduce(data, lambda r: [(r['satisfied'],)], len))
         return {
             'total': len(data),
-            'satisfaction': map_reduce(data, lambda r: [(r['satisfied'],)], len),
+            'satisfaction': satisfaction,
             'by_category': dict((k, len([r for r in data if r[k]])) for k in (
                     'waiting_time',
                     'staff_friendliness',

@@ -75,3 +75,40 @@ class PBFDashboardStatsTestCase(TestCase):
             self.assertEqual(not_satified, manual_count_not_satified)
             self.assertEqual(month['total'], not_satified + satified)
 
+    def test_category_single_month(self):
+        "Simplified test for category reporting. All reports in current month."
+        reports = map(make_current_month, generate_pbf_data())
+        self.load_report_mock.return_value = reports
+        stats = utils.pbf.main_dashboard_stats()[0]['by_category']
+        for category, value in stats.iteritems():
+            manual_count = len(filter(lambda x: x[category], reports))
+            self.assertEqual(value, manual_count)
+
+    def test_category_multi_month(self):
+        "Category reporting with multiple months of data."
+        reports = generate_pbf_data(20)
+        self.load_report_mock.return_value = reports
+        stats = utils.pbf.main_dashboard_stats()
+        for month in stats:
+            for category, value in month['by_category'].iteritems():
+                manual_count = len(filter(lambda x: x[category] and x['month'] == month['month'], reports))
+                self.assertEqual(value, manual_count)
+
+    def test_by_clinic_single_month(self):
+        "Count reports by clinic. Single month only."
+        reports = map(make_current_month, generate_pbf_data())
+        self.load_report_mock.return_value = reports
+        stats = utils.pbf.main_dashboard_stats()[0]['by_clinic']
+        for clinic, value in stats:
+            manual_count = len(filter(lambda x: x['facility'] == clinic['id'], reports))
+            self.assertEqual(value, manual_count)
+
+    def test_by_clinic_multi_month(self):
+        "Count reports by clinic."
+        reports = generate_pbf_data(20)
+        self.load_report_mock.return_value = reports
+        stats = utils.pbf.main_dashboard_stats()
+        for month in stats:
+            for clinic, value in month['by_clinic']:
+                manual_count = len(filter(lambda x: x['facility'] == clinic['id'] and x['month'] == month['month'], reports))
+                self.assertEqual(value, manual_count)

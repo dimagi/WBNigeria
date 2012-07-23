@@ -81,17 +81,21 @@ def detail_stats(facility_id):
     LIMIT = 50
 
     def month_detail(data, label):
+        default_stats = {
+            'satisfied': {True: 0, False: 0},
+            'wait_bucket': {'<2': 0, '2-4': 0, '>4': 0},
+            'staff_friendliness': {True: 0, False: 0},
+            'price_display': {True: 0, False: 0},
+            'drug_availability': {True: 0, False: 0},
+            'cleanliness': {True: 0, False: 0},
+        }
+        stats = default_stats.copy()
+        for key in stats.keys():
+           stats[key].update(map_reduce(data, lambda r: [(r[key],)], len))
         return {
             'total': len(data),
             'logs': sorted(data, key=lambda r: r['timestamp'], reverse=True)[:LIMIT],
-            'stats': dict((k, map_reduce(data, lambda r: [(r[k],)], len)) for k in (
-                'satisfied',
-                'wait_bucket',
-                'staff_friendliness',
-                'price_display',
-                'drug_availability',
-                'cleanliness',
-            )),
+            'stats': stats,
             'clinic_totals': [[facilities[k], v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
             'month': label[0],
             '_month': label[1],

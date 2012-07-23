@@ -16,7 +16,7 @@ def generate_pbf_data(count=10):
 
 
 def make_current_month(report):
-    "Forcre report into the current month."
+    "Force report into the current month."
     now = datetime.now()
     report['timestamp'] = now.strftime('%Y-%m-%dT%H:%M:%S')
     report['month'] = now.strftime('%b %Y')
@@ -112,3 +112,56 @@ class PBFDashboardStatsTestCase(TestCase):
             for clinic, value in month['by_clinic']:
                 manual_count = len(filter(lambda x: x['facility'] == clinic['id'] and x['month'] == month['month'], reports))
                 self.assertEqual(value, manual_count)
+
+
+class PBFDetailStatsTestCase(TestCase):
+    "Detailed info on a given PBF facility."
+
+    def setUp(self):
+        self.load_report_patch = patch('aremind.apps.dashboard.utils.pbf.load_reports')
+        self.load_report_mock = self.load_report_patch.start()
+
+    def tearDown(self):
+        self.load_report_patch.stop()
+
+    def test_basic_totals(self):
+        "Monthly totals for message for a given facility."
+        reports = generate_pbf_data(20)
+        self.load_report_mock.return_value = reports
+        stats = utils.pbf.detail_stats(1)
+        for month in stats:
+            manual_count = len(filter(lambda x: x['facility'] == 1 and x['month'] == month['month'], reports))
+            self.assertEqual(month['total'], manual_count)
+
+    def test_category_totals(self):
+        "Monthly category totals for message for a given facility."
+        reports = generate_pbf_data(20)
+        self.load_report_mock.return_value = reports
+        stats = utils.pbf.detail_stats(1)
+        categories = ('satisfied', 'staff_friendliness', 'price_display',
+                      'drug_availability', 'cleanliness', )
+        for month in stats:
+            for category in categories:
+                manual_postivite_count = len(filter(lambda x: x[category] and x['facility'] == 1 and x['month'] == month['month'], reports))
+                manual_negative_count = len(filter(lambda x: not x[category] and x['facility'] == 1 and x['month'] == month['month'], reports))
+                self.assertEqual(month['stats'][category][True], manual_postivite_count)
+                self.assertEqual(month['stats'][category][False], manual_negative_count)
+
+    def test_wait_time_totals(self):
+        "Wait bucket totals for a given facility."
+        reports = generate_pbf_data(20)
+        self.load_report_mock.return_value = reports
+        stats = utils.pbf.detail_stats(1)
+        for month in stats:
+            for threshold, label in utils.pbf.WAIT_BUCKETS:
+                manual_count = len(filter(lambda x: x['wait_bucket'] == label and x['facility'] == 1 and x['month'] == month['month'], reports))
+                self.assertEqual(month['stats']['wait_bucket'][label], manual_count)
+
+    def test_unfiltered_stats(self):
+        "Passing None for the facility will return unfiltered stats."
+        reports = generate_pbf_data(20)
+        self.load_report_mock.return_value = reports
+        stats = utils.pbf.detail_stats(None)
+        for month in stats:
+            manual_count = len(filter(lambda x: x['month'] == month['month'], reports))
+            self.assertEqual(month['total'], manual_count)

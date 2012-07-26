@@ -1,6 +1,8 @@
 var DEFAULT_SITE = urlParam('site');
 var DEFAULT_METRIC = urlParam('metric');
 
+var active_month = ko.observable();
+
 function urlParam(name) {
     var param = decodeURI(
         (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[null])[1]
@@ -21,13 +23,12 @@ function MonthlyStatsModel(data) {
 
 function DashboardViewModel() {
     this.stats = ko.observableArray();
-    this.active_month = ko.observable();
 
     this.load = function(data) {
         this.stats($.map(data.stats, function(st) {
             return new MonthlyStatsModel(st);
         }));
-        this.active_month(this.stats.slice(-1)[0]);
+        active_month(this.stats.slice(-1)[0]);
     };
 
     this.prevmonth = function() {
@@ -39,14 +40,14 @@ function DashboardViewModel() {
     };
  
     this.month_incr = function(k) {
-        var i = this.stats.indexOf(this.active_month());
+        var i = this.stats.indexOf(active_month());
         i += k;
         if (i >= this.stats().length) {
             i = this.stats().length - 1;
         } else if (i <= 0) {
             i = 0;
         }
-        this.active_month(this.stats()[i]);
+        active_month(this.stats()[i]);
     };
 }
 
@@ -57,7 +58,6 @@ function PBFDetailViewModel() {
 
     this.active_facility = ko.observable();
     this.active_metric = ko.observable(DEFAULT_METRIC || null);
-    this.active_month = ko.observable();
 
     this.load = function(data) {
         if (this.facilities().length === 0) {
@@ -75,11 +75,11 @@ function PBFDetailViewModel() {
             }
         }
 
-        var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
+        var active_month_ix = (active_month() ? this.monthly.indexOf(active_month()) : -1);
         this.monthly($.map(data.monthly, function(m) {
             return new PbfMonthlyDetailModel(m);
         }));
-        this.active_month(this.monthly.slice(active_month_ix)[0]);
+        active_month(this.monthly.slice(active_month_ix)[0]);
     };
 
     this.ajax_load = function(facility_id) {
@@ -100,14 +100,14 @@ function PBFDetailViewModel() {
     };
 
     this.month_incr = function(k) {
-        var i = this.monthly.indexOf(this.active_month());
+        var i = this.monthly.indexOf(active_month());
         i += k;
         if (i >= this.monthly().length) {
             i = this.monthly().length - 1;
         } else if (i <= 0) {
             i = 0;
         }
-        this.active_month(this.monthly()[i]);
+        active_month(this.monthly()[i]);
     };
 
     this.is_metric_active = function(code) {
@@ -185,7 +185,6 @@ function FadamaDetailViewModel() {
 
     this.active_facility = ko.observable();
     this.active_metric = ko.observable(DEFAULT_METRIC || null);
-    this.active_month = ko.observable();
 
     this.active_fug = ko.observable();
     this.active_subcategory = ko.observable();
@@ -207,11 +206,11 @@ function FadamaDetailViewModel() {
             }
         }
 
-        var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
+        var active_month_ix = (active_month() ? this.monthly.indexOf(active_month()) : -1);
         this.monthly($.map(data.monthly, function(m) {
             return new FadamaMonthlyDetailModel(m, model);
         }));
-        this.active_month(this.monthly.slice(active_month_ix)[0]);
+        active_month(this.monthly.slice(active_month_ix)[0]);
     };
 
     this.subcategories = ko.computed(function() {
@@ -246,14 +245,14 @@ function FadamaDetailViewModel() {
     };
 
     this.month_incr = function(k) {
-        var i = this.monthly.indexOf(this.active_month());
+        var i = this.monthly.indexOf(active_month());
         i += k;
         if (i >= this.monthly().length) {
             i = this.monthly().length - 1;
         } else if (i <= 0) {
             i = 0;
         }
-        this.active_month(this.monthly()[i]);
+        active_month(this.monthly()[i]);
     };
 
     this.is_metric_active = function(code) {

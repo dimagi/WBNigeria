@@ -1,9 +1,7 @@
 import json
 
 from django.http import HttpResponse
-from django.utils.decorators import method_decorator
 from django.views import generic
-from django.views.decorators.csrf import csrf_exempt
 
 from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.models import ReportComment
@@ -20,7 +18,6 @@ class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
 
 
 class MessageView(generic.CreateView):
-    @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super(MessageView, self).dispatch(request, *args, **kwargs)
 

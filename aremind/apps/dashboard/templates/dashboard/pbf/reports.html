@@ -465,8 +465,7 @@ ko.bindingHandlers.map_volume = {
                         <th data-bind="visible: is_metric_active('friendly')">Staff Friendly</th>
                         <th data-bind="visible: is_metric_active('drugavail')">Drugs Available</th>
                         <th data-bind="visible: is_metric_active('pricedisp')">Prices Displayed</th>
-                        <th data-bind="visible: $root.active_metric() == 'all'">Free-form Entries</th>
-			<th data-bind="visible: active_metric() != 'all'">Free-form message</th>
+			<th>Free-form message</th>
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
@@ -480,8 +479,7 @@ ko.bindingHandlers.map_volume = {
                         <td data-bind="yn: friendliness, visible: $root.is_metric_active('friendly')"></td>
                         <td data-bind="yn: drugs_avail, visible: $root.is_metric_active('drugavail')"></td>
                         <td data-bind="yn: price_display, visible: $root.is_metric_active('pricedisp')"></td>
-                        <td data-bind="yn: message() != null, visible: $root.active_metric() == 'all'"></td>
-			<td data-bind="text: message, visible: $root.active_metric() != 'all'"></td>
+			<td data-bind="text: message"></td>
                     </tr>
                 </tbody>
             </table>

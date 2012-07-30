@@ -323,7 +323,7 @@ def api_main(request):
 
 def user_state():
     # return state for logged-in user
-    return 'fct'
+    return None #'fct'
 
 def main_dashboard_stats():
     data = load_reports(user_state())
@@ -347,7 +347,7 @@ def api_detail(request):
     site = int(_site) if _site else None
 
     payload = {
-        'facilities': [f for f in FACILITIES if f['state'] == user_state()],
+        'facilities': [f for f in FACILITIES if user_state() is None or f['state'] == user_state()],
         'monthly': detail_stats(site),
     }
     return HttpResponse(json.dumps(payload), 'text/json')

@@ -56,12 +56,12 @@ ko.bindingHandlers.pbf_category_barchart = {
         google.setOnLoadCallback(function() {
             var options = {
                 vAxis: {
-                    textPosition: 'in'
+                    textPosition: 'left'
                 },
                 chartArea: {
                     top: 0,
-                    left: 0,
-                    width: '100%'
+                    left: 110,
+                    width: '90%'
                 }
             };
 
@@ -121,12 +121,12 @@ ko.bindingHandlers.fadama_category_barchart = {
         google.setOnLoadCallback(function() {
             var options = {
                 vAxis: {
-                    textPosition: 'in'
+                    textPosition: 'left'
                 },
                 chartArea: {
                     top: 0,
-                    left: 0,
-                    width: '100%'
+                    left: 110,
+                    width: '90%'
              }
             };
 

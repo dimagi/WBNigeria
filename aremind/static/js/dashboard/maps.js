@@ -1,7 +1,7 @@
 var bounds = new google.maps.LatLngBounds();
 var map_element = null;
 
-function addMarkers(i, e) {
+function addMarker(e, onclick) {
     var facility = e[0];
     var volume = e[1];
 
@@ -33,22 +33,24 @@ function addMarkers(i, e) {
     map_element.ovl.push(dot);
     map_element.ovl.push(circle);
 
-    // var goto_detail = function() {
-    //     window.location.href = '/dashboard/pbf/reports/?site=' + facility.id;
-    // };
+    if (onclick) {
+	var _onclick = function() { return onclick(facility); };
+	google.maps.event.addListener(circle, 'click', _onclick);
+	google.maps.event.addListener(dot, 'click', _onclick);
+    }
 
-    // var select_clinic = function() {
-    //     var clinic = viewModel.facility_by_id(facility.id);
-    //     viewModel.active_metric('satisf');
-    //     viewModel.active_facility(clinic);
-    // };
-
-    // google.maps.event.addListener(circle, 'click', goto_detail);
-    // google.maps.event.addListener(dot, 'click', goto_detail);
-
-    // google.maps.event.addListener(circle, 'click', select_clinic);
-    // google.maps.event.addListener(dot, 'click', select_clinic);
+    var onhover = function(in_) {
+	circle.setOptions({
+		strokeColor: in_ ? "#ff0" : '#DA4F49',
+		fillColor: in_ ? '#ff0' : '#DA4F49', 
+	    });
+	site_name(in_ ? facility.name : null, map_element.map);
+    };
+    google.maps.event.addListener(circle, 'mouseover', function() { onhover(true); });
+    google.maps.event.addListener(circle, 'mouseout', function() { onhover(false); });
 }
+
+
 
 ko.bindingHandlers.map_volume = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
@@ -77,10 +79,23 @@ ko.bindingHandlers.map_volume = {
         element.ovl = [];
 
         if(active.data && active.data.by_clinic) {
-            $.each(active.data.by_clinic, addMarkers);
+	    var goto_detail = function(facility) {
+		window.location.href = DETAIL_URL + '?site=' + facility.id;
+	    };
+
+	    var data = active.data.by_clinic;
+	    var add_marker = function(i, e) { addMarker(e, goto_detail); };
         } else {
-            $.each(active.clinic_totals, addMarkers);
+	    var select_clinic = function(facility) {
+		var clinic = viewModel.facility_by_id(facility.id);
+		viewModel.active_metric('satisf');
+		viewModel.active_facility(clinic);
+	    };
+
+	    var data = active.clinic_totals;
+	    var add_marker = function(i, e) { addMarker(e, select_clinic); };
         }
+	$.each(data, add_marker);
 
         element.map.fitBounds(bounds);
 

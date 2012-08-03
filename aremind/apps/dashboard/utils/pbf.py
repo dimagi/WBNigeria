@@ -20,6 +20,20 @@ FACILITIES = [
     {'id': 11, 'name': 'Jimiya Health Center', 'lat': 8.9485, 'lon': 8.8334},
 ]
 
+SAMPLE_MESSAGES = [
+    'wait too long, doctor no come',
+    'no doctor, no drug',
+    'good clinic, god bless',
+    'clinic is good, doctor is good',
+    'People at clinic ask for 5000 naira, i have no money',
+    'clinic people help with malaria',
+    'feel better now',
+    'wait all morning, too many people waiting',
+    'clinic is very dirty',
+    'bring picken so them no go catch polio',
+    'where you see price of treatment?',
+    'breast milk only or water for baby',
+]
 
 def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
     with open(path) as f:

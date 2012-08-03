@@ -10,8 +10,8 @@ from django.core.management.base import BaseCommand, CommandError
 from aremind.apps.dashboard import utils
 
 
-def true_false():
-    return random.random() < .5
+def true_false(ratio=1.):
+    return (random.random() < (ratio / (ratio + 1.)))
 
 
 class Command(BaseCommand):
@@ -61,10 +61,12 @@ class Command(BaseCommand):
             self.stdout.write(u'Saved {0} {1} reports to {1}\n'.format(count, name, path))
 
     def generate_report(self, index):
+        window = 6 #months
+
         "Generic report generator."
         report = {
             'id': index,
-            'timestamp': (datetime.utcnow() - timedelta(days=random.uniform(0, 180))).strftime('%Y-%m-%dT%H:%M:%S'),
+            'timestamp': (datetime.utcnow() - timedelta(days=random.uniform(0, 30.44 * window))).strftime('%Y-%m-%dT%H:%M:%S'),
             'satisfied': true_false(),
             'message': self.lorem_message() if random.random() < .3 else None
         }
@@ -77,59 +79,37 @@ class Command(BaseCommand):
     def generate_pbf_report(self, index):
         "Additional PBF report fields."
         report = self.generate_report(index)
-        report['facility'] = random.choice(utils.pbf.FACILITIES)['id']
-        report['waiting_time'] = random.randint(0, 7)
-        report['staff_friendliness'] = true_false()
-        report['price_display'] = true_false()
-        report['drug_availability'] = true_false()
-        report['cleanliness'] = true_false()
+        report.update({
+                'facility': random.choice(utils.pbf.FACILITIES)['id'],
+                'waiting_time': random.randint(0, 7),
+                'staff_friendliness': true_false(),
+                'price_display': true_false(),
+                'drug_availability': true_false(),
+                'cleanliness': true_false(),
+                'message': random.choice(utils.pbf.SAMPLE_MESSAGES) if random.random() < .3 else None,
+            })
         return report
 
     def generate_fadama_report(self, index):
         "Additional Fadama report fields."
         report = self.generate_report(index)
+
+        satisfied = true_false(.3)
         facility = random.choice(utils.fadama.FACILITIES)
-        report['facility'] = facility['id']
-        report['fug'] = random.choice(facility['fugs']),
         complaint_type = random.choice(utils.fadama.COMPLAINT_TYPES)
-        choices = {
-            'serviceprovider': [
-                'notfind',
-                'notstarted',
-                'delay',
-                'stopped',
-                'substandard',
-                'other',
-            ],
-            'people': [
-                'state',
-                'fug',
-                'fca',
-                'facilitator',
-                'other',
-            ],
-            'land': [
-                'notfind',
-                'suitability',
-                'ownership',
-                'other',
-            ],
-            'info': [
-                'market',
-                'input',
-                'credit',
-                'other',
-            ],
-            'ldp': [
-                'delay',
-                'other',
-            ],
-            'financial': [
-                'bank',
-                'delay',
-                'other',
-            ],
-        }
-        report[complaint_type] = random.choice(choices[complaint_type])
-        report['proxy'] = true_false()
+        try:
+            complaint_subtype = random.choice(utils.fadama.COMPLAINT_SUBTYPES[complaint_type])
+        except KeyError:
+            # satisfaction
+            complaint_subtype = true_false()
+
+        report.update({
+                'facility': facility['id'],
+                'fug': random.choice(facility['fugs']),
+                'satisfied': satisfied,
+                'proxy': true_false(.4),
+                complaint_type: complaint_subtype,
+                'message': utils.fadama.gen_sample_message(satisfied, complaint_type, complaint_subtype),
+            })
+
         return report

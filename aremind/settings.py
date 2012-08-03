@@ -116,8 +116,8 @@ RAPIDSMS_TABS = [
     ('xforms', 'Reporter Scenario'),
     ('smsforms.views.list_forms', 'Decision Tree XForms'),
     ('smsforms.views.view_triggers', 'Decision Tree Triggers'),
-    ('aremind.apps.dashboard.views.pbf.dashboard', 'PBF Dashboard'),
-    ('aremind.apps.dashboard.views.fadama.dashboard', 'Fadama Dashboard'),
+    ('pbf_dashboard', 'PBF Dashboard'),
+    ('fadama_dashboard', 'Fadama Dashboard'),
 ]
 
 XFORMS_HOST = 'www.rapidsms-server.com'

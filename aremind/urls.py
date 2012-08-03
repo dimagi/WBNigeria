@@ -3,6 +3,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.views.generic.simple import direct_to_template
 
+from aremind.apps.dashboard.views import pbf
+from aremind.apps.dashboard.views import fadama
 
 admin.autodiscover()
 
@@ -52,8 +54,8 @@ urlpatterns = patterns('',
     (r'^couchexport/', include("couchexport.urls")),
     url(r'^tropo/$', 'rtropo.views.message_received', kwargs={'backend_name': 'tropo'}, name='tropo'),
 
-    url(r'dashboard/pbf/$', 'aremind.apps.dashboard.views.pbf.dashboard', name='pbf_dashboard'),
-    url(r'dashboard/fadama/$', 'aremind.apps.dashboard.views.fadama.dashboard', name='fadama_dashboard'),
+    url(r'dashboard/pbf/$', pbf.DashboardView.as_view(), name='pbf_dashboard'),
+    url(r'dashboard/fadama/$', fadama.DashboardView.as_view(), name='fadama_dashboard'),
     (r'^dashboard/', include('aremind.apps.dashboard.urls')),
 )
 

@@ -25,8 +25,11 @@ class MessageView(generic.CreateView):
         form = forms.ReportCommentForm(request.POST)
 
         if form.is_valid():
-            rc = form.save()
-            return HttpResponse(json.dumps(rc.json()),
+            comment = form.save()
+            if comment.comment_type == ReportComment.INQUIRY_TYPE:
+                # Send SMS to beneficiary
+                utils.message_report_beneficiary(comment.report_id, comment.text)
+            return HttpResponse(json.dumps(comment.json()),
                 mimetype='application/json')
 
         return HttpResponse('', mimetype='application/json')

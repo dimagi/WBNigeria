@@ -5,6 +5,10 @@ from datetime import datetime
 from django.conf import settings
 from django.http import HttpResponse
 
+from rapidsms.messages.outgoing import OutgoingMessage
+from rapidsms.models import Backend, Connection
+from threadless_router.router import Router
+
 from aremind.apps.dashboard.models import ReportComment
 from aremind.apps.utils.functional import map_reduce
 
@@ -319,3 +323,21 @@ def detail_stats(facility_id, user_state):
         }
 
     return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
+
+
+def _get_connection_from_report(report_id):
+    "Return connection for user which submitted a given report."
+    # FIXME: Currently uses a dummy connection. Needs to get correct connection
+    # when report data is hooked up to the backend.
+    default_backend = getattr(settings, 'PRIMARY_BACKEND', 'httptester')
+    backend, _ = Backend.objects.get_or_create(name=default_backend)
+    connection, _ = Connection.objects.get_or_create(backend=backend, identity='1-555-123-4567')
+    return connection
+
+
+def message_report_beneficiary(report_id, message_text):
+    "Send a message to a user based on a report."
+    connection = _get_connection_from_report(report_id)
+    message = OutgoingMessage(connection=connection, template=message_text)
+    router = Router()
+    router.outgoing(message)

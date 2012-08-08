@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "selectable",
     "gunicorn",
     "smsforms",
+    "alerts",
     "aremind.apps.wbn_registration",
     "aremind.apps.groups",
     "aremind.apps.broadcast",

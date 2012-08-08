@@ -4,7 +4,7 @@ from django.db import models
 class ReportComment(models.Model):
     INQUIRY_TYPE = 'inquiry'
     NOTE_TYPE = 'note'
-    REPLY_TYPE = 'reply'
+    REPLY_TYPE = 'response'
 
     COMMENT_TYPES = (
         (INQUIRY_TYPE, INQUIRY_TYPE),

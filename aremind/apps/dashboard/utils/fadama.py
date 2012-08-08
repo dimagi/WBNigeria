@@ -4,6 +4,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
 
 from rapidsms.messages.outgoing import OutgoingMessage
 from rapidsms.models import Backend, Connection
@@ -338,6 +339,8 @@ def _get_connection_from_report(report_id):
 def message_report_beneficiary(report_id, message_text):
     "Send a message to a user based on a report."
     connection = _get_connection_from_report(report_id)
-    message = OutgoingMessage(connection=connection, template=message_text)
+    reply_info = _(u'Include R{0} in any reply').format(report_id)
+    template = u'{0} {1}'.format(message_text, reply_info)
+    message = OutgoingMessage(connection=connection, template=template)
     router = Router()
     router.outgoing(message)

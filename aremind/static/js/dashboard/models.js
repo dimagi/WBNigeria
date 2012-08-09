@@ -422,6 +422,14 @@ function FadamaLogModel(data, root) {
             model.expanded(false);
         }
     });
+
+    this.append_text = ko.computed(function() {
+        return ' Include R' + model.id() + ' in any reply.';
+    });
+
+    this.max_characters = ko.computed(function() {
+        return 160 - model.append_text().length;
+    });
 }
 
 function CommModel(data) {

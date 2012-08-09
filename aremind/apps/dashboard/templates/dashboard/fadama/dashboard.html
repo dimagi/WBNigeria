@@ -55,6 +55,9 @@
         </div>
     </div>
 
+    {% load alerts_tags %}
+    {% notifications request %}
+
     <div class="row-fluid">
         <div class="span12">
             <div class="alert alert-info" id="1"> <!-- Unique id should be pk; allows us to use bootstrap-alert.js -->

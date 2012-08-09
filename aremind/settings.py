@@ -453,3 +453,10 @@ LOGGING = {
 }
 
 COUCHDB_APPS = ['auditcare', 'couchlog', 'formplayer', 'couchforms', 'couchexport']
+
+
+# rapidsms-alerts app.
+LOGISTICS_NOTIF_GENERATORS = (
+    'aremind.notifications.trigger_place_notifications',
+)
+SYSTEM_USERNAME = None

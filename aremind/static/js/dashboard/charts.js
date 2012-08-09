@@ -182,6 +182,41 @@ ko.bindingHandlers.fadama_category_barchart = {
     }
 };
 
+function current_chart_update(element, valueAccessor, viewModel, funcs, onclick) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    var metric = viewModel.active_metric();
+    if (!element.charts_init || !active || !metric || metric == 'all') {
+	return;
+    }
+    
+    var options = {
+	vAxis: {
+	    textPosition: 'in'
+	},
+	chartArea: {
+	    top: 10,
+	    left: 0,
+	    width: '100%'
+	}
+    };
+    
+    var data = [['Category', '']];
+    var raw_data = monthly_datapoints(active, metric);
+    
+    $.each(funcs.get_ordering(metric), function(i, e) {
+            data.push([funcs.get_caption(metric, e), raw_data[e] || 0]);
+        });
+    
+    var chart_type = 'PieChart';
+    
+    var chart = new google.visualization[chart_type](element);
+    chart.draw(google.visualization.arrayToDataTable(data), options);
+    
+    if (onclick) {
+	google.visualization.events.addListener(chart, 'select', function() { onclick(chart); });
+    }
+}
+
 ko.bindingHandlers.pbf_current_chart = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
         google.setOnLoadCallback(function() {
@@ -190,38 +225,7 @@ ko.bindingHandlers.pbf_current_chart = {
         });
     },
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        var metric = viewModel.active_metric();
-        if (!element.charts_init || !active || !metric || metric == 'all') {
-            return;
-        }
-
-        var options = {
-            vAxis: {
-                textPosition: 'in'
-            },
-            chartArea: {
-                top: 10,
-                left: 0,
-                width: '100%'
-            }
-        };
-
-        var data = [['Category', '']];
-        var raw_data = monthly_datapoints(active, metric);
-	$.each(get_pbf_ordering(metric), function(i, e) {
-            data.push([get_pbf_caption(metric, e), raw_data[e] || 0]);
-        });
-
-        var chart_type = null;
-        if (metric == 'wait') {
-            chart_type = 'ColumnChart';
-        } else {
-            chart_type = 'PieChart';
-        }
-
-        var chart = new google.visualization[chart_type](element);
-        chart.draw(google.visualization.arrayToDataTable(data), options);
+	current_chart_update(element, valueAccessor, viewModel, {get_ordering: get_pbf_ordering, get_caption: get_pbf_caption});
     }
 };
 
@@ -294,46 +298,17 @@ ko.bindingHandlers.fadama_current_chart = {
     },
 
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        var metric = viewModel.active_metric();
-        if (!element.charts_init || !active || !metric || metric == 'all') {
-            return;
-        }
+	current_chart_update(element, valueAccessor, viewModel,
+            {get_ordering: get_fadama_ordering, get_caption: get_fadama_caption},
+	    function(chart) {
+		if (chart.getSelection().length === 0) {
+		    return;
+		}
 
-        var options = {
-            vAxis: {
-                textPosition: 'in'
-            },
-            chartArea: {
-                top: 10,
-                left: 0,
-                width: '100%'
-            }
-        };
-
-        var data = [['Category', '']];
-        var raw_data = monthly_datapoints(active, metric);
-
-        $.each(get_fadama_ordering(metric), function(i, e) {
-            data.push([get_fadama_caption(metric, e), raw_data[e] || 0]);
-        });
-
-        var chart_type = 'PieChart';
-
-        var chart = new google.visualization[chart_type](element);
-        chart.draw(google.visualization.arrayToDataTable(data), options);
-
-        var bar_clicked = function() {
-            if (chart.getSelection().length === 0) {
-                return;
-            }
-
-            var opt = chart.getSelection()[0].row;
-            var subcat = viewModel.subcategories()[opt + 1]; // the first is 'all', so offset by 1
-            viewModel.active_subcategory(subcat);
-        };
-
-        google.visualization.events.addListener(chart, 'select', bar_clicked);
+		var opt = chart.getSelection()[0].row;
+		var subcat = viewModel.subcategories()[opt + 1]; // the first is 'all', so offset by 1
+		viewModel.active_subcategory(subcat);
+	    });
     }
 };
 

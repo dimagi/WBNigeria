@@ -18,8 +18,7 @@ class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
 
 
 class MessageView(generic.CreateView):
-    def dispatch(self, request, *args, **kwargs):
-        return super(MessageView, self).dispatch(request, *args, **kwargs)
+    http_method_names = ['post', ]
 
     def post(self, request, *args, **kwargs):
         form = forms.ReportCommentForm(request.POST)

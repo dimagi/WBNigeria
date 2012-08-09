@@ -51,9 +51,45 @@ ko.bindingHandlers.satisfaction_piechart = {
     }
 };
 
+pbf_categories = [
+    {metric: 'wait', field: 'waiting_time', caption: 'Waiting Time'},
+    {metric: 'friendly', field: 'staff_friendliness', caption: 'Staff Friendliness'},
+    {metric: 'pricedisp', field: 'price_display', caption: 'Price Display'},
+    {metric: 'drugavail', field: 'drug_availability', caption: 'Drug Availability'},
+    {metric: 'clean', field: 'cleanliness', caption: 'Cleanliness & Hygiene'},
+];
+
 ko.bindingHandlers.pbf_category_barchart = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        google.setOnLoadCallback(function() {
+	category_barchart_init(element, valueAccessor, 'pbf', pbf_categories);
+    },
+
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+	category_barchart_update(element, valueAccessor, pbf_categories);
+    }
+};
+
+fadama_categories = [
+    {metric: 'serviceprovider', field: 'serviceprovider', caption: 'Service Providers'},
+    {metric: 'people', field: 'people', caption: 'People from Fadama'},
+    {metric: 'land', field: 'land', caption: 'Land Issues'},
+    {metric: 'info', field: 'info', caption: 'Information Issues'},
+    {metric: 'ldp', field: 'ldp', caption: 'LDP Approval'},
+    {metric: 'financial', field: 'financial', caption: 'Financial Issues'},
+];
+
+ko.bindingHandlers.fadama_category_barchart = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+	category_barchart_init(element, valueAccessor, 'fadama', fadama_categories);
+    },
+
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+	category_barchart_update(element, valueAccessor, fadama_categories);
+    }
+};
+
+function category_barchart_init(element, valueAccessor, mode, categories) {
+    google.setOnLoadCallback(function() {
             var options = {
                 vAxis: {
                     textPosition: 'left'
@@ -71,10 +107,15 @@ ko.bindingHandlers.pbf_category_barchart = {
                 containerId: $(element).attr('id')
             });
 
+	    var metrics = [];
+	    $.each(categories, function(i, e) {
+		    metrics.push(e.metric);
+		});
+
             var bar_clicked = function() {
                 var opt = element.wrapper.getChart().getSelection()[0].row;
-                var metric = ['wait', 'friendly', 'pricedisp', 'drugavail', 'clean'][opt];
-                window.location.href = '/dashboard/pbf/reports/?metric=' + metric;
+                var metric = metrics[opt];
+                window.location.href = '/dashboard/' + mode + '/reports/?metric=' + metric;
             };
 
             google.visualization.events.addListener(element.wrapper, 'select', bar_clicked);
@@ -82,105 +123,33 @@ ko.bindingHandlers.pbf_category_barchart = {
             var active = ko.utils.unwrapObservable(valueAccessor());
 
             if(active) {
-                // Add the data to the chart and then draw it
-                var dataTable = google.visualization.arrayToDataTable([
-                    ['Category', ''],
-                    ['Waiting Time', active.data.by_category.waiting_time],
-                    ['Staff Friendliness', active.data.by_category.staff_friendliness],
-                    ['Price Display', active.data.by_category.price_display],
-                    ['Drug Availability', active.data.by_category.drug_availability],
-                    ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
-                ]);
+		var arr = [['Category', '']];
+		$.each(categories, function(i, e) {
+			arr.push([e.caption, active.data.by_category[e.field]]);
+		    });
+
+		var dataTable = google.visualization.arrayToDataTable(arr);
                 element.wrapper.setDataTable(dataTable);
                 element.wrapper.draw();
             }
         });
-    },
+}
 
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        if (!element.wrapper || !active) {
-            return;
-        }
-
-        var dataTable = google.visualization.arrayToDataTable([
-            ['Category', ''],
-            ['Waiting Time', active.data.by_category.waiting_time],
-            ['Staff Friendliness', active.data.by_category.staff_friendliness],
-            ['Price Display', active.data.by_category.price_display],
-            ['Drug Availability', active.data.by_category.drug_availability],
-            ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
-        ]);
-        element.wrapper.setDataTable(dataTable);
-        element.wrapper.draw();
+function category_barchart_update(element, valueAccessor, categories) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    if (!element.wrapper || !active) {
+	return;
     }
-};
 
-ko.bindingHandlers.fadama_category_barchart = {
-    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        google.setOnLoadCallback(function() {
-            var options = {
-                vAxis: {
-                    textPosition: 'left'
-                },
-                chartArea: {
-                    top: 0,
-                    left: 110,
-                    width: '90%'
-             }
-            };
+    var arr = [['Category', '']];
+    $.each(categories, function(i, e) {
+	    arr.push([e.caption, active.data.by_category[e.field]]);
+	});
 
-            element.wrapper = new google.visualization.ChartWrapper({
-                chartType: 'BarChart',
-                options: options,
-                containerId: $(element).attr('id')
-            });
-
-            var bar_clicked = function() {
-                var opt = element.wrapper.getChart().getSelection()[0].row;
-                var metric = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'][opt];
-                window.location.href = '/dashboard/fadama/reports/?metric=' + metric;
-            };
-
-            google.visualization.events.addListener(element.wrapper, 'select', bar_clicked);
-
-            var active = ko.utils.unwrapObservable(valueAccessor());
-
-            if(active) {
-                var dataTable = google.visualization.arrayToDataTable([
-                    ['Category', ''],
-                    ['Service Providers', active.data.by_category.serviceprovider],
-                    ['People from Fadama', active.data.by_category.people],
-                    ['Land Issues', active.data.by_category.land],
-                    ['Information Issues', active.data.by_category.info],
-                    ['LDP Approval', active.data.by_category.ldp],
-                    ['Financial Issues', active.data.by_category.financial]
-                ]);
-                element.wrapper.setDataTable(dataTable);
-                element.wrapper.draw();
-            }
-        });
-    },
-
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        if (!element.wrapper || !active) {
-            return;
-        }
-
-        var dataTable = google.visualization.arrayToDataTable([
-            ['Category', ''],
-            ['Service Providers', active.data.by_category.serviceprovider],
-            ['People from Fadama', active.data.by_category.people],
-            ['Land Issues', active.data.by_category.land],
-            ['Information Issues', active.data.by_category.info],
-            ['LDP Approval', active.data.by_category.ldp],
-            ['Financial Issues', active.data.by_category.financial]
-        ]);
-        element.wrapper.setDataTable(dataTable);
-        element.wrapper.draw();
-    }
-};
+    var dataTable = google.visualization.arrayToDataTable(arr);
+    element.wrapper.setDataTable(dataTable);
+    element.wrapper.draw();
+}
 
 function current_chart_update(element, valueAccessor, viewModel, funcs, onclick) {
     var active = ko.utils.unwrapObservable(valueAccessor());

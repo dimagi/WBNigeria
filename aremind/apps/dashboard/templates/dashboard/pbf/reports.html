@@ -116,12 +116,12 @@
                         <td data-bind="text: id"></td>
                         <td data-bind="text: site"></td>
                         <td data-bind="text: date"></td>
-                        <td data-bind="yn: satisfied, visible: $root.is_metric_active('satisf')"></td>
-                        <td data-bind="text: disp_wait, visible: $root.is_metric_active('wait')"></td>
-                        <td data-bind="yn: cleanliness, visible: $root.is_metric_active('clean')"></td>
-                        <td data-bind="yn: friendliness, visible: $root.is_metric_active('friendly')"></td>
-                        <td data-bind="yn: drugs_avail, visible: $root.is_metric_active('drugavail')"></td>
-                        <td data-bind="yn: price_display, visible: $root.is_metric_active('pricedisp')"></td>
+                        <td data-bind="yn: satisfied, visible: $root.is_metric_active('satisf'), pbf_category_color: 'satisf'"></td>
+                        <td data-bind="text: disp_wait, visible: $root.is_metric_active('wait'), pbf_category_color: 'wait'"></td>
+                        <td data-bind="yn: cleanliness, visible: $root.is_metric_active('clean'), pbf_category_color: 'clean'"></td>
+                        <td data-bind="yn: friendliness, visible: $root.is_metric_active('friendly'), pbf_category_color: 'friendly'"></td>
+                        <td data-bind="yn: drugs_avail, visible: $root.is_metric_active('drugavail'), pbf_category_color: 'drugavail'"></td>
+                        <td data-bind="yn: price_display, visible: $root.is_metric_active('pricedisp'), pbf_category_color: 'pricedisp'"></td>
 			<td data-bind="text: message"></td>
                     </tr>
                 </tbody>

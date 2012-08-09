@@ -207,14 +207,10 @@ ko.bindingHandlers.pbf_current_chart = {
             }
         };
 
-        var ordering = ['True', 'False', '<2', '2-4', '>4'];
-
         var data = [['Category', '']];
         var raw_data = monthly_datapoints(active, metric);
-        $.each(ordering, function(i, e) {
-            if (raw_data[e] != null) {
-                data.push([get_pbf_caption(metric, e), raw_data[e]]);
-            }
+	$.each(get_pbf_ordering(metric), function(i, e) {
+            data.push([get_pbf_caption(metric, e), raw_data[e] || 0]);
         });
 
         var chart_type = null;
@@ -259,16 +255,9 @@ ko.bindingHandlers.pbf_historical_chart = {
         var minmonthix = curmonthix - 2;
         var maxmonthix = curmonthix + 2;
 
-        var ordering = null;
-        if (metric == 'wait') {
-            ordering = ['<2', '2-4', '>4'];
-        } else {
-            ordering = ['True', 'False'];
-        }
-
         var labels = ['Month'];
         var raw_data = monthly_datapoints(active, metric);
-        $.each(ordering, function(i, e) {
+        $.each(get_pbf_ordering(metric), function(i, e) {
             labels.push(get_pbf_caption(metric, e));
         });
         var data = [labels];
@@ -284,7 +273,7 @@ ko.bindingHandlers.pbf_historical_chart = {
                 var m = viewModel.monthly()[i];
                 raw_data = monthly_datapoints(m, metric);
                 row.push(m.month_label());
-                $.each(ordering, function(i, e) {
+                $.each(get_pbf_ordering(metric), function(i, e) {
                     row.push(raw_data[e] || 0);
                 });
             }
@@ -321,8 +310,6 @@ ko.bindingHandlers.fadama_current_chart = {
                 width: '100%'
             }
         };
-
-        var ordering = ['True', 'False', '<2', '2-4', '>4'];
 
         var data = [['Category', '']];
         var raw_data = monthly_datapoints(active, metric);

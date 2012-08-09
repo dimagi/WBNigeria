@@ -59,6 +59,8 @@ function PBFDetailViewModel() {
     this.active_metric = ko.observable(DEFAULT_METRIC || null);
     this.active_month = ko.observable();
 
+    var model = this;
+
     this.load = function(data) {
         if (this.facilities().length === 0) {
             var facs = $.map(data.facilities, function(f) {
@@ -77,8 +79,8 @@ function PBFDetailViewModel() {
 
         var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
         this.monthly($.map(data.monthly, function(m) {
-            return new PbfMonthlyDetailModel(m);
-        }));
+		    return new PbfMonthlyDetailModel(m, model);
+		}));
         this.active_month(this.monthly.slice(active_month_ix)[0]);
     };
 
@@ -148,16 +150,16 @@ function PbfFacilityModel(data) {
     this.name = ko.observable(data.name);
 }
 
-function PbfMonthlyDetailModel(data) {
+function PbfMonthlyDetailModel(data, root) {
     this.logs = ko.observableArray($.map(data.logs, function(l) {
-        return new PbfLogModel(l);
+		return new PbfLogModel(l, root);
     }));
     this.month_label = ko.observable(data.month);
     this.stats = data.stats;
     this.clinic_totals = data.clinic_totals;
 }
 
-function PbfLogModel(data) {
+function PbfLogModel(data, root) {
         this.id = ko.observable(data.id);
         this.site = ko.observable(data.site_name);
         this.date = ko.observable(data.display_time);
@@ -168,6 +170,8 @@ function PbfLogModel(data) {
         this.drugs_avail = ko.observable(data.drug_availability);
         this.price_display = ko.observable(data.price_display);
         this.message = ko.observable(data.message);
+
+	this.root = root;
 
         this.disp_wait = ko.computed(function() {
             return {
@@ -338,6 +342,8 @@ function FadamaLogModel(data, root) {
     this.thread = ko.observableArray($.map(data.thread, function(c) {
         return new CommModel(c);
     }));
+
+    this.root = root;
 
     this.expanded = ko.observable(false);
     this.toggle = function() {

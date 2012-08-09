@@ -131,9 +131,9 @@
                         <td data-bind="text: site"></td>
                         <td data-bind="text: fug"></td>
                         <td style="white-space: nowrap" data-bind="text: date"></td>
-                        <td data-bind="yn: satisfied"></td>
+                        <td data-bind="yn: satisfied, fadama_category_color: 'satisf'"></td>
                         <td data-bind="text: category_caption"></td>
-                        <td data-bind="text: subcategory_caption"></td>
+                        <td data-bind="text: subcategory_caption, fadama_category_color: 'subcat'"></td>
                         <td style="width: 25em;" data-bind="text: message"></td>
                     </tr>
                     <tr data-bind="visible: is_relevant($root) && expanded()">

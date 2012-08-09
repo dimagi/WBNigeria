@@ -125,6 +125,47 @@ function get_pbf_caption(metric, value) {
     }[metric][value];
 }
 
+function get_pbf_ordering(metric) {
+    var order = {
+	wait: ['<2', '2-4', '>4'],
+    }[metric];
+    if (!order) {
+	order = ['True', 'False'];
+    }
+    return order;
+}
+
+function get_pbf_metric_field(metric) {
+    return {
+	satisf: 'satisfied',
+	wait: 'wait_bucket',
+	clean: 'cleanliness',
+	friendly: 'friendliness',
+	drugavail: 'drugs_avail',
+	pricedisp: 'price_display',
+    }[metric];
+}
+
+function get_subcategory_color(cat, subcat, get_ordering) {
+    var COLORS = [ // these must match the colors assigned by the charting api
+		  '#aaf', //36c
+		  '#faa', //e41
+		  '#fca', //f90
+		  '#aca', //192
+		  '#cac', //090
+		  '#ade', //09c
+		   ];
+
+    if (subcat === true) {
+	subcat = 'True';
+    } else if (subcat === false) {
+	subcat = 'False';
+    }
+
+    var k = get_ordering(cat).indexOf(subcat);
+    return COLORS[k];
+}
+
 function site_name(name, map) {
     if (name === null) {
         if (map.$sitename_ovl) {

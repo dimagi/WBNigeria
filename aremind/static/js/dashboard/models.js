@@ -428,8 +428,10 @@ function FadamaLogModel(data, root) {
         return ' Include R' + model.id() + ' in any reply.';
     });
 
+    this.prepend_text = 'From fadama: ';
+
     this.max_characters = ko.computed(function() {
-        return 160 - model.append_text().length;
+        return 160 - model.append_text().length - model.prepend_text.length;
     });
 }
 

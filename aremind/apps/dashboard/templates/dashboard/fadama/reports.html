@@ -156,8 +156,8 @@
                             <div style="margin-left: 15em; padding-top: 1em;">
                                 <form id="message-form" class="form-inline" method="post" action="{% url 'fadama_new_message' %}">
                                     <label>send a message to the <b>beneficiary</b></label>
-                                    <div class="input-append">
-                                        <input type="text" style="width: 40em" data-bind="disable: proxy, value: _inquiry, attr: {maxlength: max_characters}"><span class="add-on" data-bind="text: append_text"></span>
+                                    <div class="input-append input-prepend">
+                                        <span class="add-on" data-bind="text: prepend_text"></span><input type="text" style="width: 35em" data-bind="disable: proxy, value: _inquiry, attr: {maxlength: max_characters}"><span class="add-on" data-bind="text: append_text"></span>
                                     </div>
                                     <button type="submit" class="btn" data-bind="disable: proxy, click: send_message">Send</button>
                                     <p style="font-style: italic;">-or-</p>

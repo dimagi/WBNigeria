@@ -339,8 +339,9 @@ def _get_connection_from_report(report_id):
 def message_report_beneficiary(report_id, message_text):
     "Send a message to a user based on a report."
     connection = _get_connection_from_report(report_id)
+    prefix = _('From fadama:')
     reply_info = _(u'Include R{0} in any reply').format(report_id)
-    template = u'{0} {1}'.format(message_text, reply_info)
+    template = u'{0} {1} {2}'.format(prefix, message_text, reply_info)
     message = OutgoingMessage(connection=connection, template=template)
     router = Router()
     router.outgoing(message)

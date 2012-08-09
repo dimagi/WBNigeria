@@ -38,6 +38,23 @@ $(document).ajaxSend(function(event, xhr, settings) {
 
 // Misc. functions
 
+pbf_categories = [
+    {metric: 'wait', field: 'waiting_time', caption: 'Waiting Time'},
+    {metric: 'friendly', field: 'staff_friendliness', caption: 'Staff Friendliness'},
+    {metric: 'pricedisp', field: 'price_display', caption: 'Price Display'},
+    {metric: 'drugavail', field: 'drug_availability', caption: 'Drug Availability'},
+    {metric: 'clean', field: 'cleanliness', caption: 'Cleanliness & Hygiene'},
+];
+
+fadama_categories = [
+    {metric: 'serviceprovider', field: 'serviceprovider', caption: 'Service Providers'},
+    {metric: 'people', field: 'people', caption: 'People from Fadama'},
+    {metric: 'land', field: 'land', caption: 'Land Issues'},
+    {metric: 'info', field: 'info', caption: 'Information Issues'},
+    {metric: 'ldp', field: 'ldp', caption: 'LDP Approval'},
+    {metric: 'financial', field: 'financial', caption: 'Financial Issues'},
+];
+
 function get_fadama_caption(metric, value) {
     return {
         satisf: {
@@ -188,25 +205,7 @@ function site_name(name, map) {
     }
 }
 
-// function monthly_datapoints(month, metric) {
-//     return month.stats[{
-//         satisf: 'satisfied',
-//         wait: 'wait_bucket',
-//         clean: 'cleanliness',
-//         friendly: 'staff_friendliness',
-//         drugavail: 'drug_availability',
-//         pricedisp: 'price_display'
-//     }[metric]];
-// }
-
 function monthly_datapoints(month, metric) {
-    var key = {
-        satisf: 'satisfied',
-        wait: 'wait_bucket',
-        clean: 'cleanliness',
-        friendly: 'staff_friendliness',
-        drugavail: 'drug_availability',
-        pricedisp: 'price_display'
-    }[metric] || metric;
+    var key = get_pbf_metric_field(metric) || metric;
     return month.stats[key];
 }

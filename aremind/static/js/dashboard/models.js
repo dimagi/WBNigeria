@@ -383,7 +383,8 @@ function FadamaLogModel(data, root) {
 
     this.new_thread_msg = function(type, content) {
         var model = this;
-        $.post('/dashboard/fadama/message/', {
+        var url = $('#message-form').attr('action');
+        $.post(url, {
             report_id: this.id(),
             comment_type: type,
             text: content,

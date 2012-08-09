@@ -49,6 +49,8 @@ $(function() {
         update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
             var val = ko.utils.unwrapObservable(valueAccessor());
 
+	    $(element).text(val ? 'Yes' : 'No');
+	    /*
             $(element).empty();
             if (val != null) {
                 var $img = $('<img />');
@@ -56,6 +58,14 @@ $(function() {
                 $img.attr('alt', val ? 'Yes' : 'No');
                 $(element).append($img);
             }
+	    */
+        }
+    };
+
+    ko.bindingHandlers.caption = {
+        update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+            var val = ko.utils.unwrapObservable(valueAccessor());
+
         }
     };
 

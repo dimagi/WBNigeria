@@ -459,4 +459,4 @@ COUCHDB_APPS = ['auditcare', 'couchlog', 'formplayer', 'couchforms', 'couchexpor
 LOGISTICS_NOTIF_GENERATORS = (
     'aremind.notifications.trigger_place_notifications',
 )
-SYSTEM_USERNAME = None
+SYSTEM_USERNAME = "System"

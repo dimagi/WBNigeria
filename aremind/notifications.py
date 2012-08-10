@@ -1,5 +1,4 @@
 import datetime
-import random
 
 from django.contrib.auth.models import User
 
@@ -9,14 +8,18 @@ from aremind.apps.dashboard.utils.fadama import load_reports, facilities_by_id
 
 
 REPORT_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
-NOTIFICATION_DATE_FORMAT = '%d %B, %Y'
+NOTIFICATION_DATE_FORMAT = '%d %B %Y'
 
 # We generate a notification when no reports have been received from 
 # a particular facility for more than a certain number of days.
-DAYS_BEFORE_NOTIFICATION = datetime.timedelta(days=1)
+DAYS_BEFORE_NOTIFICATION = datetime.timedelta(days=3)
 
 
-class ReportNotificationType(NotificationType):
+class NoRecentReportNotificationType(NotificationType):
+    """
+    Describes the users who should be notified when no recent reports have 
+    been received from a particular facility.
+    """
     escalation_levels = ['everyone']
 
     def users_for_escalation_level(self, esc_level):
@@ -31,8 +34,8 @@ class ReportNotificationType(NotificationType):
 
 def trigger_place_notifications():
     """
-    Creates Notifications for facilities which haven't been heard from in
-    DAYS_BEFORE_NOTIFICATION days.
+    Creates Notifications for facilities which haven't sent in any reports for
+    more than DAYS_BEFORE_NOTIFICATION days.
 
     This method must be run periodically, as through a cron job or Celery.  
     Notification objects are persistent until they are resolved.
@@ -43,9 +46,9 @@ def trigger_place_notifications():
         Creates a Notification object alerting how long it has been since 
         hearing from the facility.
         """
-        alert_type = 'aremind.notifications.ReportNotificationType'
+        alert_type = 'aremind.notifications.NoRecentReportNotificationType'
         notif = Notification(alert_type=alert_type)
-        notif.uid = random.randint(1,10000000000000)
+        notif.uid = 'facility_{0}_idle_since_{1}'.format(str(facility['id']), str(last_heard))
         if last_heard:
             notif.text = ("No new reports have been received from {0} since "
                     "{1}.").format(facility['name'], last_heard.strftime(NOTIFICATION_DATE_FORMAT))

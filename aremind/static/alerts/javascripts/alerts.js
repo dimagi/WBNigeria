@@ -34,7 +34,7 @@ function Alert (div, raw_data) {
         var $comment = alert.render_comment(comment);
         $comments.append($comment);
       });
-    $comments.append('<div id="_newcomment"><input id="newcomment" style="width: 30em;"> <a id="addcomment" href="#">add comment</a><span id="pleasewait">please wait&hellip;</span></div>');
+    $comments.append('<div id="_newcomment"><input id="newcomment" style="width: 30em;"> <a id="addcomment" class="btn btn-primary" href="#">add comment</a><span id="pleasewait">please wait&hellip;</span></div>');
     this._('pleasewait').hide();
     var alert = this;
     this._('addcomment').click(function () { alert.add_comment(); });
@@ -80,7 +80,7 @@ function Alert (div, raw_data) {
   }
 
   this.set_toggle_text = function(expanded) {
-    var caption = (expanded ? 'hide' : 'show ' + (this.num_comments > 0 ? 'comments(' + this.num_comments + ')' : 'history'));
+    var caption = (expanded ? 'hide history' : 'show ' + (this.num_comments > 0 ? 'comments (' + this.num_comments + ')' : 'history'));
     this._('toggle').text(caption);
   }
 

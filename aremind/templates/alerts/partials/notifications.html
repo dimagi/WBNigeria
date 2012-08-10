@@ -1,4 +1,4 @@
-<script language="javascript" type="text/javascript" src="{{MEDIA_URL}}alerts/javascripts/alerts.js"></script>
+<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}alerts/javascripts/alerts.js"></script>
 <script language="javascript" type="text/javascript">
   URLS = {
     addcomment: '{% url alerts.ajax.add_comment %}',
@@ -18,29 +18,35 @@
 <div id="alertpane" class="row-fluid scrollable">
     <div class="span12">
     {% for notif in notifs %}
-        <div class="alert alert-info" id="{{ notif.id }}">
+        <div class="alert alert-info" id="{{ notif.id }}">  <!-- Unique id should be pk; allows us to use bootstrap-alert.js -->
             <p style="float: left;">
-                <span id="status"></span> &mdash; 
                 <span id="msg"></span> 
                 <span id="detail">[<a id="url" href="#">details</a>]</span>
             </p>
-            <div style="float: right;">
+            <span class="pull-right">
                 <span id="actions"></span>
                 &middot; <a id="toggle" href="#"></a>
-            </div>
+            </span>
             <div style="clear: both;"></div>
             <div id="alertdetail">
                 <div id="pendingaction" style="padding: 10px;">
                     add a comment about <span id="commentsnippet"></span>?<br />
                     <input id="actioncomment" style="width: 30em;" /> (optional)<br />
-                    <button id="doaction" style="font-weight: bold;"></button> 
-                    <a id="cancelaction" href="#" style="margin-left: 1em;">cancel</a>
+                    <button id="doaction" class="btn btn-primary"></button> 
+                    <a id="cancelaction" class="btn btn" href="#">cancel</a>
                 </div>
                 <div id="comments" style="padding: 10px;"></div>
             </div>  
         </div>
     {% empty %}
-        <div class="alert success">No current alerts.</div>
+        <div class="alert alert-success" id="alert-success">
+            <p>No current alerts!</p>
+            <span class="pull-right">
+                <a class="btn btn-primary" data-dismiss="alert" data-target="#alert-success">
+                    <i class="icon-white icon-remove"></i>Dismiss
+                </a>
+            </span>
+        </div>
     {% endfor %}
     </div>
 </div>

@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     "djtables",
     "rapidsms",
 
-#    "djcelery",
+    "djcelery",
     "threadless_router.celery",
     "decisiontree",
 

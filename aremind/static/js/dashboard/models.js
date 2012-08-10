@@ -425,14 +425,19 @@ function FadamaLogModel(data, root) {
     });
 
     this.append_text = ko.computed(function() {
-        return ' Include R' + model.id() + ' in any reply.';
-    });
+	    return '';
+	});
 
-    this.prepend_text = 'From fadama: ';
+    this.prepend_text = FC_PREFIX;
 
+    var TOTAL_CHARS = 160;
     this.max_characters = ko.computed(function() {
-        return 160 - model.append_text().length - model.prepend_text.length;
-    });
+	    return TOTAL_CHARS - model.append_text().length - (model.prepend_text + ' ').length;
+	});
+
+    this.chars_remaining = ko.computed(function() {
+	    return this.max_characters() - (this.inquiry() || '').length;
+	}, this);
 }
 
 function CommModel(data) {

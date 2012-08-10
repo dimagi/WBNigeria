@@ -335,13 +335,13 @@ def _get_connection_from_report(report_id):
     connection, _ = Connection.objects.get_or_create(backend=backend, identity='1-555-123-4567')
     return connection
 
+def communicator_prefix():
+    return _('From fadama:')
 
 def message_report_beneficiary(report_id, message_text):
     "Send a message to a user based on a report."
     connection = _get_connection_from_report(report_id)
-    prefix = _('From fadama:')
-    reply_info = _(u'Include R{0} in any reply').format(report_id)
-    template = u'{0} {1} {2}'.format(prefix, message_text, reply_info)
+    template = u'{0} {1}'.format(communicator_prefix(), message_text)
     message = OutgoingMessage(connection=connection, template=template)
     router = Router()
     router.outgoing(message)

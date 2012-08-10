@@ -16,6 +16,11 @@ class DashboardView(mixins.LoginMixin, generic.TemplateView):
 class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/reports.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(ReportView, self).get_context_data(**kwargs)
+        context['fadama_communicator_prefix'] = utils.communicator_prefix()
+        return context
+
 
 class MessageView(generic.CreateView):
     http_method_names = ['post', ]

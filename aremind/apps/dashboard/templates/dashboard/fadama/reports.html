@@ -13,6 +13,7 @@
     }
 
     FC_PREFIX = '{{ fadama_communicator_prefix }}';
+    NOTE_DELETE_URL = '{% url 'fadama_del_message' %}';
 
     $(document).ready(function() {
         detail_report_init();
@@ -161,11 +162,18 @@
                                     <span style="white-space: nowrap;" data-bind="text: date"></span>
                                   </div>
                                   <span style="font-size: 120%" data-bind="text: text"></span>
+				  <img src="{{ STATIC_URL }}images/delete.png" data-bind="visible: type() == 'note', click: delete_note" />
                                 </p>
                             </div>
                             <hr>
                             <div style="margin-left: 15em; padding-top: 1em;">
                                 <form id="message-form" class="form-inline" method="post" action="{% url 'fadama_new_message' %}">
+                                    <label>leave a note for other <b>fadama staff</b></label>
+                                    <input type="text" data-bind="value: note" style="width: 50em" maxlength="160"></input> 
+                                    <button class="btn" data-bind="click: new_note">Save Note</button>
+
+                                    <p style="font-style: italic;">-or-</p>
+
                                     <label>send a message to the <b>beneficiary</b></label>
                                     <div class="input-prepend input-append">
                                         <span class="add-on" data-bind="text: prepend_text, visible: !proxy()"></span>
@@ -173,10 +181,6 @@
 					<span class="add-on" data-bind="text: chars_remaining, visible: (inquiry() || '').length > 0, css: { smslow: chars_remaining() <= 10 }"></span>
                                     </div>
                                     <button type="submit" class="btn" data-bind="disable: proxy, click: send_message">Send</button>
-                                    <p style="font-style: italic;">-or-</p>
-                                    <label>leave a note for other <b>fadama staff</b></label>
-                                    <input type="text" data-bind="value: note" style="width: 50em" maxlength="160"></input> 
-                                    <button class="btn" data-bind="click: new_note">Save Note</button>
                                 </form>
                             </div>
                         </td>

@@ -2,12 +2,12 @@ import json
 
 from django.http import HttpResponse
 from django.views import generic
+from django.contrib.auth.decorators import login_required
 
 from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.models import ReportComment
 from aremind.apps.dashboard.utils import fadama as utils
 from aremind.apps.dashboard.utils import mixins
-
 
 class DashboardView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/dashboard.html'
@@ -62,4 +62,10 @@ def msg_from_bene(request):
     rc.author = '_bene'
     rc.text = request.GET.get('text')
     rc.save()
+    return HttpResponse('ok', 'text/plain')
+
+@login_required
+def del_message(request):
+    id = int(request.POST.get('id'))
+    ReportComment.objects.get(id=id).delete()
     return HttpResponse('ok', 'text/plain')

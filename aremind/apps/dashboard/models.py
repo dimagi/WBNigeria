@@ -20,6 +20,7 @@ class ReportComment(models.Model):
 
     def json(self):
         return {
+            'id': self.id,
             'text': self.text,
             'date_fmt': self.date.strftime('%d/%m/%Y %H:%M'),
             'author': self.author,

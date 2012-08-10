@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^fadama/reports/$', fadama.ReportView.as_view(), name='fadama_reports'),
 
     url(r'^fadama/message/$', fadama.MessageView.as_view(), name='fadama_new_message'),
+    url(r'^fadama/delmessage/$', fadama.del_message, name='fadama_del_message'),
     url(r'^fadama/debug/frombene/$', fadama.msg_from_bene),
 
     url(r'^fadama/api/main/$', fadama.APIMainView.as_view(), name='fadama_api_main'),

@@ -1,25 +1,19 @@
-import re
-
 from rapidsms.apps.base import AppBase
 
 from aremind.apps.dashboard.models import ReportComment
+from aremind.apps.dashboard.utils.fadama import get_inquiry_numbers
 
 
 class CommunicatorApp(AppBase):
-    "Catch messages which are replies to messages sent by the dashboard communicator."
-
-    reply_id_regex = re.compile(r'\bR(?P<report_id>\d+)\b')
+    "Catch messages which might be replies to messages sent by the dashboard communicator."
 
     def handle(self, msg):
-        "Match incoming messages to the reply ID format."
-        match = self.reply_id_regex.search(msg.text)
-        if match:
-            report_id = match.groupdict()['report_id']
-            # TODO: Might need to validate that this number is related to this report
+        "Handle otherwise unhandled message from users related to inquiry messages."
+        if msg.connection.identity in get_inquiry_numbers():
             comment_data = {
-                'report_id': report_id,
+                'report_id': None,
                 'comment_type': ReportComment.REPLY_TYPE,
-                'text': self.reply_id_regex.sub('', msg.text),
+                'text': msg.text,
                 #TODO: Should this be the phone # instead?
                 'author': 'beneficiary',
             }

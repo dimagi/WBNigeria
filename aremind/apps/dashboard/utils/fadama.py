@@ -332,11 +332,26 @@ def _get_connection_from_report(report_id):
     # when report data is hooked up to the backend.
     default_backend = getattr(settings, 'PRIMARY_BACKEND', 'httptester')
     backend, _ = Backend.objects.get_or_create(name=default_backend)
-    connection, _ = Connection.objects.get_or_create(backend=backend, identity='1-555-123-4567')
+    connection, _ = Connection.objects.get_or_create(backend=backend, identity='15551234567')
     return connection
+
+
+def get_inquiry_numbers():
+    "Return all phone numbers tied to a submitted report."
+    # TODO: It might be desirable to filter to comments in a time range.
+    report_ids = ReportComment.objects.filter(
+        comment_type=ReportComment.INQUIRY_TYPE
+    ).values_list('report_id', flat=True)
+    numbers = []
+    for report_id in report_ids:
+        connection = _get_connection_from_report(report_id)
+        numbers.append(connection.identity)
+    return numbers
+
 
 def communicator_prefix():
     return _('From fadama:')
+
 
 def message_report_beneficiary(report_id, message_text):
     "Send a message to a user based on a report."

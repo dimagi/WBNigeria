@@ -66,8 +66,6 @@ class AddMessageTest(CreateDataTest):
             msg = args[0]
             # Original text should be present
             self.assertTrue('Test Note' in msg.text)
-            # Reply ID should be present
-            self.assertTrue('R1234' in msg.text)
             # Prefix text
             self.assertTrue(msg.text.lower().startswith('from fadama'))
 

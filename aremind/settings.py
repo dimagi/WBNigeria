@@ -457,6 +457,6 @@ COUCHDB_APPS = ['auditcare', 'couchlog', 'formplayer', 'couchforms', 'couchexpor
 
 # rapidsms-alerts app.
 LOGISTICS_NOTIF_GENERATORS = (
-    'aremind.notifications.trigger_place_notifications',
+    'aremind.notifications.trigger_idle_facility_notifications',
 )
 SYSTEM_USERNAME = "System"

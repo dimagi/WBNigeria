@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 
 from alerts.models import Notification, NotificationType
+from alerts import utils
 
 from aremind.apps.dashboard.utils.fadama import load_reports, facilities_by_id
 
@@ -12,10 +13,10 @@ NOTIFICATION_DATE_FORMAT = '%d %B %Y'
 
 # We generate a notification when no reports have been received from 
 # a particular facility for more than a certain number of days.
-DAYS_BEFORE_NOTIFICATION = datetime.timedelta(days=3)
+DAYS_BEFORE_NOTIFICATION = datetime.timedelta(days=7)
 
 
-class NoRecentReportNotificationType(NotificationType):
+class IdleFacilityNotificationType(NotificationType):
     """
     Describes the users who should be notified when no recent reports have 
     been received from a particular facility.
@@ -32,30 +33,46 @@ class NoRecentReportNotificationType(NotificationType):
         return 'Everyone'
 
 
-def trigger_place_notifications():
+def trigger_idle_facility_notifications():
     """
     Creates Notifications for facilities which haven't sent in any reports for
     more than DAYS_BEFORE_NOTIFICATION days.
 
     This method must be run periodically, as through a cron job or Celery.  
-    Notification objects are persistent until they are resolved.
+    Notification objects are persistent until they are resolved. If a recent
+    report has been received from a facility, then open idle notifications are
+    resolved.
     """
 
-    def _create_place_notification(facility, last_heard=None):
+    def _get_uid(facility):
+        """A unique way to identify idle notifications for a facility."""
+        return 'facility_{0}_idle'.format(str(facility['id']))
+
+    def _create_place_notification(facility, last_heard):
         """
         Creates a Notification object alerting how long it has been since 
         hearing from the facility.
         """
-        alert_type = 'aremind.notifications.NoRecentReportNotificationType'
+        alert_type = 'aremind.notifications.IdleFacilityNotificationType'
         notif = Notification(alert_type=alert_type)
-        notif.uid = 'facility_{0}_idle_since_{1}'.format(str(facility['id']), str(last_heard))
-        if last_heard:
-            notif.text = ("No new reports have been received from {0} since "
-                    "{1}.").format(facility['name'], last_heard.strftime(NOTIFICATION_DATE_FORMAT))
-        else:
-            notif.text = ("No new reports have been received recently from "
-                    "{0}.").format(facility['name'])
+        notif.uid = _get_uid(facility)
+        notif.text = ("No new reports have been received from {0} since "
+                "{1}.").format(facility['name'], 
+                last_heard.strftime(NOTIFICATION_DATE_FORMAT))
         return notif
+
+    def _resolve_open_notifications(facility, last_heard):
+        """Resolves any open idle notifications for this facility."""
+        uid = _get_uid(facility)
+        notifs = Notification.objects.filter(uid=uid, is_open=True)
+        for notif in notifs: 
+            notif.resolve()
+            notif.save()
+            text = ("This issue was automatically resolved because a "
+                    "notification was received at {0}.").format(
+                    last_heard.strftime(NOTIFICATION_DATE_FORMAT))
+            utils.add_user_comment(alert=notif, user=None, text=text)   
+
 
     reports = load_reports()  # Loads example data.
     facilities = facilities_by_id()  # Loads example data.
@@ -72,10 +89,12 @@ def trigger_place_notifications():
         if recent_reports[facility] == None or timestamp > recent_reports[facility]:
             recent_reports[facility] = timestamp
     
-    # Generate a notification for any facility that hasn't received
-    # a report recently.
+    # Generate a notification for any facility that hasn't received a report 
+    # recently, and resolve open notifications for facilities that are no 
+    # longer idle.
     for facility in recent_reports:
-        print "{0}: {1}".format(facilities[facility]['name'], recent_reports[facility])
-        if not recent_reports[facility] or now - recent_reports[facility] > DAYS_BEFORE_NOTIFICATION:
-            yield _create_place_notification(facilities[facility], recent_reports[facility])
-
+        last_heard = recent_reports[facility]
+        if not last_heard or now - last_heard > DAYS_BEFORE_NOTIFICATION:
+            yield _create_place_notification(facilities[facility], last_heard)
+        else:
+            _resolve_open_notifications(facilities[facility], last_heard)

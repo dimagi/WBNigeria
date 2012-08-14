@@ -32,7 +32,7 @@ chardet==1.0.1
 rsa==3.1.1
 pyasn1==0.1.3
 django-selectable==0.2.0
-rapidsms-threadless-router==0.1.2
+rapidsms-threadless-router==0.1.3
 rapidsms-tropo==0.1.1
 -e git+https://github.com/dimagi/rapidsms.git#egg=rapidsms
 -e git+https://github.com/adammck/djtables#egg=djtables

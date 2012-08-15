@@ -31,6 +31,7 @@ sys.path.append(os.path.join(filedir,'..','submodules','formdesigner'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'touchforms'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'rapidsms-smsforms'))
 sys.path.append(os.path.join(filedir, '..', 'submodules', 'rapidsms-xforms'))
+sys.path.append(os.path.join(filedir, '..', 'submodules', 'rapidsms-alerts'))
 #sys.path.append(os.path.join('/', 'home/aremind/www/production/python_env/lib/python2.6/site-packages'))
 
 if __name__ == "__main__":

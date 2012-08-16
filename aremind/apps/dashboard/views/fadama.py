@@ -21,8 +21,11 @@ class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
         context['fadama_communicator_prefix'] = utils.communicator_prefix()
         return context
 
-def test(request, contact):
-    return HttpResponse(contact)
+class LogsForContactView(mixins.LoginMixin, generic.TemplateView):
+    template_name = 'dashboard/fadama/logs_for_contact.html'
+
+    def get_context_data(self, **kwargs):
+        return {'a': 'b'}
 
 class MessageView(generic.CreateView):
     http_method_names = ['post', ]

@@ -451,3 +451,8 @@ LOGGING = {
 }
 
 COUCHDB_APPS = ['auditcare', 'couchlog', 'formplayer', 'couchforms', 'couchexport']
+
+
+from datetime import timedelta
+RECENT_REPORTS_FROM_SAME_PHONE_WINDOW = timedelta(weeks=6)
+COMMUNICATOR_RESPONSE_WINDOW = timedelta(weeks=3)

@@ -344,6 +344,8 @@ function FadamaLogModel(data, root) {
     this.thread = ko.observableArray($.map(data.thread, function(c) {
 		return new CommModel(c, model);
     }));
+    this.contact = ko.observable(data.contact);
+    this.other_recent = ko.observable(data.from_same.length);
 
     this.root = root;
 

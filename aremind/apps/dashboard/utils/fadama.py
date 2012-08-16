@@ -123,12 +123,18 @@ def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
     comments = ReportComment.objects.all()
     by_report = map_reduce(comments, lambda c: [(c.report_id, c)])
 
+    def _ts(r):
+        return datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
+
     for r in reports:
         anonymize_contact(r)
-        ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
-        r['month'] = ts.strftime('%b %Y')
-        r['_month'] = ts.strftime('%Y-%m')
+        r['month'] = _ts(r).strftime('%b %Y')
+        r['_month'] = _ts(r).strftime('%Y-%m')
         r['thread'] = [c.json() for c in sorted(by_report.get(r['id'], []), key=lambda c: c.date)]
+
+    reports_by_contact = map_reduce(reports, lambda r: [(r['contact'], r)])
+    for r in reports:
+        r['from_same'] = [k['id'] for k in reports_by_contact[r['contact']] if k != r and abs(_ts(r) - _ts(k)) <= settings.RECENT_REPORTS_FROM_SAME_PHONE_WINDOW]
 
     return reports
 

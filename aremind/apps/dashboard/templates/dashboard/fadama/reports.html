@@ -14,6 +14,7 @@
 
     FC_PREFIX = '{{ fadama_communicator_prefix }}';
     NOTE_DELETE_URL = '{% url 'fadama_del_message' %}';
+    PER_CONTACT_URL_TEMPL = '{% url 'fadama_contact_detail' 'xxx' %}';
 
     $(document).ready(function() {
         detail_report_init();
@@ -152,6 +153,8 @@
                     </tr>
                     <tr data-bind="visible: is_relevant($root) && expanded()">
                         <td colspan="8">
+			  <div class="alert alert-info" data-bind="visible: other_recent">Note: there are <a data-bind="attr: { href: PER_CONTACT_URL_TEMPL.replace('xxx', contact()) }"><span data-bind="text: other_recent"></span> other recent reports</a> from this beneficiary</div>
+
                             <div data-bind="foreach: thread">
                                 <p style="margin: .5em 6em; clear: both;">
                                   <div style="float: left; width: 30em; text-align: right; margin-right: 3em; font-style: italic;">

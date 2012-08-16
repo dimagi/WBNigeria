@@ -12,6 +12,7 @@ urlpatterns = patterns('',
 
     url(r'^fadama/$', fadama.DashboardView.as_view(), name='fadama_dashboard'),
     url(r'^fadama/reports/$', fadama.ReportView.as_view(), name='fadama_reports'),
+    url(r'^fadama/reports/from/(?P<contact>\w+)/$', fadama.test, name='fadama_contact_detail'),
 
     url(r'^fadama/message/$', fadama.MessageView.as_view(), name='fadama_new_message'),
     url(r'^fadama/delmessage/$', fadama.del_message, name='fadama_del_message'),

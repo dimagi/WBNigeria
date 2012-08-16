@@ -8,7 +8,7 @@ from alerts import utils
 from aremind.apps.dashboard.utils.fadama import load_reports, facilities_by_id
 
 
-REPORT_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+REPORT_TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S'  # 'timestamp' column of a report
 NOTIFICATION_DATE_FORMAT = '%d %B %Y'
 
 # We generate a notification when no reports have been received from 
@@ -85,7 +85,7 @@ def trigger_idle_facility_notifications():
     for report in reports:
         facility = report['facility']
         try:
-            timestamp = datetime.datetime.strptime(report['timestamp'], REPORT_DATE_FORMAT)
+            timestamp = datetime.datetime.strptime(report['timestamp'], REPORT_TIMESTAMP_FORMAT)
         except ValueError: # Skip reports with bad date format.
             continue
         if recent_reports[facility] == None or timestamp > recent_reports[facility]:

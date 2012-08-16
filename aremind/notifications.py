@@ -56,9 +56,11 @@ def trigger_idle_facility_notifications():
         alert_type = 'aremind.notifications.IdleFacilityNotificationType'
         notif = Notification(alert_type=alert_type)
         notif.uid = _get_uid(facility)
-        notif.text = ("No new reports have been received from {0} since "
-                "{1}.").format(facility['name'], 
-                last_heard.strftime(NOTIFICATION_DATE_FORMAT))
+        notif.text = ("No new reports have been received from {0}").format(facility['name'])
+        if not last_heard:
+            notif.text += " ever."
+        else:
+            notif.text += "since {0}.".format(last_heard.strftime(NOTIFICATION_DATE_FORMAT))
         return notif
 
     def _resolve_open_notifications(facility, last_heard):
@@ -74,10 +76,10 @@ def trigger_idle_facility_notifications():
             utils.add_user_comment(alert=notif, user=None, text=text)   
 
 
-    reports = load_reports()  # Loads example data.
     facilities = facilities_by_id()  # Loads example data.
+    reports = load_reports()  # Loads example data.
     now = datetime.datetime.now()
- 
+
     # Map facility id to most recent report dates.
     recent_reports = dict(zip(facilities.keys(), [None for f in facilities.keys()])) 
     for report in reports:

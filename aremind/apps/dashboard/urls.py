@@ -18,5 +18,7 @@ urlpatterns = patterns('',
 
     url(r'^fadama/api/main/$', fadama.APIMainView.as_view(), name='fadama_api_main'),
     url(r'^fadama/api/detail/$', fadama.APIDetailView.as_view(), name='fadama_api_detail'),
+
+    url(r'^fadama/dismiss/(?P<notification_id>\d+)/$', fadama.DismissNotification.as_view(), name='fadama_dismiss_alert'),
 )
 

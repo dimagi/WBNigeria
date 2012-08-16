@@ -13,7 +13,7 @@ NOTIFICATION_DATE_FORMAT = '%d %B %Y'
 
 # We generate a notification when no reports have been received from 
 # a particular facility for more than a certain number of days.
-DAYS_BEFORE_NOTIFICATION = datetime.timedelta(days=7)
+PERIOD_BEFORE_NOTIFICATION = datetime.timedelta(days=7)
 
 
 class IdleFacilityNotificationType(NotificationType):
@@ -36,7 +36,7 @@ class IdleFacilityNotificationType(NotificationType):
 def trigger_idle_facility_notifications():
     """
     Creates Notifications for facilities which haven't sent in any reports for
-    more than DAYS_BEFORE_NOTIFICATION days.
+    more than PERIOD_BEFORE_NOTIFICATION days.
 
     This method must be run periodically, as through a cron job or Celery.  
     Notification objects are persistent until they are resolved. If a recent
@@ -96,7 +96,7 @@ def trigger_idle_facility_notifications():
     # longer idle.
     for facility in recent_reports:
         last_heard = recent_reports[facility]
-        if not last_heard or now - last_heard > DAYS_BEFORE_NOTIFICATION:
+        if not last_heard or now - last_heard > PERIOD_BEFORE_NOTIFICATION:
             yield _create_place_notification(facilities[facility], last_heard)
         else:
             _resolve_open_notifications(facilities[facility], last_heard)

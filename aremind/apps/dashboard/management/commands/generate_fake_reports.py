@@ -76,10 +76,14 @@ class Command(BaseCommand):
         "Lorem Ipsum message."
         return lorem_ipsum.sentence()
 
+    def make_contact(self):
+        return '0' + ''.join(str(random.randint(0, 9)) for i in range(9))
+
     def generate_pbf_report(self, index):
         "Additional PBF report fields."
         report = self.generate_report(index)
         report.update({
+                'contact': self.make_contact(),
                 'facility': random.choice(utils.pbf.FACILITIES)['id'],
                 'waiting_time': random.randint(0, 7),
                 'staff_friendliness': true_false(),
@@ -104,6 +108,7 @@ class Command(BaseCommand):
             complaint_subtype = true_false()
 
         report.update({
+                'contact': self.make_contact(),
                 'facility': facility['id'],
                 'fug': random.choice(facility['fugs']),
                 'satisfied': satisfied,

@@ -4,6 +4,7 @@ from datetime import datetime
 from django.conf import settings
 
 from aremind.apps.utils.functional import map_reduce
+import fadama
 
 
 FACILITIES = [
@@ -42,6 +43,7 @@ def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
     wait_buckets = [(2, '<2'), (4, '2-4'), (None, '>4')]
 
     for r in reports:
+        fadama.anonymize_contact(r)
         ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')

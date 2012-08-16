@@ -1,6 +1,7 @@
 import json
 import random
 from datetime import datetime
+import hashlib
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -105,6 +106,12 @@ FACILITIES = [
 def facilities_by_id():
     return map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
 
+def anonymizer(val, len=12):
+    salt = 'utbzembsanxp0'
+    return hashlib.sha1(salt + val).hexdigest()[:len]
+
+def anonymize_contact(r, anonfunc=anonymizer):
+    r['contact'] = anonfunc(r['contact'])
 
 def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
     with open(path) as f:
@@ -117,6 +124,7 @@ def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
     by_report = map_reduce(comments, lambda c: [(c.report_id, c)])
 
     for r in reports:
+        anonymize_contact(r)
         ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')

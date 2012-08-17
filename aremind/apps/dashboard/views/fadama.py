@@ -75,8 +75,14 @@ class DismissNotification(mixins.LoginMixin, generic.View):
     def delete(self, request, *args, **kwargs):
         "Delete the NotificationVisibility for this user/notification pair."
         notification_id = kwargs['notification_id']
-        NotificationVisibility.objects.filter(notif=notification_id, user=self.request.user).delete()
-        return HttpResponse('', mimetype='application/json')
+        user = self.request.user
+        visibility = user.alerts_visible.filter(pk=notification_id)
+        if visibility.exists():
+            visibility.delete()
+            status = 200
+        else:
+            status = 204        
+        return HttpResponse('', status=status, mimetype='application/json')
 
     def post(self, request, *args, **kwargs):
         "Browsers don't support HTTP DELETE so call the delete from a POST."

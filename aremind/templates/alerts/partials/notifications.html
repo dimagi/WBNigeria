@@ -1,49 +1,31 @@
-<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}alerts/javascripts/alerts.js"></script>
+{% load url from future %}
 <script language="javascript" type="text/javascript">
-  URLS = {
-    addcomment: '{% url alerts.ajax.add_comment %}',
-    takeaction: '{% url alerts.ajax.alert_action %}',
-  }
-
-  ALERTS_RAW = {{ notif_data|safe }};
-
-  $(document).ready(function() {
-    $(ALERTS_RAW).each(function(i, raw_alert) {
-      var alert = new Alert($('#' + raw_alert.id), raw_alert);
-        alert.init_render();
+    $(document).ready(function() {
+        $('.btn.dismiss').bind('click', function(event) {
+            $.post($(this).attr('href'));
+        });
     });
-  });
 </script>
-
 <div id="alertpane" class="row-fluid scrollable">
     <div class="span12">
     {% for notif in notifs %}
-        <div class="alert alert-info" id="{{ notif.id }}">  <!-- Unique id should be pk; allows us to use bootstrap-alert.js -->
-            <p style="float: left;">
-                <span id="msg"></span> 
-                <span id="detail">[<a id="url" href="#">details</a>]</span>
+        <div class="alert alert-info" id="alert-{{ notif.id }}">  <!-- Unique id should be pk; allows us to use bootstrap-alert.js -->
+            <p>
+                <span id="msg">{{ notif.text }}</span> 
+                {# <span id="detail">[<a id="url" href="#">details</a>]</span> #}
             </p>
             <span class="pull-right">
-                <span id="actions"></span>
-                &middot; <a id="toggle" href="#"></a>
+                <a class="btn btn-primary dismiss" data-dismiss="alert" data-target="#alert-{{ notif.id }}" href="{% url 'fadama_dismiss_alert' notif.id %}">
+                    Dismiss <i class="icon-white icon-remove"></i>
+                </a>
             </span>
-            <div style="clear: both;"></div>
-            <div id="alertdetail">
-                <div id="pendingaction" style="padding: 10px;">
-                    add a comment about <span id="commentsnippet"></span>?<br />
-                    <input id="actioncomment" style="width: 30em;" /> (optional)<br />
-                    <button id="doaction" class="btn btn-primary"></button> 
-                    <a id="cancelaction" class="btn btn" href="#">cancel</a>
-                </div>
-                <div id="comments" style="padding: 10px;"></div>
-            </div>  
         </div>
     {% empty %}
         <div class="alert alert-success" id="alert-success">
             <p>No current alerts!</p>
             <span class="pull-right">
                 <a class="btn btn-primary" data-dismiss="alert" data-target="#alert-success">
-                    <i class="icon-white icon-remove"></i>Dismiss
+                    Dismiss <i class="icon-white icon-remove"></i>
                 </a>
             </span>
         </div>

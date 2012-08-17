@@ -120,7 +120,7 @@ def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
     facs = facilities_by_id()
     reports = [r for r in reports if state is None or state == facs[r['facility']]['state']]
 
-    comments = ReportComment.objects.all()
+    comments = ReportComment.objects.all() # TODO: not scalable
     by_report = map_reduce(comments, lambda c: [(c.report_id, c)])
 
     def _ts(r):
@@ -131,8 +131,10 @@ def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
         r['month'] = _ts(r).strftime('%b %Y')
         r['_month'] = _ts(r).strftime('%Y-%m')
         r['thread'] = [c.json() for c in sorted(by_report.get(r['id'], []), key=lambda c: c.date)]
+        r['display_time'] = _ts(r).strftime('%d/%m/%y %H:%M')
+        r['site_name'] = facs[r['facility']]['name']
 
-    reports_by_contact = map_reduce(reports, lambda r: [(r['contact'], r)])
+    reports_by_contact = map_reduce((r for r in reports if not r['proxy']), lambda r: [(r['contact'], r)])
     for r in reports:
         r['from_same'] = [k['id'] for k in reports_by_contact[r['contact']] if k != r and abs(_ts(r) - _ts(k)) <= settings.RECENT_REPORTS_FROM_SAME_PHONE_WINDOW]
 
@@ -319,11 +321,7 @@ def detail_stats(facility_id, user_state):
     data = load_reports(user_state)
 
     facilities = facilities_by_id()
-
     filtered_data = [r for r in data if facility_id is None or r['facility'] == facility_id]
-    for r in filtered_data:
-        r['display_time'] = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S').strftime('%d/%m/%y %H:%M')
-        r['site_name'] = facilities[r['facility']]['name']
 
     def month_detail(data, label):
         categories = ['satisfied']
@@ -339,6 +337,8 @@ def detail_stats(facility_id, user_state):
 
     return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
 
+def logs_for_contact(contact):
+    return sorted([r for r in load_reports() if r['contact'] == contact and not r['proxy']], key=lambda r: r['timestamp'], reverse=True)
 
 def _get_connection_from_report(report_id):
     "Return connection for user which submitted a given report."

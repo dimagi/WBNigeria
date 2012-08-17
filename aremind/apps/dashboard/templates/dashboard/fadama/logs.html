@@ -36,7 +36,7 @@
                     </tr>
                     <tr data-bind="visible: is_relevant($root) && expanded()">
                         <td colspan="8">
-			  <div class="alert alert-info" data-bind="visible: other_recent">Note: there are <a data-bind="attr: { href: PER_CONTACT_URL_TEMPL.replace('xxx', contact()) }"><span data-bind="text: other_recent"></span> other recent reports</a> from this beneficiary</div>
+			  <div class="alert alert-info" data-bind="visible: other_recent">Note: there are <a target="_blank" data-bind="attr: { href: PER_CONTACT_URL_TEMPL.replace('xxx', contact()) }"><span data-bind="text: other_recent"></span> other recent reports</a> from this beneficiary</div>
 
                             <div data-bind="foreach: thread">
                                 <p style="margin: .5em 6em; clear: both;">

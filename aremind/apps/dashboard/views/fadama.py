@@ -25,7 +25,7 @@ class LogsForContactView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/logs_for_contact.html'
 
     def get_context_data(self, **kwargs):
-        return {'a': 'b'}
+        return {'logs': json.dumps(utils.logs_for_contact(kwargs['contact']))}
 
 class MessageView(generic.CreateView):
     http_method_names = ['post', ]

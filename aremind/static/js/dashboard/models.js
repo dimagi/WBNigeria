@@ -298,6 +298,14 @@ function FadamaDetailViewModel() {
     };
 }
 
+function FadamaLogsForContactModel(data) {
+    this.active_metric = ko.observable('all');
+    this.active_fug = ko.observable('All FUGs');
+    this.active_subcategory = ko.observable({val: 'all'});
+
+    this.active_month = ko.observable(new FadamaMonthlyDetailModel({logs: data}, this));
+}
+
 function FadamaFacilityModel(data) {
     this.id = ko.observable(data.id);
     this.name = ko.observable(data.name);

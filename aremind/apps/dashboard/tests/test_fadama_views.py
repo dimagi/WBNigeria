@@ -106,7 +106,7 @@ class DismissNotificationTest(CreateDataTest):
             'uid': self.random_string(),
             'escalated_on': datetime.datetime.now(),
             'text': self.random_string(),
-            'alert_type': 'aremind.notifications.IdleFacilityNotificationType',
+            'alert_type': 'aremind.notifications.idle_facilities.IdleFacilityNotificationType',
             'escalation_level': 'everyone',
         }
         defaults.update(kwargs)

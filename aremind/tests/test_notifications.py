@@ -11,7 +11,7 @@ from aremind.tests.testcases import CreateDataTest
 
 
 class IdleFacilityNotificationsTestCase(CreateDataTest):
-    """Test cases for generations of application-specific Notifications."""
+    """Test cases for generation of idle facility Notifications."""
 
     def setUp(self):
         super(IdleFacilityNotificationsTestCase, self).setUp()
@@ -62,35 +62,47 @@ class IdleFacilityNotificationsTestCase(CreateDataTest):
                 management.call_command('trigger_alerts')
 
     def test_notification_no_reports(self):
-        """A notification is created when a facility has no reports."""
+        """Notification is generated when a facility has no reports."""
         facility = self._add_facility()
         notifs = self._generate_notifications()
         self.assertEquals(len(notifs), 1)
 
     def test_notification_past_report(self):
-        """A notification is created when a facility has no recent reports."""
+        """Notification is generated when a facility has no recent reports."""
         facility = self._add_facility()
         report = self._add_report(data={'facility': facility['id']}, timestamp=self.past)
         notifs = self._generate_notifications()
         self.assertEquals(len(notifs), 1)
 
     def test_no_notification(self):
-        """No notification is created when a facility has recent reports."""
+        """No Notification is generated when a facility has a recent report."""
         facility = self._add_facility()
         report = self._add_report(data={'facility': facility['id']}, timestamp=self.recently)
         notifs = self._generate_notifications()
         self.assertEquals(len(notifs), 0)
     
-    def test_notification_autoresolve(self):
-        """Open Notifications are resolved when a new report is received."""
+    def test_notification_delete(self):
+        """Open Notifications are deleted when a new report is received."""
         facility = self._add_facility()
-        notifs = self._generate_notifications()
+        self._trigger_alerts()  # management command to save notifs to database
         report = self._add_report(data={'facility': facility['id']}, timestamp=self.recently)
         notifs = self._generate_notifications()
         self.assertEquals(len(notifs), 0)
+        self.assertEquals(Notification.objects.count(), 0)
+
+    def test_update_notification(self):
+        """Notification is updated with up-to-date information."""
+        facility = self._add_facility()
+        self._trigger_alerts()  # management command to save notifs to database
+        notif_pre = Notification.objects.get()
+        report = self._add_report(data={'facility': facility['id']}, timestamp=self.past)
+        self._trigger_alerts()
+        notif_post = Notification.objects.get()
+        self.assertEquals(notif_pre.id, notif_post.id)
+        self.assertNotEquals(notif_pre.text, notif_post.text)
 
     def test_notification_persists(self):
-        """Notification does not resolve if no new report is received."""
+        """Notification persists when no new report is received."""
         facility = self._add_facility()
         notifs = self._generate_notifications()
         notifs = self._generate_notifications()
@@ -117,7 +129,7 @@ class IdleFacilityNotificationsTestCase(CreateDataTest):
         """New notifications should be visible to all users."""
         user2 = self.create_user()
         facility = self._add_facility()
-        self._trigger_alerts()
+        self._trigger_alerts()  # management command so that Visibility is added
         notif = Notification.objects.get()
         
         self.assertEquals(NotificationVisibility.objects.filter(

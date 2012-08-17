@@ -77,7 +77,9 @@ class Command(BaseCommand):
         return lorem_ipsum.sentence()
 
     def make_contact(self):
-        return '0' + ''.join(str(random.randint(0, 9)) for i in range(9))
+        #phone_num_len = 2 # ensures lots of collisions from same phone numbers
+        phone_num_len = 9
+        return '0' + ''.join(str(random.randint(0, 9)) for i in range(phone_num_len))
 
     def generate_pbf_report(self, index):
         "Additional PBF report fields."

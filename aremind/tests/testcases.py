@@ -3,9 +3,10 @@ import random
 import string
 from contextlib import contextmanager
 
-from django.test import TestCase
-from django.db import DEFAULT_DB_ALIAS
+from django.contrib.auth.models import User
 from django.core.management import call_command
+from django.db import DEFAULT_DB_ALIAS
+from django.test import TestCase
 
 from rapidsms.models import Connection, Contact, Backend
 from threadless_router.tests.scripted import TestScript
@@ -110,6 +111,13 @@ class CreateDataTest(TestCase):
         }
         defaults.update(data)
         return defaults
+
+    def create_user(self, username=None, password=None, email=None):
+        username = username or self.random_string(25)
+        password = password or self.random_string(25)
+        email = email or self.random_string(10) + '@example.com'
+        user = User.objects.create_user(username, email, password)
+        return user
 
 
 class FlushTestScript(TestScript):

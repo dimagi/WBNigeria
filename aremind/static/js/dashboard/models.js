@@ -303,7 +303,19 @@ function FadamaLogsForContactModel(data) {
     this.active_fug = ko.observable('All FUGs');
     this.active_subcategory = ko.observable({val: 'all'});
 
+    $.each(data, function(i, e) {
+	    e.from_same = [];
+	});
+
     this.active_month = ko.observable(new FadamaMonthlyDetailModel({logs: data}, this));
+
+    this.collapse_logs = function(active) {
+	$.each(this.active_month().logs(), function(i, e) {
+                if (e != active) {
+                    e.expanded(false);
+                }
+            });
+    };
 }
 
 function FadamaFacilityModel(data) {

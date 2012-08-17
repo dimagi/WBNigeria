@@ -59,6 +59,8 @@ function PBFDetailViewModel() {
     this.active_metric = ko.observable(DEFAULT_METRIC || null);
     this.active_month = ko.observable();
 
+    var model = this;
+
     this.load = function(data) {
         if (this.facilities().length === 0) {
             var facs = $.map(data.facilities, function(f) {
@@ -77,8 +79,8 @@ function PBFDetailViewModel() {
 
         var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
         this.monthly($.map(data.monthly, function(m) {
-            return new PbfMonthlyDetailModel(m);
-        }));
+		    return new PbfMonthlyDetailModel(m, model);
+		}));
         this.active_month(this.monthly.slice(active_month_ix)[0]);
     };
 
@@ -148,16 +150,16 @@ function PbfFacilityModel(data) {
     this.name = ko.observable(data.name);
 }
 
-function PbfMonthlyDetailModel(data) {
+function PbfMonthlyDetailModel(data, root) {
     this.logs = ko.observableArray($.map(data.logs, function(l) {
-        return new PbfLogModel(l);
+		return new PbfLogModel(l, root);
     }));
     this.month_label = ko.observable(data.month);
     this.stats = data.stats;
     this.clinic_totals = data.clinic_totals;
 }
 
-function PbfLogModel(data) {
+function PbfLogModel(data, root) {
         this.id = ko.observable(data.id);
         this.site = ko.observable(data.site_name);
         this.date = ko.observable(data.display_time);
@@ -168,6 +170,8 @@ function PbfLogModel(data) {
         this.drugs_avail = ko.observable(data.drug_availability);
         this.price_display = ko.observable(data.price_display);
         this.message = ko.observable(data.message);
+
+	this.root = root;
 
         this.disp_wait = ko.computed(function() {
             return {
@@ -329,6 +333,8 @@ function FadamaMonthlyDetailModel(data, root) {
 }
 
 function FadamaLogModel(data, root) {
+    var model = this;
+
     this.id = ko.observable(data.id);
     this.site = ko.observable(data.site_name);
     this.fug = ko.observable(data.fug);
@@ -336,8 +342,10 @@ function FadamaLogModel(data, root) {
     this.satisfied = ko.observable(data.satisfied);
     this.proxy = ko.observable(data.proxy);
     this.thread = ko.observableArray($.map(data.thread, function(c) {
-        return new CommModel(c);
+		return new CommModel(c, model);
     }));
+
+    this.root = root;
 
     this.expanded = ko.observable(false);
     this.toggle = function() {
@@ -383,13 +391,14 @@ function FadamaLogModel(data, root) {
 
     this.new_thread_msg = function(type, content) {
         var model = this;
-        $.post('/dashboard/fadama/message/', {
+        var url = $('#message-form').attr('action');
+        $.post(url, {
             report_id: this.id(),
             comment_type: type,
             text: content,
             author: 'demo user'
         }, function(data) {
-            model.thread.push(new CommModel(data));
+            model.thread.push(new CommModel(data, model));
             model[type == 'inquiry' ? 'inquiry' : 'note'](null);
             if (type == 'inquiry') {
                 alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
@@ -422,9 +431,25 @@ function FadamaLogModel(data, root) {
             model.expanded(false);
         }
     });
+
+    this.append_text = ko.computed(function() {
+	    return '';
+	});
+
+    this.prepend_text = FC_PREFIX;
+
+    var TOTAL_CHARS = 160;
+    this.max_characters = ko.computed(function() {
+	    return TOTAL_CHARS - model.append_text().length - (model.prepend_text + ' ').length;
+	});
+
+    this.chars_remaining = ko.computed(function() {
+	    return this.max_characters() - (this.inquiry() || '').length;
+	}, this);
 }
 
-function CommModel(data) {
+function CommModel(data, thread) {
+    this.id = data.id;
     this.author = ko.observable(data.author);
     this.type = ko.observable(data.type);
     this.date = ko.observable(data.date_fmt);
@@ -440,4 +465,25 @@ function CommModel(data) {
             return ['response', 'from', 'beneficiary'];
         }
     });
+
+    this.delete_note = function() {
+	if (!confirm('Are you sure you want to delete this note?')) {
+	    return;
+	}
+
+        var model = this;
+        $.post(NOTE_DELETE_URL, {id: this.id}, function(data) {
+		var ix = -1;
+		$.each(thread.thread(), function(i, e) {
+			if (e == model) {
+			    ix = i;
+			    return false;
+			}
+		    });
+		if (ix != -1) {
+		    thread.thread.splice(ix, 1);
+		}
+	    });
+    }
+
 }

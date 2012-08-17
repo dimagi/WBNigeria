@@ -4,6 +4,11 @@ from datetime import datetime
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
+
+from rapidsms.messages.outgoing import OutgoingMessage
+from rapidsms.models import Backend, Connection
+from threadless_router.router import Router
 
 from aremind.apps.dashboard.models import ReportComment
 from aremind.apps.utils.functional import map_reduce
@@ -319,3 +324,39 @@ def detail_stats(facility_id, user_state):
         }
 
     return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
+
+
+def _get_connection_from_report(report_id):
+    "Return connection for user which submitted a given report."
+    # FIXME: Currently uses a dummy connection. Needs to get correct connection
+    # when report data is hooked up to the backend.
+    default_backend = getattr(settings, 'PRIMARY_BACKEND', 'httptester')
+    backend, _ = Backend.objects.get_or_create(name=default_backend)
+    connection, _ = Connection.objects.get_or_create(backend=backend, identity='15551234567')
+    return connection
+
+
+def get_inquiry_numbers():
+    "Return all phone numbers tied to a submitted report."
+    # TODO: It might be desirable to filter to comments in a time range.
+    report_ids = ReportComment.objects.filter(
+        comment_type=ReportComment.INQUIRY_TYPE
+    ).values_list('report_id', flat=True)
+    numbers = []
+    for report_id in report_ids:
+        connection = _get_connection_from_report(report_id)
+        numbers.append(connection.identity)
+    return numbers
+
+
+def communicator_prefix():
+    return _('From fadama:')
+
+
+def message_report_beneficiary(report_id, message_text):
+    "Send a message to a user based on a report."
+    connection = _get_connection_from_report(report_id)
+    template = u'{0} {1}'.format(communicator_prefix(), message_text)
+    message = OutgoingMessage(connection=connection, template=template)
+    router = Router()
+    router.outgoing(message)

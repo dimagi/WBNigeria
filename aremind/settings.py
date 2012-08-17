@@ -75,8 +75,6 @@ INSTALLED_APPS = [
     "aremind.apps.adherence",
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
-    'aremind.apps.dashboard',
-
 
     "eav",
     "uni_form",
@@ -102,6 +100,7 @@ INSTALLED_APPS = [
 #    "timezones",
 
     "couchlog",
+    "aremind.apps.dashboard",
     # this app should be last, as it will always reply with a help message
     "aremind.apps.catch_all",
 ]

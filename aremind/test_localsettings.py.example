@@ -41,7 +41,7 @@ INSTALLED_BACKENDS = {
 # south configuration
 SKIP_SOUTH_TESTS = True
 
-PRIMARY_BACKEND = ''
+PRIMARY_BACKEND = 'httptester'
 DEFAULT_BACKEND_NAME = 'test-backend'
 
 ADMINS = (

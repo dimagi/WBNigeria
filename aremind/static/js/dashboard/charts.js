@@ -53,7 +53,26 @@ ko.bindingHandlers.satisfaction_piechart = {
 
 ko.bindingHandlers.pbf_category_barchart = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        google.setOnLoadCallback(function() {
+	category_barchart_init(element, valueAccessor, 'pbf', pbf_categories);
+    },
+
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+	category_barchart_update(element, valueAccessor, pbf_categories);
+    }
+};
+
+ko.bindingHandlers.fadama_category_barchart = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+	category_barchart_init(element, valueAccessor, 'fadama', fadama_categories);
+    },
+
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+	category_barchart_update(element, valueAccessor, fadama_categories);
+    }
+};
+
+function category_barchart_init(element, valueAccessor, mode, categories) {
+    google.setOnLoadCallback(function() {
             var options = {
                 vAxis: {
                     textPosition: 'left'
@@ -71,10 +90,15 @@ ko.bindingHandlers.pbf_category_barchart = {
                 containerId: $(element).attr('id')
             });
 
+	    var metrics = [];
+	    $.each(categories, function(i, e) {
+		    metrics.push(e.metric);
+		});
+
             var bar_clicked = function() {
                 var opt = element.wrapper.getChart().getSelection()[0].row;
-                var metric = ['wait', 'friendly', 'pricedisp', 'drugavail', 'clean'][opt];
-                window.location.href = '/dashboard/pbf/reports/?metric=' + metric;
+                var metric = metrics[opt];
+                window.location.href = '/dashboard/' + mode + '/reports/?metric=' + metric;
             };
 
             google.visualization.events.addListener(element.wrapper, 'select', bar_clicked);
@@ -82,105 +106,68 @@ ko.bindingHandlers.pbf_category_barchart = {
             var active = ko.utils.unwrapObservable(valueAccessor());
 
             if(active) {
-                // Add the data to the chart and then draw it
-                var dataTable = google.visualization.arrayToDataTable([
-                    ['Category', ''],
-                    ['Waiting Time', active.data.by_category.waiting_time],
-                    ['Staff Friendliness', active.data.by_category.staff_friendliness],
-                    ['Price Display', active.data.by_category.price_display],
-                    ['Drug Availability', active.data.by_category.drug_availability],
-                    ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
-                ]);
+		var arr = [['Category', '']];
+		$.each(categories, function(i, e) {
+			arr.push([e.caption, active.data.by_category[e.field]]);
+		    });
+
+		var dataTable = google.visualization.arrayToDataTable(arr);
                 element.wrapper.setDataTable(dataTable);
                 element.wrapper.draw();
             }
         });
-    },
+}
 
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        if (!element.wrapper || !active) {
-            return;
-        }
-
-        var dataTable = google.visualization.arrayToDataTable([
-            ['Category', ''],
-            ['Waiting Time', active.data.by_category.waiting_time],
-            ['Staff Friendliness', active.data.by_category.staff_friendliness],
-            ['Price Display', active.data.by_category.price_display],
-            ['Drug Availability', active.data.by_category.drug_availability],
-            ['Cleanliness & Hygiene', active.data.by_category.cleanliness]
-        ]);
-        element.wrapper.setDataTable(dataTable);
-        element.wrapper.draw();
+function category_barchart_update(element, valueAccessor, categories) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    if (!element.wrapper || !active) {
+	return;
     }
-};
 
-ko.bindingHandlers.fadama_category_barchart = {
-    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        google.setOnLoadCallback(function() {
-            var options = {
-                vAxis: {
-                    textPosition: 'left'
-                },
-                chartArea: {
-                    top: 0,
-                    left: 110,
-                    width: '90%'
-             }
-            };
+    var arr = [['Category', '']];
+    $.each(categories, function(i, e) {
+	    arr.push([e.caption, active.data.by_category[e.field]]);
+	});
 
-            element.wrapper = new google.visualization.ChartWrapper({
-                chartType: 'BarChart',
-                options: options,
-                containerId: $(element).attr('id')
-            });
+    var dataTable = google.visualization.arrayToDataTable(arr);
+    element.wrapper.setDataTable(dataTable);
+    element.wrapper.draw();
+}
 
-            var bar_clicked = function() {
-                var opt = element.wrapper.getChart().getSelection()[0].row;
-                var metric = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'][opt];
-                window.location.href = '/dashboard/fadama/reports/?metric=' + metric;
-            };
-
-            google.visualization.events.addListener(element.wrapper, 'select', bar_clicked);
-
-            var active = ko.utils.unwrapObservable(valueAccessor());
-
-            if(active) {
-                var dataTable = google.visualization.arrayToDataTable([
-                    ['Category', ''],
-                    ['Service Providers', active.data.by_category.serviceprovider],
-                    ['People from Fadama', active.data.by_category.people],
-                    ['Land Issues', active.data.by_category.land],
-                    ['Information Issues', active.data.by_category.info],
-                    ['LDP Approval', active.data.by_category.ldp],
-                    ['Financial Issues', active.data.by_category.financial]
-                ]);
-                element.wrapper.setDataTable(dataTable);
-                element.wrapper.draw();
-            }
+function current_chart_update(element, valueAccessor, viewModel, funcs, onclick) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    var metric = viewModel.active_metric();
+    if (!element.charts_init || !active || !metric || metric == 'all') {
+	return;
+    }
+    
+    var options = {
+	vAxis: {
+	    textPosition: 'in'
+	},
+	chartArea: {
+	    top: 10,
+	    left: 0,
+	    width: '100%'
+	}
+    };
+    
+    var data = [['Category', '']];
+    var raw_data = monthly_datapoints(active, metric);
+    
+    $.each(funcs.get_ordering(metric), function(i, e) {
+            data.push([funcs.get_caption(metric, e), raw_data[e] || 0]);
         });
-    },
-
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        if (!element.wrapper || !active) {
-            return;
-        }
-
-        var dataTable = google.visualization.arrayToDataTable([
-            ['Category', ''],
-            ['Service Providers', active.data.by_category.serviceprovider],
-            ['People from Fadama', active.data.by_category.people],
-            ['Land Issues', active.data.by_category.land],
-            ['Information Issues', active.data.by_category.info],
-            ['LDP Approval', active.data.by_category.ldp],
-            ['Financial Issues', active.data.by_category.financial]
-        ]);
-        element.wrapper.setDataTable(dataTable);
-        element.wrapper.draw();
+    
+    var chart_type = 'PieChart';
+    
+    var chart = new google.visualization[chart_type](element);
+    chart.draw(google.visualization.arrayToDataTable(data), options);
+    
+    if (onclick) {
+	google.visualization.events.addListener(chart, 'select', function() { onclick(chart); });
     }
-};
+}
 
 ko.bindingHandlers.pbf_current_chart = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
@@ -190,109 +177,79 @@ ko.bindingHandlers.pbf_current_chart = {
         });
     },
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        var metric = viewModel.active_metric();
-        if (!element.charts_init || !active || !metric || metric == 'all') {
-            return;
-        }
-
-        var options = {
-            vAxis: {
-                textPosition: 'in'
-            },
-            chartArea: {
-                top: 10,
-                left: 0,
-                width: '100%'
-            }
-        };
-
-        var ordering = ['True', 'False', '<2', '2-4', '>4'];
-
-        var data = [['Category', '']];
-        var raw_data = monthly_datapoints(active, metric);
-        $.each(ordering, function(i, e) {
-            if (raw_data[e] != null) {
-                data.push([get_pbf_caption(metric, e), raw_data[e]]);
-            }
-        });
-
-        var chart_type = null;
-        if (metric == 'wait') {
-            chart_type = 'ColumnChart';
-        } else {
-            chart_type = 'PieChart';
-        }
-
-        var chart = new google.visualization[chart_type](element);
-        chart.draw(google.visualization.arrayToDataTable(data), options);
+	current_chart_update(element, valueAccessor, viewModel, {get_ordering: get_pbf_ordering, get_caption: get_pbf_caption});
     }
 };
 
-ko.bindingHandlers.pbf_historical_chart = {
-    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        google.setOnLoadCallback(function() {
+function historical_chart_init(element, valueAccessor) {
+    google.setOnLoadCallback(function() {
             valueAccessor(valueAccessor());
             element.charts_init = true;
         });
-    },
-    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        var metric = viewModel.active_metric();
-        if (!element.charts_init || !active || !metric || metric == 'all') {
-            return;
-        }
+}
 
-        var options = {
-            vAxis: {
-                textPosition: 'in'
-            },
-            chartArea: {
-                top: 10,
-                left: 0,
-                width: '85%'
-            },
-        };
+function historical_chart_update(element, valueAccessor, viewModel, funcs, onclick) {
+    var active = ko.utils.unwrapObservable(valueAccessor());
+    var metric = viewModel.active_metric();
+    if (!element.charts_init || !active || !metric || metric == 'all') {
+	return;
+    }
 
-        var FUZZ = 2;
-        var curmonthix = viewModel.monthly.indexOf(active);
-        var minmonthix = curmonthix - 2;
-        var maxmonthix = curmonthix + 2;
-
-        var ordering = null;
-        if (metric == 'wait') {
-            ordering = ['<2', '2-4', '>4'];
-        } else {
-            ordering = ['True', 'False'];
-        }
-
-        var labels = ['Month'];
-        var raw_data = monthly_datapoints(active, metric);
-        $.each(ordering, function(i, e) {
-            labels.push(get_pbf_caption(metric, e));
+    var options = {
+	vAxis: {
+	    textPosition: 'in'
+	},
+	chartArea: {
+	    top: 10,
+	    left: 0,
+	    width: '85%'
+	},
+    };
+    
+    var FUZZ = 2;
+    var curmonthix = viewModel.monthly.indexOf(active);
+    var minmonthix = curmonthix - 2;
+    var maxmonthix = curmonthix + 2;
+    
+    var labels = ['Month'];
+    var raw_data = monthly_datapoints(active, metric);
+    $.each(funcs.get_ordering(metric), function(i, e) {
+            labels.push(funcs.get_caption(metric, e));
         });
-        var data = [labels];
-
-        for (var i = minmonthix; i <= maxmonthix; i++) {
-            var row = [];
-            if (i < 0 || i >= viewModel.monthly().length) {
-                row.push('');
-                for (var j = 1; j < labels.length; j++) {
-                    row.push(null);
-                }
-            } else {
-                var m = viewModel.monthly()[i];
-                raw_data = monthly_datapoints(m, metric);
-                row.push(m.month_label());
-                $.each(ordering, function(i, e) {
+    var data = [labels];
+    
+    for (var i = minmonthix; i <= maxmonthix; i++) {
+	var row = [];
+	if (i < 0 || i >= viewModel.monthly().length) {
+	    row.push('');
+	    for (var j = 1; j < labels.length; j++) {
+		row.push(null);
+	    }
+	} else {
+	    var m = viewModel.monthly()[i];
+	    raw_data = monthly_datapoints(m, metric);
+	    row.push(m.month_label());
+	    $.each(funcs.get_ordering(metric), function(i, e) {
                     row.push(raw_data[e] || 0);
                 });
-            }
-            data.push(row);
-        }
+	}
+	data.push(row);
+    }
+    
+    var chart = new google.visualization.ColumnChart(element);
+    chart.draw(google.visualization.arrayToDataTable(data), options);
 
-        var chart = new google.visualization.ColumnChart(element);
-        chart.draw(google.visualization.arrayToDataTable(data), options);
+    if (onclick) {
+	google.visualization.events.addListener(chart, 'select', function() { onclick(chart); });
+    }
+}
+
+ko.bindingHandlers.pbf_historical_chart = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+	historical_chart_init(element, valueAccessor);
+    },
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
+	historical_chart_update(element, valueAccessor, viewModel, {get_ordering: get_pbf_ordering, get_caption: get_pbf_caption});
     }
 };
 
@@ -305,120 +262,34 @@ ko.bindingHandlers.fadama_current_chart = {
     },
 
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        var metric = viewModel.active_metric();
-        if (!element.charts_init || !active || !metric || metric == 'all') {
-            return;
-        }
+	current_chart_update(element, valueAccessor, viewModel,
+            {get_ordering: get_fadama_ordering, get_caption: get_fadama_caption},
+	    function(chart) {
+		if (chart.getSelection().length === 0) {
+		    return;
+		}
 
-        var options = {
-            vAxis: {
-                textPosition: 'in'
-            },
-            chartArea: {
-                top: 10,
-                left: 0,
-                width: '100%'
-            }
-        };
-
-        var ordering = ['True', 'False', '<2', '2-4', '>4'];
-
-        var data = [['Category', '']];
-        var raw_data = monthly_datapoints(active, metric);
-
-        $.each(get_fadama_ordering(metric), function(i, e) {
-            data.push([get_fadama_caption(metric, e), raw_data[e] || 0]);
-        });
-
-        var chart_type = 'PieChart';
-
-        var chart = new google.visualization[chart_type](element);
-        chart.draw(google.visualization.arrayToDataTable(data), options);
-
-        var bar_clicked = function() {
-            if (chart.getSelection().length === 0) {
-                return;
-            }
-
-            var opt = chart.getSelection()[0].row;
-            var subcat = viewModel.subcategories()[opt + 1]; // the first is 'all', so offset by 1
-            viewModel.active_subcategory(subcat);
-        };
-
-        google.visualization.events.addListener(chart, 'select', bar_clicked);
+		var opt = chart.getSelection()[0].row;
+		var subcat = viewModel.subcategories()[opt + 1]; // the first is 'all', so offset by 1
+		viewModel.active_subcategory(subcat);
+	    });
     }
 };
 
 ko.bindingHandlers.fadama_historical_chart = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        google.setOnLoadCallback(function() {
-            valueAccessor(valueAccessor());
-            element.charts_init = true;
-        });
+	historical_chart_init(element, valueAccessor);
     },
 
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-        var active = ko.utils.unwrapObservable(valueAccessor());
-        var metric = viewModel.active_metric();
-        if (!element.charts_init || !active || !metric || metric == 'all') {
-            return;
-        }
+	historical_chart_update(element, valueAccessor, viewModel, {get_ordering: get_fadama_ordering, get_caption: get_fadama_caption}, function(chart) {
+		if (chart.getSelection().length === 0) {
+		    return;
+		}
 
-        var options = {
-            vAxis: {
-                textPosition: 'in'
-            },
-            chartArea: {
-                top: 10,
-                left: 0,
-                width: '85%'
-            }
-        };
-
-        var FUZZ = 2;
-        var curmonthix = viewModel.monthly.indexOf(active);
-        var minmonthix = curmonthix - 2;
-        var maxmonthix = curmonthix + 2;
-
-        var labels = ['Month'];
-        var raw_data = monthly_datapoints(active, metric);
-        $.each(get_fadama_ordering(metric), function(i, e) {
-            labels.push(get_fadama_caption(metric, e));
-        });
-        var data = [labels];
-
-        for (var i = minmonthix; i <= maxmonthix; i++) {
-            var row = [];
-            if (i < 0 || i >= viewModel.monthly().length) {
-                row.push('');
-                for (var j = 1; j < labels.length; j++) {
-                    row.push(null);
-                }
-            } else {
-                var m = viewModel.monthly()[i];
-                raw_data = monthly_datapoints(m, metric);
-                row.push(m.month_label());
-                $.each(get_fadama_ordering(metric), function(i, e) {
-                    row.push(raw_data[e] || 0);
-                });
-            }
-            data.push(row);
-        }
-
-        var chart = new google.visualization.ColumnChart(element);
-        chart.draw(google.visualization.arrayToDataTable(data), options);
-
-        var bar_clicked = function() {
-            if (chart.getSelection().length === 0) {
-                return;
-            }
-
-            var opt = chart.getSelection()[0].column;
-            var subcat = viewModel.subcategories()[opt]; // the first is 'all', so don't offset by 1
-            viewModel.active_subcategory(subcat);
-        };
-
-        google.visualization.events.addListener(chart, 'select', bar_clicked);
+		var opt = chart.getSelection()[0].column;
+		var subcat = viewModel.subcategories()[opt]; // the first is 'all', so don't offset by 1
+		viewModel.active_subcategory(subcat);
+	    });
     }
 };

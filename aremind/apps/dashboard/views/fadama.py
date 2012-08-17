@@ -2,6 +2,7 @@ import json
 
 from django.http import HttpResponse
 from django.views import generic
+from django.contrib.auth.decorators import login_required
 
 from alerts.models import NotificationVisibility
 
@@ -10,7 +11,6 @@ from aremind.apps.dashboard.models import ReportComment
 from aremind.apps.dashboard.utils import fadama as utils
 from aremind.apps.dashboard.utils import mixins
 
-
 class DashboardView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/dashboard.html'
 
@@ -18,17 +18,24 @@ class DashboardView(mixins.LoginMixin, generic.TemplateView):
 class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/reports.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(ReportView, self).get_context_data(**kwargs)
+        context['fadama_communicator_prefix'] = utils.communicator_prefix()
+        return context
+
 
 class MessageView(generic.CreateView):
-    def dispatch(self, request, *args, **kwargs):
-        return super(MessageView, self).dispatch(request, *args, **kwargs)
+    http_method_names = ['post', ]
 
     def post(self, request, *args, **kwargs):
         form = forms.ReportCommentForm(request.POST)
 
         if form.is_valid():
-            rc = form.save()
-            return HttpResponse(json.dumps(rc.json()),
+            comment = form.save()
+            if comment.comment_type == ReportComment.INQUIRY_TYPE:
+                # Send SMS to beneficiary
+                utils.message_report_beneficiary(comment.report_id, comment.text)
+            return HttpResponse(json.dumps(comment.json()),
                 mimetype='application/json')
 
         return HttpResponse('', mimetype='application/json')
@@ -74,3 +81,10 @@ class DismissNotification(mixins.LoginMixin, generic.View):
     def post(self, request, *args, **kwargs):
         "Browsers don't support HTTP DELETE so call the delete from a POST."
         return self.delete(request, *args, **kwargs)
+
+
+@login_required
+def del_message(request):
+    id = int(request.POST.get('id'))
+    ReportComment.objects.get(id=id).delete()
+    return HttpResponse('ok', 'text/plain')

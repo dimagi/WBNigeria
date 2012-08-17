@@ -33,7 +33,7 @@ class IdleFacilityNotificationType(NotificationType):
         return 'Everyone'
 
 
-def trigger_idle_facility_notifications():
+def trigger_notifications():
     """
     Creates Notifications for facilities which haven't sent in any reports for
     more than PERIOD_BEFORE_NOTIFICATION days.
@@ -53,7 +53,7 @@ def trigger_idle_facility_notifications():
         Creates a Notification object alerting how long it has been since 
         hearing from the facility.
         """
-        alert_type = 'aremind.notifications.IdleFacilityNotificationType'
+        alert_type = 'aremind.notifications.idle_facilities.IdleFacilityNotificationType'
         notif = Notification(alert_type=alert_type)
         notif.uid = _get_uid(facility)
         notif.text = ("No new reports have been received from {0}").format(facility['name'])

@@ -12,7 +12,7 @@ from rapidsms.models import Connection, Contact, Backend
 from threadless_router.tests.scripted import TestScript
 
 from aremind.apps.groups.models import Group
-from aremind.notifications import REPORT_TIMESTAMP_FORMAT
+from aremind.notifications.idle_facilities import REPORT_TIMESTAMP_FORMAT
 
 
 UNICODE_CHARS = [unichr(x) for x in xrange(1, 0xD7FF)]

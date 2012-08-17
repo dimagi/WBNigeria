@@ -6,15 +6,15 @@ from django.core import management
 
 from alerts.models import Notification, NotificationVisibility
 
-from aremind import notifications
+from aremind.notifications import idle_facilities
 from aremind.tests.testcases import CreateDataTest
 
 
-class RapidSMSAlertsTestCase(CreateDataTest):
+class IdleFacilityNotificationsTestCase(CreateDataTest):
     """Test cases for generations of application-specific Notifications."""
 
     def setUp(self):
-        super(RapidSMSAlertsTestCase, self).setUp()
+        super(IdleFacilityNotificationsTestCase, self).setUp()
 
         # Mock data used for notification generation.
         self.period_before_notification = datetime.timedelta(days=7)
@@ -44,21 +44,21 @@ class RapidSMSAlertsTestCase(CreateDataTest):
 
     def _generate_notifications(self):
         """Generate notifications using mocked data."""
-        with mock.patch.object(notifications, 'facilities_by_id') as facilities_by_id:
+        with mock.patch.object(idle_facilities, 'facilities_by_id') as facilities_by_id:
             facilities_by_id.return_value = self.facilities
-            with mock.patch.object(notifications, 'load_reports') as load_reports:
+            with mock.patch.object(idle_facilities, 'load_reports') as load_reports:
                 load_reports.return_value = self.reports
-                notifications.PERIOD_BEFORE_NOTIFICATION = self.period_before_notification
-                notifs = list(notifications.trigger_idle_facility_notifications())
+                idle_facilities.PERIOD_BEFORE_NOTIFICATION = self.period_before_notification
+                notifs = list(idle_facilities.trigger_notifications())
         return notifs
 
     def _trigger_alerts(self):
         """Use management command to trigger notifications with mocked data."""
-        with mock.patch.object(notifications, 'facilities_by_id') as facilities_by_id:
+        with mock.patch.object(idle_facilities, 'facilities_by_id') as facilities_by_id:
             facilities_by_id.return_value = self.facilities
-            with mock.patch.object(notifications, 'load_reports') as load_reports:
+            with mock.patch.object(idle_facilities, 'load_reports') as load_reports:
                 load_reports.return_value = self.reports
-                notifications.PERIOD_BEFORE_NOTIFICATION = self.period_before_notification
+                idle_facilities.PERIOD_BEFORE_NOTIFICATION = self.period_before_notification
                 management.call_command('trigger_alerts')
 
     def test_notification_no_reports(self):

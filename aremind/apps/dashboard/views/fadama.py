@@ -76,7 +76,7 @@ class DismissNotification(mixins.LoginMixin, generic.View):
         "Delete the NotificationVisibility for this user/notification pair."
         notification_id = kwargs['notification_id']
         user = self.request.user
-        visibility = user.alerts_visible.filter(pk=notification_id)
+        visibility = user.alerts_visible.filter(notif__id=notification_id)
         if visibility.exists():
             visibility.delete()
             status = 200

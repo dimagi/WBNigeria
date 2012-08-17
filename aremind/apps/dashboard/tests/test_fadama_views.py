@@ -1,7 +1,10 @@
+import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from alerts.models import Notification, NotificationVisibility
 from mock import patch, Mock
 from threadless_router.tests.base import SimpleRouterMixin
 
@@ -83,3 +86,61 @@ class AddMessageTest(CreateDataTest):
             router.return_value = MockRouter
             self.client.post(self.url, data=data)
             self.assertFalse(MockRouter.outgoing.called, "No message should be sent.")
+
+
+class DismissNotificationTest(CreateDataTest):
+    "AJAX view for dismissing a rapidsms-alerts notification."
+
+    def setUp(self):
+        self.notification = self.create_notification()
+        self.url = reverse('fadama_dismiss_alert', args=[self.notification.id, ])
+        self.user = User.objects.create_user(username='test', password='test', email=u'')
+        self.client.login(username='test', password='test')
+        self.visibility = NotificationVisibility.objects.create(
+            notif=self.notification, user=self.user, esc_level=self.notification.escalation_level
+        )
+
+    def create_notification(self, **kwargs):
+        "Create a notification for testing purposes."
+        defaults = {
+            'uid': self.random_string(),
+            'escalated_on': datetime.datetime.now(),
+            'text': self.random_string(),
+            'alert_type': 'aremind.notifications.idle_facilities.IdleFacilityNotificationType',
+            'escalation_level': 'everyone',
+        }
+        defaults.update(kwargs)
+        return Notification.objects.create(**defaults)
+
+    def test_dismiss_alert(self):
+        "Dismiss alert by sending a DELETE request to the server."
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 200)
+        visible = self.user.alerts_visible.filter(pk=self.notification.pk).exists()
+        self.assertFalse(visible, "Notification should no longer be visible.")
+
+    def test_dismiss_with_post(self):
+        "POST will also dismiss the alert."
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 200)
+        visible = self.user.alerts_visible.filter(pk=self.notification.pk).exists()
+        self.assertFalse(visible, "Notification should no longer be visible.")
+
+    def test_get_not_allowed(self):
+        "GET requests to this alert are not allowed."
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 405)
+        visible = self.user.alerts_visible.filter(pk=self.notification.pk).exists()
+        self.assertTrue(visible, "Notification should still be visible.")
+
+    def test_notification_not_found(self):
+        "Handle the case where notification for the given id does not exist."
+        self.notification.delete()
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 204)
+
+    def test_alredy_dismissed(self):
+        "Handle the case where notification which has already been dismissed."
+        self.visibility.delete()
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, 204)

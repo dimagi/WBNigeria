@@ -1,0 +1,34 @@
+{% load url from future %}
+<script language="javascript" type="text/javascript">
+    $(document).ready(function() {
+        $('.btn.dismiss').bind('click', function(event) {
+            $.post($(this).attr('href'));
+        });
+    });
+</script>
+<div id="alertpane" class="row-fluid scrollable">
+    <div class="span12">
+    {% for notif in notifs %}
+        <div class="alert alert-info" id="alert-{{ notif.id }}">  <!-- Unique id should be pk; allows us to use bootstrap-alert.js -->
+            <p>
+                <span id="msg">{{ notif.text }}</span> 
+                {# <span id="detail">[<a id="url" href="#">details</a>]</span> #}
+            </p>
+            <span class="pull-right">
+                <a class="btn btn-primary dismiss" data-dismiss="alert" data-target="#alert-{{ notif.id }}" href="{% url 'fadama_dismiss_alert' notif.id %}">
+                    Dismiss <i class="icon-white icon-remove"></i>
+                </a>
+            </span>
+        </div>
+    {% empty %}
+        <div class="alert alert-success" id="alert-success">
+            <p>No current alerts!</p>
+            <span class="pull-right">
+                <a class="btn btn-primary" data-dismiss="alert" data-target="#alert-success">
+                    Dismiss <i class="icon-white icon-remove"></i>
+                </a>
+            </span>
+        </div>
+    {% endfor %}
+    </div>
+</div>

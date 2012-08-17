@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from django.views import generic
 from django.contrib.auth.decorators import login_required
 
+from alerts.models import NotificationVisibility
+
 from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.models import ReportComment
 from aremind.apps.dashboard.utils import fadama as utils
@@ -68,6 +70,29 @@ def msg_from_bene(request):
     rc.text = request.GET.get('text')
     rc.save()
     return HttpResponse('ok', 'text/plain')
+
+
+class DismissNotification(mixins.LoginMixin, generic.View):
+    "Mark a Notification as viewed by removing the NotificationVisibility."
+
+    http_method_names = ['post', 'delete', ]
+
+    def delete(self, request, *args, **kwargs):
+        "Delete the NotificationVisibility for this user/notification pair."
+        notification_id = kwargs['notification_id']
+        user = self.request.user
+        visibility = user.alerts_visible.filter(notif__id=notification_id)
+        if visibility.exists():
+            visibility.delete()
+            status = 200
+        else:
+            status = 204        
+        return HttpResponse('', status=status, mimetype='application/json')
+
+    def post(self, request, *args, **kwargs):
+        "Browsers don't support HTTP DELETE so call the delete from a POST."
+        return self.delete(request, *args, **kwargs)
+
 
 @login_required
 def del_message(request):

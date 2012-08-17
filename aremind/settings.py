@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     "djtables",
     "rapidsms",
 
-#    "djcelery",
+    "djcelery",
     "threadless_router.celery",
     "decisiontree",
 
@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "selectable",
     "gunicorn",
     "smsforms",
+    "alerts",
     "aremind.apps.wbn_registration",
     "aremind.apps.groups",
     "aremind.apps.broadcast",
@@ -456,3 +457,11 @@ COUCHDB_APPS = ['auditcare', 'couchlog', 'formplayer', 'couchforms', 'couchexpor
 from datetime import timedelta
 RECENT_REPORTS_FROM_SAME_PHONE_WINDOW = timedelta(weeks=6)
 COMMUNICATOR_RESPONSE_WINDOW = timedelta(weeks=3)
+
+
+# rapidsms-alerts app.
+LOGISTICS_NOTIF_GENERATORS = (
+    'aremind.notifications.idle_facilities.trigger_notifications',
+)
+SYSTEM_USERNAME = "the_man"
+

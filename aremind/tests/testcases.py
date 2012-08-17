@@ -1,18 +1,23 @@
-import string
+import datetime
 import random
+import string
 from contextlib import contextmanager
 
-from django.test import TestCase
-from django.db import DEFAULT_DB_ALIAS
+from django.contrib.auth.models import User
 from django.core.management import call_command
+from django.db import DEFAULT_DB_ALIAS
+from django.test import TestCase
 
 from rapidsms.models import Connection, Contact, Backend
 from threadless_router.tests.scripted import TestScript
 
 from aremind.apps.groups.models import Group
+from aremind.notifications.idle_facilities import REPORT_TIMESTAMP_FORMAT
 
 
 UNICODE_CHARS = [unichr(x) for x in xrange(1, 0xD7FF)]
+MAX_FACILITY_ID = 1000
+MAX_REPORT_ID = 1000
 
 
 class CreateDataTest(TestCase):
@@ -62,6 +67,57 @@ class CreateDataTest(TestCase):
         }
         defaults.update(data)
         return Group.objects.create(**defaults)
+
+    def _generate_fug(self):
+        return self.random_string(15)
+
+    def random_datetime(self, start, end):
+        """Returns a random datetime between start and end."""
+        delta = end - start
+        seconds_range = abs(delta.days * 24 * 60 * 60 + delta.seconds)
+        random_interval = random.randrange(seconds_range)
+        return start + datetime.timedelta(seconds=random_interval)
+
+    def create_facility(self, data={}):
+        num_fugs = random.randrange(2, 10)
+        defaults = {
+            'id': int(random.random() * MAX_FACILITY_ID),
+            'name': self.random_string(25),
+            'lat': random.random() * 180 - 90,
+            'long': random.random() * 180 - 90,
+            'state': self.random_string(3),
+            'fugs': [self._generate_fug() for fug in range(num_fugs)],
+        }
+        defaults.update(data)
+        return defaults
+
+    def create_report(self, data={}, timestamp=None):
+        if not timestamp:
+            end = datetime.datetime.now()
+            start = end.replace(year=end.year - 1)
+            timestamp = self.random_datetime(start, end)
+        defaults = {
+            'id': random.randint(1, MAX_REPORT_ID),
+            'message': self.random_string(25),
+            'timestamp': timestamp.strftime(REPORT_TIMESTAMP_FORMAT),
+            'month': datetime.datetime.strftime(timestamp, '%b %Y'),
+            '_month': datetime.datetime.strftime(timestamp, '%Y-%m'),
+            'info': self.random_string(25),
+            'proxy': random.choice([True, False]),
+            'thread': [],
+            'satisfied': random.choice([True, False]),
+            'facility': random.randint(1, MAX_FACILITY_ID),
+            'fug': self._generate_fug(),
+        }
+        defaults.update(data)
+        return defaults
+
+    def create_user(self, username=None, password=None, email=None):
+        username = username or self.random_string(25)
+        password = password or self.random_string(25)
+        email = email or self.random_string(10) + '@example.com'
+        user = User.objects.create_user(username, email, password)
+        return user
 
 
 class FlushTestScript(TestScript):

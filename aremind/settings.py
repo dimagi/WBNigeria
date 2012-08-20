@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "aremind.apps.adherence",
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
+    "aremind.apps.web_users",
 
     "eav",
     "uni_form",
@@ -256,6 +257,7 @@ REQUIRE_LOGIN_PATH = LOGIN_URL
 
 SOUTH_MIGRATION_MODULES = {
     'rapidsms': 'aremind.migrations.rapidsms',
+    'locations': 'aremind.migrations.locations',
 }
 
 

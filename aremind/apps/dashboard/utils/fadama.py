@@ -350,19 +350,6 @@ def _get_connection_from_report(report_id):
     return connection
 
 
-def get_inquiry_numbers():
-    "Return all phone numbers tied to a submitted report."
-    # TODO: It might be desirable to filter to comments in a time range.
-    report_ids = ReportComment.objects.filter(
-        comment_type=ReportComment.INQUIRY_TYPE
-    ).values_list('report_id', flat=True)
-    numbers = []
-    for report_id in report_ids:
-        connection = _get_connection_from_report(report_id)
-        numbers.append(connection.identity)
-    return numbers
-
-
 def communicator_prefix():
     return _('From fadama:')
 

@@ -1,8 +1,11 @@
 from rapidsms.apps.base import AppBase
-
 from aremind.apps.dashboard.models import ReportComment
-from aremind.apps.dashboard.utils.fadama import get_inquiry_numbers
+from datetime import datetime
+from django.conf import settings
+import json
 
+# for debugging
+from apps.dashboard.utils.fadama import load_reports
 from apps.utils.functional import map_reduce
 
 class CommunicatorApp(AppBase):
@@ -22,7 +25,7 @@ class CommunicatorApp(AppBase):
                 'author': ReportComment.FROM_BENEFICIARY,
             }
             if len(active_reports) > 1:
-                comment_data.extra_info = json.dumps({'ambiguous': list(set(active_reports) - set([active_report]))})
+                comment_data['extra_info'] = json.dumps({'ambiguous': list(set(active_reports) - set([active_report]))})
 
             ReportComment.objects.create(**comment_data)
 
@@ -33,12 +36,30 @@ class CommunicatorApp(AppBase):
 def active_communicator_threads(phone_number):
     "Return all phone numbers tied to a submitted report."
     # todo make this query more efficient one we've settled on a back-end data model
-    reports = ReportComment.objects.filter(
+    comments = ReportComment.objects.filter(
         comment_type=ReportComment.INQUIRY_TYPE,
     )
-    reports = [r for r in reports if _get_connection_from_report(r['report_id']) == phone_number]
-    latest_inquiry_per_report = map_reduce(reports, lambda r: [(r.report_id, r.date)], max)
+    comments = [c for c in comments if report_originating_phone_number(c.report_id) == phone_number]
+    latest_inquiry_per_report = map_reduce(comments, lambda c: [(c.report_id, c.date)], lambda v, k: max(v))
     active_report_ids = [report_id for report_id, last_inquiry in latest_inquiry_per_report.iteritems() if datetime.now() - last_inquiry < settings.COMMUNICATOR_RESPONSE_WINDOW]
     return active_report_ids
+
+_tmp = None
+def report_originating_phone_number(report_id):
+    "Return connection for user which submitted a given report."
+
+    global _tmp
+    if not _tmp:
+        _tmp = map_reduce(load_reports(anonymize=False), lambda r: [(r['id'], r['_contact'])], lambda v: v[0])
+
+    return _tmp.get(report_id)
+    
+
+    # FIXME: Currently uses a dummy connection. Needs to get correct connection
+    # when report data is hooked up to the backend.
+    #default_backend = getattr(settings, 'PRIMARY_BACKEND', 'httptester')
+    #backend, _ = Backend.objects.get_or_create(name=default_backend)
+    #connection, _ = Connection.objects.get_or_create(backend=backend, identity='15551234567')
+    #return connection
 
 

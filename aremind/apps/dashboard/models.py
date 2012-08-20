@@ -1,5 +1,5 @@
 from django.db import models
-
+import json
 
 class ReportComment(models.Model):
     INQUIRY_TYPE = 'inquiry'

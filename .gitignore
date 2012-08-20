@@ -17,3 +17,5 @@ build/
 tropotest.py
 smsforms_report.csv
 media/
+fadama.json
+pbf.json

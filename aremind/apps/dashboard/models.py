@@ -1,5 +1,55 @@
 from django.db import models
+from rapidsms.models import Connection
+from rapidsms.contrib.locations.models import Location, LocationType
 import json
+
+class FeedbackReport(models.Model):
+
+    # when report was received
+    timestamp = models.DateTimeField()
+
+    # rapidsms contact report came from
+    reporter = models.ForeignKey(Connection)
+
+    # site report is in reference to (PBF clinic, FUG, FCA (if no FUG specified), need to handle no site specified?)
+    site = models.ForeignKey(Location)
+
+    # free-form message provided with report
+    freeform = models.CharField(max_length=200, null=True, blank=True)
+
+    # whether report was reported on behalf of someone else (assume you cannot reach the original reporter)
+    proxy = models.BooleanField()
+
+    # whether patient/beneficiary is satisfied
+    satisfied = models.BooleanField()
+
+    # json data of report contents
+    data = models.TextField(null=True, blank=True)
+
+    @property
+    def content(self):
+        return json.loads(self.data) if self.data else {}
+
+    @content.setter
+    def content(self, value):
+        self.data = json.dumps(value) if value is not None else None
+
+    class Meta:
+        abstract = True
+
+class PBFReport(FeedbackReport):
+    # waiting time
+    # staff friendliness
+    # prices displayed
+    # drug availability
+    # cleanliness
+    pass
+
+class FadamaReport(FeedbackReport):
+    # primary complaint type
+    # complaint sub-type
+    pass
+
 
 class ReportComment(models.Model):
     INQUIRY_TYPE = 'inquiry'

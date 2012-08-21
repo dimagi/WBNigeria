@@ -55,11 +55,3 @@ def report_originating_phone_number(report_id):
     return _tmp.get(report_id)
     
 
-    # FIXME: Currently uses a dummy connection. Needs to get correct connection
-    # when report data is hooked up to the backend.
-    #default_backend = getattr(settings, 'PRIMARY_BACKEND', 'httptester')
-    #backend, _ = Backend.objects.get_or_create(name=default_backend)
-    #connection, _ = Connection.objects.get_or_create(backend=backend, identity='15551234567')
-    #return connection
-
-

@@ -1,10 +1,12 @@
 from django.db import models
-
+import json
 
 class ReportComment(models.Model):
     INQUIRY_TYPE = 'inquiry'
     NOTE_TYPE = 'note'
     REPLY_TYPE = 'response'
+
+    FROM_BENEFICIARY = '_bene'
 
     COMMENT_TYPES = (
         (INQUIRY_TYPE, INQUIRY_TYPE),
@@ -17,6 +19,7 @@ class ReportComment(models.Model):
     author = models.CharField(max_length=100)
     date = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
+    extra_info = models.TextField(null=True, blank=True)
 
     def json(self):
         return {
@@ -26,5 +29,6 @@ class ReportComment(models.Model):
             'author': self.author,
             'report_id': self.report_id,
             'type': self.comment_type,
+            'extra': json.loads(self.extra_info) if self.extra_info else None,
         }
 

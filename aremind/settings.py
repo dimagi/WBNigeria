@@ -457,9 +457,17 @@ COUCHDB_APPS = ['auditcare', 'couchlog', 'formplayer', 'couchforms', 'couchexpor
 
 
 from datetime import timedelta
+
+# search for other reports from same phone number within this time window for 'there are N other recent reports...' warning
 RECENT_REPORTS_FROM_SAME_PHONE_WINDOW = timedelta(weeks=6)
+
+# time window after officer sends inquiry to beneficiary via sms to consider the thread 'open'. beneficiary responses received
+# outside of this window will be thrown out
 COMMUNICATOR_RESPONSE_WINDOW = timedelta(weeks=3)
 
+# show warning if officer tries to use communicator on a report that has not seen any activity (initial submit or beneficiary response)
+# beyond this time window
+COMMUNICATOR_TOO_OLD_WINDOW = timedelta(weeks=6)
 
 # rapidsms-alerts app.
 LOGISTICS_NOTIF_GENERATORS = (

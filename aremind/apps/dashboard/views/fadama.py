@@ -66,7 +66,7 @@ def msg_from_bene(request):
     rc = ReportComment()
     rc.report_id = int(request.GET.get('id'))
     rc.comment_type = 'response'
-    rc.author = '_bene'
+    rc.author = ReportComment.FROM_BENEFICIARY
     rc.text = request.GET.get('text')
     rc.save()
     return HttpResponse('ok', 'text/plain')

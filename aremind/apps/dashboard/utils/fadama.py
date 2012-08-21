@@ -113,7 +113,7 @@ def anonymizer(val, len=12):
 def anonymize_contact(r, anonfunc=anonymizer):
     r['contact'] = anonfunc(r['contact'])
 
-def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
+def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama'], anonymize=True):
     with open(path) as f:
         reports = json.load(f)
 
@@ -127,6 +127,8 @@ def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama']):
         return datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
 
     for r in reports:
+        if not anonymize:
+            r['_contact'] = r['contact']
         anonymize_contact(r)
         r['month'] = _ts(r).strftime('%b %Y')
         r['_month'] = _ts(r).strftime('%Y-%m')
@@ -340,28 +342,6 @@ def detail_stats(facility_id, user_state):
 def logs_for_contact(contact):
     return sorted([r for r in load_reports() if r['contact'] == contact and not r['proxy']], key=lambda r: r['timestamp'], reverse=True)
 
-def _get_connection_from_report(report_id):
-    "Return connection for user which submitted a given report."
-    # FIXME: Currently uses a dummy connection. Needs to get correct connection
-    # when report data is hooked up to the backend.
-    default_backend = getattr(settings, 'PRIMARY_BACKEND', 'httptester')
-    backend, _ = Backend.objects.get_or_create(name=default_backend)
-    connection, _ = Connection.objects.get_or_create(backend=backend, identity='15551234567')
-    return connection
-
-
-def get_inquiry_numbers():
-    "Return all phone numbers tied to a submitted report."
-    # TODO: It might be desirable to filter to comments in a time range.
-    report_ids = ReportComment.objects.filter(
-        comment_type=ReportComment.INQUIRY_TYPE
-    ).values_list('report_id', flat=True)
-    numbers = []
-    for report_id in report_ids:
-        connection = _get_connection_from_report(report_id)
-        numbers.append(connection.identity)
-    return numbers
-
 
 def communicator_prefix():
     return _('From fadama:')
@@ -374,3 +354,12 @@ def message_report_beneficiary(report_id, message_text):
     message = OutgoingMessage(connection=connection, template=template)
     router = Router()
     router.outgoing(message)
+
+# for debugging only -- see dashboard.app.report_originating_phone_number
+def _get_connection_from_report(report_id):
+    # FIXME: Currently uses a dummy connection. Needs to get correct connection
+    # when report data is hooked up to the backend.
+    default_backend = getattr(settings, 'PRIMARY_BACKEND', 'httptester')
+    backend, _ = Backend.objects.get_or_create(name=default_backend)
+    connection, _ = Connection.objects.get_or_create(backend=backend, identity='15551234567')
+    return connection

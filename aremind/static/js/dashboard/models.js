@@ -476,6 +476,7 @@ function CommModel(data, thread) {
     this.type = ko.observable(data.type);
     this.date = ko.observable(data.date_fmt);
     this.text = ko.observable(data.text);
+    this.extra = ko.observable(data.extra || {});
 
     var model = this;
     this.display = ko.computed(function() {

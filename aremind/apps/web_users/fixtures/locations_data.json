@@ -1,0 +1,52 @@
+[
+    {
+        "pk": "country", 
+        "model": "locations.locationtype", 
+        "fields": {
+            "name": "Country"
+        }
+    }, 
+    {
+        "pk": "state", 
+        "model": "locations.locationtype", 
+        "fields": {
+            "name": "State"
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "locations.location", 
+        "fields": {
+            "name": "Nigeria", 
+            "point": null, 
+            "parent_type": null, 
+            "parent_id": null, 
+            "type": "country", 
+            "slug": "nigeria"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "locations.location",
+        "fields": {
+            "name": "FCT",
+            "point": null,
+            "parent_type": 75,
+            "parent_id": 1,
+            "type": "state",
+            "slug": "fct"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "locations.location",
+        "fields": {
+            "name": "Nasawara",
+            "point": null,
+            "parent_type": 75,
+            "parent_id": 1,
+            "type": "state",
+            "slug": "nasawara"
+        }
+    }
+]

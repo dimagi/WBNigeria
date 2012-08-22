@@ -8,5 +8,8 @@ class LocationExtra(models.Model):
     slug = models.SlugField(max_length=50, null=True, blank=True,
             help_text="A unique identifier for this Location.")
 
+    # can this live elsewhere?
+    pbf_category = models.IntegerField(null=True, blank=True)
+
     class Meta:
         abstract = True 

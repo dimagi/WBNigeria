@@ -1,0 +1,2050 @@
+[
+    {
+        "pk": "clinic", 
+        "model": "locations.locationtype", 
+        "fields": {
+            "name": "PBF Clinic"
+        }
+    }, 
+    {
+        "pk": "fca", 
+        "model": "locations.locationtype", 
+        "fields": {
+            "name": "FCA"
+        }
+    }, 
+    {
+        "pk": "fug", 
+        "model": "locations.locationtype", 
+        "fields": {
+            "name": "FUG"
+        }
+    },
+
+
+  {
+    "pk": 1,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.9360",
+      "longitude": "8.6057"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "9.0994",
+      "longitude": "8.6504900000"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "9.0667",
+      "longitude": "8.7333900000"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "9.0458",
+      "longitude": "8.4986600000"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.8087",
+      "longitude": "8.5341200000"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.8668",
+      "longitude": "8.8172700000"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.8047",
+      "longitude": "8.7355800000"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.8396",
+      "longitude": "8.6311"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.9047",
+      "longitude": "8.7032"
+    }
+  },
+  {
+    "pk": 10,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.9967",
+      "longitude": "8.7492"
+    }
+  },
+  {
+    "pk": 11,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.9485",
+      "longitude": "8.8334"
+    }
+  },
+  {
+    "pk": 12,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.9580",
+      "longitude": "7.0697"
+    }
+  },
+  {
+    "pk": 13,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.9268",
+      "longitude": "7.0858"
+    }
+  },
+  {
+    "pk": 14,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "9.0333",
+      "longitude": "7.1667"
+    }
+  },
+  {
+    "pk": 15,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "9.0333",
+      "longitude": "7.1617"
+    }
+  },
+  {
+    "pk": 16,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "9.4354",
+      "longitude": "6.6344"
+    }
+  },
+  {
+    "pk": 17,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.9014",
+      "longitude": "7.1988"
+    }
+  },
+  {
+    "pk": 18,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "9.0498",
+      "longitude": "8.4087"
+    }
+  },
+  {
+    "pk": 19,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "9.0167",
+      "longitude": "8.2898"
+    }
+  },
+  {
+    "pk": 20,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.9421",
+      "longitude": "8.4073"
+    }
+  },
+  {
+    "pk": 21,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "9.0994",
+      "longitude": "8.6504"
+    }
+  },
+  {
+    "pk": 22,
+    "model": "locations.point",
+    "fields": {
+      "latitude": "8.8654",
+      "longitude": "8.4361"
+    }
+  },
+
+
+  {
+    "pk": 4,
+    "model": "locations.location",
+    "fields": {
+      "name": "Wamba General Hospital",
+      "point": 1,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 5,
+    "model": "locations.location",
+    "fields": {
+      "name": "Arum Health Center",
+      "point": 2,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 4
+    }
+  },
+  {
+    "pk": 6,
+    "model": "locations.location",
+    "fields": {
+      "name": "Mangar Health Center",
+      "point": 3,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 5
+    }
+  },
+  {
+    "pk": 7,
+    "model": "locations.location",
+    "fields": {
+      "name": "Gitta Health Center",
+      "point": 4,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 2
+    }
+  },
+  {
+    "pk": 8,
+    "model": "locations.location",
+    "fields": {
+      "name": "Nakere Health Center",
+      "point": 5,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 2
+    }
+  },
+  {
+    "pk": 9,
+    "model": "locations.location",
+    "fields": {
+      "name": "Konvah Health Center",
+      "point": 6,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 3
+    }
+  },
+  {
+    "pk": 10,
+    "model": "locations.location",
+    "fields": {
+      "name": "Wayo Health Center",
+      "point": 7,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 3
+    }
+  },
+  {
+    "pk": 11,
+    "model": "locations.location",
+    "fields": {
+      "name": "Wamba West Health Center",
+      "point": 8,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 1
+    }
+  },
+  {
+    "pk": 12,
+    "model": "locations.location",
+    "fields": {
+      "name": "Wamba East Health Center (Model Clinic)",
+      "point": 9,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 1
+    }
+  },
+  {
+    "pk": 13,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kwara Health Center",
+      "point": 10,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 4
+    }
+  },
+  {
+    "pk": 14,
+    "model": "locations.location",
+    "fields": {
+      "name": "Jimiya Health Center",
+      "point": 11,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "clinic",
+      "slug": null,
+      "pbf_category": 5
+    }
+  },
+  {
+    "pk": 15,
+    "model": "locations.location",
+    "fields": {
+      "name": "Destined FCA",
+      "point": 12,
+      "parent_type": null,
+      "parent_id": 2,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 16,
+    "model": "locations.location",
+    "fields": {
+      "name": "Unity FCA",
+      "point": 13,
+      "parent_type": null,
+      "parent_id": 2,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 17,
+    "model": "locations.location",
+    "fields": {
+      "name": "Anagada 1",
+      "point": 14,
+      "parent_type": null,
+      "parent_id": 2,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 25,
+    "model": "locations.location",
+    "fields": {
+      "name": "Anagada 2",
+      "point": 15,
+      "parent_type": null,
+      "parent_id": 2,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 18,
+    "model": "locations.location",
+    "fields": {
+      "name": "Paiko Kore",
+      "point": 16,
+      "parent_type": null,
+      "parent_id": 2,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 19,
+    "model": "locations.location",
+    "fields": {
+      "name": "Chibiri",
+      "point": 17,
+      "parent_type": null,
+      "parent_id": 2,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 20,
+    "model": "locations.location",
+    "fields": {
+      "name": "Andaha",
+      "point": 18,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 21,
+    "model": "locations.location",
+    "fields": {
+      "name": "Rinze",
+      "point": 19,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 22,
+    "model": "locations.location",
+    "fields": {
+      "name": "Akwanga North",
+      "point": 20,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 23,
+    "model": "locations.location",
+    "fields": {
+      "name": "Arum Tumara",
+      "point": 21,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 24,
+    "model": "locations.location",
+    "fields": {
+      "name": "Akwanga South",
+      "point": 22,
+      "parent_type": null,
+      "parent_id": 3,
+      "type": "fca",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 26,
+    "model": "locations.location",
+    "fields": {
+      "name": "Oyiza",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 27,
+    "model": "locations.location",
+    "fields": {
+      "name": "Onuse",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 28,
+    "model": "locations.location",
+    "fields": {
+      "name": "Shuma Dev.",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 29,
+    "model": "locations.location",
+    "fields": {
+      "name": "Usako",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 30,
+    "model": "locations.location",
+    "fields": {
+      "name": "Habid",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 31,
+    "model": "locations.location",
+    "fields": {
+      "name": "Davison",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 32,
+    "model": "locations.location",
+    "fields": {
+      "name": "Etko",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 33,
+    "model": "locations.location",
+    "fields": {
+      "name": "Sion group",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 34,
+    "model": "locations.location",
+    "fields": {
+      "name": "Egba Ebemi",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 35,
+    "model": "locations.location",
+    "fields": {
+      "name": "Mutonchi",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 36,
+    "model": "locations.location",
+    "fields": {
+      "name": "Wisdom",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 37,
+    "model": "locations.location",
+    "fields": {
+      "name": "Alheri Reliable",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 38,
+    "model": "locations.location",
+    "fields": {
+      "name": "God's grace",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 39,
+    "model": "locations.location",
+    "fields": {
+      "name": "Jaaiz women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 40,
+    "model": "locations.location",
+    "fields": {
+      "name": "Yoruba community",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 41,
+    "model": "locations.location",
+    "fields": {
+      "name": "Young progressive",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 15,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 42,
+    "model": "locations.location",
+    "fields": {
+      "name": "Amano Farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 43,
+    "model": "locations.location",
+    "fields": {
+      "name": "Dondonbison Agro Forest",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 44,
+    "model": "locations.location",
+    "fields": {
+      "name": "Gbodogun",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 45,
+    "model": "locations.location",
+    "fields": {
+      "name": "God Bless",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 46,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kautal Hore Fulbe Don Lawal Fulfude",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 47,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kautal Hore Sippirde Kosam Mende Fulbe",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 48,
+    "model": "locations.location",
+    "fields": {
+      "name": "Mobgal Balal Hore",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 49,
+    "model": "locations.location",
+    "fields": {
+      "name": "Paiko Fadama Farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 50,
+    "model": "locations.location",
+    "fields": {
+      "name": "Paiko People",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 51,
+    "model": "locations.location",
+    "fields": {
+      "name": "Young Farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 18,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 52,
+    "model": "locations.location",
+    "fields": {
+      "name": "Abwajnajenu",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 53,
+    "model": "locations.location",
+    "fields": {
+      "name": "Afawo Women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 54,
+    "model": "locations.location",
+    "fields": {
+      "name": "All Village Youth",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 55,
+    "model": "locations.location",
+    "fields": {
+      "name": "Avinebe",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 56,
+    "model": "locations.location",
+    "fields": {
+      "name": "Ayastwa Blacksmirth",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 57,
+    "model": "locations.location",
+    "fields": {
+      "name": "Ayebwaka",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 58,
+    "model": "locations.location",
+    "fields": {
+      "name": "Ayedo Women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 59,
+    "model": "locations.location",
+    "fields": {
+      "name": "Ayenaje",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 60,
+    "model": "locations.location",
+    "fields": {
+      "name": "Chibiri Farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 61,
+    "model": "locations.location",
+    "fields": {
+      "name": "Chibiri fishermen",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 62,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kuje Disable",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 63,
+    "model": "locations.location",
+    "fields": {
+      "name": "Young farmers shetuko",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 19,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 64,
+    "model": "locations.location",
+    "fields": {
+      "name": "Godiya Women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 65,
+    "model": "locations.location",
+    "fields": {
+      "name": "Alheri Women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 66,
+    "model": "locations.location",
+    "fields": {
+      "name": "Yabu Farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 67,
+    "model": "locations.location",
+    "fields": {
+      "name": "Cassava Women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 68,
+    "model": "locations.location",
+    "fields": {
+      "name": "Anagada Youth",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 69,
+    "model": "locations.location",
+    "fields": {
+      "name": "Rehama Women Users Ass.",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 70,
+    "model": "locations.location",
+    "fields": {
+      "name": "Yan Samari",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 71,
+    "model": "locations.location",
+    "fields": {
+      "name": "Ndakoriko",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 72,
+    "model": "locations.location",
+    "fields": {
+      "name": "Na Allah farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 73,
+    "model": "locations.location",
+    "fields": {
+      "name": "Gudaba dry season",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 74,
+    "model": "locations.location",
+    "fields": {
+      "name": "Amin Tailoring",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 75,
+    "model": "locations.location",
+    "fields": {
+      "name": "Namuna kowa Farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 76,
+    "model": "locations.location",
+    "fields": {
+      "name": "Allah Nagaba",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 17,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 77,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kutapi",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 78,
+    "model": "locations.location",
+    "fields": {
+      "name": "Cassava farmers multipurpose",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 79,
+    "model": "locations.location",
+    "fields": {
+      "name": "Wisdom farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 80,
+    "model": "locations.location",
+    "fields": {
+      "name": "Okachama",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 81,
+    "model": "locations.location",
+    "fields": {
+      "name": "Poultry\/livestock agro friendly",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 82,
+    "model": "locations.location",
+    "fields": {
+      "name": "Anagada farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 83,
+    "model": "locations.location",
+    "fields": {
+      "name": "Gaskiya women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 84,
+    "model": "locations.location",
+    "fields": {
+      "name": "Salam women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 85,
+    "model": "locations.location",
+    "fields": {
+      "name": "Peace",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 86,
+    "model": "locations.location",
+    "fields": {
+      "name": "Asejere",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 87,
+    "model": "locations.location",
+    "fields": {
+      "name": "Women progress",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 88,
+    "model": "locations.location",
+    "fields": {
+      "name": "Akwabwageje women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 89,
+    "model": "locations.location",
+    "fields": {
+      "name": "Hope women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 25,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 90,
+    "model": "locations.location",
+    "fields": {
+      "name": "Chagbu Pageant pear",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 91,
+    "model": "locations.location",
+    "fields": {
+      "name": "Arum Tsavo yam",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 92,
+    "model": "locations.location",
+    "fields": {
+      "name": "Arum tumara yam",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 93,
+    "model": "locations.location",
+    "fields": {
+      "name": "Arum banana Farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 94,
+    "model": "locations.location",
+    "fields": {
+      "name": "Arum tumara banana",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 95,
+    "model": "locations.location",
+    "fields": {
+      "name": "Chesu Fish Farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 96,
+    "model": "locations.location",
+    "fields": {
+      "name": "Lagi poultry",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 97,
+    "model": "locations.location",
+    "fields": {
+      "name": "Dosokpi Poultry farmers",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 98,
+    "model": "locations.location",
+    "fields": {
+      "name": "Divine Favour sisters",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 99,
+    "model": "locations.location",
+    "fields": {
+      "name": "Palm oil processing",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 100,
+    "model": "locations.location",
+    "fields": {
+      "name": "Black soap making",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 101,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kingiyar Yan Awu",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 23,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 102,
+    "model": "locations.location",
+    "fields": {
+      "name": "Lama",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 20,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 103,
+    "model": "locations.location",
+    "fields": {
+      "name": "Little light",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 20,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 104,
+    "model": "locations.location",
+    "fields": {
+      "name": "Jelekre",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 20,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 105,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kyuntu",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 20,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 106,
+    "model": "locations.location",
+    "fields": {
+      "name": "Manveh Nason",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 20,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 107,
+    "model": "locations.location",
+    "fields": {
+      "name": "Rhi-lakta HIV\/AIDS patients",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 20,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 108,
+    "model": "locations.location",
+    "fields": {
+      "name": "Rhi-shama",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 20,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 109,
+    "model": "locations.location",
+    "fields": {
+      "name": "Lama yam",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 20,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 110,
+    "model": "locations.location",
+    "fields": {
+      "name": "Akwanga East",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 20,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 111,
+    "model": "locations.location",
+    "fields": {
+      "name": "Sunsusu",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 21,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 112,
+    "model": "locations.location",
+    "fields": {
+      "name": "Mba Kutsomwe",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 21,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 113,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kpamai",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 21,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 114,
+    "model": "locations.location",
+    "fields": {
+      "name": "Mbu-Zon Kulikuli",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 21,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 115,
+    "model": "locations.location",
+    "fields": {
+      "name": "natsetsAe",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 21,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 116,
+    "model": "locations.location",
+    "fields": {
+      "name": "Mba-Yakungbo",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 21,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 117,
+    "model": "locations.location",
+    "fields": {
+      "name": "Tide",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 21,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 118,
+    "model": "locations.location",
+    "fields": {
+      "name": "Zokwa",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 21,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 119,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kyuntu",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 21,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 120,
+    "model": "locations.location",
+    "fields": {
+      "name": "Jimrewa Lavana Table Water",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 121,
+    "model": "locations.location",
+    "fields": {
+      "name": "Honey Production",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 122,
+    "model": "locations.location",
+    "fields": {
+      "name": "Lala Egusi",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 123,
+    "model": "locations.location",
+    "fields": {
+      "name": "Rhi-Lama G\/Nut",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 124,
+    "model": "locations.location",
+    "fields": {
+      "name": "Widows Rice Mkt",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 125,
+    "model": "locations.location",
+    "fields": {
+      "name": "Gaskiya Rice",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 126,
+    "model": "locations.location",
+    "fields": {
+      "name": "Destiny Fisheries",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 127,
+    "model": "locations.location",
+    "fields": {
+      "name": "Pelzei Fisheries",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 128,
+    "model": "locations.location",
+    "fields": {
+      "name": "Redeemed Fisheries",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 129,
+    "model": "locations.location",
+    "fields": {
+      "name": "Fad. III Cattle Mkt",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 130,
+    "model": "locations.location",
+    "fields": {
+      "name": "Pecesetter Cattle rearing",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 131,
+    "model": "locations.location",
+    "fields": {
+      "name": "Yabo Poultry",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 22,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 132,
+    "model": "locations.location",
+    "fields": {
+      "name": "Nagari",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 133,
+    "model": "locations.location",
+    "fields": {
+      "name": "Wana Women",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 134,
+    "model": "locations.location",
+    "fields": {
+      "name": "Chubuwa",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 135,
+    "model": "locations.location",
+    "fields": {
+      "name": "Oklo",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 136,
+    "model": "locations.location",
+    "fields": {
+      "name": "Hope",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 137,
+    "model": "locations.location",
+    "fields": {
+      "name": "Mumas",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 138,
+    "model": "locations.location",
+    "fields": {
+      "name": "G\/Nut fad. III",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 139,
+    "model": "locations.location",
+    "fields": {
+      "name": "Shukrah",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 140,
+    "model": "locations.location",
+    "fields": {
+      "name": "Widoes Poultry",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 141,
+    "model": "locations.location",
+    "fields": {
+      "name": "Orphan Owaloma",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 142,
+    "model": "locations.location",
+    "fields": {
+      "name": "Kurmin Tagwaye",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 143,
+    "model": "locations.location",
+    "fields": {
+      "name": "Godiya",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 144,
+    "model": "locations.location",
+    "fields": {
+      "name": "Himma",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  },
+  {
+    "pk": 145,
+    "model": "locations.location",
+    "fields": {
+      "name": "RabonAllah",
+      "point": null,
+      "parent_type": null,
+      "parent_id": 24,
+      "type": "fug",
+      "slug": null,
+      "pbf_category": null
+    }
+  }
+
+]

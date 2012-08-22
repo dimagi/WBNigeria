@@ -136,22 +136,6 @@ def random_pbf_site():
     return Location.objects.get(id=1)
 #                'facility': random.choice(utils.pbf.FACILITIES)['id'],
 
-"""
-FACILITIES = [
-    {'id': 1, 'name': 'Wamba General Hospital', 'lat': 8.936, 'lon': 8.6057},
-    {'id': 2, 'name': 'Arum Health Center', 'lat': 9.0994, 'lon': 8.65049},
-    {'id': 3, 'name': 'Mangar Health Center', 'lat': 9.0667, 'lon': 8.73339},
-    {'id': 4, 'name': 'Gitta Health Center', 'lat': 9.0458, 'lon': 8.49866},
-    {'id': 5, 'name': 'Nakere Health Center', 'lat': 8.8087, 'lon': 8.53412},
-    {'id': 6, 'name': 'Konvah Health Center', 'lat': 8.8668, 'lon': 8.81727},
-    {'id': 7, 'name': 'Wayo Health Center', 'lat': 8.8047, 'lon': 8.73558},
-    {'id': 8, 'name': 'Wamba West Health Center', 'lat': 8.8396, 'lon': 8.6311},
-    {'id': 9, 'name': 'Wamba East Health Center (Model Clinic)', 'lat': 8.9047, 'lon': 8.7032},
-    {'id': 10, 'name': 'Kwara Health Center', 'lat': 8.9967, 'lon': 8.7492},
-    {'id': 11, 'name': 'Jimiya Health Center', 'lat': 8.9485, 'lon': 8.8334},
-]
-"""
-
 def random_pbf_message():
     SAMPLE_MESSAGES = [
         'wait too long, doctor no come',
@@ -175,92 +159,6 @@ def random_fadama_site():
 #                'facility': facility['id'],
 #                'fug': random.choice(facility['fugs']),
 
-#def gen_fugs(prefix, num):
-#    return ['FUG %s-%d' % (prefix, i + 1) for i in range(num)]
-"""
-FACILITIES = [
-    {'id': 1, 'name': 'Destined FCA', 'lat': 8.958, 'lon': 7.0697, 'state': 'fct', 'fugs': [
-            'Oyiza',
-            'Onuse',
-            'Shuma Dev.',
-            'Usako',
-            'Habid',
-            'Davison',
-            'Etko',
-            'Sion group',
-            'Egba Ebemi',
-            'Mutonchi',
-            'Wisdom',
-            'Alheri Reliable',
-            'God\'s grace',
-            'Jaaiz women',
-            'Yoruba community',
-            'Young progressive',
-        ]},
-#    {'id': 2, 'name': 'Unity FCA', 'lat': 8.9268, 'lon': 7.0858, 'state': 'fct', 'fugs': gen_fugs('Unity', 5)},
-    {'id': 3, 'name': 'Anagada 1', 'lat': 9.0333, 'lon': 7.1667, 'state': 'fct', 'fugs': [
-            'Godiya Women',
-            'Alheri Women',
-            'Yabu Farmers',
-            'Cassava Women',
-            'Anagada Youth',
-            'Rehama Women Users Ass.',
-            'Yan Samari',
-            'Ndakoriko',
-            'Na Allah farmers',
-            'Gudaba dry season',
-            'Amin Tailoring',
-            'Namuna kowa Farmers',
-            'Allah Nagaba',
-        ]},
-    {'id': 11, 'name': 'Anagada 2', 'lat': 9.0333, 'lon': 7.1617, 'state': 'fct', 'fugs': [
-            'Kutapi',
-            'Cassava farmers multipurpose',
-            'Wisdom farmers',
-            'Okachama',
-            'Poultry/livestock agro friendly',
-            'Anagada farmers',
-            'Gaskiya women',
-            'Salam women',
-            'Peace',
-            'Asejere',
-            'Women progress',
-            'Akwabwageje women',
-            'Hope women',
-        ]},
-    {'id': 4, 'name': 'Paiko', 'lat': 9.4354, 'lon': 6.6344, 'state': 'fct', 'fugs': [
-            'Amano Farmers',
-            'Dondonbison Agro Forest',
-            'Gbodogun',
-            'God Bless',
-            'Kautal Hore Fulbe Don Lawal Fulfude',
-            'Kautal Hore Sippirde Kosam Mende Fulbe',
-            'Mobgal Balal Hore',
-            'Paiko Fadama Farmers',
-            'Paiko People',
-            'Young Farmers',
-        ]},
-    {'id': 5, 'name': 'Chibiri', 'lat': 8.9014, 'lon': 7.1988, 'state': 'fct', 'fugs': [
-            'Abwajnajenu',
-            'Afawo Women',
-            'All Village Youth',
-            'Avinebe',
-            'Ayastwa Blacksmirth',
-            'Ayebwaka',
-            'Ayedo Women',
-            'Ayenaje',
-            'Chibiri Farmers',
-            'Chibiri fishermen',
-            'Kuje Disable',
-            'Young farmers shetuko',
-        ]},
-    {'id': 6, 'name': 'Wamba', 'lat': 8.936, 'lon': 8.6057, 'state': 'nasarawa', 'fugs': gen_fugs('Wamba', 6)},
-    {'id': 7, 'name': 'Akwanga', 'lat': 8.9063, 'lon': 8.4085, 'state': 'nasarawa', 'fugs': gen_fugs('Akwanga', 13)},
-    {'id': 8, 'name': 'Angwa Zaria', 'lat': 9.0133, 'lon': 8.2755, 'state': 'nasarawa', 'fugs': gen_fugs('Angwa', 15)},
-    {'id': 9, 'name': 'Arum Tumara', 'lat': 9.0994, 'lon': 8.6504, 'state': 'nasarawa', 'fugs': gen_fugs('Arum', 10)},
-    {'id': 10, 'name': 'Yashi Madaki', 'lat': 9.1712, 'lon': 8.673, 'state': 'nasarawa', 'fugs': gen_fugs('Yashi', 8)},
-]
-"""
 
 
 def random_fadama_complaint():

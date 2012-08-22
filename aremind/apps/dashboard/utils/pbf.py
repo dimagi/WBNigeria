@@ -7,35 +7,6 @@ from aremind.apps.utils.functional import map_reduce
 import fadama
 
 
-FACILITIES = [
-    {'id': 1, 'name': 'Wamba General Hospital', 'lat': 8.936, 'lon': 8.6057},
-    {'id': 2, 'name': 'Arum Health Center', 'lat': 9.0994, 'lon': 8.65049},
-    {'id': 3, 'name': 'Mangar Health Center', 'lat': 9.0667, 'lon': 8.73339},
-    {'id': 4, 'name': 'Gitta Health Center', 'lat': 9.0458, 'lon': 8.49866},
-    {'id': 5, 'name': 'Nakere Health Center', 'lat': 8.8087, 'lon': 8.53412},
-    {'id': 6, 'name': 'Konvah Health Center', 'lat': 8.8668, 'lon': 8.81727},
-    {'id': 7, 'name': 'Wayo Health Center', 'lat': 8.8047, 'lon': 8.73558},
-    {'id': 8, 'name': 'Wamba West Health Center', 'lat': 8.8396, 'lon': 8.6311},
-    {'id': 9, 'name': 'Wamba East Health Center (Model Clinic)', 'lat': 8.9047, 'lon': 8.7032},
-    {'id': 10, 'name': 'Kwara Health Center', 'lat': 8.9967, 'lon': 8.7492},
-    {'id': 11, 'name': 'Jimiya Health Center', 'lat': 8.9485, 'lon': 8.8334},
-]
-
-SAMPLE_MESSAGES = [
-    'wait too long, doctor no come',
-    'no doctor, no drug',
-    'good clinic, god bless',
-    'clinic is good, doctor is good',
-    'People at clinic ask for 5000 naira, i have no money',
-    'clinic people help with malaria',
-    'feel better now',
-    'wait all morning, too many people waiting',
-    'clinic is very dirty',
-    'bring picken so them no go catch polio',
-    'where you see price of treatment?',
-    'breast milk only or water for baby',
-]
-
 def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
     with open(path) as f:
         reports = json.load(f)

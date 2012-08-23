@@ -20,26 +20,30 @@ from rapidsms.contrib.locations.models import Location
 
 def get_facilities():
     facs = u.get_facilities('fca')
+    fugs_by_fca = map_reduce(Location.objects.filter(type__slug='fug'), lambda f: [(f.parent_id, f)])
     for f in facs:
-        f['fugs'] = sorted(fug.name for fug in Location.objects.filter(type__slug='fug', parent_id=f['id']))
+        f['fugs'] = sorted(fug.name for fug in fugs_by_fca.get(f['id'], []))
     return facs
 
 def facilities_by_id():
     return map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 
-def extract_report(r):
-    data = u.extract_report(r)
-    fug_id = data['facility']
-    fug = Location.objects.get(id=fug_id)
-    data['fug'] = fug.name
-    data['facility'] = fug.parent_id
-    return data
-
 def load_reports(state=None, anonymize=True):
+    _loc = u._fac_cache('fug')
+    def extract_report(r):
+        data = u.extract_report(r)
+        fug_id = data['facility']
+        fug = _loc(fug_id)
+        data['fug'] = fug.name
+        data['facility'] = fug.parent_id
+        return data
+
     reports = [extract_report(r) for r in FadamaReport.objects.all().select_related()]
 
     facs = facilities_by_id()
     reports = [r for r in reports if state is None or state == facs[r['facility']]['state']]
+    # todo: these should probably be loaded on-demand for individual reports
+    comments = map_reduce(ReportComment.objects.all(), lambda c: [(c.report_id, c)])
 
     def _ts(r):
         return datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
@@ -50,12 +54,11 @@ def load_reports(state=None, anonymize=True):
         u.anonymize_contact(r)
         r['month'] = _ts(r).strftime('%b %Y')
         r['_month'] = _ts(r).strftime('%Y-%m')
-        r['thread'] = [c.json() for c in sorted(ReportComment.objects.filter(report__id=r['id']), key=lambda c: c.date)]
+        r['thread'] = [c.json() for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
         r['display_time'] = _ts(r).strftime('%d/%m/%y %H:%M')
         r['site_name'] = facs[r['facility']]['name']
 
     reports_by_contact = map_reduce((r for r in reports if not r['proxy']), lambda r: [(r['contact'], r)])
-    print reports_by_contact
 
     for r in reports:
         r['from_same'] = [k['id'] for k in reports_by_contact.get(r['contact'], []) if k != r and abs(_ts(r) - _ts(k)) <= settings.RECENT_REPORTS_FROM_SAME_PHONE_WINDOW]

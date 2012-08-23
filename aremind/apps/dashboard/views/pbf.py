@@ -28,3 +28,4 @@ class APIMainView(mixins.LoginMixin, mixins.APIMixin, generic.View):
         return {
             'stats': utils.main_dashboard_stats(),
         }
+

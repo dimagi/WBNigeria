@@ -38,20 +38,9 @@ def active_communicator_threads(phone_number):
     # todo make this query more efficient one we've settled on a back-end data model
     comments = ReportComment.objects.filter(
         comment_type=ReportComment.INQUIRY_TYPE,
+        report__reporter__identity=phone_number,
     )
-    comments = [c for c in comments if report_originating_phone_number(c.report_id) == phone_number]
-    latest_inquiry_per_report = map_reduce(comments, lambda c: [(c.report_id, c.date)], lambda v, k: max(v))
+    latest_inquiry_per_report = map_reduce(comments, lambda c: [(c.report.id, c.date)], lambda v, k: max(v))
     active_report_ids = [report_id for report_id, last_inquiry in latest_inquiry_per_report.iteritems() if datetime.now() - last_inquiry < settings.COMMUNICATOR_RESPONSE_WINDOW]
     return active_report_ids
-
-_tmp = None
-def report_originating_phone_number(report_id):
-    "Return connection for user which submitted a given report."
-
-    global _tmp
-    if not _tmp:
-        _tmp = map_reduce(load_reports(anonymize=False), lambda r: [(r['id'], r['_contact'])], lambda v: v[0])
-
-    return _tmp.get(report_id)
-    
 

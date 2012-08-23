@@ -7,7 +7,7 @@ from aremind.apps.utils.functional import map_reduce
 import fadama
 
 
-def load_reports(path=settings.DASHBOARD_SAMPLE_DATA['pbf']):
+def load_reports(path=None):
     with open(path) as f:
         reports = json.load(f)
 

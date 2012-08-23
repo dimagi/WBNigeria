@@ -26,7 +26,7 @@ def anonymizer(val, len=12):
 def anonymize_contact(r, anonfunc=anonymizer):
     r['contact'] = anonfunc(r['contact'])
 
-def load_reports(state=None, path=settings.DASHBOARD_SAMPLE_DATA['fadama'], anonymize=True):
+def load_reports(state=None, path=None, anonymize=True):
     with open(path) as f:
         reports = json.load(f)
 

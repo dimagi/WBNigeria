@@ -11,6 +11,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from aremind.apps.dashboard import utils
 from aremind.apps.dashboard.models import *
+from rapidsms.contrib.locations.models import Location
 
 def true_false(ratio=1.):
     return (random.random() < (ratio / (ratio + 1.)))
@@ -130,11 +131,12 @@ class Command(BaseCommand):
 
 
 
-from rapidsms.contrib.locations.models import Location
 
 def random_pbf_site():
-    return Location.objects.get(id=1)
-#                'facility': random.choice(utils.pbf.FACILITIES)['id'],
+    return random.choice(Location.objects.filter(type__slug='clinic'))
+
+def random_fadama_site():
+    return random.choice(Location.objects.filter(type__slug='fug'))
 
 def random_pbf_message():
     SAMPLE_MESSAGES = [
@@ -152,14 +154,6 @@ def random_pbf_message():
         'breast milk only or water for baby',
     ]
     return random.choice(SAMPLE_MESSAGES)
-
-def random_fadama_site():
-    return Location.objects.get(id=1)
-#        facility = random.choice(utils.fadama.FACILITIES)
-#                'facility': facility['id'],
-#                'fug': random.choice(facility['fugs']),
-
-
 
 def random_fadama_complaint():
     type = random.choice(utils.fadama.COMPLAINT_TYPES)

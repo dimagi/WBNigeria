@@ -82,15 +82,15 @@ class Command(BaseCommand):
         }
         return data
 
-    def make_phone_number(self):
-        #phone_num_len = 2 # ensures lots of collisions from same phone numbers
-        phone_num_len = 9
-        return '0' + ''.join(str(random.randint(0, 9)) for i in range(phone_num_len))
+    def make_phone_number(self, prefix='0'):
+        #phone_num_len = 4 # ensures lots of collisions from same phone numbers
+        phone_num_len = 10
+        return prefix + ''.join(str(random.randint(0, 9)) for i in range(phone_num_len - len(prefix)))
 
     def make_conn(self):
         default_backend = getattr(settings, 'PRIMARY_BACKEND', 'httptester')
         backend, _ = Backend.objects.get_or_create(name=default_backend)
-        connection, _ = Connection.objects.get_or_create(backend=backend, identity=self.make_phone_number())
+        connection, _ = Connection.objects.get_or_create(backend=backend, identity=self.make_phone_number('909'))
         return connection
 
     def generate_pbf_report(self, index, *args, **kwargs):

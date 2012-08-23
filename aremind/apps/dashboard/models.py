@@ -64,7 +64,7 @@ class ReportComment(models.Model):
         (REPLY_TYPE, REPLY_TYPE),
     )
 
-    report_id = models.IntegerField(null=True, blank=False)
+    report = models.ForeignKey(FadamaReport)
     comment_type = models.CharField(max_length=50, choices=COMMENT_TYPES)
     author = models.CharField(max_length=100)
     date = models.DateTimeField(auto_now_add=True)
@@ -77,7 +77,7 @@ class ReportComment(models.Model):
             'text': self.text,
             'date_fmt': self.date.strftime('%d/%m/%Y %H:%M'),
             'author': self.author,
-            'report_id': self.report_id,
+            'report_id': self.report.id,
             'type': self.comment_type,
             'extra': json.loads(self.extra_info) if self.extra_info else None,
         }

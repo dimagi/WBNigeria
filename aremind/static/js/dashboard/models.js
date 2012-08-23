@@ -415,7 +415,7 @@ function FadamaLogModel(data, root) {
         var model = this;
         var url = $('#message-form').attr('action');
         $.post(url, {
-            report_id: this.id(),
+            report: this.id(),
             comment_type: type,
             text: content,
             author: 'demo user'

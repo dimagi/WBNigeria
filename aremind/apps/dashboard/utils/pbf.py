@@ -4,17 +4,17 @@ from datetime import datetime
 from django.conf import settings
 
 from aremind.apps.utils.functional import map_reduce
-import fadama
+import shared as u
 
+from apps.dashboard.models import PBFReport
 
-def load_reports(path=None):
-    with open(path) as f:
-        reports = json.load(f)
+def load_reports():
+    reports = [u.extract_report(r) for r in PBFReport.objects.all().select_related()]
 
     wait_buckets = [(2, '<2'), (4, '2-4'), (None, '>4')]
 
     for r in reports:
-        fadama.anonymize_contact(r)
+        u.anonymize_contact(r)
         ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')
@@ -25,11 +25,13 @@ def load_reports(path=None):
 
     return reports
 
+def get_facilities():
+    return u.get_facilities('clinic')
 
 def main_dashboard_stats():
     data = load_reports()
 
-    facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
+    facilities = map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 
     def month_stats(data, label):
         return {
@@ -50,10 +52,11 @@ def main_dashboard_stats():
     return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
 
 
+
 def detail_stats(facility_id):
     data = load_reports()
 
-    facilities = map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
+    facilities = map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 
     filtered_data = [r for r in data if facility_id is None or r['facility'] == facility_id]
     for r in filtered_data:

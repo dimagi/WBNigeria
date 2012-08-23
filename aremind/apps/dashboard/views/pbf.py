@@ -18,7 +18,7 @@ class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
 class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
     def get_payload(self, site):
         return {
-            'facilities': utils.FACILITIES,
+            'facilities': utils.get_facilities(),
             'monthly': utils.detail_stats(site),
         }
 

@@ -11,30 +11,35 @@ from rapidsms.messages.outgoing import OutgoingMessage
 from rapidsms.models import Backend, Connection
 from threadless_router.router import Router
 
-from aremind.apps.dashboard.models import ReportComment
 from aremind.apps.utils.functional import map_reduce
 
+import shared as u
+from apps.dashboard.models import FadamaReport, ReportComment
 
+from rapidsms.contrib.locations.models import Location
+
+def get_facilities():
+    facs = u.get_facilities('fca')
+    for f in facs:
+        f['fugs'] = sorted(fug.name for fug in Location.objects.filter(type__slug='fug', parent_id=f['id']))
+    return facs
 
 def facilities_by_id():
-    return map_reduce(FACILITIES, lambda e: [(e['id'], e)], lambda v: v[0])
+    return map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 
-def anonymizer(val, len=12):
-    salt = 'utbzembsanxp0'
-    return hashlib.sha1(salt + val).hexdigest()[:len]
+def extract_report(r):
+    data = u.extract_report(r)
+    fug_id = data['facility']
+    fug = Location.objects.get(id=fug_id)
+    data['fug'] = fug.name
+    data['facility'] = fug.parent_id
+    return data
 
-def anonymize_contact(r, anonfunc=anonymizer):
-    r['contact'] = anonfunc(r['contact'])
-
-def load_reports(state=None, path=None, anonymize=True):
-    with open(path) as f:
-        reports = json.load(f)
+def load_reports(state=None, anonymize=True):
+    reports = [extract_report(r) for r in FadamaReport.objects.all().select_related()]
 
     facs = facilities_by_id()
     reports = [r for r in reports if state is None or state == facs[r['facility']]['state']]
-
-    comments = ReportComment.objects.all() # TODO: not scalable
-    by_report = map_reduce(comments, lambda c: [(c.report_id, c)])
 
     def _ts(r):
         return datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
@@ -42,16 +47,18 @@ def load_reports(state=None, path=None, anonymize=True):
     for r in reports:
         if not anonymize:
             r['_contact'] = r['contact']
-        anonymize_contact(r)
+        u.anonymize_contact(r)
         r['month'] = _ts(r).strftime('%b %Y')
         r['_month'] = _ts(r).strftime('%Y-%m')
-        r['thread'] = [c.json() for c in sorted(by_report.get(r['id'], []), key=lambda c: c.date)]
+        r['thread'] = [c.json() for c in sorted(ReportComment.objects.filter(report__id=r['id']), key=lambda c: c.date)]
         r['display_time'] = _ts(r).strftime('%d/%m/%y %H:%M')
         r['site_name'] = facs[r['facility']]['name']
 
     reports_by_contact = map_reduce((r for r in reports if not r['proxy']), lambda r: [(r['contact'], r)])
+    print reports_by_contact
+
     for r in reports:
-        r['from_same'] = [k['id'] for k in reports_by_contact[r['contact']] if k != r and abs(_ts(r) - _ts(k)) <= settings.RECENT_REPORTS_FROM_SAME_PHONE_WINDOW]
+        r['from_same'] = [k['id'] for k in reports_by_contact.get(r['contact'], []) if k != r and abs(_ts(r) - _ts(k)) <= settings.RECENT_REPORTS_FROM_SAME_PHONE_WINDOW]
 
     return reports
 
@@ -150,11 +157,10 @@ def communicator_prefix():
     return _('From fadama:')
 
 
-def message_report_beneficiary(report_id, message_text):
+def message_report_beneficiary(report, message_text):
     "Send a message to a user based on a report."
-    connection = _get_connection_from_report(report_id)
     template = u'{0} {1}'.format(communicator_prefix(), message_text)
-    message = OutgoingMessage(connection=connection, template=template)
+    message = OutgoingMessage(connection=report.reporter, template=template)
     router = Router()
     router.outgoing(message)
 

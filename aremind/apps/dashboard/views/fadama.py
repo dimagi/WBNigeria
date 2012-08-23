@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from alerts.models import NotificationVisibility
 
 from aremind.apps.dashboard import forms
-from aremind.apps.dashboard.models import ReportComment
+from aremind.apps.dashboard.models import FadamaReport, ReportComment
 from aremind.apps.dashboard.utils import fadama as utils
 from aremind.apps.dashboard.utils import mixins
 
@@ -39,7 +39,7 @@ class MessageView(generic.CreateView):
             comment = form.save()
             if comment.comment_type == ReportComment.INQUIRY_TYPE:
                 # Send SMS to beneficiary
-                utils.message_report_beneficiary(comment.report_id, comment.text)
+                utils.message_report_beneficiary(comment.report, comment.text)
             return HttpResponse(json.dumps(comment.json()),
                 mimetype='application/json')
 
@@ -50,7 +50,7 @@ class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
     def get_payload(self, site):
         state = self.get_user_state()
         return {
-            'facilities': [f for f in utils.FACILITIES if state is None or f['state'] == state],
+            'facilities': [f for f in utils.get_facilities() if state is None or f['state'] == state],
             'monthly': utils.detail_stats(site, state),
         }
 
@@ -64,7 +64,7 @@ class APIMainView(mixins.LoginMixin, mixins.APIMixin, generic.View):
 
 def msg_from_bene(request):
     rc = ReportComment()
-    rc.report_id = int(request.GET.get('id'))
+    rc.report = FadamaReport.objects.get(id=int(request.GET.get('id')))
     rc.comment_type = 'response'
     rc.author = ReportComment.FROM_BENEFICIARY
     rc.text = request.GET.get('text')

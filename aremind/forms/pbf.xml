@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa">
+	<h:head>
+		<h:title>New Form</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/PBF-FORM" uiVersion="1" version="1" name="New Form">
+					<framing />
+					<intro />
+					<confirm_satisfied />
+					<satisfied_not_satisfied />
+					<wait_time />
+					<friendly_staff />
+					<hygiene />
+					<drugs_available />
+					<drugs_prices />
+					<other />
+					<contact_later />
+					<thanks_contact />
+					<thanks_no_contact />
+					<what_state />
+					<other_state_info />
+					<state_other_thanks />
+				</data>
+			</instance>
+			<bind nodeset="/data/framing" type="xsd:string" />
+			<bind nodeset="/data/intro" relevant="/data/framing = 1" />
+			<bind nodeset="/data/confirm_satisfied" type="xsd:string" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/satisfied_not_satisfied" type="xsd:string" relevant="/data/confirm_satisfied = 2" />
+			<bind nodeset="/data/wait_time" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/friendly_staff" type="xsd:string" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/hygiene" type="xsd:string" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/drugs_available" type="xsd:string" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/drugs_prices" type="xsd:string" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/other" type="xsd:string" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/contact_later" type="xsd:string" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/thanks_contact" type="xsd:string" relevant="/data/contact_later = 1" />
+			<bind nodeset="/data/thanks_no_contact" type="xsd:string" relevant="/data/contact_later = 2" />
+			<bind nodeset="/data/what_state" type="xsd:string" relevant="/data/intro = 'no_other_fca'" />
+			<bind nodeset="/data/other_state_info" type="xsd:string" relevant="/data/intro = 'no_other_fca'" />
+			<bind nodeset="/data/state_other_thanks" type="xsd:string" relevant="/data/intro = 'no_other_fca'" />
+			<itext>
+				<translation lang="en" default="">
+					<text id="intro-label">
+						<value>Are you in Nassarawa? For yes, send "1". For no, send "2" to 08165677415</value>
+					</text>
+					<text id="intro-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="intro-no_other_fca-label">
+						<value>No</value>
+					</text>
+					<text id="confirm_satisfied-label">
+						<value>Are you satisfied with the services rendered to you at the clinic? If it's good, send "1". If you are not satisfied, send "2" to 08165677415</value>
+					</text>
+					<text id="wait_time-label">
+						<value>How long did you wait to see a doctor? For less than 2 hours, send "1". For 2 to 4 hours, send "2". For more than 4 hours, send "3".</value>
+					</text>
+					<text id="last_visit-week-label">
+						<value>Less than 2 hours</value>
+					</text>
+					<text id="last_visit-month-label">
+						<value>2 to 4 hours</value>
+					</text>
+					<text id="last_visit-six_month-label">
+						<value>More than 4 hours</value>
+					</text>
+					<text id="satisfied_not_satisfied-label">
+						<value>If you are not satisfied with the services rendered, can you specify the problem?</value>
+					</text>
+					<text id="what_state-label">
+						<value>What state are you in?</value>
+					</text>
+					<text id="other_state_info-label">
+						<value>Is there anything you would like to tell us about your time in the clinic?</value>
+					</text>
+					<text id="state_other_thanks-label">
+						<value>Your message has been received. Thank you!</value>
+					</text>
+					<text id="drugs_available-label">
+						<value>Were the medicines you needed available? For yes, send "1". For no, send "2".</value>
+					</text>
+					<text id="drugs_prices-label">
+						<value>Were the prices of the medicines displayed? For yes, send "1". For no, send "2".</value>
+					</text>
+					<text id="friendly_staff-label">
+						<value>Were the clinic staff friendly? For yes, send "1". For no, send "2".</value>
+					</text>
+					<text id="other-label">
+						<value>Is there anything else you want to say?</value>
+					</text>
+					<text id="thanks_no_contact-label">
+						<value>Thank you. Your feedback has been well received.</value>
+					</text>
+					<text id="hygiene-label">
+						<value>Was the clinic and the equipment clean? For yes, send "1". For no, send "2".</value>
+					</text>
+					<text id="framing-label">
+						<value>You are invited to answer a few questions on your experience at the clinic. All messages are FREE! Do you wish to continue? Send "1" to continue.</value>
+					</text>
+					<text id="contact_later-label">
+						<value>Thank you for completing the questions. Can we contact you later at this number? Send "1" for yes and "2" for no.</value>
+					</text>
+					<text id="thanks_contact-label">
+						<value>Thank you! We will contact you in the future.</value>
+					</text>
+				</translation>
+			</itext>
+		</model>
+	</h:head>
+	<h:body>
+		<input ref="/data/framing">
+			<label ref="jr:itext('framing-label')" />
+		</input>
+		<select1 ref="/data/intro">
+			<label ref="jr:itext('intro-label')" />
+			<item>
+				<label ref="jr:itext('intro-yes-label')" />
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('intro-no_other_fca-label')" />
+				<value>no_other_fca</value>
+			</item>
+		</select1>
+		<input ref="/data/confirm_satisfied">
+			<label ref="jr:itext('confirm_satisfied-label')" />
+		</input>
+		<input ref="/data/satisfied_not_satisfied">
+			<label ref="jr:itext('satisfied_not_satisfied-label')" />
+		</input>
+		<select1 ref="/data/wait_time">
+			<label ref="jr:itext('wait_time-label')" />
+			<item>
+				<label ref="jr:itext('last_visit-week-label')" />
+				<value>less_two</value>
+			</item>
+			<item>
+				<label ref="jr:itext('last_visit-month-label')" />
+				<value>two_to_four</value>
+			</item>
+			<item>
+				<label ref="jr:itext('last_visit-six_month-label')" />
+				<value>more_four</value>
+			</item>
+		</select1>
+		<input ref="/data/friendly_staff">
+			<label ref="jr:itext('friendly_staff-label')" />
+		</input>
+		<input ref="/data/hygiene">
+			<label ref="jr:itext('hygiene-label')" />
+		</input>
+		<input ref="/data/drugs_available">
+			<label ref="jr:itext('drugs_available-label')" />
+		</input>
+		<input ref="/data/drugs_prices">
+			<label ref="jr:itext('drugs_prices-label')" />
+		</input>
+		<input ref="/data/other">
+			<label ref="jr:itext('other-label')" />
+		</input>
+		<input ref="/data/contact_later">
+			<label ref="jr:itext('contact_later-label')" />
+		</input>
+		<input ref="/data/thanks_contact">
+			<label ref="jr:itext('thanks_contact-label')" />
+		</input>
+		<input ref="/data/thanks_no_contact">
+			<label ref="jr:itext('thanks_no_contact-label')" />
+		</input>
+		<input ref="/data/what_state">
+			<label ref="jr:itext('what_state-label')" />
+		</input>
+		<input ref="/data/other_state_info">
+			<label ref="jr:itext('other_state_info-label')" />
+		</input>
+		<input ref="/data/state_other_thanks">
+			<label ref="jr:itext('state_other_thanks-label')" />
+		</input>
+	</h:body>
+</h:html>

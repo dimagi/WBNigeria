@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa">
+	<h:head>
+		<h:title>Fadama FCT</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/FadamaPhase1" uiVersion="2" version="2" name="Fadama FCT">
+					<framing />
+					<confirm_location />
+					<confirm_phase />
+					<project_phase2 />
+					<project_phase2_good />
+					<project_phase2_improved />
+					<project_phase2_contact />
+					<project_phase2_contact_yes />
+					<project_phase2_contact_no />
+					<project_phase2_bad />
+					<project_phase2_bad_sp />
+					<project_phase2_bad_people />
+					<project_phase2_bad_info />
+					<project_phase1_bad />
+					<project_phase1_bad_ldp />
+					<project_phase1_bad_people />
+					<project_phase1_bad_money />
+					<project_phase1_bad_sp />
+					<project_phase1_bad_land />
+					<project_phase2_bad_sp_default />
+					<project_phase2_bad_sp_other />
+					<different_fug_or_fca />
+					<describe_other_loc_problem />
+					<contact />
+					<contact_me />
+					<dont_contact_me />
+				</data>
+			</instance>
+			<bind nodeset="/data/framing" type="xsd:string" />
+			<bind nodeset="/data/confirm_location" type="xsd:int" relevant="/data/framing = 1" />
+			<bind nodeset="/data/confirm_phase" type="xsd:int" relevant="/data/confirm_location = 1" />
+			<bind nodeset="/data/project_phase2" type="xsd:int" relevant="/data/confirm_phase = 1 or /data/confirm_phase = 2" />
+			<bind nodeset="/data/project_phase2_good" type="xsd:string" relevant="/data/project_phase2 = 1" />
+			<bind nodeset="/data/project_phase2_improved" type="xsd:string" relevant="/data/project_phase2 = 1" />
+			<bind nodeset="/data/project_phase2_contact" type="xsd:int" relevant="/data/project_phase2 = 1" />
+			<bind nodeset="/data/project_phase2_contact_yes" relevant="/data/project_phase2_contact = 1" />
+			<bind nodeset="/data/project_phase2_contact_no" relevant="/data/project_phase2_contact = 2" />
+			<bind nodeset="/data/project_phase2_bad" type="xsd:int" relevant="/data/project_phase2 = 2 and /data/confirm_phase = 1" />
+			<bind nodeset="/data/project_phase2_bad_sp" type="xsd:int" relevant="/data/project_phase2_bad = 1" />
+			<bind nodeset="/data/project_phase2_bad_people" type="xsd:int" relevant="/data/project_phase2_bad = 2" />
+			<bind nodeset="/data/project_phase2_bad_info" type="xsd:int" relevant="/data/project_phase2_bad = 3" />
+			<bind nodeset="/data/project_phase1_bad" type="xsd:int" relevant="/data/project_phase2 = 2 and /data/confirm_phase = 2" />
+			<bind nodeset="/data/project_phase1_bad_ldp" type="xsd:int" relevant="/data/project_phase1_bad = 1" />
+			<bind nodeset="/data/project_phase1_bad_people" type="xsd:int" relevant="/data/project_phase1_bad = 2" />
+			<bind nodeset="/data/project_phase1_bad_money" type="xsd:int" relevant="/data/project_phase1_bad = 3" />
+			<bind nodeset="/data/project_phase1_bad_sp" type="xsd:int" relevant="/data/project_phase1_bad = 4" />
+			<bind nodeset="/data/project_phase1_bad_land" type="xsd:int" relevant="/data/project_phase1_bad = 5" />
+			<bind nodeset="/data/project_phase2_bad_sp_default" type="xsd:string" relevant="/data/project_phase1_bad_sp = 1 or /data/project_phase1_bad_money = 2 or /data/project_phase2_bad_info = 3 or /data/project_phase2_bad_info = 2 or /data/project_phase2_bad_info = 1 or /data/project_phase1_bad_people = 4 or /data/project_phase1_bad_people = 3 or /data/project_phase1_bad_people = 2 or /data/project_phase1_bad_people = 1 or /data/project_phase2_bad_people = 3 or /data/project_phase2_bad_people = 2 or /data/project_phase2_bad_people = 1 or /data/project_phase2_bad_sp = 4 or /data/project_phase2_bad_sp = 3 or /data/project_phase2_bad_sp = 2 or /data/project_phase2_bad_sp = 1 or /data/project_phase2_bad_people = 4 or /data/project_phase1_bad_ldp = 1 or /data/project_phase1_bad_money = 1 or /data/project_phase1_bad_land = 1 or  /data/project_phase1_bad_land = 2 or /data/project_phase1_bad_land = 3" />
+			<bind nodeset="/data/project_phase2_bad_sp_other" type="xsd:string" relevant="/data/project_phase1_bad_money = 3 or /data/project_phase2_bad = 4 or /data/project_phase2_bad_people = 5 or /data/project_phase2_bad_sp = 5 or /data/project_phase2_bad_info = 4 or /data/project_phase1_bad_ldp = 2 or /data/project_phase1_bad_people = 5 or /data/project_phase1_bad_sp = 2 or /data/project_phase1_bad_land = 4 or  /data/project_phase1_bad = 5" />
+			<bind nodeset="/data/different_fug_or_fca" type="xsd:string" relevant="/data/confirm_location = 2" />
+			<bind nodeset="/data/describe_other_loc_problem" type="xsd:string" relevant="/data/confirm_location = 2" />
+			<bind nodeset="/data/contact" type="xsd:int" />
+			<bind nodeset="/data/contact_me" relevant="/data/contact = 1" />
+			<bind nodeset="/data/dont_contact_me" relevant="/data/contact = 2" />
+			<itext>
+				<translation lang="en" default="">
+					<text id="confirm_location-label">
+						<value>Do you belong to an FUG in FCT? For yes, send "1". For no, send "2" to 08165677415</value>
+					</text>
+					<text id="project_phase2-label">
+						<value>How is your project going? If it's good, send "1". If you are not satisfied, send "2" to 08165677415</value>
+					</text>
+					<text id="project_phase2_good-label">
+						<value>Can you write down what is good about your project? </value>
+					</text>
+					<text id="project_phase2_improved-label">
+						<value>What could be improved in your project? </value>
+					</text>
+					<text id="project_phase2_contact-label">
+						<value>Thank you. Can we ask you more questions in the future? For yes, send "1". For no, send "2" to 08165677415</value>
+					</text>
+					<text id="project_phase2_contact_yes-label">
+						<value>Thank you! We will contact you in the future.</value>
+					</text>
+					<text id="project_phase2_contact_no-label">
+						<value>Thank you for being part of this survey!</value>
+					</text>
+					<text id="different_fug_or_fca-label">
+						<value>What FUG or FCA are you from?</value>
+					</text>
+					<text id="describe_other_loc_problem-label">
+						<value>What problem do you have?</value>
+					</text>
+					<text id="framing-label">
+						<value>You are invited to answer a few questions on your experience with Fadama. All messages are FREE! Do you wish to continue? Send "1" to continue.</value>
+					</text>
+					<text id="confirm_phase-label">
+						<value>Have you received the money from Fadama? If yes, send "1". If not yet, send "2" to 0816 5677 415</value>
+					</text>
+					<text id="project_phase2_bad-label">
+						<value>What is your MAIN problem? Is it with service providers? Send "1". People from Fadama or from your community? Send "2". Information? Send "3". Other? send "4"</value>
+					</text>
+					<text id="project_phase2_bad_sp-label">
+						<value>If the project has not started, send "1". For delays, send "2". For stopped project, send "3". For substandard service, send "4". For other problems, send "5"</value>
+					</text>
+					<text id="project_phase2_bad_sp_default-label">
+						<value>Thank you for sending your problem. Do you have anything else you want to say?</value>
+					</text>
+					<text id="project_phase2_bad_sp_other-label">
+						<value>Can you specify the problem?</value>
+					</text>
+					<text id="project_phase2_bad_people-label">
+						<value>If you have problems with Fadama State Officials, send "1". With your community, send "2". With facilitators, send "3". With desk officers, send "4". For others, send "5"</value>
+					</text>
+					<text id="project_phase2_bad_info-label">
+						<value>If you need input information, send "1". If  you need market information, send "2". If you need loans information, send "3". For other requests, send "4".</value>
+					</text>
+					<text id="project_phase1_bad-label">
+						<value>What is your MAIN problem? Is it with your LDP? Send "1". With people? Send "2". Money? Send "3". Service providers? Send "4". Land? Send "5". Other? Send "6"</value>
+					</text>
+					<text id="project_phase1_bad_ldp-label">
+						<value>For delays in reviewing your LDP, send "1". For other problems, send "2".</value>
+					</text>
+					<text id="project_phase1_bad_people-label">
+						<value>If you have problems with Fadama State Officials, send "1". With your community, send "2". With facilitators, send "3". With desk officers, send "4". For others, send "5"</value>
+					</text>
+					<text id="project_phase1_bad_money-label">
+						<value>If you have problems with your bank account opening, send "1". If you have a delayed funding, send "2". For other problems, send "3".</value>
+					</text>
+					<text id="project_phase1_bad_sp-label">
+						<value>If you are not finding service providers, send "1". For other problems, send "2".</value>
+					</text>
+					<text id="project_phase1_bad_land-label">
+						<value>If you cannot find a land, send "1". If your land is not suitable, send "2". If someone claims ownership of the land, send "3". For others, send "4".</value>
+					</text>
+					<text id="contact-label">
+						<value>Thank you for completing the questions. Can we contact you later at this number? Send "1" for yes, send "2" for no.</value>
+					</text>
+					<text id="contact_me-label">
+						<value>Thank you! We will contact you in the future.</value>
+					</text>
+					<text id="dont_contact_me-label">
+						<value>Thank you! Your feedback has been well received.</value>
+					</text>
+				</translation>
+			</itext>
+		</model>
+	</h:head>
+	<h:body>
+		<input ref="/data/framing">
+			<label ref="jr:itext('framing-label')" />
+		</input>
+		<input ref="/data/confirm_location">
+			<label ref="jr:itext('confirm_location-label')" />
+		</input>
+		<input ref="/data/confirm_phase">
+			<label ref="jr:itext('confirm_phase-label')" />
+		</input>
+		<input ref="/data/project_phase2">
+			<label ref="jr:itext('project_phase2-label')" />
+		</input>
+		<input ref="/data/project_phase2_good">
+			<label ref="jr:itext('project_phase2_good-label')" />
+		</input>
+		<input ref="/data/project_phase2_improved">
+			<label ref="jr:itext('project_phase2_improved-label')" />
+		</input>
+		<input ref="/data/project_phase2_contact">
+			<label ref="jr:itext('project_phase2_contact-label')" />
+		</input>
+		<trigger ref="/data/project_phase2_contact_yes">
+			<label ref="jr:itext('project_phase2_contact_yes-label')" />
+		</trigger>
+		<trigger ref="/data/project_phase2_contact_no">
+			<label ref="jr:itext('project_phase2_contact_no-label')" />
+		</trigger>
+		<input ref="/data/project_phase2_bad">
+			<label ref="jr:itext('project_phase2_bad-label')" />
+		</input>
+		<input ref="/data/project_phase2_bad_sp">
+			<label ref="jr:itext('project_phase2_bad_sp-label')" />
+		</input>
+		<input ref="/data/project_phase2_bad_people">
+			<label ref="jr:itext('project_phase2_bad_people-label')" />
+		</input>
+		<input ref="/data/project_phase2_bad_info">
+			<label ref="jr:itext('project_phase2_bad_info-label')" />
+		</input>
+		<input ref="/data/project_phase1_bad">
+			<label ref="jr:itext('project_phase1_bad-label')" />
+		</input>
+		<input ref="/data/project_phase1_bad_ldp">
+			<label ref="jr:itext('project_phase1_bad_ldp-label')" />
+		</input>
+		<input ref="/data/project_phase1_bad_people">
+			<label ref="jr:itext('project_phase1_bad_people-label')" />
+		</input>
+		<input ref="/data/project_phase1_bad_money">
+			<label ref="jr:itext('project_phase1_bad_money-label')" />
+		</input>
+		<input ref="/data/project_phase1_bad_sp">
+			<label ref="jr:itext('project_phase1_bad_sp-label')" />
+		</input>
+		<input ref="/data/project_phase1_bad_land">
+			<label ref="jr:itext('project_phase1_bad_land-label')" />
+		</input>
+		<input ref="/data/project_phase2_bad_sp_default">
+			<label ref="jr:itext('project_phase2_bad_sp_default-label')" />
+		</input>
+		<input ref="/data/project_phase2_bad_sp_other">
+			<label ref="jr:itext('project_phase2_bad_sp_other-label')" />
+		</input>
+		<input ref="/data/different_fug_or_fca">
+			<label ref="jr:itext('different_fug_or_fca-label')" />
+		</input>
+		<input ref="/data/describe_other_loc_problem">
+			<label ref="jr:itext('describe_other_loc_problem-label')" />
+		</input>
+		<input ref="/data/contact">
+			<label ref="jr:itext('contact-label')" />
+		</input>
+		<trigger ref="/data/contact_me">
+			<label ref="jr:itext('contact_me-label')" />
+		</trigger>
+		<trigger ref="/data/dont_contact_me">
+			<label ref="jr:itext('dont_contact_me-label')" />
+		</trigger>
+	</h:body>
+</h:html>

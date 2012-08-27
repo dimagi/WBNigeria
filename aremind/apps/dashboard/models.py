@@ -108,7 +108,7 @@ def on_form_submit(sender, session, xform, **kwargs):
 
     # TODO make a setting?
     processors = {
-        'http://openrosa.org/formdesigner/FadamaPhase1': fadama_report,
+        'http://openrosa.org/formdesigner/Fadama': fadama_report,
         'http://openrosa.org/formdesigner/PBF-FORM': pbf_report,
     }
 
@@ -116,7 +116,7 @@ def on_form_submit(sender, session, xform, **kwargs):
         'timestamp': datetime.now(),
         'reporter': reporter,
         'raw_report': doc_id,
-        # site?
+        'site': Location.objects.get(id=int(form['site_id'])),
     }
     try:
         processor = processors[form['@xmlns']]
@@ -126,3 +126,9 @@ def on_form_submit(sender, session, xform, **kwargs):
 
     report = processor(form, data)
     report.save()
+
+def fadama_report(form, data):
+    print form, data
+
+def pbf_report(form, data):
+    pass

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa">
 	<h:head>
-		<h:title>Fadama FCT</h:title>
+		<h:title>Fadama</h:title>
 		<model>
 			<instance>
-				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/FadamaPhase1" uiVersion="2" version="2" name="Fadama FCT">
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/Fadama" uiVersion="2" version="2">
+				        <site_id />
 					<framing />
 					<confirm_location />
 					<confirm_phase />
@@ -33,6 +34,8 @@
 					<dont_contact_me />
 				</data>
 			</instance>
+			<instance id="session" src="jr://instance/session" />
+			<setvalue event="xforms-ready" ref="/data/site_id" value="instance('session')/session/data/site_id" />
 			<bind nodeset="/data/framing" type="xsd:string" />
 			<bind nodeset="/data/confirm_location" type="xsd:int" relevant="/data/framing = 1" />
 			<bind nodeset="/data/confirm_phase" type="xsd:int" relevant="/data/confirm_location = 1" />
@@ -62,7 +65,7 @@
 			<itext>
 				<translation lang="en" default="">
 					<text id="confirm_location-label">
-						<value>Do you belong to an FUG in FCT? For yes, send "1". For no, send "2" to 08165677415</value>
+						<value>Do you belong to an FUG in <output value="instance('session')/session/data/state_name" />? For yes, send "1". For no, send "2" to 08165677415</value>
 					</text>
 					<text id="project_phase2-label">
 						<value>How is your project going? If it's good, send "1". If you are not satisfied, send "2" to 08165677415</value>

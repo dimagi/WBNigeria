@@ -2,6 +2,7 @@ from django.db import models
 from rapidsms.models import Connection
 from rapidsms.contrib.locations.models import Location, LocationType
 import json
+from datetime import datetime
 
 class FeedbackReport(models.Model):
 
@@ -11,7 +12,8 @@ class FeedbackReport(models.Model):
     # rapidsms contact report came from
     reporter = models.ForeignKey(Connection)
 
-    # site report is in reference to (PBF clinic, FUG, FCA (if no FUG specified), need to handle no site specified?)
+    # site report is in reference to (PBF clinic, FUG, FCA (if no FUG specified)
+    # TODO need to handle no site specified?
     site = models.ForeignKey(Location)
 
     # free-form message provided with report
@@ -25,6 +27,12 @@ class FeedbackReport(models.Model):
 
     # json data of report contents
     data = models.TextField(null=True, blank=True)
+
+    # incrementing version number for the form data schema
+    schema_version = models.IntegerField()
+
+    # uuid of raw report data in couchdb
+    raw_report = models.TextField()
 
     @property
     def content(self):
@@ -82,3 +90,39 @@ class ReportComment(models.Model):
             'extra': json.loads(self.extra_info) if self.extra_info else None,
         }
 
+
+
+
+
+
+
+from smscouchforms.signals import xform_saved_with_session
+from django.dispatch import receiver
+
+@receiver(xform_saved_with_session)
+def on_form_submit(sender, session, xform, **kwargs):
+    reporter = session.connection
+    reg_code = session.trigger.trigger_keyword
+    form = xform.get_form
+    doc_id = xform.get_id
+
+    # TODO make a setting?
+    processors = {
+        'http://openrosa.org/formdesigner/FadamaPhase1': fadama_report,
+        'http://openrosa.org/formdesigner/PBF-FORM': pbf_report,
+    }
+
+    data = {
+        'timestamp': datetime.now(),
+        'reporter': reporter,
+        'raw_report': doc_id,
+        # site?
+    }
+    try:
+        processor = processors[form['@xmlns']]
+    except KeyError:
+        # not a form type we care about
+        return
+
+    report = processor(form, data)
+    report.save()

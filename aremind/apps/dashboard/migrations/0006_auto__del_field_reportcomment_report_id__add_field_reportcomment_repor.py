@@ -8,14 +8,24 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Deleting field 'ReportComment.report_id'
+        db.delete_column('dashboard_reportcomment', 'report_id')
 
-        # Changing field 'ReportComment.report'
-        db.alter_column('dashboard_reportcomment', 'report_id', self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['dashboard.FadamaReport']))
+        # Adding field 'ReportComment.report'
+        db.add_column('dashboard_reportcomment', 'report',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['dashboard.FadamaReport']),
+                      keep_default=False)
+
 
     def backwards(self, orm):
+        # Adding field 'ReportComment.report_id'
+        db.add_column('dashboard_reportcomment', 'report_id',
+                      self.gf('django.db.models.fields.IntegerField')(null=True),
+                      keep_default=False)
 
-        # Changing field 'ReportComment.report'
-        db.alter_column('dashboard_reportcomment', 'report_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['dashboard.FadamaReport'], null=True))
+        # Deleting field 'ReportComment.report'
+        db.delete_column('dashboard_reportcomment', 'report_id')
+
 
     models = {
         'auth.group': {

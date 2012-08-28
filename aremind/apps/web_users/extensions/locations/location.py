@@ -9,6 +9,7 @@ class LocationExtra(models.Model):
             help_text="A unique identifier for this Location.")
 
     # can this live elsewhere?
+    keyword = models.CharField(max_length=20, null=True, blank=True)
     pbf_category = models.IntegerField(null=True, blank=True)
 
     class Meta:

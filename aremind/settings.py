@@ -475,3 +475,8 @@ LOGISTICS_NOTIF_GENERATORS = (
 )
 SYSTEM_USERNAME = "the_man"
 
+DECISION_TREE_FORMS = {
+    'fadama': 'http://openrosa.org/formdesigner/Fadama',
+#    'pbf': 'http://openrosa.org/formdesigner/PBF-FORM',
+    'pbf': 'http://openrosa.org/formdesigner/8EE9D7BF-6368-4248-9F8A-D6B15EE006EE',
+}

@@ -3,6 +3,7 @@ from rapidsms.models import Connection
 from rapidsms.contrib.locations.models import Location, LocationType
 import json
 from datetime import datetime
+from django.conf import settings
 
 class FeedbackReport(models.Model):
 
@@ -21,6 +22,8 @@ class FeedbackReport(models.Model):
 
     # whether report was reported on behalf of someone else (assume you cannot reach the original reporter)
     proxy = models.BooleanField()
+    # whether reporter is ok to be contacted
+    can_contact = models.BooleanField()
 
     # whether patient/beneficiary is satisfied
     satisfied = models.BooleanField()
@@ -99,18 +102,12 @@ class ReportComment(models.Model):
 from smscouchforms.signals import xform_saved_with_session
 from django.dispatch import receiver
 
-@receiver(xform_saved_with_session)
+@receiver(xform_saved_with_session, dispatch_uid='cnru057m2ccbn')
 def on_form_submit(sender, session, xform, **kwargs):
     reporter = session.connection
     reg_code = session.trigger.trigger_keyword
     form = xform.get_form
     doc_id = xform.get_id
-
-    # TODO make a setting?
-    processors = {
-        'http://openrosa.org/formdesigner/Fadama': fadama_report,
-        'http://openrosa.org/formdesigner/PBF-FORM': pbf_report,
-    }
 
     data = {
         'timestamp': datetime.now(),
@@ -118,17 +115,98 @@ def on_form_submit(sender, session, xform, **kwargs):
         'raw_report': doc_id,
         'site': Location.objects.get(id=int(form['site_id'])),
     }
+
+    processors = {
+        'fadama': fadama_report,
+        'pbf': pbf_report,
+    }
     try:
-        processor = processors[form['@xmlns']]
+        form_type = dict((v, k) for k, v in settings.DECISION_TREE_FORMS.iteritems())[form['@xmlns']]
+        processor = processors[form_type]
     except KeyError:
         # not a form type we care about
         return
 
     report = processor(form, data)
-    report.save()
+    if report:
+        report.save()
 
 def fadama_report(form, data):
-    print form, data
+    data['schema_version'] = 1
+    data['proxy'] = False
+    content = {}
+
+    if form.get('confirm_location') == '2':
+        data['site'] = None
+        # what about:
+        #   different_fug_or_fca 'what is your site?'
+        #   describe_other_loc_problem 'what is your problem at the other site?'
+    else:
+        data['satisfied'] = (form.get('project_phase2') == '1')
+        if data['satisfied']:
+            content['complaint_type'] = None
+            content['complaint_subtype'] = None
+            data['freeform'] = 'What is good: %s; Could be improved: %s' % (form.get('project_phase2_good'), form.get('project_phase2_improved'))
+        else:
+            def get_enum(field, choices):
+                try:
+                    return choices[int(form.get(field)) - 1]
+                except (ValueError, TypeError, IndexError):
+                    return None
+
+            def get_combo_enum(field, choices1, choices2=None):
+                if field:
+                    field = '_' + field
+                else:
+                    field = ''
+
+                result = get_enum('project_phase1_bad%s' % field, choices1)
+                if not result:
+                    result = get_enum('project_phase2_bad%s' % field, choices2 or choices1)
+                return result
+
+            data['freeform'] = form.get('project_phase2_bad_sp_default')
+
+            content['complaint_type'] = get_combo_enum(None,
+                ['ldp', 'people', 'financial', 'serviceprovider', 'land', 'other'],
+                ['serviceprovider', 'people', 'info', 'other']
+            )
+
+            subtypes = {
+                'ldp': ('ldp', ['delay', 'other']),
+                'people': ('people', ['state', 'fug', 'facilitator', 'desk', 'other']), # no fca? 'desk' is new
+                'financial': ('money', ['bank', 'delay', 'other']),
+                'serviceprovider': ('sp', ['notfind', 'other'], ['notstarted', 'delay', 'stopped', 'substandard', 'other']),
+                'land': ('land', ['notfind', 'suitability', 'ownership', 'other']),
+                'info': ('info', ['input', 'market', 'credit', 'other']),
+            }.get(content['complaint_type'])
+            if subtypes:
+                try:
+                    field, phase1choices = subtypes
+                    phase2choices = None
+                except (ValueError, TypeError):
+                    field, phase1choices, phase2choices = subtypes
+
+                content['complaint_subtype'] = get_combo_enum(field, phase1choices, phase2choices)
+
+            else:
+                content['complaint_subtype'] = None
+                
+            if form.get('project_phase2_bad_sp_other'):
+                content['other_detail'] = form.get('project_phase2_bad_sp_other')
+
+    data['can_contact'] = (form.get('contact') == '1')
+
+    # filter out types of reports the dashboard can't handle yet
+    if data['site'] is None:
+        return
+    if content['complaint_type'] is None or content['complaint_subtype'] is None:
+        return
+
+    report = FadamaReport(**data)
+    report.content = content
+    return report
 
 def pbf_report(form, data):
     pass
+

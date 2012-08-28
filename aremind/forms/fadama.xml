@@ -12,9 +12,6 @@
 					<project_phase2 />
 					<project_phase2_good />
 					<project_phase2_improved />
-					<project_phase2_contact />
-					<project_phase2_contact_yes />
-					<project_phase2_contact_no />
 					<project_phase2_bad />
 					<project_phase2_bad_sp />
 					<project_phase2_bad_people />
@@ -42,9 +39,6 @@
 			<bind nodeset="/data/project_phase2" type="xsd:int" relevant="/data/confirm_phase = 1 or /data/confirm_phase = 2" />
 			<bind nodeset="/data/project_phase2_good" type="xsd:string" relevant="/data/project_phase2 = 1" />
 			<bind nodeset="/data/project_phase2_improved" type="xsd:string" relevant="/data/project_phase2 = 1" />
-			<bind nodeset="/data/project_phase2_contact" type="xsd:int" relevant="/data/project_phase2 = 1" />
-			<bind nodeset="/data/project_phase2_contact_yes" relevant="/data/project_phase2_contact = 1" />
-			<bind nodeset="/data/project_phase2_contact_no" relevant="/data/project_phase2_contact = 2" />
 			<bind nodeset="/data/project_phase2_bad" type="xsd:int" relevant="/data/project_phase2 = 2 and /data/confirm_phase = 1" />
 			<bind nodeset="/data/project_phase2_bad_sp" type="xsd:int" relevant="/data/project_phase2_bad = 1" />
 			<bind nodeset="/data/project_phase2_bad_people" type="xsd:int" relevant="/data/project_phase2_bad = 2" />
@@ -75,15 +69,6 @@
 					</text>
 					<text id="project_phase2_improved-label">
 						<value>What could be improved in your project? </value>
-					</text>
-					<text id="project_phase2_contact-label">
-						<value>Thank you. Can we ask you more questions in the future? For yes, send "1". For no, send "2" to 08165677415</value>
-					</text>
-					<text id="project_phase2_contact_yes-label">
-						<value>Thank you! We will contact you in the future.</value>
-					</text>
-					<text id="project_phase2_contact_no-label">
-						<value>Thank you for being part of this survey!</value>
 					</text>
 					<text id="different_fug_or_fca-label">
 						<value>What FUG or FCA are you from?</value>
@@ -165,15 +150,6 @@
 		<input ref="/data/project_phase2_improved">
 			<label ref="jr:itext('project_phase2_improved-label')" />
 		</input>
-		<input ref="/data/project_phase2_contact">
-			<label ref="jr:itext('project_phase2_contact-label')" />
-		</input>
-		<trigger ref="/data/project_phase2_contact_yes">
-			<label ref="jr:itext('project_phase2_contact_yes-label')" />
-		</trigger>
-		<trigger ref="/data/project_phase2_contact_no">
-			<label ref="jr:itext('project_phase2_contact_no-label')" />
-		</trigger>
 		<input ref="/data/project_phase2_bad">
 			<label ref="jr:itext('project_phase2_bad-label')" />
 		</input>

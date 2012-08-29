@@ -79,6 +79,7 @@ class Command(BaseCommand):
             'freeform': lorem_ipsum.sentence() if random.random() < .3 else None,
             'reporter': self.make_conn(),
             'proxy': true_false(0.4),
+            'schema_version': 1,
         }
         return data
 

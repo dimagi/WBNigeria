@@ -1,26 +1,31 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
+
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        "Write your forwards methods here."
-        # Note: Remember to use orm['appname.ModelName'] rather than "from appname.models..."
-        for comment in orm['dashboard.ReportComment'].objects.all():
-            if comment.old_report_id:
-                report = orm['dashboard.FadamaReport'].objects.get(comment.old_report_id)
-                comment.report = report
-                comment.save()
+        # Deleting field 'ReportComment.report_id'
+        db.delete_column('dashboard_reportcomment', 'report_id')
+
+        # Adding field 'ReportComment.report'
+        db.add_column('dashboard_reportcomment', 'report',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['dashboard.FadamaReport']),
+                      keep_default=False)
+
 
     def backwards(self, orm):
-        "Write your backwards methods here."
-        for comment in orm['dashboard.ReportComment'].objects.all():
-            if comment.report:
-                comment.old_report_id = comment.report.id
-                comment.save()
+        # Adding field 'ReportComment.report_id'
+        db.add_column('dashboard_reportcomment', 'report_id',
+                      self.gf('django.db.models.fields.IntegerField')(null=True),
+                      keep_default=False)
+
+        # Deleting field 'ReportComment.report'
+        db.delete_column('dashboard_reportcomment', 'report_id')
+
 
     models = {
         'auth.group': {
@@ -88,8 +93,7 @@ class Migration(DataMigration):
             'date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'extra_info': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'old_report_id': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['dashboard.FadamaReport']", 'null': 'True', 'blank': 'True'}),
+            'report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['dashboard.FadamaReport']"}),
             'text': ('django.db.models.fields.TextField', [], {})
         },
         'locations.location': {
@@ -144,4 +148,3 @@ class Migration(DataMigration):
     }
 
     complete_apps = ['dashboard']
-    symmetrical = True

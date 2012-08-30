@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Deleting field 'ReportComment.old_report_id'
-        db.delete_column('dashboard_reportcomment', 'old_report_id')
+
+        # Deleting all FeedbackReport objects.
+        orm['dashboard.FadamaReport'].objects.all().delete()
+        orm['dashboard.PBFReport'].objects.all().delete()
 
 
     def backwards(self, orm):
-        # Adding field 'ReportComment.old_report_id'
-        db.add_column('dashboard_reportcomment', 'old_report_id',
-                      self.gf('django.db.models.fields.IntegerField')(null=True, blank=True),
-                      keep_default=False)
+        
+        # Disable backwards migration.
+        raise RuntimeError("Cannot reverse this migration.  Columns and their values cannot be restored.")
 
-
+    
     models = {
         'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -58,6 +58,7 @@ class Migration(SchemaMigration):
         },
         'dashboard.fadamareport': {
             'Meta': {'object_name': 'FadamaReport'},
+            'can_contact': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'data': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'freeform': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -69,6 +70,7 @@ class Migration(SchemaMigration):
         },
         'dashboard.pbfreport': {
             'Meta': {'object_name': 'PBFReport'},
+            'can_contact': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'data': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'freeform': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -85,12 +87,13 @@ class Migration(SchemaMigration):
             'date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'extra_info': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['dashboard.FadamaReport']", 'null': 'True', 'blank': 'True'}),
+            'report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['dashboard.FadamaReport']"}),
             'text': ('django.db.models.fields.TextField', [], {})
         },
         'locations.location': {
             'Meta': {'object_name': 'Location'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'keyword': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'parent_id': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'parent_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'blank': 'True'}),
@@ -140,3 +143,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['dashboard']
+    symmetrical = True

@@ -8,14 +8,24 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding field 'FadamaReport.can_contact'
+        db.add_column('dashboard_fadamareport', 'can_contact',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
 
-        # Changing field 'ReportComment.report'
-        db.alter_column('dashboard_reportcomment', 'report_id', self.gf('django.db.models.fields.related.ForeignKey')(default=0, to=orm['dashboard.FadamaReport']))
+        # Adding field 'PBFReport.can_contact'
+        db.add_column('dashboard_pbfreport', 'can_contact',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
+
 
     def backwards(self, orm):
+        # Deleting field 'FadamaReport.can_contact'
+        db.delete_column('dashboard_fadamareport', 'can_contact')
 
-        # Changing field 'ReportComment.report'
-        db.alter_column('dashboard_reportcomment', 'report_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['dashboard.FadamaReport'], null=True))
+        # Deleting field 'PBFReport.can_contact'
+        db.delete_column('dashboard_pbfreport', 'can_contact')
+
 
     models = {
         'auth.group': {
@@ -56,6 +66,7 @@ class Migration(SchemaMigration):
         },
         'dashboard.fadamareport': {
             'Meta': {'object_name': 'FadamaReport'},
+            'can_contact': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'data': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'freeform': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -67,6 +78,7 @@ class Migration(SchemaMigration):
         },
         'dashboard.pbfreport': {
             'Meta': {'object_name': 'PBFReport'},
+            'can_contact': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'data': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'freeform': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -89,6 +101,7 @@ class Migration(SchemaMigration):
         'locations.location': {
             'Meta': {'object_name': 'Location'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'keyword': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'parent_id': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'parent_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'blank': 'True'}),

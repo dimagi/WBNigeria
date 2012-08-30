@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # Renaming field 'ReportComment.report_id' to 'ReportComment.old_report_id'
-        db.rename_column('dashboard_reportcomment', 'report_id', 'old_report_id')
+
+        # Deleting all ReportComment objects.
+        orm['dashboard.ReportComment'].objects.all().delete()
+
 
     def backwards(self, orm):
-        # Renaming field 'ReportComment.old_report_id' to 'ReportComment.report_id'
-        db.rename_column('dashboard_reportcomment', 'old_report_id', 'report_id')
+
+        # Disable backwards migration.
+        raise RuntimeError("Cannot reverse this migration. 'ReportComment.report_id' and its values cannot be restored.")
 
 
     models = {
@@ -82,7 +84,7 @@ class Migration(SchemaMigration):
             'date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'extra_info': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'old_report_id': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'report_id': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'text': ('django.db.models.fields.TextField', [], {})
         },
         'locations.location': {
@@ -137,3 +139,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['dashboard']
+    symmetrical = True

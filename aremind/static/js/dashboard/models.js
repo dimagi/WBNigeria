@@ -403,28 +403,47 @@ function FadamaLogModel(data, root) {
     });
     this.note = ko.observable();
 
+    this.submission_in_progress = false;
+
     this.send_message = function() {
+        if (this.submission_in_progress) return;
         this.new_thread_msg('inquiry', this.inquiry());
     };
 
     this.new_note = function() {
+        if (this.submission_in_progress) return;
         this.new_thread_msg('note', this.note());
     };
 
     this.new_thread_msg = function(type, content) {
+        // Don't submit empty comments
+        if (!content) return;
         var model = this;
-        var url = $('#message-form').attr('action');
+        var form = $('#message-form-' + this.id());
+        var url = form.attr('action');
+        $(':input', form).prop('disabled', true);
+        $('.btn.submit', form).addClass('disabled');
+        // Prevent duplicate/parallel submission
+        this.submission_in_progress = true;
         $.post(url, {
             report: this.id(),
             comment_type: type,
             text: content,
             author: 'demo user'
         }, function(data) {
+            // Add submission to the UI
             model.thread.push(new CommModel(data, model));
             model[type == 'inquiry' ? 'inquiry' : 'note'](null);
             if (type == 'inquiry') {
                 alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
             }
+        }).error(function() {
+            alert('There was an error adding your message.');
+        }).complete(function() { 
+            // Submission finished. Restore the form controls
+            model.submission_in_progress = false;
+            $(':input', form).prop('disabled', false);
+            $('.btn.submit', form).removeClass('disabled');
         });
     };
     

@@ -1,4 +1,5 @@
 *.pyc
+*.swp
 *.pydevproject
 *.project
 *.sqlite3

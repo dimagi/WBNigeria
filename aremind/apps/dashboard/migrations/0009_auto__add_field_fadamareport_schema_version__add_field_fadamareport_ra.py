@@ -8,15 +8,39 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'ReportComment.report'
-        db.add_column('dashboard_reportcomment', 'report',
-                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['dashboard.FadamaReport'], null=True, blank=True),
+        # Adding field 'FadamaReport.schema_version'
+        db.add_column('dashboard_fadamareport', 'schema_version',
+                      self.gf('django.db.models.fields.IntegerField')(default=0),
+                      keep_default=False)
+
+        # Adding field 'FadamaReport.raw_report'
+        db.add_column('dashboard_fadamareport', 'raw_report',
+                      self.gf('django.db.models.fields.TextField')(default=''),
+                      keep_default=False)
+
+        # Adding field 'PBFReport.schema_version'
+        db.add_column('dashboard_pbfreport', 'schema_version',
+                      self.gf('django.db.models.fields.IntegerField')(default=0),
+                      keep_default=False)
+
+        # Adding field 'PBFReport.raw_report'
+        db.add_column('dashboard_pbfreport', 'raw_report',
+                      self.gf('django.db.models.fields.TextField')(default=''),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'ReportComment.report'
-        db.delete_column('dashboard_reportcomment', 'report_id')
+        # Deleting field 'FadamaReport.schema_version'
+        db.delete_column('dashboard_fadamareport', 'schema_version')
+
+        # Deleting field 'FadamaReport.raw_report'
+        db.delete_column('dashboard_fadamareport', 'raw_report')
+
+        # Deleting field 'PBFReport.schema_version'
+        db.delete_column('dashboard_pbfreport', 'schema_version')
+
+        # Deleting field 'PBFReport.raw_report'
+        db.delete_column('dashboard_pbfreport', 'raw_report')
 
 
     models = {
@@ -58,23 +82,29 @@ class Migration(SchemaMigration):
         },
         'dashboard.fadamareport': {
             'Meta': {'object_name': 'FadamaReport'},
+            'can_contact': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'data': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'freeform': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'proxy': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'raw_report': ('django.db.models.fields.TextField', [], {}),
             'reporter': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Connection']"}),
             'satisfied': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'schema_version': ('django.db.models.fields.IntegerField', [], {}),
             'site': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']"}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {})
         },
         'dashboard.pbfreport': {
             'Meta': {'object_name': 'PBFReport'},
+            'can_contact': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'data': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'freeform': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'proxy': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'raw_report': ('django.db.models.fields.TextField', [], {}),
             'reporter': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Connection']"}),
             'satisfied': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'schema_version': ('django.db.models.fields.IntegerField', [], {}),
             'site': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']"}),
             'timestamp': ('django.db.models.fields.DateTimeField', [], {})
         },
@@ -85,13 +115,13 @@ class Migration(SchemaMigration):
             'date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'extra_info': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'old_report_id': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['dashboard.FadamaReport']", 'null': 'True', 'blank': 'True'}),
+            'report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['dashboard.FadamaReport']"}),
             'text': ('django.db.models.fields.TextField', [], {})
         },
         'locations.location': {
             'Meta': {'object_name': 'Location'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'keyword': ('django.db.models.fields.CharField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'parent_id': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'parent_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'blank': 'True'}),

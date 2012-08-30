@@ -5,10 +5,11 @@ from rapidsms.models import Connection, Backend
 from threadless_router.tests.base import SimpleRouterMixin
 
 from aremind.apps.dashboard.app import CommunicatorApp
-from aremind.apps.dashboard.models import ReportComment
+from aremind.apps.dashboard.models import ReportComment, FeedbackReport
+from aremind.apps.dashboard.tests.base import DashboardDataTest
 
 
-class CommunicatorAppTest(SimpleRouterMixin, TestCase):
+class CommunicatorAppTest(SimpleRouterMixin, DashboardDataTest):
     "Handling incoming incoming messages related to beneficiary responses."
 
     def setUp(self):
@@ -16,10 +17,9 @@ class CommunicatorAppTest(SimpleRouterMixin, TestCase):
         self.app = CommunicatorApp(router=self.router)
         self.router.add_app(self.app)
         self.backend = Backend.objects.create(name=u'MockBackend')
-        self.connection = Connection.objects.create(backend=self.backend, identity='15551234567')
-        self.comment = ReportComment.objects.create(
-            report_id=1, comment_type=ReportComment.INQUIRY_TYPE, author='staff', text='How are you?'
-        )
+        self.connection = self.create_connection(data={'backend': self.backend})
+        self.report = self.create_feedback_report(reporter=self.connection)
+        self.comment = self.create_report_comment(report=self.report)
         
     def test_matched_report(self):
         "App should handle message which were related to a report connection."

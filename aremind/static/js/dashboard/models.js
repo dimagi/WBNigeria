@@ -79,8 +79,8 @@ function PBFDetailViewModel() {
 
         var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
         this.monthly($.map(data.monthly, function(m) {
-		    return new PbfMonthlyDetailModel(m, model);
-		}));
+            return new PbfMonthlyDetailModel(m, model);
+        }));
         this.active_month(this.monthly.slice(active_month_ix)[0]);
     };
 
@@ -152,7 +152,7 @@ function PbfFacilityModel(data) {
 
 function PbfMonthlyDetailModel(data, root) {
     this.logs = ko.observableArray($.map(data.logs, function(l) {
-		return new PbfLogModel(l, root);
+        return new PbfLogModel(l, root);
     }));
     this.month_label = ko.observable(data.month);
     this.stats = data.stats;
@@ -171,7 +171,7 @@ function PbfLogModel(data, root) {
         this.price_display = ko.observable(data.price_display);
         this.message = ko.observable(data.message);
 
-	this.root = root;
+        this.root = root;
 
         this.disp_wait = ko.computed(function() {
             return {
@@ -184,6 +184,7 @@ function PbfLogModel(data, root) {
 
 function FadamaDetailViewModel() {
     this.monthly = ko.observableArray();
+    this.taggable_contacts = ko.observableArray();
     this.facilities = ko.observableArray();
     this.__all_clinics = new FadamaFacilityModel({id: -1, name: 'All Sites'});
 
@@ -209,6 +210,13 @@ function FadamaDetailViewModel() {
                 this.active_metric('satisf');
                 this.active_facility(default_facility);
             }
+        }
+
+        if (this.taggable_contacts().length === 0) {
+            var tags = $.map(data.taggable_contacts, function(tag) {
+                return new TagModel(tag);
+            });
+            this.taggable_contacts(tags);
         }
 
         var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
@@ -304,17 +312,17 @@ function FadamaLogsForContactModel(data) {
     this.active_subcategory = ko.observable({val: 'all'});
 
     $.each(data, function(i, e) {
-	    e.from_same = [];
-	});
+        e.from_same = [];
+    });
 
     this.active_month = ko.observable(new FadamaMonthlyDetailModel({logs: data}, this));
 
     this.collapse_logs = function(active) {
-	$.each(this.active_month().logs(), function(i, e) {
-                if (e != active) {
-                    e.expanded(false);
-                }
-            });
+        $.each(this.active_month().logs(), function(i, e) {
+            if (e != active) {
+                e.expanded(false);
+            }
+        });
     };
 }
 
@@ -362,11 +370,13 @@ function FadamaLogModel(data, root) {
     this.satisfied = ko.observable(data.satisfied);
     this.proxy = ko.observable(data.proxy);
     this.thread = ko.observableArray($.map(data.thread, function(c) {
-		return new CommModel(c, model);
+        return new CommModel(c, model);
     }));
     this.contact = ko.observable(data.contact);
     this.other_recent = ko.observable(data.from_same.length);
-
+    this.taggable_contacts = root.taggable_contacts;
+    this.tagged_contacts = ko.observableArray();
+    
     this.root = root;
 
     this.expanded = ko.observable(false);
@@ -414,16 +424,25 @@ function FadamaLogModel(data, root) {
     this.new_thread_msg = function(type, content) {
         var model = this;
         var url = $('#message-form').attr('action');
-        $.post(url, {
-            report: this.id(),
-            comment_type: type,
-            text: content,
-            author: 'demo user'
-        }, function(data) {
-            model.thread.push(new CommModel(data, model));
-            model[type == 'inquiry' ? 'inquiry' : 'note'](null);
-            if (type == 'inquiry') {
-                alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
+        var tags = $.map(this.tagged_contacts(), function(t) { return t.id; });
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+            traditional: true, // allows serialization of tag array
+            data: {
+                report: this.id(),
+                comment_type: type,
+                text: content,
+                contact_tags: tags,
+                author: 'demo user'
+            }, 
+            success: function(data) {
+                model.thread.push(new CommModel(data, model));
+                model[type == 'inquiry' ? 'inquiry' : 'note'](null);
+                if (type == 'inquiry') {
+                    alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
+                }
             }
         });
     };
@@ -455,19 +474,19 @@ function FadamaLogModel(data, root) {
     });
 
     this.append_text = ko.computed(function() {
-	    return '';
-	});
+        return '';
+    });
 
     this.prepend_text = FC_PREFIX;
 
     var TOTAL_CHARS = 160;
     this.max_characters = ko.computed(function() {
-	    return TOTAL_CHARS - model.append_text().length - (model.prepend_text + ' ').length;
-	});
+        return TOTAL_CHARS - model.append_text().length - (model.prepend_text + ' ').length;
+    });
 
     this.chars_remaining = ko.computed(function() {
-	    return this.max_characters() - (this.inquiry() || '').length;
-	}, this);
+        return this.max_characters() - (this.inquiry() || '').length;
+    }, this);
 }
 
 function CommModel(data, thread) {
@@ -490,23 +509,29 @@ function CommModel(data, thread) {
     });
 
     this.delete_note = function() {
-	if (!confirm('Are you sure you want to delete this note?')) {
-	    return;
-	}
+        if (!confirm('Are you sure you want to delete this note?')) {
+            return;
+        }
 
         var model = this;
         $.post(NOTE_DELETE_URL, {id: this.id}, function(data) {
-		var ix = -1;
-		$.each(thread.thread(), function(i, e) {
-			if (e == model) {
-			    ix = i;
-			    return false;
-			}
-		    });
-		if (ix != -1) {
-		    thread.thread.splice(ix, 1);
-		}
-	    });
+            var ix = -1;
+            $.each(thread.thread(), function(i, e) {
+                if (e == model) {
+                    ix = i;
+                    return false;
+                }
+            });
+            if (ix != -1) {
+                thread.thread.splice(ix, 1);
+            }
+        });
     }
 
+}
+
+function TagModel(tag) {
+    this.first_name = ko.observable(tag.first_name);
+    this.last_name = ko.observable(tag.last_name);
+    this.id = tag.id;
 }

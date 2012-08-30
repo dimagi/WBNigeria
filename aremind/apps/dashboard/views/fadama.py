@@ -40,6 +40,9 @@ class MessageView(generic.CreateView):
             if comment.comment_type == ReportComment.INQUIRY_TYPE:
                 # Send SMS to beneficiary
                 utils.message_report_beneficiary(comment.report, comment.text)
+            if comment.comment_type == ReportComment.NOTE_TYPE:
+                # TODO: Notify tagged users of new note
+                pass
             return HttpResponse(json.dumps(comment.json()),
                 mimetype='application/json')
 
@@ -47,16 +50,17 @@ class MessageView(generic.CreateView):
 
 
 class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
-    def get_payload(self, site):
+    def get_payload(self, site, user, **kwargs):
         state = self.get_user_state()
         return {
             'facilities': [f for f in utils.get_facilities() if state is None or f['state'] == state],
             'monthly': utils.detail_stats(site, state),
+            'taggable_contacts': utils.get_taggable_contacts(state, user),
         }
 
 
 class APIMainView(mixins.LoginMixin, mixins.APIMixin, generic.View):
-    def get_payload(self, site):
+    def get_payload(self, site, **kwargs):
         return {
             'stats': utils.main_dashboard_stats(self.get_user_state()),
         }

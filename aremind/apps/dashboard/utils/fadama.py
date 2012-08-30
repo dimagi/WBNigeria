@@ -1,3 +1,4 @@
+from itertools import groupby
 import json
 import random
 from datetime import datetime
@@ -8,7 +9,7 @@ from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 
 from rapidsms.messages.outgoing import OutgoingMessage
-from rapidsms.models import Backend, Connection
+from rapidsms.models import Backend, Connection, Contact
 from threadless_router.router import Router
 
 from aremind.apps.utils.functional import map_reduce
@@ -168,3 +169,38 @@ def message_report_beneficiary(report, message_text):
     router.outgoing(message)
 
 
+def get_taggable_contacts(state=None, user=None):
+    """
+    Returns a map of location id to location name and the contacts in that
+    location, for all locationsin the path of the state (or any location, if
+    no state is provided.
+    """
+    path = None  # Hierarchal location path to (and including) state, if any
+    if state:
+        try:
+            path = state.path
+        except:
+            pass
+    # TODO: Need a better way to narrow Contacts to only gov't users
+    #       Perhaps return only Contacts with associated Users?
+    if path:  # Users located anywhere in the path can be tagged.
+        contacts = Contact.objects.filter(location__in=path)
+    else:     # Default: all users can be tagged.
+        contacts = Contact.objects.all()
+    if user:
+        contacts = contacts.exclude(user=user)
+
+    info = contacts.values('id', 'first_name', 'last_name', 'location__id', 
+            'location__name').order_by('location__id', 'last_name', 'first_name')
+
+    #locs_by_id = dict(info.values_list('location__id', 'location__name'))
+    #contacts_by_location = groupby(info, lambda c: c['location__id'])
+    #tags = {}
+    #for loc_id, contacts in contacts_by_location:
+    #    name = locs_by_id[loc_id]
+    #    tags[loc_id] = {'name': name, 'contacts': list(contacts)}
+    #return tags
+
+    # TODO: The above code split up Contacts according to location. It was 
+    #       complicated to handle in the JS but could be revisited later.
+    return list(info)

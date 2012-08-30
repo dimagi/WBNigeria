@@ -1,5 +1,5 @@
 from django.db import models
-from rapidsms.models import Connection
+from rapidsms.models import Connection, Contact
 from rapidsms.contrib.locations.models import Location, LocationType
 import json
 from datetime import datetime
@@ -81,6 +81,8 @@ class ReportComment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
     extra_info = models.TextField(null=True, blank=True)
+    contact_tags = models.ManyToManyField(Contact, related_name='comment_tags',
+            blank=True, null=True)
 
     def json(self):
         return {
@@ -91,12 +93,8 @@ class ReportComment(models.Model):
             'report_id': self.report.id,
             'type': self.comment_type,
             'extra': json.loads(self.extra_info) if self.extra_info else None,
+            'contact_tags': [contact.id for contact in self.contact_tags.all()],
         }
-
-
-
-
-
 
 
 from smscouchforms.signals import xform_saved_with_session

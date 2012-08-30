@@ -96,6 +96,10 @@ class ReportComment(models.Model):
             'contact_tags': [contact.id for contact in self.contact_tags.all()],
         }
 
+    def __unicode__(self):
+        return "{0} on Report {1} by {2} on {3}".format(self.comment_type.title(),  
+                self.report.id, self.author, self.date.strftime('%Y-%m-%d %H:%M:%S'))
+
 
 from smscouchforms.signals import xform_saved_with_session
 from django.dispatch import receiver

@@ -211,5 +211,36 @@ def fadama_report(form, data):
     return report
 
 def pbf_report(form, data):
-    pass
+    data['schema_version'] = 1
+    data['proxy'] = False
+    content = {}
+
+    if form.get('intro') != 'yes':
+        data['site'] = None
+        # what about:
+        #   what_state 'what state are you in?'
+        #   state_other_info 'anything you'd like to say?'
+    else:
+        data['satisfied'] = (form.get('confirm_satisfied') == '1')
+        data['freeform'] = form.get('other')
+
+        content['waiting_time'] = {
+            'less_two': 0,
+            'two_to_four': 3,
+            'more_four': 5,
+        }.get(form.get('wait_time'))
+        content['staff_friendliness'] = (form.get('friendly_staff') == '1')
+        content['cleanliness'] = (form.get('hygiene') == '1')
+        content['drug_availability'] = (form.get('drugs_available') == '1')
+        content['price_display'] = (form.get('drugs_prices') == '1')
+
+    data['can_contact'] = (form.get('contact_later') == '1')
+
+    # filter out types of reports the dashboard can't handle yet
+    if data['site'] is None:
+        return
+
+    report = PBFReport(**data)
+    report.content = content
+    return report
 

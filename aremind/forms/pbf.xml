@@ -4,7 +4,8 @@
 		<h:title>New Form</h:title>
 		<model>
 			<instance>
-				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/PBF-FORM" uiVersion="1" version="1" name="New Form">
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/PBF" uiVersion="1" version="1" name="New Form">
+				        <site_id />
 					<framing />
 					<intro />
 					<confirm_satisfied />
@@ -23,6 +24,8 @@
 					<state_other_thanks />
 				</data>
 			</instance>
+			<instance id="session" src="jr://instance/session" />
+			<setvalue event="xforms-ready" ref="/data/site_id" value="instance('session')/session/data/site_id" />
 			<bind nodeset="/data/framing" type="xsd:string" />
 			<bind nodeset="/data/intro" relevant="/data/framing = 1" />
 			<bind nodeset="/data/confirm_satisfied" type="xsd:string" relevant="/data/intro = 'yes'" />
@@ -42,7 +45,7 @@
 			<itext>
 				<translation lang="en" default="">
 					<text id="intro-label">
-						<value>Are you in Nassarawa? For yes, send "1". For no, send "2" to 08165677415</value>
+						<value>Are you in <output value="instance('session')/session/data/state_name" />? For yes, send "1". For no, send "2" to 08165677415</value>
 					</text>
 					<text id="intro-yes-label">
 						<value>Yes</value>
@@ -162,20 +165,20 @@
 		<input ref="/data/contact_later">
 			<label ref="jr:itext('contact_later-label')" />
 		</input>
-		<input ref="/data/thanks_contact">
+		<trigger ref="/data/thanks_contact">
 			<label ref="jr:itext('thanks_contact-label')" />
-		</input>
-		<input ref="/data/thanks_no_contact">
+		</trigger>
+		<trigger ref="/data/thanks_no_contact">
 			<label ref="jr:itext('thanks_no_contact-label')" />
-		</input>
+		</trigger>
 		<input ref="/data/what_state">
 			<label ref="jr:itext('what_state-label')" />
 		</input>
 		<input ref="/data/other_state_info">
 			<label ref="jr:itext('other_state_info-label')" />
 		</input>
-		<input ref="/data/state_other_thanks">
+		<trigger ref="/data/state_other_thanks">
 			<label ref="jr:itext('state_other_thanks-label')" />
-		</input>
+		</trigger>
 	</h:body>
 </h:html>

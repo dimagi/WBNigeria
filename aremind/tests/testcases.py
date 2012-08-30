@@ -9,6 +9,7 @@ from django.db import DEFAULT_DB_ALIAS
 from django.test import TestCase
 
 from rapidsms.models import Connection, Contact, Backend
+from rapidsms.contrib.locations.models import Location, LocationType
 from threadless_router.tests.scripted import TestScript
 
 from aremind.apps.groups.models import Group
@@ -118,6 +119,25 @@ class CreateDataTest(TestCase):
         email = email or self.random_string(10) + '@example.com'
         user = User.objects.create_user(username, email, password)
         return user
+
+    def create_location_type(self, **kwargs):
+        defaults = {
+            'name': self.random_string(25),
+            'slug': self.random_string(25),
+        }
+        defaults.update(**kwargs)
+        location_type = LocationType.objects.create(**defaults)
+        return location_type
+
+    def create_location(self, **kwargs):
+        defaults = {
+            'name': self.random_string(25),
+            'slug': self.random_string(25),
+            'type': kwargs['type'] if 'type' in kwargs else self.create_location_type().id,
+        }
+        defaults.update(**kwargs)
+        location = Location.objects.create(**defaults)
+        return location
 
 
 class FlushTestScript(TestScript):

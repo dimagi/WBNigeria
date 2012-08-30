@@ -39,7 +39,8 @@ def create_comment_tag_notification(comment):
                 comment.author, comment.date.strftime('%Y-%m-%d %H:%M:%s'))
 
     # The users for whom to create a notification.
-    users = comment.contact_tags.values_list('user', flat=True)
+    users = comment.contact_tags.exclude(user__isnull=True).values_list(
+            'user', flat=True)
     if not users:
         return  # Do not create a Notification if no users are tagged.
 
@@ -48,8 +49,8 @@ def create_comment_tag_notification(comment):
         'text': _get_text(comment),
         'alert_type': 'aremind.notifications.report_comment_tags.ReportCommentTagNotificationType',
     }
-    if Notification.objects.exists(uid=notif_data['uid']):
-        return  # Do not create a notification for this comment if one already exists
+    if Notification.objects.filter(uid=notif_data['uid']).exists():
+        return  # Do not create a notification for this comment if one already exists.
     notif = Notification(**notif_data)
     notif.initialize()
 

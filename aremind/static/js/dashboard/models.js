@@ -431,15 +431,19 @@ function FadamaLogModel(data, root) {
             text: content,
             author: 'demo user'
         }, function(data) {
-            // Submission finished
-            model.submission_in_progress = false;
-            $(':input', form).prop('disabled', false);
-            $('.btn.submit', form).removeClass('disabled');
+            // Add submission to the UI
             model.thread.push(new CommModel(data, model));
             model[type == 'inquiry' ? 'inquiry' : 'note'](null);
             if (type == 'inquiry') {
                 alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
             }
+        }).error(function() {
+            alert('There was an error adding your message.');
+        }).complete(function() { 
+            // Submission finished. Restore the form controls
+            model.submission_in_progress = false;
+            $(':input', form).prop('disabled', false);
+            $('.btn.submit', form).removeClass('disabled');
         });
     };
     

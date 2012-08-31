@@ -97,7 +97,7 @@ class ReportComment(models.Model):
         }
 
     def __unicode__(self):
-        return "{0} on Report {1} by {2} on {3}".format(self.comment_type.title(),  
+        return u'{0} on Report {1} by {2} on {3}'.format(self.comment_type.title(),  
                 self.report.id, self.author, self.date.strftime('%Y-%m-%d %H:%M:%S'))
 
 

@@ -36,7 +36,10 @@ class MessageView(generic.CreateView):
         form = forms.ReportCommentForm(request.POST)
 
         if form.is_valid():
-            comment = form.save()
+            comment = form.save(commit=False)
+            u = request.user
+            comment.author = '%s %s' % (u.first_name, u.last_name)
+            comment.save()
             if comment.comment_type == ReportComment.INQUIRY_TYPE:
                 # Send SMS to beneficiary
                 utils.message_report_beneficiary(comment.report, comment.text)

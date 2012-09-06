@@ -21,8 +21,20 @@ class ReportMixin(object):
 
 class APIMixin(object):
     def get_user_state(self):
-        # return state for logged-in user
-        return 'fct'
+        """return state for logged-in user, None for national user (or mis-configured)"""
+        try:
+            contact = self.request.user.contact_set.all()[0]
+        except IndexError:
+            return None
+
+        loc = contact.location
+        if not loc:
+            return None
+
+        if loc.type.slug != 'state':
+            return None
+
+        return loc.slug
 
     def get(self, request, *args, **kwargs):
         _site = request.GET.get('site')

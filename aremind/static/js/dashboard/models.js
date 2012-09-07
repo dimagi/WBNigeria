@@ -212,12 +212,9 @@ function FadamaDetailViewModel() {
             }
         }
 
-        if (this.taggable_contacts().length === 0) {
-            var tags = $.map(data.taggable_contacts, function(tag) {
-                return new TagModel(tag);
-            });
-            this.taggable_contacts(tags);
-        }
+	this.taggable_contacts($.map(data.taggable_contacts, function(e) {
+		    return new TaggablesByState(e);
+		}));
 
         var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
         this.monthly($.map(data.monthly, function(m) {
@@ -374,7 +371,6 @@ function FadamaLogModel(data, root) {
     }));
     this.contact = ko.observable(data.contact);
     this.other_recent = ko.observable(data.from_same.length);
-    this.taggable_contacts = root.taggable_contacts;
     this.tagged_contacts = ko.observableArray();
     
     this.root = root;
@@ -431,7 +427,6 @@ function FadamaLogModel(data, root) {
         var model = this;
         var form = $('#message-form-' + this.id());
         var url = form.attr('action');
-        var tags = $.map(this.tagged_contacts(), function(t) { return t.id; });
         $(':input', form).prop('disabled', true);
         $('.btn.submit', form).addClass('disabled');
         // Prevent duplicate/parallel submission
@@ -440,12 +435,12 @@ function FadamaLogModel(data, root) {
             type: 'POST',
             url: url,
             dataType: 'json',
-            traditional: true, // allows serialization of tag array
+	    traditional: true,
             data: {
                 report: this.id(),
                 comment_type: type,
                 text: content,
-                contact_tags: tags,
+		contact_tags: this.tagged_contacts(),
                 author: 'demo user'
             }, 
             success: function(data) {
@@ -549,8 +544,28 @@ function CommModel(data, thread) {
 
 }
 
-function TagModel(tag) {
-    this.first_name = ko.observable(tag.first_name);
-    this.last_name = ko.observable(tag.last_name);
-    this.id = tag.id;
+function TaggablesByState(data) {
+    this.state = ko.observable(data.state);
+    this.users = ko.observableArray($.map(data.users, function(e) {
+		return new TaggableUserModel(e);
+	    }));
+
+    this.display_state = ko.computed(function() {
+	    var st = this.state();
+	    if (st == 'fct') {
+		st = st.toUpperCase();
+	    } else {
+		st = st[0].toUpperCase() + st.substring(1);
+	    }
+	    return st + ' Officers';
+	}, this);
+}
+
+function TaggableUserModel(u) {
+    this.first_name = ko.observable(u.first_name);
+    this.last_name = ko.observable(u.last_name);
+    this.name = ko.computed(function() {
+	    return this.last_name() + ', ' + this.first_name();
+	}, this);
+    this.id = ko.observable(u.user_id);
 }

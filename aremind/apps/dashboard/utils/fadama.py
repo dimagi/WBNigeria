@@ -169,38 +169,35 @@ def message_report_beneficiary(report, message_text):
     router.outgoing(message)
 
 
-def get_taggable_contacts(state=None, user=None):
+def get_taggable_contacts(state, user):
     """
     Returns a map of location id to location name and the contacts in that
     location, for all locationsin the path of the state (or any location, if
     no state is provided.
     """
-    path = None  # Hierarchal location path to (and including) state, if any
+
+    def get_state_users(state):
+        if state is None:
+            criteria = {'location__slug': 'nigeria'}
+        else:
+            criteria = {'location__type__slug': 'state', 'location__slug': state}
+
+        users = Contact.objects.filter(**criteria).select_related()
+        for u in users:
+            if user.id != u.user.id:
+                yield {
+                    'user_id': u.id,
+                    'username': u.user.username,
+                    'first_name': u.first_name,
+                    'last_name': u.last_name,
+                    'state': state or 'national'
+                }
+
+    taggables = list(get_state_users(None))
     if state:
-        try:
-            path = state.path
-        except:
-            pass
-    # TODO: Need a better way to narrow Contacts to only gov't users
-    #       Perhaps return only Contacts with associated Users?
-    if path:  # Users located anywhere in the path can be tagged.
-        contacts = Contact.objects.filter(location__in=path)
-    else:     # Default: all users can be tagged.
-        contacts = Contact.objects.all()
-    if user:
-        contacts = contacts.exclude(user=user)
+        taggables.extend(get_state_users(state))
 
-    info = contacts.values('id', 'first_name', 'last_name', 'location__id', 
-            'location__name').order_by('location__id', 'last_name', 'first_name')
-
-    #locs_by_id = dict(info.values_list('location__id', 'location__name'))
-    #contacts_by_location = groupby(info, lambda c: c['location__id'])
-    #tags = {}
-    #for loc_id, contacts in contacts_by_location:
-    #    name = locs_by_id[loc_id]
-    #    tags[loc_id] = {'name': name, 'contacts': list(contacts)}
-    #return tags
-
-    # TODO: The above code split up Contacts according to location. It was 
-    #       complicated to handle in the JS but could be revisited later.
-    return list(info)
+    by_state = map_reduce(taggables, lambda u: [(u['state'], u)], lambda v, k: sorted(v, key=lambda u: (u['last_name'], u['first_name'])))
+    by_state = [{'state': k, 'users': v} for k, v in by_state.iteritems()]
+    by_state.sort(key=lambda e: 'zzzzz' if e['state'] == 'national' else e['state'])
+    return by_state

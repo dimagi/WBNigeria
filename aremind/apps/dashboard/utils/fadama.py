@@ -1,3 +1,4 @@
+from itertools import groupby
 import json
 import random
 from datetime import datetime
@@ -8,7 +9,7 @@ from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 
 from rapidsms.messages.outgoing import OutgoingMessage
-from rapidsms.models import Backend, Connection
+from rapidsms.models import Backend, Connection, Contact
 from threadless_router.router import Router
 
 from aremind.apps.utils.functional import map_reduce
@@ -168,3 +169,35 @@ def message_report_beneficiary(report, message_text):
     router.outgoing(message)
 
 
+def get_taggable_contacts(state, user):
+    """
+    Returns a map of location id to location name and the contacts in that
+    location, for all locationsin the path of the state (or any location, if
+    no state is provided.
+    """
+
+    def get_state_users(state):
+        if state is None:
+            criteria = {'location__slug': 'nigeria'}
+        else:
+            criteria = {'location__type__slug': 'state', 'location__slug': state}
+
+        users = Contact.objects.filter(**criteria).select_related()
+        for u in users:
+            if user.id != u.user.id:
+                yield {
+                    'user_id': u.id,
+                    'username': u.user.username,
+                    'first_name': u.first_name,
+                    'last_name': u.last_name,
+                    'state': state or 'national'
+                }
+
+    taggables = list(get_state_users(None))
+    if state:
+        taggables.extend(get_state_users(state))
+
+    by_state = map_reduce(taggables, lambda u: [(u['state'], u)], lambda v, k: sorted(v, key=lambda u: (u['last_name'], u['first_name'])))
+    by_state = [{'state': k, 'users': v} for k, v in by_state.iteritems()]
+    by_state.sort(key=lambda e: 'zzzzz' if e['state'] == 'national' else e['state'])
+    return by_state

@@ -79,8 +79,8 @@ function PBFDetailViewModel() {
 
         var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
         this.monthly($.map(data.monthly, function(m) {
-		    return new PbfMonthlyDetailModel(m, model);
-		}));
+            return new PbfMonthlyDetailModel(m, model);
+        }));
         this.active_month(this.monthly.slice(active_month_ix)[0]);
     };
 
@@ -152,7 +152,7 @@ function PbfFacilityModel(data) {
 
 function PbfMonthlyDetailModel(data, root) {
     this.logs = ko.observableArray($.map(data.logs, function(l) {
-		return new PbfLogModel(l, root);
+        return new PbfLogModel(l, root);
     }));
     this.month_label = ko.observable(data.month);
     this.stats = data.stats;
@@ -171,7 +171,7 @@ function PbfLogModel(data, root) {
         this.price_display = ko.observable(data.price_display);
         this.message = ko.observable(data.message);
 
-	this.root = root;
+        this.root = root;
 
         this.disp_wait = ko.computed(function() {
             return {
@@ -184,6 +184,7 @@ function PbfLogModel(data, root) {
 
 function FadamaDetailViewModel() {
     this.monthly = ko.observableArray();
+    this.taggable_contacts = ko.observableArray();
     this.facilities = ko.observableArray();
     this.__all_clinics = new FadamaFacilityModel({id: -1, name: 'All Sites'});
 
@@ -210,6 +211,10 @@ function FadamaDetailViewModel() {
                 this.active_facility(default_facility);
             }
         }
+
+	this.taggable_contacts($.map(data.taggable_contacts, function(e) {
+		    return new TaggablesByState(e);
+		}));
 
         var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
         this.monthly($.map(data.monthly, function(m) {
@@ -304,17 +309,17 @@ function FadamaLogsForContactModel(data) {
     this.active_subcategory = ko.observable({val: 'all'});
 
     $.each(data, function(i, e) {
-	    e.from_same = [];
-	});
+        e.from_same = [];
+    });
 
     this.active_month = ko.observable(new FadamaMonthlyDetailModel({logs: data}, this));
 
     this.collapse_logs = function(active) {
-	$.each(this.active_month().logs(), function(i, e) {
-                if (e != active) {
-                    e.expanded(false);
-                }
-            });
+        $.each(this.active_month().logs(), function(i, e) {
+            if (e != active) {
+                e.expanded(false);
+            }
+        });
     };
 }
 
@@ -362,11 +367,12 @@ function FadamaLogModel(data, root) {
     this.satisfied = ko.observable(data.satisfied);
     this.proxy = ko.observable(data.proxy);
     this.thread = ko.observableArray($.map(data.thread, function(c) {
-		return new CommModel(c, model);
+        return new CommModel(c, model);
     }));
     this.contact = ko.observable(data.contact);
     this.other_recent = ko.observable(data.from_same.length);
-
+    this.tagged_contacts = ko.observableArray();
+    
     this.root = root;
 
     this.expanded = ko.observable(false);
@@ -425,17 +431,25 @@ function FadamaLogModel(data, root) {
         $('.btn.submit', form).addClass('disabled');
         // Prevent duplicate/parallel submission
         this.submission_in_progress = true;
-        $.post(url, {
-            report: this.id(),
-            comment_type: type,
-            text: content,
-            author: 'demo user'
-        }, function(data) {
-            // Add submission to the UI
-            model.thread.push(new CommModel(data, model));
-            model[type == 'inquiry' ? 'inquiry' : 'note'](null);
-            if (type == 'inquiry') {
-                alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
+        $.ajax({
+            type: 'POST',
+            url: url,
+            dataType: 'json',
+	    traditional: true,
+            data: {
+                report: this.id(),
+                comment_type: type,
+                text: content,
+		contact_tags: this.tagged_contacts(),
+                author: 'demo user'
+            }, 
+            success: function(data) {
+                // Add submission to the UI
+                model.thread.push(new CommModel(data, model));
+                model[type == 'inquiry' ? 'inquiry' : 'note'](null);
+                if (type == 'inquiry') {
+                    alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
+                }
             }
         }).error(function() {
             alert('There was an error adding your message.');
@@ -474,19 +488,19 @@ function FadamaLogModel(data, root) {
     });
 
     this.append_text = ko.computed(function() {
-	    return '';
-	});
+        return '';
+    });
 
     this.prepend_text = FC_PREFIX;
 
     var TOTAL_CHARS = 160;
     this.max_characters = ko.computed(function() {
-	    return TOTAL_CHARS - model.append_text().length - (model.prepend_text + ' ').length;
-	});
+        return TOTAL_CHARS - model.append_text().length - (model.prepend_text + ' ').length;
+    });
 
     this.chars_remaining = ko.computed(function() {
-	    return this.max_characters() - (this.inquiry() || '').length;
-	}, this);
+        return this.max_characters() - (this.inquiry() || '').length;
+    }, this);
 }
 
 function CommModel(data, thread) {
@@ -496,6 +510,7 @@ function CommModel(data, thread) {
     this.date = ko.observable(data.date_fmt);
     this.text = ko.observable(data.text);
     this.extra = ko.observable(data.extra || {});
+    this.tags = ko.observableArray(data.contact_tags);
 
     var model = this;
     this.display = ko.computed(function() {
@@ -509,23 +524,48 @@ function CommModel(data, thread) {
     });
 
     this.delete_note = function() {
-	if (!confirm('Are you sure you want to delete this note?')) {
-	    return;
-	}
+        if (!confirm('Are you sure you want to delete this note?')) {
+            return;
+        }
 
         var model = this;
         $.post(NOTE_DELETE_URL, {id: this.id}, function(data) {
-		var ix = -1;
-		$.each(thread.thread(), function(i, e) {
-			if (e == model) {
-			    ix = i;
-			    return false;
-			}
-		    });
-		if (ix != -1) {
-		    thread.thread.splice(ix, 1);
-		}
-	    });
+            var ix = -1;
+            $.each(thread.thread(), function(i, e) {
+                if (e == model) {
+                    ix = i;
+                    return false;
+                }
+            });
+            if (ix != -1) {
+                thread.thread.splice(ix, 1);
+            }
+        });
     }
+}
 
+function TaggablesByState(data) {
+    this.state = ko.observable(data.state);
+    this.users = ko.observableArray($.map(data.users, function(e) {
+		return new TaggableUserModel(e);
+	    }));
+
+    this.display_state = ko.computed(function() {
+	    var st = this.state();
+	    if (st == 'fct') {
+		st = st.toUpperCase();
+	    } else {
+		st = st[0].toUpperCase() + st.substring(1);
+	    }
+	    return st + ' Officers';
+	}, this);
+}
+
+function TaggableUserModel(u) {
+    this.first_name = ko.observable(u.first_name);
+    this.last_name = ko.observable(u.last_name);
+    this.name = ko.computed(function() {
+	    return this.last_name() + ', ' + this.first_name();
+	}, this);
+    this.id = ko.observable(u.user_id);
 }

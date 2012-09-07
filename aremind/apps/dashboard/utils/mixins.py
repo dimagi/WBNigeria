@@ -39,6 +39,7 @@ class APIMixin(object):
     def get(self, request, *args, **kwargs):
         _site = request.GET.get('site')
         site = int(_site) if _site else None
+        user = request.user
 
-        payload = self.get_payload(site)
+        payload = self.get_payload(site=site, user=user)
         return HttpResponse(json.dumps(payload), mimetype='application/json')

@@ -10,6 +10,8 @@ from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.models import FadamaReport, ReportComment
 from aremind.apps.dashboard.utils import fadama as utils
 from aremind.apps.dashboard.utils import mixins
+from aremind.notifications.report_comment_tags import create_comment_tag_notification
+
 
 class DashboardView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/dashboard.html'
@@ -43,6 +45,9 @@ class MessageView(generic.CreateView):
             if comment.comment_type == ReportComment.INQUIRY_TYPE:
                 # Send SMS to beneficiary
                 utils.message_report_beneficiary(comment.report, comment.text)
+            if comment.comment_type == ReportComment.NOTE_TYPE:
+                # Generate notifications for tagged users.
+                create_comment_tag_notification(comment)
             return HttpResponse(json.dumps(comment.json()),
                 mimetype='application/json')
 
@@ -50,16 +55,17 @@ class MessageView(generic.CreateView):
 
 
 class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
-    def get_payload(self, site):
+    def get_payload(self, site, user, **kwargs):
         state = self.get_user_state()
         return {
             'facilities': [f for f in utils.get_facilities() if state is None or f['state'] == state],
             'monthly': utils.detail_stats(site, state),
+            'taggable_contacts': utils.get_taggable_contacts(state, user),
         }
 
 
 class APIMainView(mixins.LoginMixin, mixins.APIMixin, generic.View):
-    def get_payload(self, site):
+    def get_payload(self, site, **kwargs):
         return {
             'stats': utils.main_dashboard_stats(self.get_user_state()),
         }

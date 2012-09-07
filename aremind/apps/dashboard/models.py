@@ -93,7 +93,7 @@ class ReportComment(models.Model):
             'report_id': self.report.id,
             'type': self.comment_type,
             'extra': json.loads(self.extra_info) if self.extra_info else None,
-            'contact_tags': [contact.id for contact in self.contact_tags.all()],
+            'contact_tags': sorted(contact.name for contact in self.contact_tags.all()),
         }
 
     def __unicode__(self):

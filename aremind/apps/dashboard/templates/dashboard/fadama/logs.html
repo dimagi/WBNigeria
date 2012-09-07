@@ -50,6 +50,7 @@
                                   <span style="font-size: 120%" data-bind="text: text"></span>
 				  <img src="{{ STATIC_URL }}images/delete.png" data-bind="visible: type() == 'note', click: delete_note" />
 				  <img src="{{ STATIC_URL }}images/alert.png" data-bind="visible: extra().ambiguous" title="This response may be about a different report! This phone number has submitted several reports and there are multiple open inquiries, so we can't be sure which inquiry they are responding to." data-bind="visible: true" />
+				  <div style="clear: both; margin-left: 35em;" data-bind="visible: tags().length">tagged: <span data-bind="text: tags().join(', ')"></span></div>
                                 </p>
                             </div>
                             <hr>

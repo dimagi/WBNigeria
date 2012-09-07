@@ -510,6 +510,7 @@ function CommModel(data, thread) {
     this.date = ko.observable(data.date_fmt);
     this.text = ko.observable(data.text);
     this.extra = ko.observable(data.extra || {});
+    this.tags = ko.observableArray(data.contact_tags);
 
     var model = this;
     this.display = ko.computed(function() {
@@ -541,7 +542,6 @@ function CommModel(data, thread) {
             }
         });
     }
-
 }
 
 function TaggablesByState(data) {

@@ -10,7 +10,7 @@ from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.models import FadamaReport, ReportComment
 from aremind.apps.dashboard.utils import fadama as utils
 from aremind.apps.dashboard.utils import mixins
-from aremind.notifications.report_comment_tags import create_comment_tag_notification
+from aremind.notifications.tagged_in_note import trigger_alerts
 
 
 class DashboardView(mixins.LoginMixin, generic.TemplateView):
@@ -47,7 +47,7 @@ class MessageView(generic.CreateView):
                 utils.message_report_beneficiary(comment.report, comment.text)
             if comment.comment_type == ReportComment.NOTE_TYPE:
                 # Generate notifications for tagged users.
-                create_comment_tag_notification(comment)
+                trigger_alerts(comment)
             return HttpResponse(json.dumps(comment.json()),
                 mimetype='application/json')
 

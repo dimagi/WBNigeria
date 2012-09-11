@@ -48,3 +48,17 @@ def anonymizer(val, len=12):
 def anonymize_contact(r, anonfunc=anonymizer):
     r['contact'] = anonfunc(r['contact'])
 
+def get_user_state(user):
+    try:
+        contact = user.contact_set.all()[0]
+    except IndexError:
+        return None
+
+    loc = contact.location
+    if not loc:
+        return None
+
+    if loc.type.slug != 'state':
+        return None
+
+    return loc.slug

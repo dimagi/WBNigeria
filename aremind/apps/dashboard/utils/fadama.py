@@ -156,6 +156,8 @@ def detail_stats(facility_id, user_state):
 def logs_for_contact(contact):
     return sorted([r for r in load_reports() if r['contact'] == contact and not r['proxy']], key=lambda r: r['timestamp'], reverse=True)
 
+def log_single(report_id):
+    return [r for r in load_reports() if r['id'] == report_id]
 
 def communicator_prefix():
     return _('From fadama:')

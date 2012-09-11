@@ -303,10 +303,15 @@ function FadamaDetailViewModel() {
     };
 }
 
-function FadamaLogsForContactModel(data) {
+function FadamaLogsForContactModel(data, taggables) {
     this.active_metric = ko.observable('all');
     this.active_fug = ko.observable('All FUGs');
     this.active_subcategory = ko.observable({val: 'all'});
+    this.taggable_contacts = ko.observableArray();
+
+    this.taggable_contacts($.map(taggables, function(e) {
+		return new TaggablesByState(e);
+	    }));
 
     $.each(data, function(i, e) {
         e.from_same = [];

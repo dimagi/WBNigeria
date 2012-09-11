@@ -3,7 +3,7 @@ import json
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-
+from apps.dashboard.utils import shared as u
 
 class LoginMixin(object):
     @method_decorator(login_required)
@@ -22,19 +22,7 @@ class ReportMixin(object):
 class APIMixin(object):
     def get_user_state(self):
         """return state for logged-in user, None for national user (or mis-configured)"""
-        try:
-            contact = self.request.user.contact_set.all()[0]
-        except IndexError:
-            return None
-
-        loc = contact.location
-        if not loc:
-            return None
-
-        if loc.type.slug != 'state':
-            return None
-
-        return loc.slug
+        return u.get_user_state(self.request.user)
 
     def get(self, request, *args, **kwargs):
         _site = request.GET.get('site')

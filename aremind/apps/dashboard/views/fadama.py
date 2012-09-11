@@ -10,6 +10,7 @@ from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.models import FadamaReport, ReportComment
 from aremind.apps.dashboard.utils import fadama as utils
 from aremind.apps.dashboard.utils import mixins
+from aremind.apps.dashboard.utils import shared as u
 from aremind.notifications.tagged_in_note import trigger_alerts
 
 
@@ -29,7 +30,21 @@ class LogsForContactView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/logs_for_contact.html'
 
     def get_context_data(self, **kwargs):
-        return {'logs': json.dumps(utils.logs_for_contact(kwargs['contact']))}
+        return {
+            'logs': json.dumps(utils.logs_for_contact(kwargs['contact'])),
+            'taggable_contacts': json.dumps(utils.get_taggable_contacts(u.get_user_state(self.request.user), self.request.user)),
+            'fadama_communicator_prefix': utils.communicator_prefix(),
+        }
+
+class SingleReportView(mixins.LoginMixin, generic.TemplateView):
+    template_name = 'dashboard/fadama/single_log.html'
+
+    def get_context_data(self, **kwargs):
+        return {
+            'logs': json.dumps(utils.log_single(int(kwargs['id']))),
+            'taggable_contacts': json.dumps(utils.get_taggable_contacts(u.get_user_state(self.request.user), self.request.user)),
+            'fadama_communicator_prefix': utils.communicator_prefix(),
+        }
 
 class MessageView(generic.CreateView):
     http_method_names = ['post', ]

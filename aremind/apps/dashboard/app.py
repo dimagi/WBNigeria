@@ -1,8 +1,9 @@
 from rapidsms.apps.base import AppBase
-from aremind.apps.dashboard.models import ReportComment
+from aremind.apps.dashboard.models import FadamaReport, ReportComment
 from datetime import datetime
 from django.conf import settings
 import json
+from notifications.communicator_response import trigger_alerts
 
 # for debugging
 from apps.dashboard.utils.fadama import load_reports
@@ -27,7 +28,8 @@ class CommunicatorApp(AppBase):
             if len(active_reports) > 1:
                 comment_data['extra_info'] = json.dumps({'ambiguous': list(set(active_reports) - set([active_report]))})
 
-            ReportComment.objects.create(**comment_data)
+            response = ReportComment.objects.create(**comment_data)
+            trigger_alerts(FadamaReport.objects.get(id=active_report), response)
 
         # TODO: reply back here? 'your response is received'
         return True

@@ -11,8 +11,9 @@
     {% for notif in notifs %}
         <div class="alert alert-info" id="alert-{{ notif.id }}">  <!-- Unique id should be pk; allows us to use bootstrap-alert.js -->
             <p>
-                <span id="msg">{{ notif.text }}</span> 
-                {# <span id="detail">[<a id="url" href="#">details</a>]</span> #}
+                <span id="msg">{{ notif.text }}</span>
+		<br>
+                {% if notif.url %}<span id="detail">[<a id="url" href="{{ notif.url }}">details</a>]</span>{% endif %}
             </p>
             <span class="pull-right">
                 <a class="btn btn-primary dismiss" data-dismiss="alert" data-target="#alert-{{ notif.id }}" href="{% url 'fadama_dismiss_alert' notif.id %}">

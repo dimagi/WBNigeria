@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from alerts.models import Notification, NotificationType, NotificationComment, user_name
 from django.contrib.auth.models import User
 from alerts.utils import trigger
@@ -31,7 +32,7 @@ def mk_response_alert(user, report, reply, mode):
         notif.text = 'A beneficiary has replied to an inquiry about a report you were tagged on'
     elif mode == 'commenter':
         notif.text = 'A beneficiary has replied to an inquiry on a report that you\'ve left comments on'
-    notif.url = None
+    notif.url = reverse('fadama_report_single', kwargs={'id': report.id})
     notif.data = json.dumps({'user_id': user.id})
     return notif
 

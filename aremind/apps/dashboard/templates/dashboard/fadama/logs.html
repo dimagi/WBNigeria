@@ -61,7 +61,7 @@
                                     <button type="submit" class="btn submit" data-bind="click: new_note">Save Note</button>
 				    <div style="vertical-align: top; margin-left: 4em;" data-bind="visible: note">
 				      Tag other users on this note?
-				      <select multiple="yes" data-bind="foreach: $root.taggable_contacts(), selectedOptions: tagged_contacts">
+				      <select class="tags" multiple="yes" data-bind="foreach: $root.taggable_contacts(), selectedOptions: tagged_contacts">
 					<optgroup data-bind="attr: {label: display_state}, foreach: users">
 					  <option data-bind="value: id, text: name"></option>
 					</optgroup>

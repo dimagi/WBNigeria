@@ -424,6 +424,10 @@ function FadamaLogModel(data, root) {
     this.new_note = function() {
         if (this.submission_in_progress) return;
         this.new_thread_msg('note', this.note());
+
+	// reset tagged users
+	this.tagged_contacts([]);
+	$('select.tags option:selected').removeAttr("selected");
     };
 
     this.new_thread_msg = function(type, content) {
@@ -445,7 +449,7 @@ function FadamaLogModel(data, root) {
                 report: this.id(),
                 comment_type: type,
                 text: content,
-		contact_tags: this.tagged_contacts(),
+		contact_tags: (type == 'note' ? this.tagged_contacts() : []),
                 author: 'demo user'
             }, 
             success: function(data) {

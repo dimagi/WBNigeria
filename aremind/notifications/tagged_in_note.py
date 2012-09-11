@@ -8,7 +8,7 @@ class TaggedInNoteNotificationType(NotificationType):
     escalation_levels = ['default']
 
     def users_for_escalation_level(self, esc_level):
-        return User.objects.get(id=json.loads(self.data)['user_id'])
+        return User.objects.filter(id=json.loads(self.data)['user_id'])
 
     def auto_escalation_interval(self, esc_level):
         return None

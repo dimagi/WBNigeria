@@ -370,6 +370,7 @@ function FadamaLogModel(data, root) {
     this.fug = ko.observable(data.fug);
     this.date = ko.observable(data.display_time);
     this.satisfied = ko.observable(data.satisfied);
+    this.can_contact = ko.observable(data.can_contact);
     this.proxy = ko.observable(data.proxy);
     this.thread = ko.observableArray($.map(data.thread, function(c) {
         return new CommModel(c, model);
@@ -403,10 +404,16 @@ function FadamaLogModel(data, root) {
     this.inquiry = ko.observable();
     this._inquiry = ko.computed({
         read: function () {
-            return (model.proxy() ? 'it is not possible to message the beneficiary because they reported through a proxy' : model.inquiry());
+            if (model.proxy()) {
+                return 'it is not possible to message the beneficiary because they reported through a proxy';
+            }
+            if (!model.can_contact()) {
+                return 'the beneficiary does not want to be contacted about this report';
+            }
+            return model.inquiry();
         },
         write: function (value) {
-            if (!model.proxy()) {
+            if (!model.proxy() && model.can_contact()) {
               model.inquiry(value);
             }
         },

@@ -16,6 +16,7 @@ def extract_report(r):
             'message': r.freeform,
             'proxy': r.proxy,
             'timestamp': r.timestamp.strftime('%Y-%m-%dT%H:%M:%S'),
+            'can_contact': r.can_contact,
         })
     return data
 

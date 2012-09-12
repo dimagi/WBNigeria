@@ -20,9 +20,9 @@
                         <td style="white-space: nowrap;">
                             <div style="float: right;">
                                 <span data-bind="visible: thread().length" style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span>
-                                <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (proxy() ? 'noreply' : 'reply') + '.png', title: proxy() ? 'Not possible to message this beneficiary beacuse they reported through a proxy' : '' }" />
+                                <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (proxy() || !can_contact() ? 'noreply' : 'reply') + '.png', title: proxy() ? 'Not possible to message this beneficiary beacuse they reported through a proxy' : !can_contact() ? 'This beneficiary does not want to be contacted about this report' : '' }" />
                             </div>
-             
+
                             <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (expanded() ? 'expanded' : 'collapsed') + '.png' }" />
                             <span data-bind="text: id"></span>&nbsp;
                         </td>
@@ -72,11 +72,11 @@
 
                                     <label>send a message to the <b>beneficiary</b></label>
                                     <div class="input-prepend input-append">
-                                        <span class="add-on" data-bind="text: prepend_text, visible: !proxy()"></span>
-					<input type="text" style="width: 42em" data-bind="disable: proxy, value: _inquiry, attr: {maxlength: max_characters}, valueUpdate: 'afterkeydown'">
+                                        <span class="add-on" data-bind="text: prepend_text, visible: !proxy() && can_contact()"></span>
+					<input type="text" style="width: 42em" data-bind="disable: proxy() || !can_contact(), value: _inquiry, attr: {maxlength: max_characters}, valueUpdate: 'afterkeydown'">
 					<span class="add-on" data-bind="text: chars_remaining, visible: (inquiry() || '').length > 0, css: { smslow: chars_remaining() <= 10 }"></span>
                                     </div>
-                                    <button type="submit" class="btn submit" data-bind="disable: proxy, click: send_message">Send</button>
+                                    <button type="submit" class="btn submit" data-bind="disable: proxy() || !can_contact(), click: send_message">Send</button>
                                 </form>
                             </div>
                         </td>

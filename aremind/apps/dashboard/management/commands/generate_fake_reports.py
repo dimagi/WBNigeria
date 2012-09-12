@@ -80,7 +80,7 @@ class Command(BaseCommand):
             'reporter': self.make_conn(),
             'proxy': true_false(0.4),
             'schema_version': 1,
-            'can_contact': true_false(0.75),
+            'can_contact': true_false(2.),
         }
         return data
 

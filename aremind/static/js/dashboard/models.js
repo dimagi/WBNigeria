@@ -400,20 +400,27 @@ function FadamaLogModel(data, root) {
     this.subcategory = ko.observable(data[category]);
     this.message = ko.observable(data.message);
 
+    this.contactable = ko.computed(function() {
+	    return !this.proxy() && this.can_contact();
+	}, this);
+    this.no_contact_message = ko.computed(function() {
+	    if (this.proxy()) {
+		return 'it is not possible to message the beneficiary because they reported through a proxy';
+	    } else if (!this.can_contact()) {
+		return 'the beneficiary does not wish to be contacted further';
+	    } else {
+		return null;
+	    }
+	}, this);
+
     var model = this;
     this.inquiry = ko.observable();
     this._inquiry = ko.computed({
         read: function () {
-            if (model.proxy()) {
-                return 'it is not possible to message the beneficiary because they reported through a proxy';
-            }
-            if (!model.can_contact()) {
-                return 'the beneficiary does not want to be contacted about this report';
-            }
-            return model.inquiry();
+            return model.no_contact_message() || model.inquiry();
         },
         write: function (value) {
-            if (!model.proxy() && model.can_contact()) {
+            if (model.contactable()) {
               model.inquiry(value);
             }
         },

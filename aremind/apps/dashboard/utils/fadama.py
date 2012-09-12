@@ -117,8 +117,30 @@ COMPLAINT_SUBTYPES = {
 
 def main_dashboard_stats(user_state):
     data = load_reports(user_state)
-
     facilities = facilities_by_id()
+
+    def _increment_month(d):
+        month = d.month + 1
+        year = d.year
+        if month > 12:
+            month = month % 12
+            year = year + 1
+        return d.replace(year=year, month=month)
+
+    def insert_blank_months(stats):
+        """Inserts empty statistics for each month without data.
+
+        Assumes stats is ordered by month, with one entry per month.
+        """
+        prev_month = None
+        i = 0
+        while i < len(stats):
+            curr = datetime.strptime(stats[i]['_month'], '%Y-%m')
+            next_month = _increment_month(prev_month) if prev_month else curr
+            if curr > next_month:
+                stats.insert(i, month_stats([], (next_month.strftime('%b %Y'), next_month.strftime('%Y-%m'))))
+            i = i + 1
+            prev_month = next_month
 
     def month_stats(data, label):
         return {
@@ -130,7 +152,9 @@ def main_dashboard_stats(user_state):
             '_month': label[1],
         }
 
-    return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
+    stats = sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
+    insert_blank_months(stats)
+    return stats
 
 
 def detail_stats(facility_id, user_state):

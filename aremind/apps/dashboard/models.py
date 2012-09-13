@@ -247,6 +247,12 @@ def pbf_report(form, data):
     report.content = content
     return report
 
+def flat_yn(val):
+    _val = val.lower()
+    if _val not in ('y', 'n'):
+        raise RuntimeError
+    return (_val == 'y')
+
 @receiver(xform_received, dispatch_uid='53qghbk38u3hl')
 def on_flat_submit(sender, submission, xform, **args):
     if submission.has_errors:
@@ -269,12 +275,8 @@ def on_flat_submit(sender, submission, xform, **args):
         'proxy': True,
         'can_contact': False,
         'freeform': None,
+        'satisfied': flat_yn(submission.template_vars['satisfied']),
     }
-
-    _satisf = submission.template_vars['satisfied'].lower()
-    if _satisf not in ('y', 'n'):
-        return None
-    data['satisfied'] = (_satisf == 'y')
 
     report = processor(submission.template_vars, data)
     if report:
@@ -295,11 +297,13 @@ def fadama_report_flat(form, data):
 def pbf_report_flat(form, data):
     data['schema_version'] = 1
 
-    # waiting time
-    # staff friendliness
-    # prices displayed
-    # drug availability
-    # cleanliness
+    content = {
+        'waiting_time': form['waiting_time'],
+        'staff_friendliness': flat_yn(form['staff_friendliness']),
+        'cleanliness': flat_yn(form['cleanliness']),
+        'drug_availability': flat_yn(form['drug_availability']),
+        'price_display': flat_yn(form['price_display']),
+    }
 
     report = PBFReport(**data)
     report.content = content

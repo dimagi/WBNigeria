@@ -102,6 +102,7 @@ class ReportComment(models.Model):
 
 
 from smscouchforms.signals import xform_saved_with_session
+from rapidsms_xforms.models import xform_received
 from django.dispatch import receiver
 
 @receiver(xform_saved_with_session, dispatch_uid='cnru057m2ccbn')
@@ -241,6 +242,64 @@ def pbf_report(form, data):
     # filter out types of reports the dashboard can't handle yet
     if data['site'] is None:
         return
+
+    report = PBFReport(**data)
+    report.content = content
+    return report
+
+@receiver(xform_received, dispatch_uid='53qghbk38u3hl')
+def on_flat_submit(sender, submission, xform, **args):
+    if submission.has_errors:
+        return
+
+    processors = {
+        'f3': fadama_report_flat,
+        'cn': pbf_report_flat,
+    }
+    try:
+        processor = processors[xform.keyword]
+    except KeyError:
+        return
+
+    data = {
+        'timestamp': datetime.now(),
+        'reporter': submission.connection,
+        'raw_report': submission.raw,
+        'site': Location.objects.get(keyword=submission.template_vars['code']),
+        'proxy': True,
+        'can_contact': False,
+        'freeform': None,
+    }
+
+    _satisf = submission.template_vars['satisfied'].lower()
+    if _satisf not in ('y', 'n'):
+        return None
+    data['satisfied'] = (_satisf == 'y')
+
+    report = processor(submission.template_vars, data)
+    if report:
+        report.save()
+
+def fadama_report_flat(form, data):
+    data['schema_version'] = 1
+
+    from utils.fadama import COMPLAINT_TYPES, COMPLAINT_SUBTYPES
+    type = COMPLAINT_TYPES[form['complaint_type'] - 1]
+    subtype = COMPLAINT_SUBTYPES[type][form['complaint_subtype'] - 1]
+    content = {type: subtype}
+
+    report = FadamaReport(**data)
+    report.content = content
+    return report
+
+def pbf_report_flat(form, data):
+    data['schema_version'] = 1
+
+    # waiting time
+    # staff friendliness
+    # prices displayed
+    # drug availability
+    # cleanliness
 
     report = PBFReport(**data)
     report.content = content

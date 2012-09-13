@@ -241,7 +241,6 @@ function FadamaDetailViewModel() {
         var params = facility_id != null ? {site: facility_id} : {};
         var model = this;
         $.get('/dashboard/fadama/api/detail', params, function(data) {
-                console.log(params, data);
                 model.load(data);
             }, 'json');
     };
@@ -485,17 +484,16 @@ function FadamaLogModel(data, root) {
     };
     
     this.category_caption = ko.computed(function() {
-        return {
-            'serviceprovider': 'Service Providers',
-            'people': 'Stakeholders',
-            'land': 'Land Issues',
-            'info': 'Lack of Information',
-            'ldp': 'LDP Approval',
-            'financial': 'Financial Issues'
-        }[model.category()];
+        return fadama_descriptions[model.category()]['name'];
     });
     this.subcategory_caption = ko.computed(function() {
-        return get_fadama_caption(model.category(), model.subcategory());
+        return fadama_descriptions[model.category()]['subcategories'][model.subcategory()]['name'];
+    });
+    this.category_description = ko.computed(function() {
+        return fadama_descriptions[model.category()]['description'];
+    });
+    this.subcategory_description = ko.computed(function() {
+        return fadama_descriptions[model.category()]['subcategories'][model.subcategory()]['description'];
     });
 
     this.is_relevant = function(root) {

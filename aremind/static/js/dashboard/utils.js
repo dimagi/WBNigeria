@@ -43,7 +43,7 @@ pbf_categories = [
     {metric: 'friendly', field: 'staff_friendliness', caption: 'Staff Friendliness'},
     {metric: 'pricedisp', field: 'price_display', caption: 'Price Display'},
     {metric: 'drugavail', field: 'drug_availability', caption: 'Drug Availability'},
-    {metric: 'clean', field: 'cleanliness', caption: 'Cleanliness & Hygiene'},
+    {metric: 'clean', field: 'cleanliness', caption: 'Cleanliness & Hygiene'}
 ];
 
 fadama_categories = [
@@ -52,52 +52,160 @@ fadama_categories = [
     {metric: 'land', field: 'land', caption: 'Land Issues'},
     {metric: 'info', field: 'info', caption: 'Information Issues'},
     {metric: 'ldp', field: 'ldp', caption: 'LDP Approval'},
-    {metric: 'financial', field: 'financial', caption: 'Financial Issues'},
+    {metric: 'financial', field: 'financial', caption: 'Financial Issues'}
 ];
 
-function get_fadama_caption(metric, value) {
-    return {
-        satisf: {
-            True: 'Satisfied',
-            False: 'Unsatisfied'
-        },
-        serviceprovider: {
-            notfind: 'Not Finding',
-            notstarted: 'Not Started',
-            delay: 'Delays',
-            stopped: 'Abandoned Project',
-            substandard: 'Substandard Service',
-            other: 'Other'
-        },
-        people: {
-            state: 'State Officials',
-            fug: 'FUG',
-            fca: 'FCA',
-            facilitator: 'Facilitators',
-            other: 'Other'
-        },
-        land: {
-            notfind: 'Not Finding',
-            suitability: 'Not Suitable',
-            ownership: 'Ownership',
-            other: 'Other'
-        },
-        info: {
-            market: 'Market',
-            input: 'Input',
-            credit: 'Access to Credit',
-            other: 'Other'
-        },
-        ldp: {
-            delay: 'Delays',
-            other: 'Other'
-        },
-        financial: {
-            bank: 'Bank Account Opening',
-            delay: 'Delayed Funding',
-            other: 'Other'
+fadama_descriptions = {
+    ldp: {
+        name: 'LDP Approval',
+        description: 'Delays with LDP approval or other LDP-related issues',
+        subcategories: {
+            delay: {
+                name: 'Delays',
+                description: 'Delays with LDP approval'
+            },
+            other: {
+                name: 'Other',
+                description: 'Other issues related to the LDP'
+            }
         }
-    }[metric][value];
+    },
+    info: {
+        name: 'Lack of Information',
+        description: 'Lack of information on markets, agricultural inputs, credit options, or other issues',
+        subcategories: {
+            credit: {
+                name: 'Access to credit',
+                description: 'Lack of information on obtaining access to credit'
+            },
+            input: {
+                name: 'Input',
+                description: 'Lack of information on agricultural inputs: what to use or how to use them'
+            },
+            other: {
+                name: 'Other',
+                description: 'Other issues relating to lack of available information'
+            },
+            market: {
+                name: 'Market',
+                description: 'Lack of information on markets: access, pricing, or other issues'
+            }
+        }
+    },
+    serviceprovider: {
+        name: 'Service Providers',
+        description: 'Issues with finding a service provider, with the execution of the service provider contract, or with other related issues',
+        subcategories: {
+            notfind: {
+                name: 'Not finding',
+                description: 'Not able to find appropriate service providers'
+            },
+            delay: {
+                name: 'Delays',
+                description: 'Service provider was delayed in project execution'
+            },
+            substandard: {
+                name: 'Substandard Service',
+                description: 'Service provider delivered substandard service'
+            },
+            notstarted: {
+                name: 'Not started',
+                description: 'Service provider did not start project as agreed'
+            },
+            stopped: {
+                name: 'Abandoned Project',
+                description: 'Service provider abandoned project'
+            },
+            other: {
+                name: 'Other',
+                description: 'Other issues with service providers'
+            }
+        }
+    },
+    financial: {
+        name: 'Financial Issues',
+        description: 'Challenges in opening bank account, delays in receiving matching grant, or other financial issues',
+        subcategories: {
+            delay: {
+                name: 'Delayed Funding',
+                description: 'Delays in receiving matching grant'
+            },
+            bank: {
+                name: 'Bank Account Opening',
+                description: 'Issues with opening a bank account'
+            },
+            other: {
+                name: 'Other',
+                description: 'Other issues related to finances'
+            }
+        }
+    },
+    land: {
+        name: 'Land Issues',
+        description: 'Issues with finding land or finding suitable land, with land ownership, or other related issues',
+        subcategories: {
+            notfind: {
+                name: 'Not finding',
+                description: 'Not able to find land for project'
+            },
+            other: {
+                name: 'Other',
+                description: 'Other issues related to land'
+            },
+            ownership: {
+                name: 'Ownership',
+                description: 'Issue with land ownership'
+            },
+            suitability: {
+                name: 'Not suitable',
+                description: 'Not able to find land that is suitable for project'
+            }
+        }
+    },
+    people: {
+        name: 'Stakeholders',
+        description: 'Issues related to the different stakeholders: State PIU officials, FUG and FCA members, Facilitators, or others',
+        subcategories: {
+            fug: {
+                name: 'FUG',
+                description: 'Issue with FUG members'
+            },
+            other: {
+                name: 'Other',
+                description: 'Issue with other stakeholders'
+            },
+            facilitator: {
+                name: 'Facilitators',
+                description: 'Issue with Facilitators'
+            },
+            state: {
+                name: 'State officials',
+                description: 'Issue with State PIU officials'
+            },
+            fca: {
+                name: 'FCA',
+                description: 'Issue with FCA members'
+            }
+        }
+    },
+    satisf: {
+        name: 'Satisfaction',
+        description: 'Satisfaction',
+        subcategories: {
+            True: {
+                name: 'Satisfied',
+                description: 'Satisfied'
+            },
+            False: {
+                name: 'Unsatisfied',
+                description: 'Unsatisfied'
+            }
+        }
+    }
+};
+
+function get_fadama_caption(metric, value) {
+    return fadama_descriptions[metric]['subcategories'][value]['name'];
 }
 
 function get_fadama_ordering(metric) {

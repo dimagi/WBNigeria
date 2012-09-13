@@ -204,9 +204,21 @@ fadama_descriptions = {
     }
 };
 
-function get_fadama_caption(metric, value) {
+function get_fadama_category_caption(metric) {
+    return fadama_descriptions[metric]['name'];
+};
+
+function get_fadama_subcategory_caption(metric, value) {
     return fadama_descriptions[metric]['subcategories'][value]['name'];
-}
+};
+
+function get_fadama_category_description(metric) {
+    return fadama_descriptions[metric]['description'];
+};
+
+function get_fadama_subcategory_description(metric, value) {
+    return fadama_descriptions[metric]['subcategories'][value]['description'];
+};
 
 function get_fadama_ordering(metric) {
   return {
@@ -220,34 +232,60 @@ function get_fadama_ordering(metric) {
     }[metric];
 }
 
-function get_pbf_caption(metric, value) {
-    return {
-        satisf: {
-            True: 'Satisfied',
-            False: 'Unsatisfied'
-        },
-        clean: {
-            True: 'Clean',
-            False: 'Dirty'
-        },
-        friendly: {
-            True: 'Friendly',
-            False: 'Not friendly'
-        },
-        drugavail: {
-            True: 'Available',
-            False: 'Unavailable'
-        },
-        pricedisp: {
-            True: 'Displayed',
-            False: 'Not on display'
-        },
-        wait: {
-            '<2': '< 2 hrs',
-            '2-4': '2\u20134 hrs',
-            '>4': '> 4 hrs'
+pbf_descriptions = {
+    clean: {
+        name: 'Cleanliness & Hygiene',
+        description: 'Perceived cleanliness of the facility and its equipment from the perspective of the reporting patient',
+        subcategories: { 
+            True: {name: 'Clean', description: 'Clean'},
+            False: {name: 'Dirty', description: 'Dirty'}
         }
-    }[metric][value];
+    },
+    drugavail: {
+        name: 'Drug Availability',
+        description: 'Availability of the drug(s) needed by and/or prescribed to the reporting patient at the facility',
+        subcategories: {
+            True: {name: 'Available', description: 'Available'},
+            False: {name: 'Unavailable', description: 'Unavailable'}
+        }
+    },
+    pricedisp: {
+        name: 'Price Display',
+        description: 'Public display of the prices of drugs and services rendered to the reporting patient at the facility',
+        subcategories: {
+            True: {name: 'Displayed', description: 'Displayed'},
+            False: {name: 'Not on display', description: 'Not on display'}
+        }
+    },
+    friendly: {
+        name: 'Staff Friendliness',
+        description: 'Perceived friendliness of the facility staff from the perspective of the reporting patient',
+        subcategories: {
+            True: {name: 'Friendly', description: 'Friendly'},
+            False: {name: 'Not friendly', description: 'Not friendly'}
+        }
+    },
+    wait: {
+        name: 'Waiting Time',
+        description: 'Amount of time the reporting patient waited in the facility before receiving care',
+        subcategories: {
+            '<2': {name: '< 2 hrs', description: '< 2 hrs'},
+            '2-4': {name: '2\u20134 hrs', description: '2\u20134 hrs'},
+            '>4': {name: '> 4 hrs', description: '> 4 hrs'}
+        }
+    },
+    satisf: {
+        name: 'Satisfaction',
+        description: 'Satistfaction',
+        subcategories: {
+            True: {name: 'Satisfied', description: 'Satisfied'},
+            False: {name: 'Unsatisfied', description: 'Unsatisfied'}
+        }
+    }
+};
+
+function get_pbf_caption(metric, value) {
+    return pbf_descriptions[metric]['subcategories'][value]['name'];
 }
 
 function get_pbf_ordering(metric) {

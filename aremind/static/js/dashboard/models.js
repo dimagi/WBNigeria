@@ -231,7 +231,7 @@ function FadamaDetailViewModel() {
         }
 
         var opts = $.map(get_fadama_ordering(model.active_metric()), function(e) {
-            return {val: e, text: get_fadama_caption(model.active_metric(), e)};
+            return {val: e, text: get_fadama_subcategory_caption(model.active_metric(), e)};
         });
         opts.splice(0, 0, __all);
         return opts;
@@ -484,16 +484,16 @@ function FadamaLogModel(data, root) {
     };
     
     this.category_caption = ko.computed(function() {
-        return fadama_descriptions[model.category()]['name'];
+        return get_fadama_category_caption(model.category());
     });
     this.subcategory_caption = ko.computed(function() {
-        return fadama_descriptions[model.category()]['subcategories'][model.subcategory()]['name'];
+        return get_fadama_subcategory_caption(model.category(), model.subcategory());
     });
     this.category_description = ko.computed(function() {
-        return fadama_descriptions[model.category()]['description'];
+        return get_fadama_category_description(model.category());
     });
     this.subcategory_description = ko.computed(function() {
-        return fadama_descriptions[model.category()]['subcategories'][model.subcategory()]['description'];
+        return get_fadama_subcategory_description(model.category(), model.subcategory());
     });
 
     this.is_relevant = function(root) {

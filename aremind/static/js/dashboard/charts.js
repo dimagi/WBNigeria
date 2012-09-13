@@ -263,7 +263,7 @@ ko.bindingHandlers.fadama_current_chart = {
 
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
 	current_chart_update(element, valueAccessor, viewModel,
-            {get_ordering: get_fadama_ordering, get_caption: get_fadama_caption},
+            {get_ordering: get_fadama_ordering, get_caption: get_fadama_subcategory_caption},
 	    function(chart) {
 		if (chart.getSelection().length === 0) {
 		    return;
@@ -282,7 +282,7 @@ ko.bindingHandlers.fadama_historical_chart = {
     },
 
     update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
-	historical_chart_update(element, valueAccessor, viewModel, {get_ordering: get_fadama_ordering, get_caption: get_fadama_caption}, function(chart) {
+	historical_chart_update(element, valueAccessor, viewModel, {get_ordering: get_fadama_ordering, get_caption: get_fadama_subcategory_caption}, function(chart) {
 		if (chart.getSelection().length === 0) {
 		    return;
 		}

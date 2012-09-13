@@ -1,0 +1,332 @@
+[
+  {
+    "pk": 3,
+    "model": "rapidsms_xforms.xform",
+    "fields": {
+      "name": "fadama reporter",
+      "keyword": "f3",
+      "created": "2012-09-13 18:56:02",
+      "restrict_message": "",
+      "modified": "2012-09-13 18:56:02",
+      "site": 1,
+      "owner": 1,
+      "separator": null,
+      "restrict_to": [
+        
+      ],
+      "active": true,
+      "command_prefix": "+",
+      "response": "Thank you for submitting!",
+      "keyword_prefix": null,
+      "description": "fadama reporter"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "rapidsms_xforms.xform",
+    "fields": {
+      "name": "pbf reporter",
+      "keyword": "cn",
+      "created": "2012-09-13 19:18:31",
+      "restrict_message": "",
+      "modified": "2012-09-13 19:18:31",
+      "site": 1,
+      "owner": 1,
+      "separator": null,
+      "restrict_to": [
+        
+      ],
+      "active": true,
+      "command_prefix": "+",
+      "response": "Thank you for submitting!",
+      "keyword_prefix": null,
+      "description": "pbf reporter"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "int",
+      "command": "code",
+      "order": 0,
+      "xform": 3
+    }
+  },
+  {
+    "pk": 11,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "int",
+      "command": "code",
+      "order": 0,
+      "xform": 4
+    }
+  },
+  {
+    "pk": 8,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "text",
+      "command": "satisfied",
+      "order": 1,
+      "xform": 3
+    }
+  },
+  {
+    "pk": 12,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "text",
+      "command": "satisfied",
+      "order": 1,
+      "xform": 4
+    }
+  },
+  {
+    "pk": 9,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "int",
+      "command": "complaint_type",
+      "order": 2,
+      "xform": 3
+    }
+  },
+  {
+    "pk": 13,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "int",
+      "command": "waiting_time",
+      "order": 2,
+      "xform": 4
+    }
+  },
+  {
+    "pk": 10,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "int",
+      "command": "complaint_subtype",
+      "order": 3,
+      "xform": 3
+    }
+  },
+  {
+    "pk": 14,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "text",
+      "command": "staff_friendliness",
+      "order": 3,
+      "xform": 4
+    }
+  },
+  {
+    "pk": 15,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "text",
+      "command": "cleanliness",
+      "order": 4,
+      "xform": 4
+    }
+  },
+  {
+    "pk": 16,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "text",
+      "command": "drug_availability",
+      "order": 5,
+      "xform": 4
+    }
+  },
+  {
+    "pk": 17,
+    "model": "rapidsms_xforms.xformfield",
+    "fields": {
+      "field_type": "text",
+      "command": "price_display",
+      "order": 6,
+      "xform": 4
+    }
+  },
+  {
+    "pk": 15,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:19:38",
+      "datatype": "text",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:19:38",
+      "type": null,
+      "slug": "cn_cleanliness",
+      "name": "cleanliness"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:03:26",
+      "datatype": "int",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:03:26",
+      "type": null,
+      "slug": "f3_code",
+      "name": "code"
+    }
+  },
+  {
+    "pk": 11,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:18:38",
+      "datatype": "int",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:18:38",
+      "type": null,
+      "slug": "cn_code",
+      "name": "code"
+    }
+  },
+  {
+    "pk": 10,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:04:15",
+      "datatype": "int",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:04:15",
+      "type": null,
+      "slug": "f3_complaint_subtype",
+      "name": "complaint_subtype"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:04:00",
+      "datatype": "int",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:04:00",
+      "type": null,
+      "slug": "f3_complaint_type",
+      "name": "complaint_type"
+    }
+  },
+  {
+    "pk": 16,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:19:53",
+      "datatype": "text",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:19:53",
+      "type": null,
+      "slug": "cn_drug_availability",
+      "name": "drug_availability"
+    }
+  },
+  {
+    "pk": 17,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:20:02",
+      "datatype": "text",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:20:02",
+      "type": null,
+      "slug": "cn_price_display",
+      "name": "price_display"
+    }
+  },
+  {
+    "pk": 12,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:18:47",
+      "datatype": "text",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:18:47",
+      "type": null,
+      "slug": "cn_satisfied",
+      "name": "satisfied"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:03:39",
+      "datatype": "text",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:03:39",
+      "type": null,
+      "slug": "f3_satisfied",
+      "name": "satisfied"
+    }
+  },
+  {
+    "pk": 14,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:19:26",
+      "datatype": "text",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:19:26",
+      "type": null,
+      "slug": "cn_staff_friendliness",
+      "name": "staff_friendliness"
+    }
+  },
+  {
+    "pk": 13,
+    "model": "eav.attribute",
+    "fields": {
+      "description": "",
+      "created": "2012-09-13 19:19:11",
+      "datatype": "int",
+      "enum_group": null,
+      "required": false,
+      "site": 1,
+      "modified": "2012-09-13 19:19:11",
+      "type": null,
+      "slug": "cn_waiting_time",
+      "name": "waiting_time"
+    }
+  }
+]

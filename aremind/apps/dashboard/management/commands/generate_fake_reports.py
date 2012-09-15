@@ -73,7 +73,7 @@ class Command(BaseCommand):
     def generate_base_report(self, index, time_window):
         "Generic report generator."
         data = {
-            'id': index,
+            #'id': index,
             'timestamp': datetime.utcnow() - timedelta(days=random.uniform(0, 30.44 * time_window)),
             'satisfied': true_false(),
             'freeform': lorem_ipsum.sentence() if random.random() < .3 else None,

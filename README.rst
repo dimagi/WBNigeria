@@ -79,6 +79,16 @@ Developer Setup
 #. Open http://localhost:8000 in your web browser and you should see an
    **Installation Successful!** screen.
 
+Bootstrapping Data
+==================
+
+python manage.py loaddata locations_data.json
+python manage.py loaddata sites_data.json
+python manage.py loaddata flat_forms.json
+upload xforms in forms/ in 'Decision Tree XForms' tab
+python manage.py populate_sites
+python manage.py import_users apps/web_users/fixtures/user_import.sample.csv
+
 
 Generating Report Data
 ==============================

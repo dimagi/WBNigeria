@@ -41,16 +41,16 @@ $(document).ajaxSend(function(event, xhr, settings) {
 pbf_categories = [
     {metric: 'wait', field: 'waiting_time', caption: 'Waiting Time'},
     {metric: 'friendly', field: 'staff_friendliness', caption: 'Staff Friendliness'},
-    {metric: 'pricedisp', field: 'price_display', caption: 'Price Display'},
+    {metric: 'pricedisp', field: 'price_display', caption: 'Prices Displayed'},
     {metric: 'drugavail', field: 'drug_availability', caption: 'Drug Availability'},
     {metric: 'clean', field: 'cleanliness', caption: 'Cleanliness & Hygiene'},
 ];
 
 fadama_categories = [
     {metric: 'serviceprovider', field: 'serviceprovider', caption: 'Service Providers'},
-    {metric: 'people', field: 'people', caption: 'People from Fadama'},
+    {metric: 'people', field: 'people', caption: 'Stakeholders'},
     {metric: 'land', field: 'land', caption: 'Land Issues'},
-    {metric: 'info', field: 'info', caption: 'Information Issues'},
+    {metric: 'info', field: 'info', caption: 'Lack of Information'},
     {metric: 'ldp', field: 'ldp', caption: 'LDP Approval'},
     {metric: 'financial', field: 'financial', caption: 'Financial Issues'},
 ];
@@ -62,11 +62,11 @@ function get_fadama_caption(metric, value) {
             False: 'Unsatisfied'
         },
         serviceprovider: {
-            notfind: 'Not Finding',
+            notfind: "Can't Find",
             notstarted: 'Not Started',
             delay: 'Delays',
-            stopped: 'Abandoned Project',
-            substandard: 'Substandard Service',
+            stopped: 'Abandoned project',
+            substandard: 'Substandard service',
             other: 'Other'
         },
         people: {
@@ -93,8 +93,8 @@ function get_fadama_caption(metric, value) {
             other: 'Other'
         },
         financial: {
-            bank: 'Bank Account Opening',
-            delay: 'Delayed Funding',
+            bank: 'Bank account opening',
+            delay: 'Delayed funding',
             other: 'Other'
         }
     }[metric][value];
@@ -120,7 +120,7 @@ function get_pbf_caption(metric, value) {
         },
         clean: {
             True: 'Clean',
-            False: 'Dirty'
+            False: 'Not clean'
         },
         friendly: {
             True: 'Friendly',
@@ -132,7 +132,7 @@ function get_pbf_caption(metric, value) {
         },
         pricedisp: {
             True: 'Displayed',
-            False: 'Not on display'
+            False: 'Not displayed'
         },
         wait: {
             '<2': '< 2 hrs',

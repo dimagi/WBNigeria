@@ -112,13 +112,13 @@ INSTALLED_APPS = [
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     #("aremind.apps.broadcast.views.dashboard", "Dashboard"), # Old dashboard
-    ("smscouchforms.views.download",       "View Data"),
-    ("threadless_router.backends.httptester.views.generate_identity", "Message Tester"),
-    ('xforms', 'Reporter Scenario'),
-    ('smsforms.views.list_forms', 'Decision Tree XForms'),
-    ('smsforms.views.view_triggers', 'Decision Tree Triggers'),
-    ('pbf_dashboard', 'PBF Dashboard'),
-    ('fadama_dashboard', 'Fadama Dashboard'),
+    ("smscouchforms.views.download",       "View Data", "is_superuser"),
+    ("threadless_router.backends.httptester.views.generate_identity", "Message Tester", "is_superuser"),
+    ('xforms', 'Reporter Scenario', "is_superuser"),
+    ('smsforms.views.list_forms', 'Decision Tree XForms', "is_superuser"),
+    ('smsforms.views.view_triggers', 'Decision Tree Triggers', "is_superuser"),
+    ('pbf_dashboard', 'PBF Dashboard', 'dashboard.pbf_view'),
+    ('fadama_dashboard', 'Fadama Dashboard', 'dashboard.fadama_view'),
 ]
 
 XFORMS_HOST = 'www.rapidsms-server.com'
@@ -142,7 +142,7 @@ TEMPLATE_LOADERS = (
 
 # after login (which is handled by django.contrib.auth), redirect to the
 # dashboard rather than 'accounts/profile' (the default).
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/welcome/"
 
 
 # use django-nose to run tests. rapidsms contains lots of packages and
@@ -212,7 +212,7 @@ MIDDLEWARE_CLASSES = [
 #    'aremind.login_required_everything.RequireLoginMiddleware',
 #    'auditcare.middleware.AuditMiddleware',
 ]
-    
+
 # -------------------------------------------------------------------- #
 #                           HERE BE DRAGONS!                           #
 #        these settings are pure hackery, and will go away soon        #

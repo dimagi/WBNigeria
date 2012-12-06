@@ -50,13 +50,13 @@
         <table class="date-control" style="float: right;">
             <tr>
                 <td style="width: 4em; vertical-align: top; text-align: left;">
-                    <a href="#" data-bind="click: prevmonth, style: { color: monthly().indexOf(active_month()) == 0 ? '#888' : '' }">Prev</a>
+                    <a href="#" data-bind="click: prevmonth, style: { color: monthly().indexOf(active_month()) == 0 ? '#888' : '' }">Previous month</a>
                   </td>
                   <td class="month" style="width: 8em; vertical-align: top; text-align: center;">
                     <p data-bind="text: active_month() ? active_month().month_label() : ''"></p>
                   </td>
                   <td style="width: 4em; vertical-align: top; text-align: right;">
-                    <a href="#" data-bind="click: nextmonth, style: { color: monthly().indexOf(active_month()) == monthly().length - 1 ? '#888' : '' }">Next</a>
+                    <a href="#" data-bind="click: nextmonth, style: { color: monthly().indexOf(active_month()) == monthly().length - 1 ? '#888' : '' }">Next month</a>
                 </td>
             </tr>
         </table>
@@ -110,8 +110,12 @@
                 <label class="control-label" for="object_filter">Filter by:</label>
                 <select data-bind="options: active_facility() ? active_facility().fugs : [], value: active_fug"></select>
                 <select id="feedback" data-bind="options: subcategories, optionsText: 'text', value: active_subcategory"></select>
+                {% comment %}
                 <input type="text" id="date" class="input-mini calendar" placeholder="Date" />
                 <input type="text" id="search" placeholder="Search..." />
+                {% endcomment %}
+                <input type="text" id="date" style="display: none;" class="hidden" placeholder="Date" />
+                <input type="text" id="search" style="display: none;" placeholder="Search..." />
             </form>
         </div>
     </div>

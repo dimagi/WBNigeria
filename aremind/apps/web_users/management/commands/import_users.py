@@ -5,11 +5,13 @@ import json
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from rapidsms.models import Backend, Contact, Connection
 from rapidsms.contrib.locations.models import Location, Point
 from smsforms.models import DecisionTrigger
 from touchforms.formplayer.models import XForm
+
+ALLOWED_PERMS = ('pbf_view', 'fadama_view')
 
 class Command(BaseCommand):
     "Populate Users"
@@ -20,6 +22,15 @@ class Command(BaseCommand):
         if not Location.objects.filter(type__slug='state'):
             print 'no state locations defined; did you import the other fixtures yet?'
             return
+
+        #check that the ALLOWED_PERMS exist
+        for perm in ALLOWED_PERMS:
+            try:
+                Permission.objects.get(codename=perm)
+            except Permission.DoesNotExist:
+                print 'run data migrations on dashboard app to install %s' % perm
+                return
+
 
         try:
             path = args[0]
@@ -32,6 +43,7 @@ class Command(BaseCommand):
 def populate(path):
     with open(path) as f:
         data = csv.DictReader(f)
+        #import pdb;pdb.set_trace()
         for row in data:
             populate_user(row)
 
@@ -40,7 +52,7 @@ def populate_user(row):
         if v == '':
             del row[k]
 
-    NON_REQUIRED_FIELDS = ['email']
+    NON_REQUIRED_FIELDS = ['email', 'perm']
 
     for k, v in row.iteritems():
         if v is None and k not in NON_REQUIRED_FIELDS:
@@ -59,6 +71,15 @@ def populate_user(row):
         print 'state must be one of: %s' % ', '.join(ALLOWED_STATES)
         return
 
+    if 'perm' in row and not row['perm'] in ALLOWED_PERMS:
+        print 'perm must be one of: %s' % ', '.join(ALLOWED_PERMS)
+        return
+
+    if 'perm' in row:
+        perm = Permission.objects.get(codename=row['perm'])
+    else:
+        perm = None
+
     u = User()
     u.username = row['username']
     u.first_name = row['first name']
@@ -66,6 +87,9 @@ def populate_user(row):
     u.email = row.get('email', 'nobody@nowhere.ng')
     u.set_password(row['password'])
     u.save()
+
+    if perm:
+        u.user_permissions.add(perm)
 
     try:
         contact = Contact.objects.get(user__username=row['username'])

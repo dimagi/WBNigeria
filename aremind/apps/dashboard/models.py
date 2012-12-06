@@ -54,12 +54,16 @@ class PBFReport(FeedbackReport):
     # prices displayed
     # drug availability
     # cleanliness
-    pass
+
+    class Meta:
+        permissions = (('pbf_view', 'View PBF reports'),)
 
 class FadamaReport(FeedbackReport):
     # primary complaint type
     # complaint sub-type
-    pass
+
+    class Meta:
+        permissions = (('fadama_view', 'View Fadama reports'),)
 
 
 class ReportComment(models.Model):
@@ -97,7 +101,7 @@ class ReportComment(models.Model):
         }
 
     def __unicode__(self):
-        return u'{0} on Report {1} by {2} on {3}'.format(self.comment_type.title(),  
+        return u'{0} on Report {1} by {2} on {3}'.format(self.comment_type.title(),
                 self.report.id, self.author, self.date.strftime('%Y-%m-%d %H:%M:%S'))
 
 
@@ -194,7 +198,7 @@ def fadama_report(form, data):
 
             else:
                 complaint_subtype = None
-                
+
             if form.get('project_phase2_bad_sp_other'):
                 content['other_detail'] = form.get('project_phase2_bad_sp_other')
 

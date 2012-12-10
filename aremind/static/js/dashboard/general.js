@@ -89,7 +89,7 @@ $(function() {
 	    if (root.active_metric() == 'all') {
 		var color = '';
 	    } else {
-		var field = get_pbf_metric_field(coltype);
+		var field = get_pbf_metric_model_field(coltype);
 		var color = get_subcategory_color(coltype, viewModel[field](), get_pbf_ordering);
 	    }
 

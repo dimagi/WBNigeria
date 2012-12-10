@@ -152,13 +152,24 @@ function get_pbf_ordering(metric) {
     return order;
 }
 
-function get_pbf_metric_field(metric) {
+function get_pbf_metric_model_field(metric) {
     return {
 	satisf: 'satisfied',
 	wait: 'wait_bucket',
 	clean: 'cleanliness',
 	friendly: 'friendliness',
 	drugavail: 'drugs_avail',
+	pricedisp: 'price_display',
+    }[metric];
+}
+
+function get_pbf_metric_ajax_field(metric) {
+    return {
+	satisf: 'satisfied',
+	wait: 'wait_bucket',
+	clean: 'cleanliness',
+	friendly: 'staff_friendliness',
+	drugavail: 'drug_availability',
 	pricedisp: 'price_display',
     }[metric];
 }
@@ -206,6 +217,6 @@ function site_name(name, map) {
 }
 
 function monthly_datapoints(month, metric) {
-    var key = get_pbf_metric_field(metric) || metric;
+    var key = get_pbf_metric_ajax_field(metric) || metric;
     return month.stats[key];
 }

@@ -13,7 +13,6 @@ from aremind.apps.dashboard.utils import mixins
 from aremind.apps.dashboard.utils import shared as u
 from aremind.notifications.tagged_in_note import trigger_alerts
 
-
 class DashboardView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/dashboard.html'
 

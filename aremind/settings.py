@@ -209,6 +209,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'django_sorting.middleware.SortingMiddleware',
+    'aremind.middleware.AccessControlMiddleware',
 #    'aremind.login_required_everything.RequireLoginMiddleware',
 #    'auditcare.middleware.AuditMiddleware',
 ]

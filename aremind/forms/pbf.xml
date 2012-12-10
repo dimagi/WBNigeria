@@ -22,6 +22,7 @@
 					<what_state />
 					<other_state_info />
 					<state_other_thanks />
+                    <helpful_tip />
 				</data>
 			</instance>
 			<instance id="session" src="jr://instance/session" />
@@ -107,6 +108,70 @@
 					<text id="thanks_contact-label">
 						<value>Thank you! We will contact you in the future.</value>
 					</text>
+
+                    <text id="helpful-tip-1">
+                      <value>A well fed baby will be content with sleepy smile and full belly! If he vomits after each feed or has a swollen tummy, visit the clinic.</value>
+                    </text>
+                    <text id="helpful-tip-2">
+                      <value>Looking after a newborn is hard work. You may feel tired and sleep deprived all the time. Try to get some sleep when your baby is sleeping.</value>
+                    </text>
+                    <text id="helpful-tip-3">
+                      <value>Protect your baby from mosquito bites by using an insecticide treated bednet, and closing windows and doors at dusk. </value>
+                    </text>
+                    <text id="helpful-tip-4">
+                      <value>Eating well means you will make good quality breastmilk for your baby. Make sure to get plenty to eat with lots of vegetables and fruit. </value>
+                    </text>
+                    <text id="helpful-tip-5">
+                      <value>Mosquitoes are attracted to dark colours. Make sure your baby wears light colours, especially in the evenings when mosquitoes are about.</value>
+                    </text>
+                    <text id="helpful-tip-6">
+                      <value>With a baby to look after it is easy to forget about yourself. Eat well and get some gentle exercise every day. It will keep you healthy.</value>
+                    </text>
+                    <text id="helpful-tip-7">
+                      <value>Not all medicine is safe for your children. Don't take your children to a traditional healer, go to the clinic instead.</value>
+                    </text>
+                    <text id="helpful-tip-8">
+                      <value>Rapid breathing and a cough are signs of pneumonia. Get your baby treatment at the clinic. Give the full course for full recovery.</value>
+                    </text>
+                    <text id="helpful-tip-9">
+                      <value>Food that has gone bad can cause diarrhoea and make your baby ill. Buy fresh foods regularly .</value>
+                    </text>
+                    <text id="helpful-tip-10">
+                      <value>Ask your health worker for antiseptic cream for cuts. If your baby gets a cut, wash it well to prevent infection. Then rub some cream on.</value>
+                    </text>
+                    <text id="helpful-tip-11">
+                      <value>Wash fruit and vegetables to remove dirt and germs. Use clean water and wash them well before feeding your baby.</value>
+                    </text>
+                    <text id="helpful-tip-12">
+                      <value>There are many way to prevent getting pregnant too soon. Talk to your health care worker to find out more. </value>
+                    </text>
+                    <text id="helpful-tip-13">
+                      <value>Traditional medicine can be harmful for your baby. Explain this to your friends and family. Keep your baby safe.</value>
+                    </text>
+                    <text id="helpful-tip-14">
+                      <value>Malaria can make you very sick, especially during pregnancy. Wear long, light clothes to prevent mosquito bites. </value>
+                    </text>
+                    <text id="helpful-tip-15">
+                      <value>Wash your hands with clean water and soap to prevent infections. Wash them after handling animals, using the latrine and before cooking.  </value>
+                    </text>
+                    <text id="helpful-tip-16">
+                      <value>Having your baby at a clinic means someone can help if there is a problem. Make arrangements now to have an attended birth.</value>
+                    </text>
+                    <text id="helpful-tip-17">
+                      <value>Ask at the clinic what your blood group is. Then check with friends and family who are the same in case you need a blood transfusion.</value>
+                    </text>
+                    <text id="helpful-tip-18">
+                      <value>Getting your baby vaccinated protects him from many deadly diseases. Keep your baby safe. Go to your clinic to find out more today. </value>
+                    </text>
+                    <text id="helpful-tip-19">
+                      <value>For the first 6 months, only feed breast milk to your baby without any additional food or drink, not even water.</value>
+                    </text>
+                    <text id="helpful-tip-20">
+                      <value>Don't forget to take your baby to the clinic for polio vaccine. It will keep your baby protected!</value>
+                    </text>
+                    <text id="helpful-tip-21">
+                      <value>If you notice your baby is unresponsive or vomits after each feed, go the clinic to get checked out.</value>
+                    </text>
 				</translation>
 			</itext>
 		</model>
@@ -180,5 +245,8 @@
 		<trigger ref="/data/state_other_thanks">
 			<label ref="jr:itext('state_other_thanks-label')" />
 		</trigger>
+        <trigger ref="/data/helpful_tip">
+            <label><output value="jr:itext(concat('helpful-tip-', int(random() * 21) + 1))" /></label>
+        </trigger>
 	</h:body>
 </h:html>

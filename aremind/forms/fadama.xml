@@ -29,6 +29,7 @@
 					<contact />
 					<contact_me />
 					<dont_contact_me />
+                    <helpful_tip />
 				</data>
 			</instance>
 			<instance id="session" src="jr://instance/session" />
@@ -127,6 +128,40 @@
 					<text id="dont_contact_me-label">
 						<value>Thank you! Your feedback has been well received.</value>
 					</text>
+
+                    <text id="helpful-tip-1">
+                      <value>In order to receive the Fadama money, make sure you get your certification! Ask your facilitator for guidance.</value>
+                    </text>
+                    <text id="helpful-tip-2">
+                      <value>Get your voice heard when making your LDP! Do not let your facilitator speak for your group.</value>
+                    </text>
+                    <text id="helpful-tip-3">
+                      <value>If you lack market information, make sure to ask your facilitator for guidance. Your facilitator is here to help you sell your produce.</value>
+                    </text>
+                    <text id="helpful-tip-4">
+                      <value>Ask at least 3 service providers about how much they charge for services before making a decision! You can choose the cheaper offer.</value>
+                    </text>
+                    <text id="helpful-tip-5">
+                      <value>It is your right to have a training in accounting to help you run your project. Don't miss out! Ask your facilitator for information.</value>
+                    </text>
+                    <text id="helpful-tip-6">
+                      <value>It is very important to have women participating in Fadama. Both men and women should work together for better results!</value>
+                    </text>
+                    <text id="helpful-tip-7">
+                      <value>You need to save 10% of your project cost each year to help you maintain and grow your assets. Ask your facilitator for guidance!</value>
+                    </text>
+                    <text id="helpful-tip-8">
+                      <value>If you are suspecting a case of corruption or abuse, report it to Fadama officials immediately!</value>
+                    </text>
+                    <text id="helpful-tip-9">
+                      <value>If you need a loan to continue your project, ask your facilitator to explain the different options available to you.</value>
+                    </text>
+                    <text id="helpful-tip-10">
+                      <value>If you buy something for your project, keep your receipts! Fadama might ask you to show them. Ask your facilitator for guidance!</value>
+                    </text>
+                    <text id="helpful-tip-11">
+                      <value>If you have problems opening a bank account, ask your facilitator for guidance. Your facilitator is here to help you!</value>
+                    </text>
 				</translation>
 			</itext>
 		</model>
@@ -201,5 +236,8 @@
 		<trigger ref="/data/dont_contact_me">
 			<label ref="jr:itext('dont_contact_me-label')" />
 		</trigger>
+        <trigger ref="/data/helpful_tip">
+            <label><output value="jr:itext(concat('helpful-tip-', int(random() * 11) + 1))" /></label>
+        </trigger>
 	</h:body>
 </h:html>

@@ -142,7 +142,7 @@ TEMPLATE_LOADERS = (
 
 # after login (which is handled by django.contrib.auth), redirect to the
 # dashboard rather than 'accounts/profile' (the default).
-LOGIN_REDIRECT_URL = "/welcome/"
+LOGIN_REDIRECT_URL = "/"
 
 
 # use django-nose to run tests. rapidsms contains lots of packages and

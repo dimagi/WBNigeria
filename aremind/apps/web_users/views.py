@@ -8,4 +8,4 @@ def welcome(request):
     elif request.user.has_perm('dashboard.fadama_view'):
         return redirect('fadama_dashboard')
     else:
-        return redirect('smscouchforms.views.download')
+        return redirect('account/login/') #'radpisms_login') # can't get url reverse to work

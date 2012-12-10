@@ -2,8 +2,11 @@ from django.conf.urls.defaults import *
 
 from aremind.apps.dashboard.views import fadama
 from aremind.apps.dashboard.views import pbf
+import aremind.apps.dashboard.views as shared
 
 urlpatterns = patterns('',
+    url(r'^$', shared.landing),
+
     url(r'^pbf/$', pbf.DashboardView.as_view(), name='pbf_dashboard'),
     url(r'^pbf/reports/$', pbf.ReportView.as_view(), name='pbf_reports'),
 

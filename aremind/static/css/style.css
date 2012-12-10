@@ -570,8 +570,6 @@ body .reports-info-content input[type="submit"].btn,body .reports-info-content b
 body .filter-form{display:inline;}
 body .sitename{background:rgba(255, 255, 255, 0.7);border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;padding:5px 10px;font-weight:bold;font-style:italic;}
 body #reports-table{margin-top:20px;}
-body #branding{display:none;}
-body #tabs{display:none;}
 body #wrapper{width:100%;min-height:800px;}
 body #header #branding span{position:absolute;margin-top:10px;margin-left:78px;}
 body #footer{margin-top:100px;}

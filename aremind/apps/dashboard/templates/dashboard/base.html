@@ -3,6 +3,13 @@
 {% block stylesheets %}
 {{ block.super }}
 <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/style.css" />
+
+{% if not shownav %}
+<style>
+body #header{display:none;}
+</style>
+{% endif %}
+
 {% endblock stylesheets %}
 
 {% block javascripts %}

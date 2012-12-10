@@ -480,3 +480,6 @@ DECISION_TREE_FORMS = {
     'fadama': 'http://openrosa.org/formdesigner/Fadama',
     'pbf': 'http://openrosa.org/formdesigner/PBF',
 }
+
+from datetime import timedelta
+SMSFORMS_POSTSESSION_LOCKOUT = timedelta(hours=24)

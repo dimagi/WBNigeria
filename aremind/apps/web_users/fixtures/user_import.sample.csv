@@ -1,7 +1,15 @@
-"username","first name","last name","email","state","password","perm"
-"fctofficer","Albert","Smith",,"fct","abcdef","pbf_view"
-"nasrwofficer","Barney","Jones",,"nasawara","qwerty","fadama_view"
-"natlofficer","Calvin","Brown",,"national",123456,,
-"fctofficer2","Dana","Johnson",,"fct","abcdef",,
-"nasrwofficer2","Emily","Miller",,"nasawara","qwerty","pbf_view"
-"natlofficer2","Farah","Williams",,"national",123456,"fadama_view"
+"username","program","supervisor","state","first name","last name","email","password"
+"worldbank","both","y","national","Albert","Smith",,123456
+"fadama_natl","fadama","y","national","Barney","Jones",,123456
+"fadama_natl2","fadama","y","national","Calvin","Brown",,123456
+"fadama_fct_supervisor","fadama","y","fct","Dana","Johnson",,123456
+"fadama_fct_officer","fadama","n","fct","Emily","Miller",,123456
+"fadama_fct_officer2","fadama","n","fct","Farah","Williams",,123456
+"fadama_nas_supervisor","fadama","y","nasawara","Gerard","Davis",,123456
+"fadama_nas_officer","fadama","n","nasawara","Horace","Wilson",,123456
+"fadama_nas_officer2","fadama","n","nasawara","Iago","Moore",,123456
+"pbf_natl","pbf","y","national","Juliet","Taylor",,123456
+"pbf_natl2","pbf","y","national","Karen","Anderson",,123456
+"pbf_nas_supervisor","pbf","y","nasawara","Lisa","Jackson",,123456
+"pbf_nas_officer","pbf","n","nasawara","Monk","White",,123456
+"pbf_nas_officer2","pbf","n","nasawara","Nerese","Harris",,123456

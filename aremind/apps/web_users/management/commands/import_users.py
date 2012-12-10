@@ -11,7 +11,7 @@ from rapidsms.contrib.locations.models import Location, Point
 from smsforms.models import DecisionTrigger
 from touchforms.formplayer.models import XForm
 
-ALLOWED_PERMS = ('pbf_view', 'fadama_view')
+PERMS = ('pbf_view', 'fadama_view', 'supervisor')
 
 class Command(BaseCommand):
     "Populate Users"
@@ -23,14 +23,13 @@ class Command(BaseCommand):
             print 'no state locations defined; did you import the other fixtures yet?'
             return
 
-        #check that the ALLOWED_PERMS exist
-        for perm in ALLOWED_PERMS:
+        #check that the required permissions are defined
+        for perm in PERMS:
             try:
                 Permission.objects.get(codename=perm)
             except Permission.DoesNotExist:
                 print 'run data migrations on dashboard app to install %s' % perm
                 return
-
 
         try:
             path = args[0]
@@ -43,7 +42,6 @@ class Command(BaseCommand):
 def populate(path):
     with open(path) as f:
         data = csv.DictReader(f)
-        #import pdb;pdb.set_trace()
         for row in data:
             populate_user(row)
 
@@ -52,7 +50,7 @@ def populate_user(row):
         if v == '':
             del row[k]
 
-    NON_REQUIRED_FIELDS = ['email', 'perm']
+    NON_REQUIRED_FIELDS = ['email', 'supervisor']
 
     for k, v in row.iteritems():
         if v is None and k not in NON_REQUIRED_FIELDS:
@@ -71,14 +69,27 @@ def populate_user(row):
         print 'state must be one of: %s' % ', '.join(ALLOWED_STATES)
         return
 
-    if 'perm' in row and not row['perm'] in ALLOWED_PERMS:
-        print 'perm must be one of: %s' % ', '.join(ALLOWED_PERMS)
+    ALLOWED_PROGRAMS = ('pbf', 'fadama', 'both')
+    if not row['program'] in ALLOWED_PROGRAMS:
+        print 'program must be one of: %s' % ', '.join(ALLOWED_PROGRAMS)
         return
 
-    if 'perm' in row:
-        perm = Permission.objects.get(codename=row['perm'])
+    PROGRAM_PERMS = {
+        'pbf': 'pbf_view',
+        'fadama': 'fadama_view',
+    }
+    perms = []
+    if row['program'] == 'both':
+        perms.extend(PROGRAM_PERMS.values())
     else:
-        perm = None
+        perms.append(PROGRAM_PERMS[row['program']])
+
+    is_supervisor = (row.get('supervisor', '').lower() in ('y', 'yes', 'x'))
+    if is_supervisor:
+        perms.append('supervisor')
+
+    def add_perm(u, perm_name):
+        u.user_permissions.add(Permission.objects.get(codename=perm_name))
 
     u = User()
     u.username = row['username']
@@ -88,8 +99,9 @@ def populate_user(row):
     u.set_password(row['password'])
     u.save()
 
-    if perm:
-        u.user_permissions.add(perm)
+    for p in perms:
+        add_perm(u, p)
+    u.save()
 
     try:
         contact = Contact.objects.get(user__username=row['username'])

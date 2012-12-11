@@ -20,15 +20,20 @@
         detail_report_init();
     });
 
-    charts_init = false;
-
     function detail_report_init() {
         var model = new FadamaDetailViewModel();
         ko.applyBindings(model);
 
-        google.setOnLoadCallback(function() {
-            model.active_month(model.active_month());
-            charts_init = true;
+        // Attach an event listener to map div
+        // Specifically, this solves the problem when the maps container
+        // isnt displayed, so the map needs to be alerted to the fact the 
+        // container has shown up
+        $('.map').bind('showmap', function(event) {
+            $(this).parents('div[data-bind].row-fluid').show();
+            google.maps.event.trigger(map, 'resize');
+
+            // Have it run the update function
+            model.month_incr(0);
         });
     }
 </script>
@@ -98,7 +103,7 @@
             </div>
         </div>
 
-        <div class="row-fluid" data-bind="visible: active_metric() == 'all'">
+        <div class="row-fluid" data-bind="visible: displayMap()">
             <div class="span12">
                 {% include "dashboard/_map.html" %}
             </div>

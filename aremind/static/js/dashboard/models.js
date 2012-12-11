@@ -301,6 +301,17 @@ function FadamaDetailViewModel() {
             });
         });
     };
+
+    this.displayMap = function() {
+        if(this.active_metric() == 'all') {
+            // Fire the event so that the map resizes after
+            // showing the div
+            $('.map').trigger('showmap');
+            return true;
+        }
+
+        return false;
+    };
 }
 
 function FadamaLogsForContactModel(data, taggables) {

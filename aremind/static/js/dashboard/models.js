@@ -77,20 +77,20 @@ function PBFDetailViewModel() {
             }
         }
 
-        var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
+        var active_month_key = (this.active_month() ? this.active_month()._month : null);
         this.monthly($.map(data.monthly, function(m) {
             return new PbfMonthlyDetailModel(m, model);
         }));
-        this.active_month(this.monthly.slice(active_month_ix)[0]);
+        this.month_set(active_month_key);
     };
 
     this.ajax_load = function(facility_id) {
         var params = facility_id != null ? {site: facility_id} : {};
         var model = this;
         $.get('/dashboard/pbf/api/detail', params, function(data) {
-            // console.log(params, data);
-            model.load(data);
-        }, 'json');
+                console.log(params, data);
+                model.load(data);
+            }, 'json');
     };
 
     this.prevmonth = function() {
@@ -111,6 +111,20 @@ function PBFDetailViewModel() {
         }
         this.active_month(this.monthly()[i]);
     };
+
+    this.month_set = function(key) {
+        var match = null;
+        $.each(this.monthly(), function(i, e) {
+                if (e._month >= key) {
+                    match = e;
+                    return false;
+                }
+            });
+        if (match == null && this.monthly().length > 0) {
+            match = this.monthly.slice(-1)[0];
+        }
+        this.active_month(match);
+    }
 
     this.is_metric_active = function(code) {
         return (this.active_metric() == 'all' || this.active_metric() == code);
@@ -216,11 +230,11 @@ function FadamaDetailViewModel() {
 		    return new TaggablesByState(e);
 		}));
 
-        var active_month_ix = (this.active_month() ? this.monthly.indexOf(this.active_month()) : -1);
+        var active_month_key = (this.active_month() ? this.active_month()._month : null);
         this.monthly($.map(data.monthly, function(m) {
             return new FadamaMonthlyDetailModel(m, model);
         }));
-        this.active_month(this.monthly.slice(active_month_ix)[0]);
+        this.month_set(active_month_key);
     };
 
     this.subcategories = ko.computed(function() {
@@ -264,6 +278,20 @@ function FadamaDetailViewModel() {
         }
         this.active_month(this.monthly()[i]);
     };
+
+    this.month_set = function(key) {
+        var match = null;
+        $.each(this.monthly(), function(i, e) {
+                if (e._month >= key) {
+                    match = e;
+                    return false;
+                }
+            });
+        if (match == null && this.monthly().length > 0) {
+            match = this.monthly.slice(-1)[0];
+        }
+        this.active_month(match);
+    }
 
     this.is_metric_active = function(code) {
         return (this.active_metric() == 'all' || this.active_metric() == code);

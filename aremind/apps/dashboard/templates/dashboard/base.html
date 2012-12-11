@@ -17,6 +17,8 @@ body #header{display:none;}
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap/js/bootstrap-alert.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap/js/bootstrap-transition.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap/js/bootstrap-modal.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/knockout-2.1.0.js"></script>
 
 <script type="text/javascript" src="{{ STATIC_URL }}js/dashboard/utils.js"></script>
@@ -27,6 +29,11 @@ body #header{display:none;}
 {% endblock javascripts %}
 
 {% block content %}
+    <div class="modal-backdrop" style="display: none;"></div>
+    <div class="modal" id="loading-modal" data-backdrop="static" data-keyboard="false" style="display: none;">
+        <div class="modal-body" style="text-align: center; font-weight: bold;">Loading...</div>
+    </div>
+
     <div class="navbar">
         <div class="navbar-inner">
             <div class="container">

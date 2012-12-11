@@ -21,10 +21,15 @@
         var model = new DashboardViewModel();
         ko.applyBindings(model);
 
-        $.get('/dashboard/fadama/api/main', function(data) {
-            console.log(data);
-            model.load(data);
-        }, 'json');
+        $.ajax({
+            url: "/dashboard/fadama/api/main",
+            dataType: "json",
+            beforeSend: showLoadingModal,
+            success: function(data) {
+                model.load(data)
+            },
+            complete: hideLoadingModal
+        });
     }
 </script>
 {% endblock javascripts %}

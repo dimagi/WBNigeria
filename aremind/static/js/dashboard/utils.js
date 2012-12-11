@@ -1,3 +1,16 @@
+function showLoadingModal() {
+    $('.modal-backdrop').css('display', '');
+    $('#loading-modal').show();
+}
+
+function hideLoadingModal() {
+    // Wait an extra half-second to give some time for data to be rendered.
+    setTimeout(function() {
+        $('#loading-modal').hide();
+        $('.modal-backdrop').css('display', 'none');
+    }, 500);
+}
+
 // Ajax without csrf exemption
 $(document).ajaxSend(function(event, xhr, settings) {
     function getCookie(name) {
@@ -211,7 +224,7 @@ function site_name(name, map) {
             $(map.getDiv()).append($ovl);
             map.$sitename_ovl = $ovl;
         }
-        
+
         map.$sitename_ovl.text(name);
     }
 }

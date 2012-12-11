@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "django.contrib.humanize",
+    "django.contrib.flatpages",
 
     "pagination",
     "django_sorting",
@@ -210,6 +211,7 @@ MIDDLEWARE_CLASSES = [
     'pagination.middleware.PaginationMiddleware',
     'django_sorting.middleware.SortingMiddleware',
     'aremind.middleware.AccessControlMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 #    'aremind.login_required_everything.RequireLoginMiddleware',
 #    'auditcare.middleware.AuditMiddleware',
 ]

@@ -74,6 +74,10 @@ ko.bindingHandlers.fadama_category_barchart = {
 function category_barchart_init(element, valueAccessor, mode, categories) {
     google.setOnLoadCallback(function() {
             var options = {
+                hAxis: {
+                    minValue: 0,
+                    maxValue: 10
+                },
                 vAxis: {
                     textPosition: 'left'
                 },

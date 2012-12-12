@@ -45,7 +45,12 @@
         </div>
 
         <div class="span4">
-            <h2>Based on <span data-bind="text: active_month() ? active_month().total() : ''"></span> reports</h2>
+            <h2>
+              <span data-bind="if: active_month()">
+                <span data-bind="if: active_month().total()">Based on <span data-bind="text: active_month().total()"></span> reports</span>
+                <span data-bind="ifnot: active_month().total()">No reports this month</span>
+              </span>
+            </h2>
             <p>
                 {% include "dashboard/_pie_chart.html" %}
             </p>

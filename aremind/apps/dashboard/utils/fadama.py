@@ -130,8 +130,9 @@ def main_dashboard_stats(user_state):
             '_month': label[1],
         }
 
-    return sorted(map_reduce(data, lambda r: [((r['month'], r['_month']), r)], month_stats).values(), key=lambda e: e['_month'])
-
+    by_month = map_reduce(data, lambda r: [((r['month'], r['_month']), r)])
+    stats = [month_stats(by_month.get(month_key, []), month_key) for month_key in u.iter_report_range(data)]
+    return sorted(stats, key=lambda e: e['_month'])
 
 def detail_stats(facility_id, user_state):
     data = load_reports(user_state)

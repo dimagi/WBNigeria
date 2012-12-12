@@ -147,7 +147,7 @@ function current_chart_update(element, valueAccessor, viewModel, funcs, onclick)
     
     var options = {
 	vAxis: {
-	    textPosition: 'in'
+        textPosition: 'in'
 	},
 	chartArea: {
 	    top: 10,
@@ -201,7 +201,9 @@ function historical_chart_update(element, valueAccessor, viewModel, funcs, oncli
 
     var options = {
 	vAxis: {
-	    textPosition: 'in'
+        textPosition: 'in',
+        minValue: 0,
+        maxValue: 10
 	},
 	chartArea: {
 	    top: 10,

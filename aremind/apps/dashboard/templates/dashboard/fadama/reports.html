@@ -96,7 +96,12 @@
                 </p>
             </div>
             <div class="span4">
-                <h3>Beneficiaries reported&hellip;</h3>
+              <h3>
+                <span data-bind="if: active_month()">
+                  <span data-bind="if: active_month().count_for_category()">Beneficiaries reported&hellip;</span>
+                  <span data-bind="ifnot: active_month().count_for_category()">No reports for this feedback category this month</span>
+                </span>
+              </h3>
                 <p>
                     <div id="multi-month-chart" data-bind="fadama_current_chart: active_month" class="chart"></div>
                 </p>

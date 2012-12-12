@@ -393,6 +393,15 @@ function FadamaMonthlyDetailModel(data, root) {
 
         return relev;
     };
+
+    this.count_for_category = ko.computed(function() {
+            var data = monthly_datapoints(this, root.active_metric());
+            var count = 0;
+            $.each(data || {}, function(k, v) {
+                    count += v;
+                });
+            return count;
+        }, this);
 }
 
 function FadamaLogModel(data, root) {

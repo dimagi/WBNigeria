@@ -74,7 +74,12 @@
             </p>
         </div>
         <div class="span4">
-            <h3>Patients reported&hellip;</h3>
+          <h3>
+            <span data-bind="if: active_month()">
+              <span data-bind="if: active_month().total()">Patients reported&hellip;</span>
+              <span data-bind="ifnot: active_month().total()">No reports this month</span>
+            </span>
+          </h3>
             <p>
                 <div id="multi-month-chart" data-bind="pbf_current_chart: active_month" class="chart"></div>
             </p>

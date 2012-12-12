@@ -166,6 +166,7 @@ function PbfMonthlyDetailModel(data, root) {
         return new PbfLogModel(l, root);
     }));
     this.month_label = ko.observable(data.month);
+    this.total = ko.observable(data.total);
     this.stats = data.stats;
     this.clinic_totals = data.clinic_totals;
 }

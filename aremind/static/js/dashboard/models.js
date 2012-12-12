@@ -87,17 +87,7 @@ function PBFDetailViewModel() {
     this.ajax_load = function(facility_id) {
         var params = facility_id != null ? {site: facility_id} : {};
         var model = this;
-        $.ajax({
-            url: '/dashboard/pbf/api/detail',
-            data: params,
-            dataType: 'json',
-            beforeSend: showLoadingModal,
-            success: function(data) {
-                console.log(params, data);
-                model.load(data);
-            },
-            complete: hideLoadingModal
-        });
+        dashboard_ajax(model, '/dashboard/pbf/api/detail', params);
     };
 
     this.prevmonth = function() {
@@ -261,17 +251,7 @@ function FadamaDetailViewModel() {
     this.ajax_load = function(facility_id) {
         var params = facility_id != null ? {site: facility_id} : {};
         var model = this;
-        $.ajax({
-            url: '/dashboard/fadama/api/detail',
-            data: params,
-            dataType: 'json',
-            beforeSend: showLoadingModal,
-            success: function(data) {
-                console.log(params, data);
-                model.load(data);
-            },
-            complete: hideLoadingModal
-            });
+        dashboard_ajax(model, '/dashboard/fadama/api/detail', params);
     };
 
     this.prevmonth = function() {

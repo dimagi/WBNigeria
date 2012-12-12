@@ -233,3 +233,17 @@ function monthly_datapoints(month, metric) {
     var key = get_pbf_metric_ajax_field(metric) || metric;
     return month.stats[key];
 }
+
+function dashboard_ajax(model, url, params) {
+    $.ajax({
+        url: url,
+        data: params,
+        dataType: "json",
+        beforeSend: showLoadingModal,
+        success: function(data) {
+            console.log(url, params || '-', data);            
+            model.load(data)
+        },
+        complete: hideLoadingModal
+    });
+}

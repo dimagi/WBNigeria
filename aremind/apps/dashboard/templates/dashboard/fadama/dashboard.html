@@ -21,15 +21,7 @@
         var model = new DashboardViewModel();
         ko.applyBindings(model);
 
-        $.ajax({
-            url: "/dashboard/fadama/api/main",
-            dataType: "json",
-            beforeSend: showLoadingModal,
-            success: function(data) {
-                model.load(data)
-            },
-            complete: hideLoadingModal
-        });
+        dashboard_ajax(model, "/dashboard/fadama/api/main");
     }
 </script>
 {% endblock javascripts %}

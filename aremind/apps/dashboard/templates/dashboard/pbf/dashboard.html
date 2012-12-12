@@ -21,10 +21,7 @@
         model = new DashboardViewModel();
         ko.applyBindings(model);
 
-        $.get('/dashboard/pbf/api/main', function(data) {
-            console.log(data);
-            model.load(data);
-        }, 'json');
+        dashboard_ajax(model, '/dashboard/pbf/api/main');
     }
 </script>
 {% endblock javascripts %}

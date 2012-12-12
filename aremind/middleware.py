@@ -10,8 +10,11 @@ class AccessControlMiddleware:
         url = request.path_info.lstrip('/')
         user = request.user
         if not user.is_superuser and any(url.startswith(prefix + '/') for prefix in ADMIN_ONLY_APPS):
-            return HttpResponseForbidden()
+            return self.access_denied()
         if url.startswith('dashboard/pbf') and not user.has_perm('dashboard.pbf_view'):
-            return HttpResponseForbidden()
+            return self.access_denied()
         if url.startswith('dashboard/fadama') and not user.has_perm('dashboard.fadama_view'):
-            return HttpResponseForbidden()
+            return self.access_denied()
+
+    def access_denied(self):
+        return HttpResponseRedirect('/')

@@ -72,37 +72,37 @@ ko.bindingHandlers.map_volume = {
         if (!active) {
             return;
         }
-
+        
         $.each(element.ovl, function(i, e) {
-            e.setMap(null);
-        });
+                e.setMap(null);
+            });
         element.ovl = [];
-
+        
         if(active.data && active.data.by_clinic) {
-	    var goto_detail = function(facility) {
-		window.location.href = DETAIL_URL + '?site=' + facility.id;
-	    };
-
-	    var data = active.data.by_clinic;
-	    var add_marker = function(i, e) { addMarker(e, goto_detail); };
+            var goto_detail = function(facility) {
+                window.location.href = DETAIL_URL + '?site=' + facility.id;
+            };
+            
+            var data = active.data.by_clinic;
+            var add_marker = function(i, e) { addMarker(e, goto_detail); };
         } else {
-	    var select_clinic = function(facility) {
-		var clinic = viewModel.facility_by_id(facility.id);
-		viewModel.active_metric('satisf');
-		viewModel.active_facility(clinic);
-	    };
-
-	    var data = active.clinic_totals;
-	    var add_marker = function(i, e) { addMarker(e, select_clinic); };
+            var select_clinic = function(facility) {
+                var clinic = viewModel.facility_by_id(facility.id);
+                viewModel.active_metric('satisf');
+                viewModel.active_facility(clinic);
+            };
+            
+            var data = active.clinic_totals;
+            var add_marker = function(i, e) { addMarker(e, select_clinic); };
         }
-	$.each(data, add_marker);
-
+        $.each(data, add_marker);
+        
+        google.maps.event.addListenerOnce(element.map, 'bounds_changed', function(event) {
+                var MAX_ZOOM = 12;
+                if (element.map.getZoom() > MAX_ZOOM) {
+                    element.map.setZoom(MAX_ZOOM);
+                }
+            });
         element.map.fitBounds(bounds);
-
-        var MAX_ZOOM = 12;
-
-        if (element.map.getZoom() > MAX_ZOOM) {
-            element.map.setZoom(MAX_ZOOM);
-        }
     }
 };

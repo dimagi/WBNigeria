@@ -82,4 +82,6 @@ def detail_stats(facility_id):
             '_month': label[1],
         }
 
-    return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
+    by_month = map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)])
+    stats = [month_detail(by_month.get(month_key, []), month_key) for month_key in u.iter_report_range(filtered_data)]
+    return sorted(stats, key=lambda e: e['_month'])

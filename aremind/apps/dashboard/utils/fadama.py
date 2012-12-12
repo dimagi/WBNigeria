@@ -152,7 +152,9 @@ def detail_stats(facility_id, user_state):
             '_month': label[1],
         }
 
-    return sorted(map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)], month_detail).values(), key=lambda e: e['_month'])
+    by_month = map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)])
+    stats = [month_detail(by_month.get(month_key, []), month_key) for month_key in u.iter_report_range(filtered_data)]
+    return sorted(stats, key=lambda e: e['_month'])
 
 def logs_for_contact(contact):
     return sorted([r for r in load_reports() if r['contact'] == contact and not r['proxy']], key=lambda r: r['timestamp'], reverse=True)

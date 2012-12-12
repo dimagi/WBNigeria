@@ -37,7 +37,7 @@ function DashboardViewModel() {
     this.nextmonth = function() {
         this.month_incr(1);
     };
- 
+
     this.month_incr = function(k) {
         var i = this.stats.indexOf(this.active_month());
         i += k;
@@ -66,7 +66,7 @@ function PBFDetailViewModel() {
             var facs = $.map(data.facilities, function(f) {
                 return new PbfFacilityModel(f);
             });
-            
+
             facs.splice(0, 0, this.__all_clinics);
             this.facilities(facs);
 
@@ -87,10 +87,7 @@ function PBFDetailViewModel() {
     this.ajax_load = function(facility_id) {
         var params = facility_id != null ? {site: facility_id} : {};
         var model = this;
-        $.get('/dashboard/pbf/api/detail', params, function(data) {
-                console.log(params, data);
-                model.load(data);
-            }, 'json');
+        dashboard_ajax(model, '/dashboard/pbf/api/detail', params);
     };
 
     this.prevmonth = function() {
@@ -254,10 +251,7 @@ function FadamaDetailViewModel() {
     this.ajax_load = function(facility_id) {
         var params = facility_id != null ? {site: facility_id} : {};
         var model = this;
-        $.get('/dashboard/fadama/api/detail', params, function(data) {
-                console.log(params, data);
-                model.load(data);
-            }, 'json');
+        dashboard_ajax(model, '/dashboard/fadama/api/detail', params);
     };
 
     this.prevmonth = function() {
@@ -374,7 +368,7 @@ function FadamaFacilityModel(data) {
     if (data.id == -1) {
         data.fugs = [];
     }
-    
+
     this.__all_fugs = 'All FUGs';
     data.fugs.splice(0, 0, this.__all_fugs);
     this.fugs = ko.observable(data.fugs);
@@ -396,7 +390,7 @@ function FadamaMonthlyDetailModel(data, root) {
                 return false;
             }
         });
-        
+
         return relev;
     };
 }
@@ -417,7 +411,7 @@ function FadamaLogModel(data, root) {
     this.contact = ko.observable(data.contact);
     this.other_recent = ko.observable(data.from_same.length);
     this.tagged_contacts = ko.observableArray();
-    
+
     this.root = root;
 
     this.expanded = ko.observable(false);
@@ -434,7 +428,7 @@ function FadamaLogModel(data, root) {
             return false;
         }
     });
-  
+
     this.category = ko.observable(category);
     this.subcategory = ko.observable(data[category]);
     this.message = ko.observable(data.message);
@@ -504,7 +498,7 @@ function FadamaLogModel(data, root) {
                 text: content,
 		contact_tags: (type == 'note' ? this.tagged_contacts() : []),
                 author: 'demo user'
-            }, 
+            },
             success: function(data) {
                 // Add submission to the UI
                 model.thread.push(new CommModel(data, model));
@@ -515,14 +509,14 @@ function FadamaLogModel(data, root) {
             }
         }).error(function() {
             alert('There was an error adding your message.');
-        }).complete(function() { 
+        }).complete(function() {
             // Submission finished. Restore the form controls
             model.submission_in_progress = false;
             $(':input', form).prop('disabled', false);
             $('.btn.submit', form).removeClass('disabled');
         });
     };
-    
+
     this.category_caption = ko.computed(function() {
         return {
             'serviceprovider': 'Service Providers',
@@ -542,7 +536,7 @@ function FadamaLogModel(data, root) {
            (this.fug() == root.active_fug() || root.active_fug() == 'All FUGs') &&
            (this.subcategory() == root.active_subcategory().val || root.active_subcategory().val == 'all');
     };
-    
+
     this._autocollapse = ko.computed(function() {
         if (!model.is_relevant(root)) {
             model.expanded(false);

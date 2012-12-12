@@ -15,9 +15,11 @@
 @import "bootstrap/less/layouts.less";
 
 // Components: Buttons & Alerts
+@import "bootstrap/less/component-animations.less";
 @import "bootstrap/less/buttons.less";
 @import "bootstrap/less/button-groups.less";
 @import "bootstrap/less/alerts.less"; // Note: alerts share common CSS with buttons and thus have styles in buttons.less
+@import "bootstrap/less/modals.less";
 
 // Components: Nav
 @import "bootstrap/less/navs.less";
@@ -31,7 +33,7 @@ body {
         General HTML Entities
     *******************************/
 
-    form { 
+    form {
         &.filter-form {
             label {
                 margin-left: 15px;
@@ -109,7 +111,7 @@ body {
 
     .contact-modal {
         display: none;
-        
+
         .contact-form {
             display: block;
             margin-bottom: 20px;

@@ -1,3 +1,16 @@
+function showLoadingModal() {
+    $('.modal-backdrop').css('display', '');
+    $('#loading-modal').show();
+}
+
+function hideLoadingModal() {
+    // Wait an extra half-second to give some time for data to be rendered.
+    setTimeout(function() {
+        $('#loading-modal').hide();
+        $('.modal-backdrop').css('display', 'none');
+    }, 500);
+}
+
 // Ajax without csrf exemption
 $(document).ajaxSend(function(event, xhr, settings) {
     function getCookie(name) {
@@ -211,7 +224,7 @@ function site_name(name, map) {
             $(map.getDiv()).append($ovl);
             map.$sitename_ovl = $ovl;
         }
-        
+
         map.$sitename_ovl.text(name);
     }
 }
@@ -219,4 +232,18 @@ function site_name(name, map) {
 function monthly_datapoints(month, metric) {
     var key = get_pbf_metric_ajax_field(metric) || metric;
     return month.stats[key];
+}
+
+function dashboard_ajax(model, url, params) {
+    $.ajax({
+        url: url,
+        data: params,
+        dataType: "json",
+        beforeSend: showLoadingModal,
+        success: function(data) {
+            console.log(url, params || '-', data);            
+            model.load(data)
+        },
+        complete: hideLoadingModal
+    });
 }

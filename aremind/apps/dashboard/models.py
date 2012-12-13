@@ -13,8 +13,9 @@ class FeedbackReport(models.Model):
     # rapidsms contact report came from
     reporter = models.ForeignKey(Connection)
 
-    # site report is in reference to (PBF clinic, FUG, FCA (if no FUG specified)
-    site = models.ForeignKey(Location, null=True, blank=True)
+    # site as determined by the keyword used to submit the report (PBF clinic, FUG, FCA (if not FUG specified))
+    site = models.ForeignKey(Location)
+    for_this_site = models.BooleanField(default=True) # False if report is not for the site it was reported from
 
     # free-form message provided with report
     freeform = models.CharField(max_length=200, null=True, blank=True)
@@ -25,7 +26,7 @@ class FeedbackReport(models.Model):
     can_contact = models.BooleanField()
 
     # whether patient/beneficiary is satisfied
-    satisfied = models.BooleanField()
+    satisfied = models.NullBooleanField()
 
     # json data of report contents
     data = models.TextField(null=True, blank=True)
@@ -143,11 +144,12 @@ def fadama_report(form, data):
     content = {}
 
     if form.get('confirm_location') == '2':
-        data['site'] = None
+        data['for_this_site'] = False
         # what about:
         #   different_fug_or_fca 'what is your site?'
         #   describe_other_loc_problem 'what is your problem at the other site?'
     else:
+        data['for_this_site'] = True
         data['satisfied'] = (form.get('project_phase2') == '1')
         if data['satisfied']:
             complaint_type = None
@@ -207,7 +209,7 @@ def fadama_report(form, data):
     data['can_contact'] = (form.get('contact') == '1')
 
     # filter out types of reports the dashboard can't handle yet
-    if data['site'] is None:
+    if not data['for_this_site']:
         return
     if not set(content.keys()) - set(['other_detail']):
         return
@@ -222,10 +224,18 @@ def pbf_report(form, data):
     content = {}
 
     if form.get('intro') != 'yes':
-        data['site'] = None
+        data['for_this_site'] = False
         content['site_other'] = form.get('what_state')
-        data['freeform'] = form.get('state_other_info')
+        data['freeform'] = form.get('other_state_info')
+
+        data['satisfied'] = None
+        content['waiting_time'] = None
+        content['staff_friendliness'] = None
+        content['cleanliness'] = None
+        content['drug_availability'] = None
+        content['price_display'] = None
     else:
+        data['for_this_site'] = True
         data['satisfied'] = (form.get('confirm_satisfied') == '1')
         data['freeform'] = form.get('other')
 
@@ -270,6 +280,7 @@ def on_flat_submit(sender, submission, xform, **args):
         'reporter': submission.connection,
         'raw_report': submission.raw,
         'site': Location.objects.get(keyword=submission.template_vars['code']),
+        'for_this_site': True,
         'proxy': True,
         'can_contact': False,
         'freeform': None,

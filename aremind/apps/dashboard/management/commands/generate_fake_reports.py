@@ -100,16 +100,28 @@ class Command(BaseCommand):
         data = self.generate_base_report(index, *args, **kwargs)
         data.update({
                 'site': random_pbf_site(),
+                'for_this_site': true_false(10.),
                 'freeform': random_pbf_message() if random.random() < .3 else None,
             })
+        if not data['for_this_site']:
+            data['satisfied'] = None
         r = PBFReport(**data)
-        r.content = {
-            'waiting_time': random.randint(0, 7),
-            'staff_friendliness': true_false(),
-            'price_display': true_false(),
-            'drug_availability': true_false(),
-            'cleanliness': true_false(),
-        }
+        if data['for_this_site']:
+            r.content = {
+                'waiting_time': random.randint(0, 7),
+                'staff_friendliness': true_false(),
+                'price_display': true_false(),
+                'drug_availability': true_false(),
+                'cleanliness': true_false(),
+            }
+        else:
+            r.content = {
+                'waiting_time': None,
+                'staff_friendliness': None,
+                'price_display': None,
+                'drug_availability': None,
+                'cleanliness': None,
+            }
         return r
 
     def generate_fadama_report(self, index, *args, **kwargs):
@@ -138,6 +150,7 @@ def random_pbf_site():
     return random.choice(Location.objects.filter(type__slug='clinic'))
 
 def random_fadama_site():
+    # todo: FCA only?
     return random.choice(Location.objects.filter(type__slug='fug'))
 
 def random_pbf_message():

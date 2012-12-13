@@ -14,8 +14,7 @@ class FeedbackReport(models.Model):
     reporter = models.ForeignKey(Connection)
 
     # site report is in reference to (PBF clinic, FUG, FCA (if no FUG specified)
-    # TODO need to handle no site specified?
-    site = models.ForeignKey(Location)
+    site = models.ForeignKey(Location, null=True, blank=True)
 
     # free-form message provided with report
     freeform = models.CharField(max_length=200, null=True, blank=True)
@@ -224,9 +223,8 @@ def pbf_report(form, data):
 
     if form.get('intro') != 'yes':
         data['site'] = None
-        # what about:
-        #   what_state 'what state are you in?'
-        #   state_other_info 'anything you'd like to say?'
+        content['site_other'] = form.get('what_state')
+        data['freeform'] = form.get('state_other_info')
     else:
         data['satisfied'] = (form.get('confirm_satisfied') == '1')
         data['freeform'] = form.get('other')
@@ -242,10 +240,6 @@ def pbf_report(form, data):
         content['price_display'] = (form.get('drugs_prices') == '1')
 
     data['can_contact'] = (form.get('contact_later') == '1')
-
-    # filter out types of reports the dashboard can't handle yet
-    if data['site'] is None:
-        return
 
     report = PBFReport(**data)
     report.content = content

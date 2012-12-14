@@ -78,7 +78,7 @@ class AddMessageTest(DashboardDataTest):
         self.assertEquals(nv.user, self.state_contact.user)
 
     def test_staff_note_multiple_tags(self):
-        "Only one Notification should be created per ReportComment."
+        "One Notification should be created per ReportComment."
         data = self._get_comment_data(comment_type='note',
                 contact_tags = [self.state_contact.id, self.federal_contact.id])
         with patch('aremind.apps.dashboard.utils.fadama.Router') as router:
@@ -86,7 +86,7 @@ class AddMessageTest(DashboardDataTest):
             MockRouter = Mock()
             router.return_value = MockRouter
             response = self.client.post(self.url, data=data)
-        notif = Notification.objects.get()
+        self.assertEquals(Notification.objects.count(), 2)
         nv1 = NotificationVisibility.objects.get(user=self.state_contact.user)
         nv2 = NotificationVisibility.objects.get(user=self.federal_contact.user)
         self.assertEquals(NotificationVisibility.objects.count(), 2)

@@ -60,6 +60,8 @@ function PBFDetailViewModel() {
     this.active_metric = ko.observable(DEFAULT_METRIC || null);
     this.active_month = ko.observable();
 
+    this.taggable_contacts = ko.observableArray();
+
     var model = this;
 
     this.load = function(data) {
@@ -146,6 +148,16 @@ function PBFDetailViewModel() {
         return f;
     };
 
+    this.collapse_logs = function(active) {
+        $.each(this.monthly(), function(i, e) {
+            $.each(e.logs(), function(i, e) {
+                if (e != active) {
+                    e.expanded(false);
+                }
+            });
+        });
+    };
+
     this.displayMap = function() {
         if(this.active_metric() == 'all') {
             // Fire the event so that the map resizes after
@@ -185,28 +197,94 @@ function PbfMonthlyDetailModel(data, root) {
 }
 
 function PbfLogModel(data, root) {
-        this.id = ko.observable(data.id);
-        this.site = ko.observable(data.site_name);
-        this.for_this_site = ko.observable(data.for_this_site);
-        this.date = ko.observable(data.display_time);
-        this.satisfied = ko.observable(data.satisfied);
-        this.wait_bucket = ko.observable(data.wait_bucket);
-        this.cleanliness = ko.observable(data.cleanliness);
-        this.friendliness = ko.observable(data.staff_friendliness);
-        this.drugs_avail = ko.observable(data.drug_availability);
-        this.price_display = ko.observable(data.price_display);
-        this.message = ko.observable(data.message);
+    var model = this;
 
-        this.root = root;
+    this.id = ko.observable(data.id);
+    this.site = ko.observable(data.site_name);
+    this.for_this_site = ko.observable(data.for_this_site);
+    this.date = ko.observable(data.display_time);
+    this.satisfied = ko.observable(data.satisfied);
+    this.wait_bucket = ko.observable(data.wait_bucket);
+    this.cleanliness = ko.observable(data.cleanliness);
+    this.friendliness = ko.observable(data.staff_friendliness);
+    this.drugs_avail = ko.observable(data.drug_availability);
+    this.price_display = ko.observable(data.price_display);
+    this.message = ko.observable(data.message);
+    
+    this.thread = ko.observableArray($.map(data.thread || [], function(c) { // FIXME
+        return new CommModel(c, model);
+    }));
+    this.tagged_contacts = ko.observableArray();
 
-        this.disp_wait = ko.computed(function() {
+    this.root = root;
+    
+    this.disp_wait = ko.computed(function() {
             return {
                 '<2': '< 2 hrs',
                 '2-4': '2\u20134 hrs',
                 '>4': '> 4 hrs',
             }[this.wait_bucket()];
         }, this);
-    }
+
+    this.expanded = ko.observable(false);
+    this.toggle = function() {
+        this.expanded(!this.expanded());
+        root.collapse_logs(this);
+    };
+
+    this.note = ko.observable();
+
+    this.submission_in_progress = false;
+
+    this.new_note = function() {
+        if (this.submission_in_progress) return;
+        new_thread_msg(this, 'note', this.note());
+
+        // reset tagged users
+        this.tagged_contacts([]);
+        $('select.tags option:selected').removeAttr("selected");
+    };
+
+}
+
+function new_thread_msg(log, type, content) {
+    // Don't submit empty comments
+    if (!content) return;
+    var form = $('#message-form-' + log.id());
+    var url = form.attr('action');
+    $(':input', form).prop('disabled', true);
+    $('.btn.submit', form).addClass('disabled');
+    // Prevent duplicate/parallel submission
+    log.submission_in_progress = true;
+    $.ajax({
+        type: 'POST',
+        url: url,
+        dataType: 'json',
+        traditional: true,
+        data: {
+            report: log.id(),
+            comment_type: type,
+            text: content,
+            contact_tags: (type == 'note' ? log.tagged_contacts() : []),
+            author: 'demo user'
+        },
+        success: function(data) {
+            // Add submission to the UI
+            log.thread.push(new CommModel(data, log));
+            log[type == 'inquiry' ? 'inquiry' : 'note'](null);
+            if (type == 'inquiry') {
+                alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
+            }
+        }
+    }).error(function() {
+        alert('There was an error adding your message.');
+    }).complete(function() {
+        // Submission finished. Restore the form controls
+        log.submission_in_progress = false;
+        $(':input', form).prop('disabled', false);
+        $('.btn.submit', form).removeClass('disabled');
+    });
+}
 
 function FadamaDetailViewModel() {
     this.monthly = ko.observableArray();
@@ -492,58 +570,18 @@ function FadamaLogModel(data, root) {
 
     this.send_message = function() {
         if (this.submission_in_progress) return;
-        this.new_thread_msg('inquiry', this.inquiry());
+        new_thread_msg(this, 'inquiry', this.inquiry());
     };
 
     this.new_note = function() {
         if (this.submission_in_progress) return;
-        this.new_thread_msg('note', this.note());
+        new_thread_msg(this, 'note', this.note());
 
-	// reset tagged users
-	this.tagged_contacts([]);
-	$('select.tags option:selected').removeAttr("selected");
+        // reset tagged users
+        this.tagged_contacts([]);
+        $('select.tags option:selected').removeAttr("selected");
     };
-
-    this.new_thread_msg = function(type, content) {
-        // Don't submit empty comments
-        if (!content) return;
-        var model = this;
-        var form = $('#message-form-' + this.id());
-        var url = form.attr('action');
-        $(':input', form).prop('disabled', true);
-        $('.btn.submit', form).addClass('disabled');
-        // Prevent duplicate/parallel submission
-        this.submission_in_progress = true;
-        $.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-	    traditional: true,
-            data: {
-                report: this.id(),
-                comment_type: type,
-                text: content,
-		contact_tags: (type == 'note' ? this.tagged_contacts() : []),
-                author: 'demo user'
-            },
-            success: function(data) {
-                // Add submission to the UI
-                model.thread.push(new CommModel(data, model));
-                model[type == 'inquiry' ? 'inquiry' : 'note'](null);
-                if (type == 'inquiry') {
-                    alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
-                }
-            }
-        }).error(function() {
-            alert('There was an error adding your message.');
-        }).complete(function() {
-            // Submission finished. Restore the form controls
-            model.submission_in_progress = false;
-            $(':input', form).prop('disabled', false);
-            $('.btn.submit', form).removeClass('disabled');
-        });
-    };
-
+    
     this.category_caption = ko.computed(function() {
         return {
             'serviceprovider': 'Service Providers',

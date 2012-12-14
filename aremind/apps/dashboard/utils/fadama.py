@@ -30,19 +30,43 @@ def facilities_by_id():
     return map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 
 def load_reports(state=None, anonymize=True):
-    _loc = u._fac_cache('fug')
+    facs = facilities_by_id()
+    fugs = u._fac_cache('fug')
+
     def extract_report(r):
         data = u.extract_report(r)
-        fug_id = data['facility']
-        fug = _loc(fug_id)
-        data['fug'] = fug.name
-        data['facility'] = fug.parent_id
+        loc_id = data['facility']
+
+        fug = fugs(loc_id)
+        if fug:
+            data['fug'] = fug.name
+            data['facility'] = fug.parent_id
+
+        elif facs.get(loc_id):
+            data['fug'] = None
+            data['facility'] = loc_id
+
+        else:
+            data['fug'] = None
+            data['facility'] = None
+
         return data
 
     reports = [extract_report(r) for r in FadamaReport.objects.all().select_related()]
 
-    facs = facilities_by_id()
-    reports = [r for r in reports if state is None or state == facs[r['facility']]['state']]
+    def filter_state(r, state):
+        if state is None:
+            return True
+        else:
+            reporting_fug = fugs(r['reporting_facility'])
+            if reporting_fug:
+                reporting_fca_id = reporting_fug.parent_id
+            else:
+                reporting_fca_id = r['reporting_facility']
+            reporting_state = facs[reporting_fca_id]['state']
+            return state == reporting_state
+
+    reports = [r for r in reports if filter_state(r, state)]
     # todo: these should probably be loaded on-demand for individual reports
     comments = map_reduce(ReportComment.objects.all(), lambda c: [(c.report_id, c)])
 
@@ -57,8 +81,8 @@ def load_reports(state=None, anonymize=True):
         r['_month'] = _ts(r).strftime('%Y-%m')
         r['thread'] = [c.json() for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
         r['display_time'] = _ts(r).strftime('%d/%m/%y %H:%M')
-        r['site_name'] = facs[r['facility']]['name']
-
+        r['site_name'] = facs[r['facility']]['name'] if r['for_this_site'] else r['site_other']
+ 
     reports_by_contact = map_reduce((r for r in reports if not r['proxy']), lambda r: [(r['contact'], r)])
 
     for r in reports:
@@ -73,6 +97,7 @@ COMPLAINT_TYPES = [
     'info',
     'ldp',
     'financial',
+    'misc',
 ]
 
 COMPLAINT_SUBTYPES = {
@@ -112,6 +137,9 @@ COMPLAINT_SUBTYPES = {
         'delay',
         'other',
     ],
+    'misc': [
+        'misc',
+    ],
 }
 
 
@@ -147,7 +175,7 @@ def detail_stats(facility_id, user_state):
             'total': len(data),
             'logs': sorted(data, key=lambda r: r['timestamp'], reverse=True),
             'stats': dict((k, map_reduce(data, lambda r: [(r[k],)] if r.get(k) is not None else [], len)) for k in categories),
-            'clinic_totals': [[facilities[k], v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
+            'clinic_totals': [[facilities.get(k), v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
             'month': label[0],
             '_month': label[1],
         }

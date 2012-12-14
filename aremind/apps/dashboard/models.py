@@ -145,15 +145,16 @@ def fadama_report(form, data):
 
     if form.get('confirm_location') == '2':
         data['for_this_site'] = False
-        # what about:
-        #   different_fug_or_fca 'what is your site?'
-        #   describe_other_loc_problem 'what is your problem at the other site?'
+        content['site_other'] = form.get('different_fug_or_fca')
+        data['freeform'] = form.get('describe_other_loc_problem')
+
+        data['satisfied'] = None
     else:
         data['for_this_site'] = True
         data['satisfied'] = (form.get('project_phase2') == '1')
         if data['satisfied']:
-            complaint_type = None
-            complaint_subtype = None
+            complaint_type = 'misc'
+            complaint_subtype = 'misc'
             data['freeform'] = 'What is good: %s; Could be improved: %s' % (form.get('project_phase2_good'), form.get('project_phase2_improved'))
         else:
             def get_enum(field, choices):
@@ -176,8 +177,8 @@ def fadama_report(form, data):
             data['freeform'] = form.get('project_phase2_bad_sp_default')
 
             complaint_type = get_combo_enum(None,
-                ['ldp', 'people', 'financial', 'serviceprovider', 'land', 'other'],
-                ['serviceprovider', 'people', 'info', 'other']
+                ['ldp', 'people', 'financial', 'serviceprovider', 'land', 'misc'],
+                ['serviceprovider', 'people', 'info', 'misc']
             )
 
             subtypes = {
@@ -198,21 +199,14 @@ def fadama_report(form, data):
                 complaint_subtype = get_combo_enum(field, phase1choices, phase2choices)
 
             else:
-                complaint_subtype = None
+                complaint_subtype = 'misc'
 
             if form.get('project_phase2_bad_sp_other'):
                 content['other_detail'] = form.get('project_phase2_bad_sp_other')
 
-        if complaint_type:
-            content[complaint_type] = complaint_subtype
+        content[complaint_type] = complaint_subtype
 
     data['can_contact'] = (form.get('contact') == '1')
-
-    # filter out types of reports the dashboard can't handle yet
-    if not data['for_this_site']:
-        return
-    if not set(content.keys()) - set(['other_detail']):
-        return
 
     report = FadamaReport(**data)
     report.content = content

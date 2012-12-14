@@ -66,6 +66,7 @@ fadama_categories = [
     {metric: 'info', field: 'info', caption: 'Lack of Information'},
     {metric: 'ldp', field: 'ldp', caption: 'LDP Approval'},
     {metric: 'financial', field: 'financial', caption: 'Financial Issues'},
+    {metric: 'misc', field: 'misc', caption: 'Misc. Feedback'},
 ];
 
 function get_fadama_caption(metric, value) {
@@ -109,7 +110,10 @@ function get_fadama_caption(metric, value) {
             bank: 'Bank account opening',
             delay: 'Delayed funding',
             other: 'Other'
-        }
+        },
+        misc: {
+            misc: '\u2014',
+        },
     }[metric][value];
 }
 
@@ -121,7 +125,8 @@ function get_fadama_ordering(metric) {
         land: ['notfind', 'suitability', 'ownership', 'other'],
         info: ['market', 'input', 'credit', 'other'],
         ldp: ['delay', 'other'],
-        financial: ['bank', 'delay', 'other']
+        financial: ['bank', 'delay', 'other'],
+        misc: ['misc'],
     }[metric];
 }
 

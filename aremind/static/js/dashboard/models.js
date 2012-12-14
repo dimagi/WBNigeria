@@ -425,6 +425,7 @@ function FadamaLogModel(data, root) {
     this.id = ko.observable(data.id);
     this.site = ko.observable(data.site_name);
     this.fug = ko.observable(data.fug);
+    this.for_this_site = ko.observable(data.for_this_site);
     this.date = ko.observable(data.display_time);
     this.satisfied = ko.observable(data.satisfied);
     this.can_contact = ko.observable(data.can_contact);
@@ -444,7 +445,7 @@ function FadamaLogModel(data, root) {
         root.collapse_logs(this);
     };
 
-    var categories = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial'];
+    var categories = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial', 'misc'];
     var category = null;
     $.each(categories, function(i, e) {
         if (data[e] != null) {
@@ -548,7 +549,8 @@ function FadamaLogModel(data, root) {
             'land': 'Land Issues',
             'info': 'Lack of Information',
             'ldp': 'LDP Approval',
-            'financial': 'Financial Issues'
+            'financial': 'Financial Issues',
+            'misc': 'Misc. Feedback'
         }[model.category()];
     });
     this.subcategory_caption = ko.computed(function() {

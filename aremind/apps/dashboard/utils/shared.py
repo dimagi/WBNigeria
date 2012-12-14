@@ -27,7 +27,7 @@ def _fac_cache(type=None):
     else:
         facs = Location.objects.all()
     by_id = map_reduce(facs, lambda f: [(f.id, f)], lambda v: v[0])
-    return lambda id: by_id[id]
+    return lambda id: by_id.get(id)
 
 def get_facilities(type):
     _parents = _fac_cache('state')

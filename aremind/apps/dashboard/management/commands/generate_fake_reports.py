@@ -133,26 +133,32 @@ class Command(BaseCommand):
         complaint_type, complaint_subtype = random_fadama_complaint()
 
         data.update({
-                'site': random_fadama_site(),
+                'site': random_fadama_site(true_false(.2)),
+                'for_this_site': true_false(10.),
                 'satisfied': satisfied,
                 'freeform': random_fadama_message(satisfied, complaint_type, complaint_subtype),
             })
+        if not data['for_this_site']:
+            data['satisfied'] = None
         r = FadamaReport(**data)
-        r.content = {
-            complaint_type: complaint_subtype,
-        }
+        if data['for_this_site']:
+            r.content = {
+                complaint_type: complaint_subtype,
+            }
+        else:
+            r.content = {
+                'site_other': random.choice(['alberta', 'boise', 'caledonia']),
+                'misc': 'misc',
+            }
         return r
-
-
-
 
 
 def random_pbf_site():
     return random.choice(Location.objects.filter(type__slug='clinic'))
 
-def random_fadama_site():
-    # todo: FCA only?
-    return random.choice(Location.objects.filter(type__slug='fug'))
+def random_fadama_site(fca_only=False):
+    var loc_type = 'fca' if fca_only else 'fug'
+    return random.choice(Location.objects.filter(type__slug=loc_type))
 
 def random_pbf_message():
     SAMPLE_MESSAGES = [
@@ -207,6 +213,7 @@ def random_fadama_message(satisfied, complaint_type, complaint_subtype):
         ('people', 'desk'): [
             'hard to get meeting',
             'doesnt like my project',
+            'travel 2 hours but desk officer never at the office',
         ],
         ('financial', 'bank'): [
             'no bank in my village',

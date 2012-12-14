@@ -11,7 +11,7 @@
                         <th>Date &amp; Time</th>
                         <th>Beneficiary Satisfied</th>
                         <th>Feedback Category</th>
-                        <th>Sub-category</th>
+                        <th data-bind="visible: $root.active_metric() != 'misc'">Sub-category</th>
                         <th>Free-form message</th>
                     </tr>
                 </thead>
@@ -31,7 +31,7 @@
                         <td style="white-space: nowrap" data-bind="text: date"></td>
                         <td data-bind="yn: satisfied, fadama_category_color: 'satisf'"></td>
                         <td data-bind="text: category_caption"></td>
-                        <td data-bind="text: subcategory_caption, fadama_category_color: 'subcat'"></td>
+                        <td data-bind="visible: $root.active_metric() != 'misc', text: subcategory_caption, fadama_category_color: 'subcat'"></td>
                         <td style="width: 25em;" data-bind="text: message"></td>
                     </tr>
                     <tr data-bind="visible: is_relevant($root) && expanded()">

@@ -49,7 +49,7 @@ def main_dashboard_stats():
                     'drug_availability',
                     'cleanliness',
                 )),
-            'by_clinic': [[facilities[k], v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
+            'by_clinic': [[facilities.get(k), v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
             'month': label[0],
             '_month': label[1],
         }

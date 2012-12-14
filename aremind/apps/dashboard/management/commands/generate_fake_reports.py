@@ -198,17 +198,15 @@ def random_fadama_message(satisfied, complaint_type, complaint_subtype):
             'no answer to my complaint',
             'travel 2 hours but desk officer never at the office',
         ],
-        ('people', 'fca'): [
+        ('people', 'community'): [
             'people in FCA are leaving their project, chicken project',
             'my brother wants to do Fadama project too',
             'people from my group are cheating',
             'FCA chairman only go to training, I want go to training also',
         ],
-        ('people', 'fug'): [
-            'people in FCA are leaving their project, chicken project',
-            'my brother wants to do Fadama project too',
-            'people from my group are cheating',
-            'FCA chairman only go to training, I want go to training also',
+        ('people', 'desk'): [
+            'hard to get meeting',
+            'doesnt like my project',
         ],
         ('financial', 'bank'): [
             'no bank in my village',

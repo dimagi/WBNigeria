@@ -86,9 +86,9 @@ COMPLAINT_SUBTYPES = {
     ],
     'people': [
         'state',
-        'fug',
-        'fca',
+        'community', # combined FCA/FUG
         'facilitator',
+        'desk',
         'other',
     ],
     'land': [

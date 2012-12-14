@@ -182,7 +182,7 @@ def fadama_report(form, data):
 
             subtypes = {
                 'ldp': ('ldp', ['delay', 'other']),
-                'people': ('people', ['state', 'fug', 'facilitator', 'desk', 'other']), # no fca? 'desk' is new
+                'people': ('people', ['state', 'community', 'facilitator', 'desk', 'other']),
                 'financial': ('money', ['bank', 'delay', 'other']),
                 'serviceprovider': ('sp', ['notfind', 'other'], ['notstarted', 'delay', 'stopped', 'substandard', 'other']),
                 'land': ('land', ['notfind', 'suitability', 'ownership', 'other']),

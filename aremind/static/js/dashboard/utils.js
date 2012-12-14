@@ -84,9 +84,9 @@ function get_fadama_caption(metric, value) {
         },
         people: {
             state: 'State Officials',
-            fug: 'FUG',
-            fca: 'FCA',
+            community: 'FCA/FUG',
             facilitator: 'Facilitators',
+            desk: 'Desk Officers',
             other: 'Other'
         },
         land: {
@@ -117,7 +117,7 @@ function get_fadama_ordering(metric) {
   return {
         satisf: ['True', 'False'],
         serviceprovider: ['notfind', 'notstarted', 'delay', 'stopped', 'substandard', 'other'],
-        people: ['state', 'fug', 'fca', 'facilitator', 'other'],
+        people: ['state', 'community', 'facilitator', 'desk', 'other'],
         land: ['notfind', 'suitability', 'ownership', 'other'],
         info: ['market', 'input', 'credit', 'other'],
         ldp: ['delay', 'other'],

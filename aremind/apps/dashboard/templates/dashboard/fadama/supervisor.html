@@ -1,5 +1,6 @@
 {% extends "dashboard/fadama/base.html" %}
 
+{% load url from future %}
 {% load pagination_tags %}
 
 {% block content %}
@@ -16,7 +17,7 @@
                     {% autopaginate comments %}            
                     {% for comment in comments %}
                         <tr>
-                            <td>{{ comment.comment_type|capfirst }} on Report {{ comment.report.id }}</td>
+                            <td>{{ comment.comment_type|capfirst }} on <a href="{% url 'fadama_reports' %}#{{ comment.report.id }}">Report {{ comment.report.id }}</a></td>
                             <td>{{ comment.text }}</td>
                             <td>{{ comment.author }}</td>
                             <td>{{ comment.date }}</td>

@@ -11,15 +11,15 @@
             {% with actions.comments as comments %}
             <table class="table table-bordered table-striped table-condensed">
                 <thead>
-                    <tr><th>Action</th><th>Info</th><th>User</th><th>Date</th></tr>
+                    <tr><th>Action</th><th>User</th><th>Info</th><th>Date</th></tr>
                 </thead>
                 <tbody>
                     {% autopaginate comments %}            
                     {% for comment in comments %}
                         <tr>
                             <td>{{ comment.comment_type|capfirst }} on <a href="{% url 'fadama_reports' %}#{{ comment.report.id }}">Report {{ comment.report.id }}</a></td>
-                            <td>{{ comment.text }}</td>
                             <td>{{ comment.author }}</td>
+                            <td>{{ comment.text }}</td>
                             <td>{{ comment.date }}</td>
                         </tr>
                     {% endfor %}

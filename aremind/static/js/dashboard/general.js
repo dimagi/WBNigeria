@@ -49,7 +49,9 @@ $(function() {
         update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
             var val = ko.utils.unwrapObservable(valueAccessor());
 
-	    $(element).text(val ? 'Yes' : 'No');
+            $(element).text(val == null ? '' :
+                            val         ? 'Yes' :
+                                          'No');
 	    /*
             $(element).empty();
             if (val != null) {

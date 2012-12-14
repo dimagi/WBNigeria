@@ -116,6 +116,7 @@ class Command(BaseCommand):
             }
         else:
             r.content = {
+                'site_other': random.choice(['alberta', 'boise', 'caledonia']),
                 'waiting_time': None,
                 'staff_friendliness': None,
                 'price_display': None,

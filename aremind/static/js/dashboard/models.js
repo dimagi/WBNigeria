@@ -54,6 +54,7 @@ function PBFDetailViewModel() {
     this.monthly = ko.observableArray();
     this.facilities = ko.observableArray();
     this.__all_clinics = new PbfFacilityModel({id: -1, name: 'All Clinics'});
+    this.__other_clinics = new PbfFacilityModel({id: 999, name: 'Other'});
 
     this.active_facility = ko.observable();
     this.active_metric = ko.observable(DEFAULT_METRIC || null);
@@ -68,6 +69,7 @@ function PBFDetailViewModel() {
             });
 
             facs.splice(0, 0, this.__all_clinics);
+            facs.push(this.__other_clinics);
             this.facilities(facs);
 
             var default_facility = this.facility_by_id(DEFAULT_SITE);
@@ -169,11 +171,23 @@ function PbfMonthlyDetailModel(data, root) {
     this.total = ko.observable(data.total);
     this.stats = data.stats;
     this.clinic_totals = data.clinic_totals;
+
+    this.disp_logs = ko.computed(function() {
+            var filtered = [];
+            var metric = root.active_metric();
+            $.each(this.logs(), function(i, e) {
+                    if (metric == 'all' || e[get_pbf_metric_model_field(metric)]() != null) {
+                        filtered.push(e);
+                    }
+                });
+            return filtered;
+        }, this);
 }
 
 function PbfLogModel(data, root) {
         this.id = ko.observable(data.id);
         this.site = ko.observable(data.site_name);
+        this.for_this_site = ko.observable(data.for_this_site);
         this.date = ko.observable(data.display_time);
         this.satisfied = ko.observable(data.satisfied);
         this.wait_bucket = ko.observable(data.wait_bucket);

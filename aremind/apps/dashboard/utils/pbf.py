@@ -9,6 +9,8 @@ import shared as u
 from apps.dashboard.models import PBFReport
 
 def load_reports():
+    # TODO: filtering by state
+
     reports = [u.extract_report(r) for r in PBFReport.objects.all().select_related()]
 
     wait_buckets = [(2, '<2'), (4, '2-4'), (None, '>4')]
@@ -18,10 +20,13 @@ def load_reports():
         ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')
-        for thresh, label in wait_buckets:
-            if thresh is None or r['waiting_time'] < thresh:
-                r['wait_bucket'] = label
-                break
+        if r['waiting_time'] is not None:
+            for thresh, label in wait_buckets:
+                if thresh is None or r['waiting_time'] < thresh:
+                    r['wait_bucket'] = label
+                    break
+        else:
+            r['wait_bucket'] = None
 
     return reports
 
@@ -58,10 +63,18 @@ def detail_stats(facility_id):
 
     facilities = map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 
-    filtered_data = [r for r in data if facility_id is None or r['facility'] == facility_id]
+    def fac_filter(r, facility_id):
+        if facility_id is None:
+            return True
+        elif facility_id == 999: # 'other' sites
+            return r['facility'] is None
+        else:
+            return r['facility'] == facility_id
+
+    filtered_data = [r for r in data if fac_filter(r, facility_id)]
     for r in filtered_data:
         r['display_time'] = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S').strftime('%d/%m/%y %H:%M')
-        r['site_name'] = facilities[r['facility']]['name']
+        r['site_name'] = facilities[r['facility']]['name'] if r['for_this_site'] else r['site_other']
 
     LIMIT = 50
 
@@ -77,7 +90,7 @@ def detail_stats(facility_id):
                 'drug_availability',
                 'cleanliness',
             )),
-            'clinic_totals': [[facilities[k], v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
+            'clinic_totals': [[facilities.get(k), v] for k, v in map_reduce(data, lambda r: [(r['facility'],)], len).iteritems()],
             'month': label[0],
             '_month': label[1],
         }

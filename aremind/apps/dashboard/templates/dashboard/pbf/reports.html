@@ -118,10 +118,10 @@
 			<th>Free-form message</th>
                     </tr>
                 </thead>
-                <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
+                <tbody data-bind="foreach: active_month() ? active_month().disp_logs() : []">
                     <tr>
                         <td data-bind="text: id"></td>
-                        <td data-bind="text: site"></td>
+                        <td data-bind="text: site, style: { fontStyle: for_this_site() ? 'normal' : 'italic' }"></td>
                         <td data-bind="text: date"></td>
                         <td data-bind="yn: satisfied, visible: $root.is_metric_active('satisf'), pbf_category_color: 'satisf'"></td>
                         <td data-bind="text: disp_wait, visible: $root.is_metric_active('wait'), pbf_category_color: 'wait'"></td>
@@ -133,6 +133,9 @@
                     </tr>
                 </tbody>
             </table>
+            <div style="font-style: italic; margin-top: 1.5em; margin-left: 4em;" data-bind="visible: !(active_month() ? active_month().disp_logs().length : true)">
+                There are no reports matching the current filters and time period
+            </div>
         </div>
     </div>
 {% endblock content %}

@@ -5,6 +5,10 @@ function addMarker(e, onclick) {
     var facility = e[0];
     var volume = e[1];
 
+    if (facility == null) {
+        return;
+    }
+
     var pos = new google.maps.LatLng(facility.lat, facility.lon);
     bounds.extend(pos);
 

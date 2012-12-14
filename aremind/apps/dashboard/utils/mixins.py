@@ -1,6 +1,7 @@
 import json
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
+from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required, permission_required
@@ -39,6 +40,8 @@ class APIMixin(object):
 
 class AuditMixin(object):
 
+    dashboard = ''
+
     @method_decorator(permission_required('auth.supervisor'))
     def dispatch(self, request, *args, **kwargs):
         return super(AuditMixin, self).dispatch(request, *args, **kwargs)
@@ -50,8 +53,8 @@ class AuditMixin(object):
             contact = supervisor.contact_set.all()[0]
         except IndexError:
             return []
-        # Check for dashboard view permission?
-        users = User.objects.all()
+        perm = Permission.objects.get(codename='%s_view' % self.dashboard)
+        users = User.objects.filter(Q(groups__permissions=perm) | Q(user_permissions=perm)).distinct()
         if contact.location_id and contact.location.type.slug == 'state':
             users = users.filter(contact__location=contact.location).distinct()
         return users

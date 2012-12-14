@@ -1,9 +1,13 @@
 import json
 
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
-from apps.dashboard.utils import shared as u
+from django.contrib.auth.decorators import login_required, permission_required
+
+from aremind.apps.dashboard.models import ReportComment
+from aremind.apps.dashboard.utils import shared as u
+
 
 class LoginMixin(object):
     @method_decorator(login_required)
@@ -31,3 +35,29 @@ class APIMixin(object):
 
         payload = self.get_payload(site=site, user=user)
         return HttpResponse(json.dumps(payload), mimetype='application/json')
+
+
+class AuditMixin(object):
+
+    @method_decorator(permission_required('auth.supervisor'))
+    def dispatch(self, request, *args, **kwargs):
+        return super(AuditMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_observed_users(self):
+        "Return users overseen in the region/state."
+        supervisor = self.request.user
+        try:
+            contact = supervisor.contact_set.all()[0]
+        except IndexError:
+            return []
+        # Check for dashboard view permission?
+        users = User.objects.all()
+        if contact.location_id and contact.location.type.slug == 'state':
+            users = users.filter(contact__location=contact.location).distinct()
+        return users
+
+    def get_user_actions(self, **kwargs):
+        "Get actions taken by observed users."
+        users = self.get_observed_users()
+        comments = ReportComment.objects.filter(author_user__in=users).order_by('-date')
+        return {'users': users, 'comments': comments}

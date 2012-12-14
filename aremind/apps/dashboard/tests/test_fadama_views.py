@@ -1,7 +1,7 @@
 import datetime
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.core.urlresolvers import reverse
 
 from alerts.models import Notification, NotificationVisibility
@@ -21,6 +21,9 @@ class AddMessageTest(DashboardDataTest):
         self.user = User.objects.create_user(username='test', password='test', email=u'')
         self.client.login(username='test', password='test')
         self.report = self.create_feedback_report()
+
+        self.view_permission = Permission.objects.get(codename='fadama_view')
+        self.user.user_permissions.add(self.view_permission)
 
         self.country_type = self.create_location_type(name='country')
         self.state_type = self.create_location_type(name='state')
@@ -163,6 +166,8 @@ class DismissNotificationTest(CreateDataTest):
         self.visibility = NotificationVisibility.objects.create(
             notif=self.notification, user=self.user, esc_level=self.notification.escalation_level
         )
+        self.view_permission = Permission.objects.get(codename='fadama_view')
+        self.user.user_permissions.add(self.view_permission)
 
     def create_notification(self, **kwargs):
         "Create a notification for testing purposes."

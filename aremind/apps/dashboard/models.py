@@ -202,7 +202,7 @@ def fadama_report(form, data):
                 complaint_subtype = 'misc'
 
             if form.get('project_phase2_bad_sp_other'):
-                content['other_detail'] = form.get('project_phase2_bad_sp_other')
+                data['freeform'] = form.get('project_phase2_bad_sp_other')
 
         content[complaint_type] = complaint_subtype
 

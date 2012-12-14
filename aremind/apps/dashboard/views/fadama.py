@@ -55,6 +55,7 @@ class MessageView(generic.CreateView):
             comment = form.save(commit=False)
             u = request.user
             comment.author = '%s %s' % (u.first_name, u.last_name)
+            comment.author_user = u
             comment.save()
             form.save_m2m()
             if comment.comment_type == ReportComment.INQUIRY_TYPE:

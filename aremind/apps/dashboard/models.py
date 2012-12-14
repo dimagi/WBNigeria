@@ -81,7 +81,8 @@ class ReportComment(models.Model):
 
     report = models.ForeignKey(FadamaReport)
     comment_type = models.CharField(max_length=50, choices=COMMENT_TYPES)
-    author = models.CharField(max_length=100) # TODO should store ref to actual user
+    author = models.CharField(max_length=100)
+    author_user = models.ForeignKey('auth.User', null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
     extra_info = models.TextField(null=True, blank=True)

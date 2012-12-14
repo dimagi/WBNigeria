@@ -213,6 +213,7 @@ function FadamaDetailViewModel() {
     this.taggable_contacts = ko.observableArray();
     this.facilities = ko.observableArray();
     this.__all_clinics = new FadamaFacilityModel({id: -1, name: 'All Sites'});
+    this.__other_clinics = new PbfFacilityModel({id: -999, name: 'Other'});
 
     this.active_facility = ko.observable();
     this.active_metric = ko.observable(DEFAULT_METRIC || null);
@@ -229,6 +230,7 @@ function FadamaDetailViewModel() {
                 return new FadamaFacilityModel(f);
             });
             facs.splice(0, 0, this.__all_clinics);
+            facs.push(this.__other_clinics);
             this.facilities(facs);
 
             var default_facility = this.facility_by_id(DEFAULT_SITE);

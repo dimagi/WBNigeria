@@ -165,9 +165,16 @@ def main_dashboard_stats(user_state):
 def detail_stats(facility_id, user_state):
     data = load_reports(user_state)
 
-    facilities = facilities_by_id()
-    filtered_data = [r for r in data if facility_id is None or r['facility'] == facility_id]
+    def fac_filter(r, facility_id):
+        if facility_id is None:
+            return True
+        elif facility_id == -999: # 'other' sites
+            return r['facility'] is None
+        else:
+            return r['facility'] == facility_id
+    filtered_data = [r for r in data if fac_filter(r, facility_id)]
 
+    facilities = facilities_by_id()
     def month_detail(data, label):
         categories = ['satisfied']
         categories.extend(COMPLAINT_TYPES)

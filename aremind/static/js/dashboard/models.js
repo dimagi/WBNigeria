@@ -558,7 +558,8 @@ function FadamaLogModel(data, root) {
     });
 
     this.is_relevant = function(root) {
-        return (this.category() == root.active_metric() || root.active_metric() == 'all' || root.active_metric() == 'satisf') &&
+        return (this.category() == root.active_metric() || root.active_metric() == 'all' ||
+                (root.active_metric() == 'satisf' && this.satisfied() != null)) &&
            (this.fug() == root.active_fug() || root.active_fug() == 'All FUGs') &&
            (this.subcategory() == root.active_subcategory().val || root.active_subcategory().val == 'all');
     };

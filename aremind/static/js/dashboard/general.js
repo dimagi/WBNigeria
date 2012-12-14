@@ -48,8 +48,9 @@ $(function() {
     ko.bindingHandlers.yn = {
         update: function(element, valueAccessor, allBindingsAccessor, viewModel) {
             var val = ko.utils.unwrapObservable(valueAccessor());
+            var is_fadama = (window.location.href.search('/fadama/') != -1);
 
-            $(element).text(val == null ? '' :
+            $(element).html(val == null ? (is_fadama ? '<i>not specified</i>' : '') :
                             val         ? 'Yes' :
                                           'No');
 	    /*

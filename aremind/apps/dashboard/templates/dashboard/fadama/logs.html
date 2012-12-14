@@ -27,7 +27,7 @@
                             <span data-bind="text: id"></span>&nbsp;
                         </td>
                         <td data-bind="text: site"></td>
-                        <td data-bind="text: fug"></td>
+                        <td data-bind="style: { fontStyle: fug() ? 'normal' : 'italic' }, text: (fug() ? fug() : 'not specified')"></td>
                         <td style="white-space: nowrap" data-bind="text: date"></td>
                         <td data-bind="yn: satisfied, fadama_category_color: 'satisf'"></td>
                         <td data-bind="text: category_caption"></td>

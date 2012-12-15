@@ -448,7 +448,7 @@ function FadamaLogsForContactModel(data, taggables) {
         e.from_same = [];
     });
 
-    this.active_month = ko.observable(new FadamaMonthlyDetailModel({logs: data}, this));
+    this.active_month = ko.observable(new FadamaMonthlyDetailModel({logs: data, stats: {}}, this));
 
     this.collapse_logs = function(active) {
         $.each(this.active_month().logs(), function(i, e) {

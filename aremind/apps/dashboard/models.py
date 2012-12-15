@@ -158,8 +158,8 @@ def fadama_report(form, data):
         data['for_this_site'] = False
         content['site_other'] = form.get('different_fug_or_fca')
         data['freeform'] = form.get('describe_other_loc_problem')
-
         data['satisfied'] = None
+        content['misc'] = 'misc'
     else:
         data['for_this_site'] = True
         data['satisfied'] = (form.get('project_phase2') == '1')

@@ -31,7 +31,7 @@ class LogsForContactView(mixins.LoginMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         return {
             'logs': json.dumps(utils.logs_for_contact(kwargs['contact'])),
-            'taggable_contacts': json.dumps(utils.get_taggable_contacts(u.get_user_state(self.request.user), self.request.user)),
+            'taggable_contacts': json.dumps(u.get_taggable_contacts('fadama', u.get_user_state(self.request.user), self.request.user)),
             'fadama_communicator_prefix': utils.communicator_prefix(),
         }
 
@@ -41,7 +41,7 @@ class SingleReportView(mixins.LoginMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         return {
             'logs': json.dumps(utils.log_single(int(kwargs['id']))),
-            'taggable_contacts': json.dumps(utils.get_taggable_contacts(u.get_user_state(self.request.user), self.request.user)),
+            'taggable_contacts': json.dumps(u.get_taggable_contacts('fadama', u.get_user_state(self.request.user), self.request.user)),
             'fadama_communicator_prefix': utils.communicator_prefix(),
         }
 
@@ -52,7 +52,7 @@ class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
         return {
             'facilities': [f for f in utils.get_facilities() if state is None or f['state'] == state],
             'monthly': utils.detail_stats(site, state),
-            'taggable_contacts': utils.get_taggable_contacts(state, user),
+            'taggable_contacts': u.get_taggable_contacts('fadama', state, user),
         }
 
 

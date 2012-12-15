@@ -6,18 +6,20 @@ from django.conf import settings
 from aremind.apps.utils.functional import map_reduce
 import shared as u
 
-from apps.dashboard.models import PBFReport
+from apps.dashboard.models import PBFReport, ReportComment
 
 def load_reports():
     # TODO: filtering by state
 
     reports = [u.extract_report(r) for r in PBFReport.objects.all().select_related()]
+    comments = map_reduce(ReportComment.objects.filter(pbf_report__isnull=False), lambda c: [(c.pbf_report_id, c)])
 
     wait_buckets = [(2, '<2'), (4, '2-4'), (None, '>4')]
 
     for r in reports:
         u.anonymize_contact(r)
         ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
+        r['thread'] = [c.json() for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')
         if r['waiting_time'] is not None:

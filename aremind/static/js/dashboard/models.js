@@ -215,7 +215,7 @@ function PbfLogModel(data, root) {
     this.price_display = ko.observable(data.price_display);
     this.message = ko.observable(data.message);
     
-    this.thread = ko.observableArray($.map(data.thread || [], function(c) { // FIXME
+    this.thread = ko.observableArray($.map(data.thread, function(c) {
         return new CommModel(c, model);
     }));
     this.tagged_contacts = ko.observableArray();

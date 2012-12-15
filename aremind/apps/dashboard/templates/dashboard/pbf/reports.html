@@ -10,7 +10,7 @@
         };
     }
 
-    NOTE_DELETE_URL = '{% url 'del_message' %}';
+    NOTE_DELETE_URL = '/dashboard/message/del/'; {# '{% url 'del_message' %}'; url tag doesn't want to resolve?? #}
 
     $(document).ready(function() {
         var model = new PBFDetailViewModel();

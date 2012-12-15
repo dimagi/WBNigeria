@@ -59,24 +59,8 @@
 
     <div class="row-fluid">
         <div class="span12">
-            <div class="alert alert-info" id="1"> <!-- Unique id should be pk; allows us to use bootstrap-alert.js -->
-                <p>
-                    Alert content
-                </p>
-                <span class="pull-right">
-                    <a class="btn btn-primary"><i class="icon-white icon-th-list"></i> Alert Details</a>
-                    <a class="btn btn-danger" data-dismiss="alert" data-target="#1"><i class="icon-white icon-remove"></i> Dismiss</a>
-                </span>
-            </div>
-            <div class="alert alert-info" id="2">
-                <p>
-                    Alert content
-                </p>
-                <span class="pull-right">
-                    <a class="btn btn-primary"><i class="icon-white icon-th-list"></i> Alert Details</a>
-                    <a class="btn btn-danger" data-dismiss="alert" data-target="#2"><i class="icon-white icon-remove"></i> Dismiss</a>
-                </span>
-            </div>
+            {% load alerts_tags %}
+            {% notifications request %}
         </div>
     </div>
 

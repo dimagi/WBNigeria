@@ -81,6 +81,10 @@ function PBFDetailViewModel() {
             }
         }
 
+        this.taggable_contacts($.map(data.taggable_contacts, function(e) {
+                    return new TaggablesByState(e);
+                }));
+
         var active_month_key = (this.active_month() ? this.active_month()._month : null);
         this.monthly($.map(data.monthly, function(m) {
             return new PbfMonthlyDetailModel(m, model);
@@ -321,10 +325,10 @@ function FadamaDetailViewModel() {
             }
         }
 
-	this.taggable_contacts($.map(data.taggable_contacts, function(e) {
-		    return new TaggablesByState(e);
-		}));
-
+        this.taggable_contacts($.map(data.taggable_contacts, function(e) {
+                    return new TaggablesByState(e);
+                }));
+        
         var active_month_key = (this.active_month() ? this.active_month()._month : null);
         this.monthly($.map(data.monthly, function(m) {
             return new FadamaMonthlyDetailModel(m, model);

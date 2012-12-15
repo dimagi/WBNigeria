@@ -463,6 +463,35 @@ function FadamaLogsForContactModel(data, taggables) {
     };
 }
 
+function PBFLogsForContactModel(data, taggables) {
+    this.active_metric = ko.observable('all');
+    this.taggable_contacts = ko.observableArray();
+
+    this.taggable_contacts($.map(taggables, function(e) {
+                return new TaggablesByState(e);
+            }));
+    
+    $.each(data, function(i, e) {
+            e.from_same = [];
+        });
+    
+    console.log(data);
+
+    this.active_month = ko.observable(new PbfMonthlyDetailModel({logs: data}, this));
+
+    this.is_metric_active = function(metric) {
+        return true;
+    }
+
+    this.collapse_logs = function(active) {
+        $.each(this.active_month().logs(), function(i, e) {
+                if (e != active) {
+                    e.expanded(false);
+                }
+            });
+    };
+}
+
 function FadamaFacilityModel(data) {
     this.id = ko.observable(data.id);
     this.name = ko.observable(data.name);

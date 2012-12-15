@@ -9,6 +9,7 @@ urlpatterns = patterns('',
 
     url(r'^pbf/$', pbf.DashboardView.as_view(), name='pbf_dashboard'),
     url(r'^pbf/reports/$', pbf.ReportView.as_view(), name='pbf_reports'),
+    url(r'^pbf/report/(?P<id>\w+)/$', pbf.SingleReportView.as_view(), name='pbf_report_single'),
 
     url(r'^pbf/api/main/$', pbf.APIMainView.as_view(), name='pbf_api_main'),
     url(r'^pbf/api/detail/$', pbf.APIDetailView.as_view(), name='pbf_api_detail'),

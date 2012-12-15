@@ -1,0 +1,55 @@
+{% extends "dashboard/pbf/base.html" %}
+
+{% load url from future %}
+
+{% block javascripts %}
+{{ block.super }}
+
+<script type="text/javascript">
+    if (!window.console) {
+        window.console = {
+            log: function () { }
+        };
+    }
+
+    LOGS = {{ logs|safe }};
+    TAGGABLES = {{ taggable_contacts|safe }};
+
+    NOTE_DELETE_URL = '{% url 'del_message' %}';
+
+    $(document).ready(function() {
+        detail_report_init();
+    });
+
+    function detail_report_init() {
+        var model = new PBFLogsForContactModel(LOGS, TAGGABLES);
+        ko.applyBindings(model);
+    }
+</script>
+{% endblock javascripts %}
+
+{% block content %}
+    {{ block.super }}
+
+<style>
+
+.smslow {
+  color: red;
+  font-weight: bold;
+}
+
+</style>
+
+<!--
+    <div class="row-fluid">
+        <div class="span12">
+            <span class="large">Reports by beneficiary</span>
+        </div>
+	<div>The following reports have all come from the same phone number (and were <i>not</i> reported on behalf of someone else)</div>
+    </div>
+-->
+
+    {% include "dashboard/pbf/logs.html" %}
+
+{% endblock content %}
+

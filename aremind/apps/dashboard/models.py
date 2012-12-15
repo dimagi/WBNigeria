@@ -105,6 +105,13 @@ class ReportComment(models.Model):
     def report(self):
         return self.fadama_report or self.pbf_report
 
+    @property
+    def program(self):
+        if self.fadama_report_id:
+            return 'fadama'
+        elif self.pbf_report_id:
+            return 'pbf'
+
     def __unicode__(self):
         return u'{0} on Report {1} by {2} on {3}'.format(self.comment_type.title(),
                 self.report.id, self.author, self.date.strftime('%Y-%m-%d %H:%M:%S'))

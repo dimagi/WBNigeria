@@ -11,6 +11,7 @@ from apps.dashboard.models import PBFReport, ReportComment
 def load_reports():
     # TODO: filtering by state
 
+    facilities = map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
     reports = [u.extract_report(r) for r in PBFReport.objects.all().select_related()]
     comments = map_reduce(ReportComment.objects.filter(pbf_report__isnull=False), lambda c: [(c.pbf_report_id, c)])
 
@@ -22,6 +23,8 @@ def load_reports():
         r['thread'] = [c.json() for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')
+        r['display_time'] = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S').strftime('%d/%m/%y %H:%M')
+        r['site_name'] = facilities[r['facility']]['name'] if r['for_this_site'] else r['site_other']
         if r['waiting_time'] is not None:
             for thresh, label in wait_buckets:
                 if thresh is None or r['waiting_time'] < thresh:
@@ -74,9 +77,6 @@ def detail_stats(facility_id):
             return r['facility'] == facility_id
 
     filtered_data = [r for r in data if fac_filter(r, facility_id)]
-    for r in filtered_data:
-        r['display_time'] = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S').strftime('%d/%m/%y %H:%M')
-        r['site_name'] = facilities[r['facility']]['name'] if r['for_this_site'] else r['site_other']
 
     LIMIT = 50
 
@@ -100,3 +100,6 @@ def detail_stats(facility_id):
     by_month = map_reduce(filtered_data, lambda r: [((r['month'], r['_month']), r)])
     stats = [month_detail(by_month.get(month_key, []), month_key) for month_key in u.iter_report_range(filtered_data)]
     return sorted(stats, key=lambda e: e['_month'])
+
+def log_single(report_id):
+    return [r for r in load_reports() if r['id'] == report_id]

@@ -24,7 +24,7 @@ def mk_tagged_alert(user, comment):
     notif = Notification(alert_type=alert_type)
     notif.uid = 'tagged_%s_%s' % (comment.id, user.username)
     notif.text = 'You have been tagged in a note by %s' % comment.author
-    notif.url = reverse('fadama_report_single', kwargs={'id': comment.report.id})
+    notif.url = reverse('%s_report_single' % comment.program, kwargs={'id': comment.report.id})
     notif.data = json.dumps({'user_id': user.id})
     return notif
 

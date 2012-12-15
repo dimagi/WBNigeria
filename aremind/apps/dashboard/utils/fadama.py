@@ -68,7 +68,7 @@ def load_reports(state=None, anonymize=True):
 
     reports = [r for r in reports if filter_state(r, state)]
     # todo: these should probably be loaded on-demand for individual reports
-    comments = map_reduce(ReportComment.objects.all(), lambda c: [(c.report_id, c)])
+    comments = map_reduce(ReportComment.objects.filter(fadama_report__isnull=False), lambda c: [(c.fadama_report_id, c)])
 
     def _ts(r):
         return datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')

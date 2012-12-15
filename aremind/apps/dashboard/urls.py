@@ -18,8 +18,8 @@ urlpatterns = patterns('',
     url(r'^fadama/reports/from/(?P<contact>\w+)/$', fadama.LogsForContactView.as_view(), name='fadama_contact_detail'),
     url(r'^fadama/report/(?P<id>\w+)/$', fadama.SingleReportView.as_view(), name='fadama_report_single'),
 
-    url(r'^fadama/message/$', fadama.MessageView.as_view(), name='fadama_new_message'),
-    url(r'^fadama/delmessage/$', fadama.del_message, name='fadama_del_message'),
+    url(r'^message/new/$', shared.MessageView.as_view(), name='new_message'),
+    url(r'^message/del/$', shared.del_message, name='del_message'),
     url(r'^fadama/debug/frombene/$', fadama.msg_from_bene),
 
     url(r'^fadama/api/main/$', fadama.APIMainView.as_view(), name='fadama_api_main'),

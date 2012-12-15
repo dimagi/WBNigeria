@@ -10,6 +10,8 @@
         };
     }
 
+    NOTE_DELETE_URL = '{% url 'del_message' %}';
+
     $(document).ready(function() {
         var model = new PBFDetailViewModel();
         ko.applyBindings(model);

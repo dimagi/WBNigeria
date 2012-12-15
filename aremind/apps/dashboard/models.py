@@ -79,7 +79,8 @@ class ReportComment(models.Model):
         (REPLY_TYPE, REPLY_TYPE),
     )
 
-    report = models.ForeignKey(FadamaReport)
+    fadama_report = models.ForeignKey(FadamaReport, blank=True, null=True)
+    pbf_report = models.ForeignKey(PBFReport, blank=True, null=True)
     comment_type = models.CharField(max_length=50, choices=COMMENT_TYPES)
     author = models.CharField(max_length=100) # TODO should store ref to actual user
     date = models.DateTimeField(auto_now_add=True)
@@ -100,10 +101,13 @@ class ReportComment(models.Model):
             'contact_tags': sorted(contact.name for contact in self.contact_tags.all()),
         }
 
+    @property
+    def report(self):
+        return self.fadama_report or self.pbf_report
+
     def __unicode__(self):
         return u'{0} on Report {1} by {2} on {3}'.format(self.comment_type.title(),
                 self.report.id, self.author, self.date.strftime('%Y-%m-%d %H:%M:%S'))
-
 
 from smscouchforms.signals import xform_saved_with_session
 from rapidsms_xforms.models import xform_received

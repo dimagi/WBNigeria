@@ -238,7 +238,7 @@ function PbfLogModel(data, root) {
 
     this.new_note = function() {
         if (this.submission_in_progress) return;
-        new_thread_msg(this, 'note', this.note());
+        new_thread_msg('pbf', this, 'note', this.note());
 
         // reset tagged users
         this.tagged_contacts([]);
@@ -247,7 +247,7 @@ function PbfLogModel(data, root) {
 
 }
 
-function new_thread_msg(log, type, content) {
+function new_thread_msg(program, log, type, content) {
     // Don't submit empty comments
     if (!content) return;
     var form = $('#message-form-' + log.id());
@@ -256,18 +256,21 @@ function new_thread_msg(log, type, content) {
     $('.btn.submit', form).addClass('disabled');
     // Prevent duplicate/parallel submission
     log.submission_in_progress = true;
+
+    var params = {
+        comment_type: type,
+        text: content,
+        contact_tags: (type == 'note' ? log.tagged_contacts() : []),
+        author: 'demo user'
+    };
+    params[program + '_report'] = log.id();
+
     $.ajax({
         type: 'POST',
         url: url,
         dataType: 'json',
         traditional: true,
-        data: {
-            report: log.id(),
-            comment_type: type,
-            text: content,
-            contact_tags: (type == 'note' ? log.tagged_contacts() : []),
-            author: 'demo user'
-        },
+        data: params,
         success: function(data) {
             // Add submission to the UI
             log.thread.push(new CommModel(data, log));
@@ -570,12 +573,12 @@ function FadamaLogModel(data, root) {
 
     this.send_message = function() {
         if (this.submission_in_progress) return;
-        new_thread_msg(this, 'inquiry', this.inquiry());
+        new_thread_msg('fadama', this, 'inquiry', this.inquiry());
     };
 
     this.new_note = function() {
         if (this.submission_in_progress) return;
-        new_thread_msg(this, 'note', this.note());
+        new_thread_msg('fadama', this, 'note', this.note());
 
         // reset tagged users
         this.tagged_contacts([]);

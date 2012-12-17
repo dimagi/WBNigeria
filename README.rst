@@ -1,5 +1,5 @@
 WBNigeria
-=======
+=========
 
 The RapidSMS WBNigeria project...
 
@@ -46,7 +46,7 @@ Developer Setup
 #. Clone the code from Github:
 
     git clone git@github.com:dimagi/WBNigeria.git
-  
+
 #. Create a Python virtual environment for this project::
 
     mkvirtualenv --distribute wbnigeria
@@ -82,16 +82,17 @@ Developer Setup
 Bootstrapping Data
 ==================
 
-python manage.py loaddata locations_data.json
-python manage.py loaddata sites_data.json
-python manage.py loaddata flat_forms.json
-upload xforms in forms/ in 'Decision Tree XForms' tab
-python manage.py populate_sites
-python manage.py import_users apps/web_users/fixtures/user_import.sample.csv
+.. code-block::
 
+    python manage.py loaddata locations_data.json
+    python manage.py loaddata sites_data.json
+    python manage.py loaddata flat_forms.json
+    upload xforms in forms/ in 'Decision Tree XForms' tab
+    python manage.py populate_sites
+    python manage.py import_users apps/web_users/fixtures/user_import.sample.csv
 
 Generating Report Data
-==============================
+======================
 
 For testing purposes you can generate random data for the report dashboards::
 

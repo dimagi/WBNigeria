@@ -157,7 +157,7 @@ def random_pbf_site():
     return random.choice(Location.objects.filter(type__slug='clinic'))
 
 def random_fadama_site(fca_only=False):
-    var loc_type = 'fca' if fca_only else 'fug'
+    loc_type = 'fca' if fca_only else 'fug'
     return random.choice(Location.objects.filter(type__slug=loc_type))
 
 def random_pbf_message():

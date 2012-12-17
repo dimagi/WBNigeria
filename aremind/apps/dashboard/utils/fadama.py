@@ -15,7 +15,7 @@ from threadless_router.router import Router
 from aremind.apps.utils.functional import map_reduce
 
 import shared as u
-from apps.dashboard.models import FadamaReport, ReportComment
+from apps.dashboard.models import FadamaReport, ReportComment, ReportCommentView
 
 from rapidsms.contrib.locations.models import Location
 
@@ -29,7 +29,7 @@ def get_facilities():
 def facilities_by_id():
     return map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 
-def load_reports(state=None, anonymize=True):
+def load_reports(user=None, state=None, anonymize=True):
     facs = facilities_by_id()
     fugs = u._fac_cache('fug')
 
@@ -73,16 +73,25 @@ def load_reports(state=None, anonymize=True):
     def _ts(r):
         return datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
 
+    views = []
+    if user:
+        views = ReportCommentView.objects.filter(user=user)\
+                                         .values_list('report_comment', flat=True)
+    def _get_json(comment):  # Add whether or not the comment has been viewed.
+        json = comment.json()
+        json.update({'viewed': comment.pk in views if user else None})
+        return json
+
     for r in reports:
         if not anonymize:
             r['_contact'] = r['contact']
         u.anonymize_contact(r)
         r['month'] = _ts(r).strftime('%b %Y')
         r['_month'] = _ts(r).strftime('%Y-%m')
-        r['thread'] = [c.json() for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
+        r['thread'] = [_get_json(c) for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
         r['display_time'] = _ts(r).strftime('%d/%m/%y %H:%M')
         r['site_name'] = facs[r['facility']]['name'] if r['for_this_site'] else r['site_other']
- 
+
     reports_by_contact = map_reduce((r for r in reports if not r['proxy']), lambda r: [(r['contact'], r)])
 
     for r in reports:
@@ -143,8 +152,8 @@ COMPLAINT_SUBTYPES = {
 }
 
 
-def main_dashboard_stats(user_state):
-    data = load_reports(user_state)
+def main_dashboard_stats(user=None, state=None):
+    data = load_reports(state=state, user=user)
 
     facilities = facilities_by_id()
 
@@ -162,8 +171,8 @@ def main_dashboard_stats(user_state):
     stats = [month_stats(by_month.get(month_key, []), month_key) for month_key in u.iter_report_range(data)]
     return sorted(stats, key=lambda e: e['_month'])
 
-def detail_stats(facility_id, user_state):
-    data = load_reports(user_state)
+def detail_stats(facility_id, user=None, state=None):
+    data = load_reports(user=user, state=state)
 
     def fac_filter(r, facility_id):
         if facility_id is None:

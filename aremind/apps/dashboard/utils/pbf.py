@@ -3,12 +3,12 @@ from datetime import datetime
 
 from django.conf import settings
 
+from aremind.apps.dashboard.models import PBFReport, ReportComment, ReportCommentView
 from aremind.apps.utils.functional import map_reduce
 import shared as u
 
-from apps.dashboard.models import PBFReport, ReportComment
 
-def load_reports():
+def load_reports(user=None):
     # TODO: filtering by state
 
     facilities = map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
@@ -17,10 +17,19 @@ def load_reports():
 
     wait_buckets = [(2, '<2'), (4, '2-4'), (None, '>4')]
 
+    views = []
+    if user:
+        views = ReportCommentView.objects.filter(user=user)\
+                                         .values_list('report_comment', flat=True)
+    def _get_json(comment):  # Add whether or not the comment has been viewed.
+        json = comment.json()
+        json.update({'viewed': comment.pk in views if user else None})
+        return json
+
     for r in reports:
         u.anonymize_contact(r)
         ts = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S')
-        r['thread'] = [c.json() for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
+        r['thread'] = [_get_json(c) for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')
         r['display_time'] = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S').strftime('%d/%m/%y %H:%M')
@@ -38,8 +47,8 @@ def load_reports():
 def get_facilities():
     return u.get_facilities('clinic')
 
-def main_dashboard_stats():
-    data = load_reports()
+def main_dashboard_stats(user=None):
+    data = load_reports(user=user)
 
     facilities = map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 
@@ -63,8 +72,8 @@ def main_dashboard_stats():
     stats = [month_stats(by_month.get(month_key, []), month_key) for month_key in u.iter_report_range(data)]
     return sorted(stats, key=lambda e: e['_month'])
 
-def detail_stats(facility_id):
-    data = load_reports()
+def detail_stats(facility_id, user=None):
+    data = load_reports(user=user)
 
     facilities = map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 

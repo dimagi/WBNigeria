@@ -14,6 +14,7 @@ class DashboardView(mixins.LoginMixin, generic.TemplateView):
 class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
     template_name = 'dashboard/pbf/reports.html'
 
+
 class SingleReportView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/pbf/single_log.html'
 
@@ -24,13 +25,12 @@ class SingleReportView(mixins.LoginMixin, generic.TemplateView):
         }
 
 
-
 class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
     def get_payload(self, site, user, **kwargs):
         state = self.get_user_state()
         return {
             'facilities': utils.get_facilities(),
-            'monthly': utils.detail_stats(site),
+            'monthly': utils.detail_stats(site, self.request.user),
             'taggable_contacts': u.get_taggable_contacts('pbf', state, user),
         }
 
@@ -38,6 +38,5 @@ class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
 class APIMainView(mixins.LoginMixin, mixins.APIMixin, generic.View):
     def get_payload(self, site, **kwargs):
         return {
-            'stats': utils.main_dashboard_stats(),
+            'stats': utils.main_dashboard_stats(user=self.request.user),
         }
-

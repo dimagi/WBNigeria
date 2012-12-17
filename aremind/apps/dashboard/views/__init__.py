@@ -6,8 +6,9 @@ from django.views import generic
 from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.utils import fadama as utils
 from aremind.notifications.tagged_in_note import trigger_alerts
-from aremind.apps.dashboard.models import PBFReport, FadamaReport, ReportComment
+from aremind.apps.dashboard.models import PBFReport, FadamaReport, ReportComment, ReportCommentView
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 import json
 
 def landing(request):
@@ -33,6 +34,8 @@ class MessageView(generic.CreateView):
             if comment.comment_type == ReportComment.NOTE_TYPE:
                 # Generate notifications for tagged users.
                 trigger_alerts(comment)
+            # Mark the comment as viewed by the user.
+            ReportCommentView.objects.create(user=u, report_comment=comment)
             return HttpResponse(json.dumps(comment.json()),
                 mimetype='application/json')
 
@@ -59,7 +62,7 @@ class DismissNotification(mixins.LoginMixin, generic.View):
             visibility.delete()
             status = 200
         else:
-            status = 204        
+            status = 204
         return HttpResponse('', status=status, mimetype='application/json')
 
     def post(self, request, *args, **kwargs):
@@ -67,3 +70,13 @@ class DismissNotification(mixins.LoginMixin, generic.View):
         return self.delete(request, *args, **kwargs)
 
 
+@login_required
+@require_POST
+def view_comments(request):
+    "Mark comments as read by the current user by creating ReportCommentViews."
+    comment_ids = json.loads(request.raw_post_data)
+    comments = ReportComment.objects.filter(id__in=comment_ids)
+    for c in comments:
+        ReportCommentView.objects.get_or_create(user=request.user, report_comment=c)
+    viewed_ids = list(comments.values_list('id', flat=True))
+    return HttpResponse(json.dumps(viewed_ids), 'text/plain')

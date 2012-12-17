@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from rapidsms.models import Connection, Contact
 from rapidsms.contrib.locations.models import Location, LocationType
@@ -115,6 +116,17 @@ class ReportComment(models.Model):
     def __unicode__(self):
         return u'{0} on Report {1} by {2} on {3}'.format(self.comment_type.title(),
                 self.report.id, self.author, self.date.strftime('%Y-%m-%d %H:%M:%S'))
+
+
+class ReportCommentView(models.Model):
+    """Created when a user first views a ReportComment."""
+    user = models.ForeignKey(User)
+    report_comment = models.ForeignKey(ReportComment)
+    date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'report_comment')
+
 
 from smscouchforms.signals import xform_saved_with_session
 from rapidsms_xforms.models import xform_received

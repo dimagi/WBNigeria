@@ -214,14 +214,14 @@ function PbfLogModel(data, root) {
     this.drugs_avail = ko.observable(data.drug_availability);
     this.price_display = ko.observable(data.price_display);
     this.message = ko.observable(data.message);
-    
+
     this.thread = ko.observableArray($.map(data.thread, function(c) {
         return new CommModel(c, model);
     }));
     this.tagged_contacts = ko.observableArray();
 
     this.root = root;
-    
+
     this.disp_wait = ko.computed(function() {
             return {
                 '<2': '< 2 hrs',
@@ -234,6 +234,9 @@ function PbfLogModel(data, root) {
     this.toggle = function() {
         this.expanded(!this.expanded());
         root.collapse_logs(this);
+        if (this.expanded()) {
+            this.mark_as_viewed();
+        }
     };
 
     this.note = ko.observable();
@@ -248,6 +251,35 @@ function PbfLogModel(data, root) {
         this.tagged_contacts([]);
         $('select.tags option:selected').removeAttr("selected");
     };
+
+    this.unread_comments = function() {
+        return ko.utils.arrayFilter(this.thread(), function (item) {
+            return item.viewed() === false;
+        });
+    }
+
+    this.mark_as_viewed = function() {
+        // If any comments are marked as unread, notify the server that they
+        // have been viewed.
+        var unread = this.unread_comments();
+        if (unread.length > 0) {
+            var comment_ids = new Array();
+            for (var i = 0; i < unread.length; i++) {
+                comment_ids.push(unread[i].id);
+            }
+            response = $.ajax({
+                type: 'POST',
+                context: this,
+                url: '/dashboard/view_comments/',
+                data: JSON.stringify(comment_ids)
+            });
+            response.done(function (response) {
+                ko.utils.arrayForEach(this.thread(), function (comment) {
+                    comment.viewed(true);
+                });
+            });
+        }
+    }
 
 }
 
@@ -328,7 +360,7 @@ function FadamaDetailViewModel() {
         this.taggable_contacts($.map(data.taggable_contacts, function(e) {
                     return new TaggablesByState(e);
                 }));
-        
+
         var active_month_key = (this.active_month() ? this.active_month()._month : null);
         this.monthly($.map(data.monthly, function(m) {
             return new FadamaMonthlyDetailModel(m, model);
@@ -470,11 +502,11 @@ function PBFLogsForContactModel(data, taggables) {
     this.taggable_contacts($.map(taggables, function(e) {
                 return new TaggablesByState(e);
             }));
-    
+
     $.each(data, function(i, e) {
             e.from_same = [];
         });
-    
+
     console.log(data);
 
     this.active_month = ko.observable(new PbfMonthlyDetailModel({logs: data}, this));
@@ -559,6 +591,9 @@ function FadamaLogModel(data, root) {
     this.toggle = function() {
         this.expanded(!this.expanded());
         root.collapse_logs(this);
+        if (this.expanded()) {
+            this.mark_as_viewed();
+        }
     };
 
     var categories = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial', 'misc'];
@@ -617,7 +652,36 @@ function FadamaLogModel(data, root) {
         this.tagged_contacts([]);
         $('select.tags option:selected').removeAttr("selected");
     };
-    
+
+    this.unread_comments = function() {
+        return ko.utils.arrayFilter(this.thread(), function (item) {
+            return item.viewed() === false;
+        });
+    }
+
+    this.mark_as_viewed = function() {
+        // If any comments are marked as unread, notify the server that they
+        // have been viewed.
+        var unread = this.unread_comments();
+        if (unread.length > 0) {
+            var comment_ids = new Array();
+            for (var i = 0; i < unread.length; i++) {
+                comment_ids.push(unread[i].id);
+            }
+            response = $.ajax({
+                type: 'POST',
+                context: this,
+                url: '/dashboard/view_comments/',
+                data: JSON.stringify(comment_ids)
+            });
+            response.done(function (response) {
+                ko.utils.arrayForEach(this.thread(), function (comment) {
+                    comment.viewed(true);
+                });
+            });
+        }
+    }
+
     this.category_caption = ko.computed(function() {
         return {
             'serviceprovider': 'Service Providers',
@@ -670,6 +734,7 @@ function CommModel(data, thread) {
     this.text = ko.observable(data.text);
     this.extra = ko.observable(data.extra || {});
     this.tags = ko.observableArray(data.contact_tags);
+    this.viewed = ko.observable(data.viewed);
 
     var model = this;
     this.display = ko.computed(function() {

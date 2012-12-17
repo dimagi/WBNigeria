@@ -19,7 +19,7 @@
                     <tr data-bind="click: toggle">
                         <td style="white-space: nowrap;">
                             <div style="float: right;">
-                                <span data-bind="visible: thread().length" style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span>
+                                <span data-bind="visible: thread().length, text: unread_comments().length > 0 ? '!!!' : '&#x22ef;'" style="border: 1px grey solid; font-weight: bold;"></span>
                                 <!--<img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (contactable() ? 'reply' : 'noreply') + '.png', title: no_contact_message }" />-->
                             </div>
 
@@ -74,10 +74,10 @@
 					                </optgroup>
 				                  </select>
 				                </div>
-                                
+
                                 <!--
                                 <p style="font-style: italic;">-or-</p>
-                                
+
                                 <label>send a message to the <b>beneficiary</b></label>
                                 <div class="input-prepend input-append">
                                   <span class="add-on" data-bind="text: prepend_text, visible: contactable"></span>
@@ -90,7 +90,7 @@
                             </div>
                         </td>
                     </tr>
-                    
+
                 </tbody>
             </table>
             <div style="font-style: italic; margin-top: 1.5em; margin-left: 4em;" data-bind="visible: !(active_month() ? active_month().disp_logs().length : true)">

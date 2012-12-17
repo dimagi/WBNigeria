@@ -19,7 +19,7 @@
                     <tr data-bind="visible: is_relevant($root), click: toggle">
                         <td style="white-space: nowrap;">
                             <div style="float: right;">
-                                <span data-bind="visible: thread().length" style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span>
+                                <span data-bind="visible: thread().length, text: unread_comments().length > 0 ? '!!!' : '&#x22ef;'" style="border: 1px grey solid; font-weight: bold;"></span>
                                 <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (contactable() ? 'reply' : 'noreply') + '.png', title: no_contact_message }" />
                             </div>
 

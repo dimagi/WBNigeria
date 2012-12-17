@@ -7,11 +7,12 @@ from django.contrib.auth.decorators import login_required
 from alerts.models import NotificationVisibility
 
 from aremind.apps.dashboard import forms
-from aremind.apps.dashboard.models import FadamaReport, ReportComment
+from aremind.apps.dashboard.models import FadamaReport, ReportComment, ReportCommentView
 from aremind.apps.dashboard.utils import fadama as utils
 from aremind.apps.dashboard.utils import mixins
 from aremind.apps.dashboard.utils import shared as u
 from aremind.notifications.tagged_in_note import trigger_alerts
+
 
 class DashboardView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/dashboard.html'
@@ -25,6 +26,7 @@ class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
         context['fadama_communicator_prefix'] = utils.communicator_prefix()
         return context
 
+
 class LogsForContactView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/logs_for_contact.html'
 
@@ -34,6 +36,7 @@ class LogsForContactView(mixins.LoginMixin, generic.TemplateView):
             'taggable_contacts': json.dumps(u.get_taggable_contacts('fadama', u.get_user_state(self.request.user), self.request.user)),
             'fadama_communicator_prefix': utils.communicator_prefix(),
         }
+
 
 class SingleReportView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/single_log.html'
@@ -51,7 +54,7 @@ class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
         state = self.get_user_state()
         return {
             'facilities': [f for f in utils.get_facilities() if state is None or f['state'] == state],
-            'monthly': utils.detail_stats(site, state),
+            'monthly': utils.detail_stats(site, self.request.user, state),
             'taggable_contacts': u.get_taggable_contacts('fadama', state, user),
         }
 
@@ -59,7 +62,7 @@ class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
 class APIMainView(mixins.LoginMixin, mixins.APIMixin, generic.View):
     def get_payload(self, site, **kwargs):
         return {
-            'stats': utils.main_dashboard_stats(self.get_user_state()),
+            'stats': utils.main_dashboard_stats(user=self.request.user, state=self.get_user_state()),
         }
 
 
@@ -71,5 +74,3 @@ def msg_from_bene(request):
     rc.text = request.GET.get('text')
     rc.save()
     return HttpResponse('ok', 'text/plain')
-
-

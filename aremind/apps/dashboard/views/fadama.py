@@ -75,12 +75,3 @@ def msg_from_bene(request):
     rc.save()
     return HttpResponse('ok', 'text/plain')
 
-
-class SupvervisorView(mixins.AuditMixin, generic.TemplateView):
-    dashboard = 'fadama'
-    template_name = 'dashboard/fadama/supervisor.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(SupvervisorView, self).get_context_data(**kwargs)
-        context['actions'] = self.get_user_actions()
-        return context

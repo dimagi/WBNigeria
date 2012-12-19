@@ -25,7 +25,8 @@ urlpatterns = patterns('',
 
     url(r'^fadama/api/main/$', fadama.APIMainView.as_view(), name='fadama_api_main'),
     url(r'^fadama/api/detail/$', fadama.APIDetailView.as_view(), name='fadama_api_detail'),
-    url(r'^fadama/supervisor/$', fadama.SupvervisorView.as_view(), name='fadama_supervisor_dashboard'),
+    url(r'^fadama/supervisor/$', shared.SupvervisorView.as_view(dashboard='fadama'), name='fadama_supervisor_dashboard'),
+    url(r'^pbf/supervisor/$', shared.SupvervisorView.as_view(dashboard='pbf'), name='pbf_supervisor_dashboard'),
 
     url(r'^dismiss/(?P<notification_id>\d+)/$', shared.DismissNotification.as_view(), name='fadama_dismiss_alert'),
     url(r'^view_comments/$', shared.view_comments, name='view_comments'),

@@ -5,6 +5,7 @@ from fadama import *
 from django.views import generic
 from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.utils import fadama as utils
+from aremind.apps.dashboard.utils import mixins
 from aremind.notifications.tagged_in_note import trigger_alerts
 from aremind.apps.dashboard.models import PBFReport, FadamaReport, ReportComment, ReportCommentView
 from django.contrib.auth.decorators import login_required
@@ -80,3 +81,16 @@ def view_comments(request):
         ReportCommentView.objects.get_or_create(user=request.user, report_comment=c)
     viewed_ids = list(comments.values_list('id', flat=True))
     return HttpResponse(json.dumps(viewed_ids), 'text/plain')
+
+
+class SupvervisorView(mixins.AuditMixin, generic.TemplateView):
+
+    dashboard = None
+
+    def get_template_names(self):
+        return ['dashboard/%s/supervisor.html' % self.dashboard, 'dashboard/supervisor.html' ]
+
+    def get_context_data(self, **kwargs):
+        context = super(SupvervisorView, self).get_context_data(**kwargs)
+        context['actions'] = self.get_user_actions()
+        return context

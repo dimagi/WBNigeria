@@ -1,15 +1,15 @@
-"username","program","supervisor","state","first name","last name","email","password"
-"worldbank","both","y","national","Albert","Smith",,123456
-"fadama_natl","fadama","y","national","Barney","Jones",,123456
-"fadama_natl2","fadama","y","national","Calvin","Brown",,123456
-"fadama_fct_supervisor","fadama","y","fct","Dana","Johnson",,123456
-"fadama_fct_officer","fadama","n","fct","Emily","Miller",,123456
-"fadama_fct_officer2","fadama","n","fct","Farah","Williams",,123456
-"fadama_nas_supervisor","fadama","y","nasawara","Gerard","Davis",,123456
-"fadama_nas_officer","fadama","n","nasawara","Horace","Wilson",,123456
-"fadama_nas_officer2","fadama","n","nasawara","Iago","Moore",,123456
-"pbf_natl","pbf","y","national","Juliet","Taylor",,123456
-"pbf_natl2","pbf","y","national","Karen","Anderson",,123456
-"pbf_nas_supervisor","pbf","y","nasawara","Lisa","Jackson",,123456
-"pbf_nas_officer","pbf","n","nasawara","Monk","White",,123456
-"pbf_nas_officer2","pbf","n","nasawara","Nerese","Harris",,123456
+"username","program","supervisor","state","first name","last name","email","password","identity"
+"worldbank","both","y","national","Albert","Smith",,123456,15551111111
+"fadama_natl","fadama","y","national","Barney","Jones",,123456,15552222222
+"fadama_natl2","fadama","y","national","Calvin","Brown",,123456,15553333333
+"fadama_fct_supervisor","fadama","y","fct","Dana","Johnson",,123456,15554444444
+"fadama_fct_officer","fadama","n","fct","Emily","Miller",,123456,15555555555
+"fadama_fct_officer2","fadama","n","fct","Farah","Williams",,123456,15556666666
+"fadama_nas_supervisor","fadama","y","nasawara","Gerard","Davis",,123456,15557777777
+"fadama_nas_officer","fadama","n","nasawara","Horace","Wilson",,123456,15558888888
+"fadama_nas_officer2","fadama","n","nasawara","Iago","Moore",,123456,15559999999
+"pbf_natl","pbf","y","national","Juliet","Taylor",,123456,15550000000
+"pbf_natl2","pbf","y","national","Karen","Anderson",,123456,15558675309
+"pbf_nas_supervisor","pbf","y","nasawara","Lisa","Jackson",,123456,15559456973
+"pbf_nas_officer","pbf","n","nasawara","Monk","White",,123456,15559454795
+"pbf_nas_officer2","pbf","n","nasawara","Nerese","Harris",,123456,15551234567

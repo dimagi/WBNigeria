@@ -11,10 +11,9 @@ from aremind.apps.dashboard.models import FadamaReport, PBFReport, ReportComment
 class DigestNotificationType(NotificationType):
     """Describes users who should receive activity digests."""
     escalation_levels = ['web_users']
-    permission = None  # Define in subclass.
 
     def users_for_escalation_level(self, esc_level):
-        return User.objects.filter(user_permissions__codename=self.permission)
+        raise NotImplemented('Must be defined in subclass.')
 
     def auto_escalation_interval(self, esc_level):
         return None
@@ -25,11 +24,22 @@ class DigestNotificationType(NotificationType):
 
 class DigestNotification(object):
     """Generate an activity digest for the previous week."""
-    # Define all of these in the subclass.
-    slug = None
-    alert_type = None
-    report_type = None
-    comment_field = None
+
+    @property
+    def slug(self):
+        raise NotImplemented('Must be defined in subclass.')
+
+    @property
+    def alert_type(self):
+        raise NotImplemented('Must be defined in subclass.')
+
+    @property
+    def report_type(self):
+        raise NotImplemented('Must be defined in subclass.')
+
+    @property
+    def comment_field(self):
+        raise NotImplemented('Must be defined in subclass.')
 
     def __call__(self):
         today = datetime.datetime.now()
@@ -41,8 +51,10 @@ class DigestNotification(object):
         try:
             notif = Notification.objects.get(alert_type=self.alert_type, uid=uid)
         except Notification.DoesNotExist:
+            text = self.get_text()
+            sms_text = text
             # Don't save; that is done by the alerts framework.
-            notif = Notification(alert_type=self.alert_type, uid=uid, text=self.get_text())
+            notif = Notification(alert_type=self.alert_type, uid=uid, text=text, sms_text=text)
 
         yield notif
 
@@ -96,7 +108,10 @@ class DigestNotification(object):
 
 
 class FadamaDigestNotificationType(DigestNotificationType):
-    permission = 'fadama_view'
+
+    def users_for_escalation_level(self, esc_level):
+        return User.objects.filter(user_permissions__codename='fadama_view')\
+                           .exclude(user_permissions__codename='pbf_view')
 
 
 class FadamaDigestNotification(DigestNotification):
@@ -115,13 +130,17 @@ fadama_digest_notifications = FadamaDigestNotification()
 
 
 class PBFDigestNotificationType(DigestNotificationType):
-    permission = 'pbf_view'
+
+    def users_for_escalation_level(self, esc_level):
+        return User.objects.filter(user_permissions__codename='pbf_view')\
+                           .exclude(user_permissions__codename='fadama_view')
 
 
 class PBFDigestNotification(DigestNotification):
     slug = 'PBF'
     alert_type = 'aremind.notifications.digests.PBFDigestNotificationType'
     report_type = PBFReport
+    comment_field = 'pbf_report'
 
 
 pbf_digest_notifications = PBFDigestNotification()

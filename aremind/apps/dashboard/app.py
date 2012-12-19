@@ -20,7 +20,7 @@ class CommunicatorApp(AppBase):
 
         for active_report in active_reports:
             comment_data = {
-                'report_id': active_report,
+                'fadama_report_id': active_report,
                 'comment_type': ReportComment.REPLY_TYPE,
                 'text': msg.text,
                 'author': ReportComment.FROM_BENEFICIARY,
@@ -40,7 +40,7 @@ def active_communicator_threads(phone_number):
     # todo make this query more efficient one we've settled on a back-end data model
     comments = ReportComment.objects.filter(
         comment_type=ReportComment.INQUIRY_TYPE,
-        report__reporter__identity=phone_number,
+        fadama_report__reporter__identity=phone_number,
     )
     latest_inquiry_per_report = map_reduce(comments, lambda c: [(c.report.id, c.date)], lambda v, k: max(v))
     active_report_ids = [report_id for report_id, last_inquiry in latest_inquiry_per_report.iteritems() if datetime.now() - last_inquiry < settings.COMMUNICATOR_RESPONSE_WINDOW]

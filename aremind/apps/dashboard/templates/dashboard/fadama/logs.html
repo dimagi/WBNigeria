@@ -19,10 +19,10 @@
                     <tr data-bind="visible: is_relevant($root), click: toggle, attr: { id: id, class: id() == window.location.hash.replace('#', '') ? 'highlight' : 'plain' }">
                         <td style="white-space: nowrap;">
                             <div style="float: right;">
-                                <span data-bind="visible: thread().length" style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span>
-                                <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (contactable() ? 'reply' : 'noreply') + '.png', title: no_contact_message }" />
+                              <span data-bind="if: unread_comments().length > 0"><span data-bind="text: unread_comments().length" class="speech"></span></span>
+                              <span data-bind="if: unread_comments().length == 0"><span style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span></span>
+                              <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (contactable() ? 'reply' : 'noreply') + '.png', title: no_contact_message }" />
                             </div>
-
                             <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (expanded() ? 'expanded' : 'collapsed') + '.png' }" />
                             <span data-bind="text: id"></span>&nbsp;
                         </td>
@@ -55,7 +55,7 @@
                             </div>
                             <hr>
                             <div style="margin-left: 15em; padding-top: 1em;">
-                                <form data-bind="attr: {id: 'message-form-' + id() }" class="form-inline" method="post" action="{% url fadama_new_message %}">
+                                <form data-bind="attr: {id: 'message-form-' + id() }" class="form-inline" method="post" action="{% url new_message %}">
                                     <label>leave a note for other <b>fadama staff</b></label>
                                     <input type="text" data-bind="value: note, valueUpdate: 'afterkeydown'" style="width: 50em" maxlength="160"></input>
                                     <button type="submit" class="btn submit" data-bind="click: new_note">Save Note</button>

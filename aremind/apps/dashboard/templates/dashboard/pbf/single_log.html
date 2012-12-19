@@ -1,4 +1,4 @@
-{% extends "dashboard/fadama/base.html" %}
+{% extends "dashboard/pbf/base.html" %}
 
 {% load url from future %}
 
@@ -15,16 +15,14 @@
     LOGS = {{ logs|safe }};
     TAGGABLES = {{ taggable_contacts|safe }};
 
-    FC_PREFIX = '{{ fadama_communicator_prefix }}';
     NOTE_DELETE_URL = '{% url 'del_message' %}';
-    PER_CONTACT_URL_TEMPL = '';
 
     $(document).ready(function() {
         detail_report_init();
     });
 
     function detail_report_init() {
-        var model = new FadamaLogsForContactModel(LOGS, TAGGABLES);
+        var model = new PBFLogsForContactModel(LOGS, TAGGABLES);
         ko.applyBindings(model);
     }
 </script>
@@ -42,14 +40,16 @@
 
 </style>
 
+<!--
     <div class="row-fluid">
         <div class="span12">
             <span class="large">Reports by beneficiary</span>
         </div>
 	<div>The following reports have all come from the same phone number (and were <i>not</i> reported on behalf of someone else)</div>
     </div>
+-->
 
-    {% include "dashboard/fadama/logs.html" %}
+    {% include "dashboard/pbf/logs.html" %}
 
 {% endblock content %}
 

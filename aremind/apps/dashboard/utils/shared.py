@@ -2,6 +2,7 @@ import hashlib
 from rapidsms.contrib.locations.models import Location
 from aremind.apps.utils.functional import map_reduce
 from datetime import datetime
+from rapidsms.models import Backend, Connection, Contact
 
 def extract_report(r):
     data = r.content
@@ -96,3 +97,44 @@ def iter_report_range(data):
     for i in range(to_month_num(_min), to_month_num(_max) + 1):
         yield to_key(i)
 
+def get_taggable_contacts(program, state, user):
+    """
+    Returns a map of location id to location name and the contacts in that
+    location, for all locationsin the path of the state (or any location, if
+    no state is provided.
+    """
+
+    def is_program_user(u):
+        def program_member(program):
+            return u.has_perm('dashboard.%s_view' % program)
+
+        all_programs = ('pbf', 'fadama')
+        # check that user is ONLY a member of the program at hand -- this filters out
+        # supervisory accounts like worldbank (member of all programs)
+        return program_member(program) and all(not program_member(p) for p in all_programs if p != program)
+
+    def get_state_users(state):
+        if state is None:
+            criteria = {'location__slug': 'nigeria'}
+        else:
+            criteria = {'location__type__slug': 'state', 'location__slug': state}
+
+        users = Contact.objects.filter(**criteria).select_related()
+        for u in users:
+            if is_program_user(u.user) and user.id != u.user.id:
+                yield {
+                    'user_id': u.id,
+                    'username': u.user.username,
+                    'first_name': u.first_name,
+                    'last_name': u.last_name,
+                    'state': state or 'national'
+                }
+
+    taggables = list(get_state_users(None))
+    if state:
+        taggables.extend(get_state_users(state))
+
+    by_state = map_reduce(taggables, lambda u: [(u['state'], u)], lambda v, k: sorted(v, key=lambda u: (u['last_name'], u['first_name'])))
+    by_state = [{'state': k, 'users': v} for k, v in by_state.iteritems()]
+    by_state.sort(key=lambda e: 'zzzzz' if e['state'] == 'national' else e['state'])
+    return by_state

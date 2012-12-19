@@ -476,6 +476,8 @@ COMMUNICATOR_TOO_OLD_WINDOW = timedelta(weeks=6)
 # rapidsms-alerts app.
 LOGISTICS_NOTIF_GENERATORS = (
     'aremind.notifications.idle_facilities.trigger_notifications',
+    'aremind.notifications.digests.fadama_digest_notifications',
+    'aremind.notifications.digests.pbf_digest_notifications',
 )
 SYSTEM_USERNAME = "the_man"
 

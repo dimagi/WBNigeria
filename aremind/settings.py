@@ -261,6 +261,7 @@ REQUIRE_LOGIN_PATH = LOGIN_URL
 SOUTH_MIGRATION_MODULES = {
     'rapidsms': 'aremind.migrations.rapidsms',
     'locations': 'aremind.migrations.locations',
+    'alerts': 'aremind.migrations.alerts',
 }
 
 

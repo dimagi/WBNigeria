@@ -4,8 +4,6 @@ from django.http import HttpResponse
 from django.views import generic
 from django.contrib.auth.decorators import login_required
 
-from alerts.models import NotificationVisibility
-
 from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.models import FadamaReport, ReportComment, ReportCommentView
 from aremind.apps.dashboard.utils import fadama as utils

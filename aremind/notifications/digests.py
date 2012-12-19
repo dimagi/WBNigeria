@@ -2,8 +2,14 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-from alerts.models import Notification, NotificationType
+from rapidsms.messages import OutgoingMessage
+
+from alerts.models import Notification, NotificationType, NotificationVisibility
+
+from threadless_router.router import Router as ThreadlessRouter
 
 from aremind.apps.dashboard.models import FadamaReport, PBFReport, ReportComment
 
@@ -11,6 +17,7 @@ from aremind.apps.dashboard.models import FadamaReport, PBFReport, ReportComment
 class DigestNotificationType(NotificationType):
     """Describes users who should receive activity digests."""
     escalation_levels = ['web_users']
+    notify_sms = False  # We'll handle this manually through the post-save hook.
 
     def users_for_escalation_level(self, esc_level):
         raise NotImplemented('Must be defined in subclass.')
@@ -52,9 +59,8 @@ class DigestNotification(object):
             notif = Notification.objects.get(alert_type=self.alert_type, uid=uid)
         except Notification.DoesNotExist:
             text = self.get_text()
-            sms_text = text
             # Don't save; that is done by the alerts framework.
-            notif = Notification(alert_type=self.alert_type, uid=uid, text=text, sms_text=text)
+            notif = Notification(alert_type=self.alert_type, uid=uid, text=text)
 
         yield notif
 
@@ -100,6 +106,35 @@ class DigestNotification(object):
         data['Inquiries'] = len(comments.filter(comment_type=ReportComment.INQUIRY_TYPE))
         data['Responses'] = len(comments.filter(comment_type=ReportComment.REPLY_TYPE))
         return data
+
+
+@receiver(post_save, sender=NotificationVisibility)
+def send_activity_digest_sms(sender, instance, created, **kwargs):
+    """
+    Uses threadless_router to send the activity digest via SMS to
+    all available contacts associated with the user. This will happen only
+    once when the NotificationVisibility object is created.
+
+    The default SMS handling provided by rapidsms-alerts is not compatible
+    with threadless router.
+    """
+    alert_types = [PBFDigestNotification.alert_type, FadamaDigestNotification.alert_type]
+    sent = False
+    if created and instance.notif.alert_type in alert_types:
+        notification = instance.notif
+        contacts = instance.user.contact_set.all()
+        for contact in contacts:
+            connection = contact.default_connection
+            if connection:
+                backend = connection.backend
+                message = OutgoingMessage(connection, notification.text)
+                router = ThreadlessRouter()
+                response = router.outgoing(message)
+                sent = True
+    if sent:
+        # Don't show this notification on the dashboard as we've already sent
+        # it as a text message.
+        instance.delete()
 
 
 ############################################

@@ -23,6 +23,13 @@
 
         dashboard_ajax(model, "/dashboard/fadama/api/main");
     }
+
+    // Dismiss notifications & alerts
+    $(document).ready(function() {
+        $('.btn.dismiss').bind('click', function(event) {
+            $.post($(this).attr('href'));
+        });
+    });
 </script>
 {% endblock javascripts %}
 
@@ -57,9 +64,10 @@
         </div>
     </div>
 
-    <div class="row-fluid">
+    <div id="alertpane" class="row-fluid scrollable">
         <div class="span12">
             {% load alerts_tags %}
+            {% alerts request %}
             {% notifications request %}
         </div>
     </div>

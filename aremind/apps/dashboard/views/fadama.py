@@ -18,6 +18,11 @@ from aremind.notifications.tagged_in_note import trigger_alerts
 class DashboardView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/dashboard.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
+        context.update({'program': 'fadama'})
+        return context
+
 
 class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
     template_name = 'dashboard/fadama/reports.html'

@@ -12,6 +12,11 @@ from aremind.apps.dashboard.utils import shared as u
 class DashboardView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/pbf/dashboard.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
+        context.update({'program': 'pbf'})
+        return context
+
 
 class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
     template_name = 'dashboard/pbf/reports.html'

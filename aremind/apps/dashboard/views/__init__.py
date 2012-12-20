@@ -25,6 +25,7 @@ class MessageView(generic.CreateView):
             comment = form.save(commit=False)
             u = request.user
             comment.author = '%s %s' % (u.first_name, u.last_name)
+            comment.author_user = u
             comment.save()
             form.save_m2m()
             if comment.comment_type == ReportComment.INQUIRY_TYPE:
@@ -93,4 +94,5 @@ class SupvervisorView(mixins.AuditMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SupvervisorView, self).get_context_data(**kwargs)
         context['actions'] = self.get_user_actions()
+        context['national_user'] = (not self.contact.location_id) or (self.contact.location.type.slug != 'state')
         return context

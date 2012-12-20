@@ -17,7 +17,7 @@
                     {% autopaginate comments %}            
                     {% for comment in comments %}
                         <tr>
-                            <td>{{ comment.comment_type|capfirst }} on <a href="{% url 'fadama_reports' %}#{{ comment.report.id }}">Report {{ comment.report.id }}</a></td>
+                            <td>{{ comment.comment_type|capfirst }} on <a href="{% url 'pbf_reports' %}#{{ comment.report.id }}">Report {{ comment.report.id }}</a></td>
                             <td>{{ comment.author }}</td>
                             <td>{{ comment.text }}</td>
                             <td>{{ comment.date }}</td>
@@ -32,13 +32,22 @@
             <h2>Users</h2>
             <table class="table table-bordered table-striped table-condensed">
                 <thead>
-                    <tr><th>Full Name</th><th>Username</th><th>Last Login</th></tr>
+                    <tr><th>Full Name</th>{% if national_user %}<th>Location</th>{% endif %}<th>Username</th><th>Last Login</th></tr>
                 </thead>
+                {% spaceless %}
                 <tbody>            
-                    {% for user in actions.users %}
-                        <tr><td>{{ user.get_full_name }}</td><td>{{ user.username }}</td><td>{{ user.last_login }}</td></tr>
+                    {% for contact in actions.contacts %}
+                        {% with contact.user as user %}
+                        <tr>
+                            <td>{{ user.get_full_name }}</td>
+                            {% if national_user %}<td>{{ contact.location }}</td>{% endif %}
+                            <td>{{ user.username }}</td>
+                            <td>{% if user.last_login|date:"r" == user.date_joined|date:"r" %}Never{% else %}{{ user.last_login }}{% endif %}</td>
+                        </tr>
+                        {% endwith %}
                     {% endfor %}
                 </tbody>
+                {% endspaceless %}
             </table>
         </div>
     </div>

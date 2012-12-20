@@ -17,7 +17,7 @@ class AddMessageTest(DashboardDataTest):
     "AJAX view for adding new staff notes or messaging beneficiaries."
 
     def setUp(self):
-        self.url = reverse('fadama_new_message')
+        self.url = reverse('new_message')
         self.user = User.objects.create_user(username='test', password='test', email=u'')
         self.client.login(username='test', password='test')
         self.report = self.create_feedback_report()
@@ -38,7 +38,7 @@ class AddMessageTest(DashboardDataTest):
 
     def _get_comment_data(self, **kwargs):
         defaults = {
-            'report': self.report.pk,
+            'fadama_report': self.report.pk,
             'comment_type': 'note',
             'author': 'test',
             'text': 'Test Note',
@@ -61,7 +61,7 @@ class AddMessageTest(DashboardDataTest):
             router.return_value = MockRouter
             response = self.client.post(self.url, data=data)
             self.assertEqual(response.status_code, 200)
-            comment = ReportComment.objects.filter(report=self.report)
+            comment = ReportComment.objects.filter(fadama_report=self.report)
             self.assertTrue(comment.exists(), "ReportComment should be created.")
 
     def test_staff_note_with_one_tag(self):
@@ -125,7 +125,7 @@ class AddMessageTest(DashboardDataTest):
             router.return_value = MockRouter
             response = self.client.post(self.url, data=data)
             self.assertEqual(response.status_code, 200)
-            comment = ReportComment.objects.filter(report=self.report)
+            comment = ReportComment.objects.filter(fadama_report=self.report)
             self.assertTrue(comment.exists(), "ReportComment should be created.")
 
     def test_beneficiary_message_sms(self):

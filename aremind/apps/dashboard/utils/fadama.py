@@ -5,9 +5,11 @@ from datetime import datetime
 import hashlib
 
 from django.conf import settings
+from django.db.models import get_model
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 
+from rapidsms.contrib.locations.models import Location
 from rapidsms.messages.outgoing import OutgoingMessage
 from rapidsms.models import Backend, Connection, Contact
 from threadless_router.router import Router
@@ -15,9 +17,7 @@ from threadless_router.router import Router
 from aremind.apps.utils.functional import map_reduce
 
 import shared as u
-from apps.dashboard.models import FadamaReport, ReportComment, ReportCommentView
 
-from rapidsms.contrib.locations.models import Location
 
 def get_facilities():
     facs = u.get_facilities('fca')
@@ -30,6 +30,10 @@ def facilities_by_id():
     return map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
 
 def load_reports(user=None, state=None, anonymize=True):
+    FadamaReport = get_model('dashboard', 'FadamaReport')
+    ReportComment = get_model('dashboard', 'ReportComment')
+    ReportCommentView = get_model('dashboard', 'ReportCommentView')
+
     facs = facilities_by_id()
     fugs = u._fac_cache('fug')
 
@@ -216,5 +220,3 @@ def message_report_beneficiary(report, message_text):
     message = OutgoingMessage(connection=report.reporter, template=template)
     router = Router()
     router.outgoing(message)
-
-

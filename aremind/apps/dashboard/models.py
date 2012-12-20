@@ -1,10 +1,14 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from rapidsms.models import Connection, Contact
 from rapidsms.contrib.locations.models import Location, LocationType
 import json
 from datetime import datetime
 from django.conf import settings
+from aremind.apps.dashboard.utils import shared as utils
+
 
 class FeedbackReport(models.Model):
 
@@ -23,6 +27,7 @@ class FeedbackReport(models.Model):
 
     # whether report was reported on behalf of someone else (assume you cannot reach the original reporter)
     proxy = models.BooleanField()
+
     # whether reporter is ok to be contacted
     can_contact = models.BooleanField()
 
@@ -49,6 +54,7 @@ class FeedbackReport(models.Model):
     class Meta:
         abstract = True
 
+
 class PBFReport(FeedbackReport):
     # waiting time
     # staff friendliness
@@ -59,12 +65,47 @@ class PBFReport(FeedbackReport):
     class Meta:
         permissions = (('pbf_view', 'View PBF reports'),)
 
+
+class PBFReportVisibility(models.Model):
+    """Mapping of users who have yet to view a PBFReport."""
+    user = models.ForeignKey(User)
+    report = models.ForeignKey(PBFReport)
+
+    class Meta:
+        unique_together = ('user', 'report')
+
+
+@receiver(post_save, sender=PBFReport)
+def create_pbf_visibility(sender, instance, created, **kwargs):
+    if created:
+        pbf_users = utils.get_users_by_program('pbf')
+        for user in pbf_users:
+            PBFReportVisibility.objects.create(user=user, report=instance)
+
+
 class FadamaReport(FeedbackReport):
     # primary complaint type
     # complaint sub-type
 
     class Meta:
         permissions = (('fadama_view', 'View Fadama reports'),)
+
+
+class FadamaReportVisibility(models.Model):
+    """Mapping of users who have yet to view a FadamaReport."""
+    user = models.ForeignKey(User)
+    report = models.ForeignKey(FadamaReport)
+
+    class Meta:
+        unique_together = ('user', 'report')
+
+
+@receiver(post_save, sender=FadamaReport)
+def create_fadama_visibility(sender, instance, created, **kwargs):
+    if created:
+        fadama_users = utils.get_users_by_program('fadama')
+        for user in fadama_users:
+            FadamaReportVisibility.objects.create(user=user, report=instance)
 
 
 class ReportComment(models.Model):

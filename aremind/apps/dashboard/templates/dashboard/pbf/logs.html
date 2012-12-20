@@ -20,7 +20,7 @@
                         <td style="white-space: nowrap;">
                             <div style="float: right;">
                               <span data-bind="if: unread_comments().length > 0"><span data-bind="text: unread_comments().length" class="speech"></span></span>
-                              <span data-bind="if: unread_comments().length == 0"><span style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span></span>
+                              <span data-bind="if: unread_comments().length == 0 && thread().length > 0"><span style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span></span>
                                 <!--<img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (contactable() ? 'reply' : 'noreply') + '.png', title: no_contact_message }" />-->
                             </div>
                             <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (expanded() ? 'expanded' : 'collapsed') + '.png' }" />

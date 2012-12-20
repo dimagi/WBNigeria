@@ -1,4 +1,5 @@
 import json
+import operator
 
 from django.contrib.auth.models import User, Permission
 from django.db.models import Q
@@ -43,6 +44,7 @@ class APIMixin(object):
 class AuditMixin(object):
 
     dashboard = ''
+    _all_dashboards = ('pbf', 'fadama', )
 
     @method_decorator(permission_required('auth.supervisor'))
     def dispatch(self, request, *args, **kwargs):
@@ -57,8 +59,18 @@ class AuditMixin(object):
             self.contact = None
             return []
         perm = Permission.objects.get(codename='%s_view' % self.dashboard)
+        other_perms = Permission.objects.filter(codename__in=
+            ['%s_view' % n for n in self._all_dashboards if n != self.dashboard]
+        )
+        other_perm_q = []
+        for other in other_perms:
+            # Does not have permission to see the other dashboard
+            other_perm_q.append(Q(~Q(user__groups__permissions=other), ~Q(user__user_permissions=other)))
         contacts = Contact.objects.filter(
-            Q(user__groups__permissions=perm) | Q(user__user_permissions=perm)
+            # Has permisson for this dashboard
+            Q(Q(user__groups__permissions=perm) | Q(user__user_permissions=perm)),
+            # Does not have permission for one of the other dashboards
+            Q(reduce(operator.or_, other_perm_q))
         ).distinct().select_related('user', 'location')
         if self.contact.location_id and self.contact.location.type.slug == 'state':
             contacts = contacts.filter(location=self.contact.location).distinct()
@@ -70,4 +82,6 @@ class AuditMixin(object):
         if contacts:
             users = contacts.values_list('user', flat=True)
             comments = ReportComment.objects.filter(author_user__in=users).order_by('-date')
+        else:
+            comments = []
         return {'contacts': contacts, 'comments': comments}

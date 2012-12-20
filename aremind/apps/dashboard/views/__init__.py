@@ -1,13 +1,13 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from pbf import *
-from fadama import *
 from django.views import generic
 from aremind.apps.dashboard import forms
 from aremind.apps.dashboard.utils import fadama as utils
 from aremind.apps.dashboard.utils import mixins
 from aremind.notifications.tagged_in_note import trigger_alerts
 from aremind.apps.dashboard.models import PBFReport, FadamaReport, ReportComment, ReportCommentView
+from aremind.apps.dashboard.views import pbf
+from aremind.apps.dashboard.views import fadama
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 import json

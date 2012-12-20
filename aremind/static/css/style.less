@@ -162,6 +162,38 @@ body {
         font-style: italic;
     }
 
+    .speech {
+        font-weight: bold;
+        font-size: 80%;
+    	position:relative;   
+    	padding:2px 4px;     
+    	margin:0px; 
+    	color:#fff; 
+    	background:#cc3307; /* default background for browsers without gradient support */
+    	/* css3 */
+    	background:-webkit-gradient(linear, 0 0, 0 100%, from(#ff332e), to(#cc3307));
+    	background:-moz-linear-gradient(#ff332e, #cc3307);
+    	background:-o-linear-gradient(#ff332e, #cc3307);
+    	background:linear-gradient(#ff332e, #cc3307);
+    	-webkit-border-radius:3px;
+    	-moz-border-radius:3px;
+    	border-radius:3px;
+    }
+
+    .speech:after {
+    	content:"";
+    	position:absolute;
+    	bottom:-3px; /* value = - border-top-width - border-bottom-width */
+    	left:3px; /* controls horizontal position */
+    	border-width:3px 0 0 3px; /* vary these values to change the angle of the vertex */
+    	border-style:solid;
+    	border-color:#cc3307 transparent; 
+        /* reduce the damage in FF3.0 */
+        display:block; 
+        width:0;
+    }
+
+
 
     /*******************************
         Specific ids/elements
@@ -169,6 +201,10 @@ body {
 
     #reports-table {
         margin-top: 20px;
+
+        tr.highlight, tr.highlight td {
+            background-color: #fae599;
+        }
     }
 
     /*******************************

@@ -60,6 +60,8 @@ function PBFDetailViewModel() {
     this.active_metric = ko.observable(DEFAULT_METRIC || null);
     this.active_month = ko.observable();
 
+    this.taggable_contacts = ko.observableArray();
+
     var model = this;
 
     this.load = function(data) {
@@ -78,6 +80,10 @@ function PBFDetailViewModel() {
                 this.active_facility(default_facility);
             }
         }
+
+        this.taggable_contacts($.map(data.taggable_contacts, function(e) {
+                    return new TaggablesByState(e);
+                }));
 
         var active_month_key = (this.active_month() ? this.active_month()._month : null);
         this.monthly($.map(data.monthly, function(m) {
@@ -146,6 +152,16 @@ function PBFDetailViewModel() {
         return f;
     };
 
+    this.collapse_logs = function(active) {
+        $.each(this.monthly(), function(i, e) {
+            $.each(e.logs(), function(i, e) {
+                if (e != active) {
+                    e.expanded(false);
+                }
+            });
+        });
+    };
+
     this.displayMap = function() {
         if(this.active_metric() == 'all') {
             // Fire the event so that the map resizes after
@@ -185,28 +201,129 @@ function PbfMonthlyDetailModel(data, root) {
 }
 
 function PbfLogModel(data, root) {
-        this.id = ko.observable(data.id);
-        this.site = ko.observable(data.site_name);
-        this.for_this_site = ko.observable(data.for_this_site);
-        this.date = ko.observable(data.display_time);
-        this.satisfied = ko.observable(data.satisfied);
-        this.wait_bucket = ko.observable(data.wait_bucket);
-        this.cleanliness = ko.observable(data.cleanliness);
-        this.friendliness = ko.observable(data.staff_friendliness);
-        this.drugs_avail = ko.observable(data.drug_availability);
-        this.price_display = ko.observable(data.price_display);
-        this.message = ko.observable(data.message);
+    var model = this;
 
-        this.root = root;
+    this.id = ko.observable(data.id);
+    this.site = ko.observable(data.site_name);
+    this.for_this_site = ko.observable(data.for_this_site);
+    this.date = ko.observable(data.display_time);
+    this.satisfied = ko.observable(data.satisfied);
+    this.wait_bucket = ko.observable(data.wait_bucket);
+    this.cleanliness = ko.observable(data.cleanliness);
+    this.friendliness = ko.observable(data.staff_friendliness);
+    this.drugs_avail = ko.observable(data.drug_availability);
+    this.price_display = ko.observable(data.price_display);
+    this.message = ko.observable(data.message);
 
-        this.disp_wait = ko.computed(function() {
+    this.thread = ko.observableArray($.map(data.thread, function(c) {
+        return new CommModel(c, model);
+    }));
+    this.tagged_contacts = ko.observableArray();
+
+    this.root = root;
+
+    this.disp_wait = ko.computed(function() {
             return {
                 '<2': '< 2 hrs',
                 '2-4': '2\u20134 hrs',
                 '>4': '> 4 hrs',
             }[this.wait_bucket()];
         }, this);
+
+    this.expanded = ko.observable(false);
+    this.toggle = function() {
+        this.expanded(!this.expanded());
+        root.collapse_logs(this);
+        if (this.expanded()) {
+            this.mark_as_viewed();
+        }
+    };
+
+    this.note = ko.observable();
+
+    this.submission_in_progress = false;
+
+    this.new_note = function() {
+        if (this.submission_in_progress) return;
+        new_thread_msg('pbf', this, 'note', this.note());
+
+        // reset tagged users
+        this.tagged_contacts([]);
+        $('select.tags option:selected').removeAttr("selected");
+    };
+
+    this.unread_comments = function() {
+        return ko.utils.arrayFilter(this.thread(), function (item) {
+            return item.viewed() === false;
+        });
     }
+
+    this.mark_as_viewed = function() {
+        // If any comments are marked as unread, notify the server that they
+        // have been viewed.
+        var unread = this.unread_comments();
+        if (unread.length > 0) {
+            var comment_ids = new Array();
+            for (var i = 0; i < unread.length; i++) {
+                comment_ids.push(unread[i].id);
+            }
+            response = $.ajax({
+                type: 'POST',
+                context: this,
+                url: '/dashboard/view_comments/',
+                data: JSON.stringify(comment_ids)
+            });
+            response.done(function (response) {
+                ko.utils.arrayForEach(this.thread(), function (comment) {
+                    comment.viewed(true);
+                });
+            });
+        }
+    }
+
+}
+
+function new_thread_msg(program, log, type, content) {
+    // Don't submit empty comments
+    if (!content) return;
+    var form = $('#message-form-' + log.id());
+    var url = form.attr('action');
+    $(':input', form).prop('disabled', true);
+    $('.btn.submit', form).addClass('disabled');
+    // Prevent duplicate/parallel submission
+    log.submission_in_progress = true;
+
+    var params = {
+        comment_type: type,
+        text: content,
+        contact_tags: (type == 'note' ? log.tagged_contacts() : []),
+        author: 'demo user'
+    };
+    params[program + '_report'] = log.id();
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        dataType: 'json',
+        traditional: true,
+        data: params,
+        success: function(data) {
+            // Add submission to the UI
+            log.thread.push(new CommModel(data, log));
+            log[type == 'inquiry' ? 'inquiry' : 'note'](null);
+            if (type == 'inquiry') {
+                alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
+            }
+        }
+    }).error(function() {
+        alert('There was an error adding your message.');
+    }).complete(function() {
+        // Submission finished. Restore the form controls
+        log.submission_in_progress = false;
+        $(':input', form).prop('disabled', false);
+        $('.btn.submit', form).removeClass('disabled');
+    });
+}
 
 function FadamaDetailViewModel() {
     this.monthly = ko.observableArray();
@@ -240,9 +357,9 @@ function FadamaDetailViewModel() {
             }
         }
 
-	this.taggable_contacts($.map(data.taggable_contacts, function(e) {
-		    return new TaggablesByState(e);
-		}));
+        this.taggable_contacts($.map(data.taggable_contacts, function(e) {
+                    return new TaggablesByState(e);
+                }));
 
         var active_month_key = (this.active_month() ? this.active_month()._month : null);
         this.monthly($.map(data.monthly, function(m) {
@@ -367,7 +484,7 @@ function FadamaLogsForContactModel(data, taggables) {
         e.from_same = [];
     });
 
-    this.active_month = ko.observable(new FadamaMonthlyDetailModel({logs: data}, this));
+    this.active_month = ko.observable(new FadamaMonthlyDetailModel({logs: data, stats: {}}, this));
 
     this.collapse_logs = function(active) {
         $.each(this.active_month().logs(), function(i, e) {
@@ -375,6 +492,35 @@ function FadamaLogsForContactModel(data, taggables) {
                 e.expanded(false);
             }
         });
+    };
+}
+
+function PBFLogsForContactModel(data, taggables) {
+    this.active_metric = ko.observable('all');
+    this.taggable_contacts = ko.observableArray();
+
+    this.taggable_contacts($.map(taggables, function(e) {
+                return new TaggablesByState(e);
+            }));
+
+    $.each(data, function(i, e) {
+            e.from_same = [];
+        });
+
+    console.log(data);
+
+    this.active_month = ko.observable(new PbfMonthlyDetailModel({logs: data}, this));
+
+    this.is_metric_active = function(metric) {
+        return true;
+    }
+
+    this.collapse_logs = function(active) {
+        $.each(this.active_month().logs(), function(i, e) {
+                if (e != active) {
+                    e.expanded(false);
+                }
+            });
     };
 }
 
@@ -445,6 +591,9 @@ function FadamaLogModel(data, root) {
     this.toggle = function() {
         this.expanded(!this.expanded());
         root.collapse_logs(this);
+        if (this.expanded()) {
+            this.mark_as_viewed();
+        }
     };
 
     var categories = ['serviceprovider', 'people', 'land', 'info', 'ldp', 'financial', 'misc'];
@@ -492,57 +641,46 @@ function FadamaLogModel(data, root) {
 
     this.send_message = function() {
         if (this.submission_in_progress) return;
-        this.new_thread_msg('inquiry', this.inquiry());
+        new_thread_msg('fadama', this, 'inquiry', this.inquiry());
     };
 
     this.new_note = function() {
         if (this.submission_in_progress) return;
-        this.new_thread_msg('note', this.note());
+        new_thread_msg('fadama', this, 'note', this.note());
 
-	// reset tagged users
-	this.tagged_contacts([]);
-	$('select.tags option:selected').removeAttr("selected");
+        // reset tagged users
+        this.tagged_contacts([]);
+        $('select.tags option:selected').removeAttr("selected");
     };
 
-    this.new_thread_msg = function(type, content) {
-        // Don't submit empty comments
-        if (!content) return;
-        var model = this;
-        var form = $('#message-form-' + this.id());
-        var url = form.attr('action');
-        $(':input', form).prop('disabled', true);
-        $('.btn.submit', form).addClass('disabled');
-        // Prevent duplicate/parallel submission
-        this.submission_in_progress = true;
-        $.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-	    traditional: true,
-            data: {
-                report: this.id(),
-                comment_type: type,
-                text: content,
-		contact_tags: (type == 'note' ? this.tagged_contacts() : []),
-                author: 'demo user'
-            },
-            success: function(data) {
-                // Add submission to the UI
-                model.thread.push(new CommModel(data, model));
-                model[type == 'inquiry' ? 'inquiry' : 'note'](null);
-                if (type == 'inquiry') {
-                    alert('Your message has been sent to the beneficiary (to the phone number they used to provide their feedback). You will be notified when they respond.');
-                }
-            }
-        }).error(function() {
-            alert('There was an error adding your message.');
-        }).complete(function() {
-            // Submission finished. Restore the form controls
-            model.submission_in_progress = false;
-            $(':input', form).prop('disabled', false);
-            $('.btn.submit', form).removeClass('disabled');
+    this.unread_comments = function() {
+        return ko.utils.arrayFilter(this.thread(), function (item) {
+            return item.viewed() === false;
         });
-    };
+    }
+
+    this.mark_as_viewed = function() {
+        // If any comments are marked as unread, notify the server that they
+        // have been viewed.
+        var unread = this.unread_comments();
+        if (unread.length > 0) {
+            var comment_ids = new Array();
+            for (var i = 0; i < unread.length; i++) {
+                comment_ids.push(unread[i].id);
+            }
+            response = $.ajax({
+                type: 'POST',
+                context: this,
+                url: '/dashboard/view_comments/',
+                data: JSON.stringify(comment_ids)
+            });
+            response.done(function (response) {
+                ko.utils.arrayForEach(this.thread(), function (comment) {
+                    comment.viewed(true);
+                });
+            });
+        }
+    }
 
     this.category_caption = ko.computed(function() {
         return {
@@ -596,6 +734,7 @@ function CommModel(data, thread) {
     this.text = ko.observable(data.text);
     this.extra = ko.observable(data.extra || {});
     this.tags = ko.observableArray(data.contact_tags);
+    this.viewed = ko.observable(data.viewed);
 
     var model = this;
     this.display = ko.computed(function() {

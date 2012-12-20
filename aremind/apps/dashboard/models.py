@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from rapidsms.models import Connection, Contact
 from rapidsms.contrib.locations.models import Location, LocationType
@@ -79,9 +80,11 @@ class ReportComment(models.Model):
         (REPLY_TYPE, REPLY_TYPE),
     )
 
-    report = models.ForeignKey(FadamaReport)
+    fadama_report = models.ForeignKey(FadamaReport, blank=True, null=True)
+    pbf_report = models.ForeignKey(PBFReport, blank=True, null=True)
     comment_type = models.CharField(max_length=50, choices=COMMENT_TYPES)
-    author = models.CharField(max_length=100) # TODO should store ref to actual user
+    author = models.CharField(max_length=100)
+    author_user = models.ForeignKey('auth.User', null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
     extra_info = models.TextField(null=True, blank=True)
@@ -100,9 +103,30 @@ class ReportComment(models.Model):
             'contact_tags': sorted(contact.name for contact in self.contact_tags.all()),
         }
 
+    @property
+    def report(self):
+        return self.fadama_report or self.pbf_report
+
+    @property
+    def program(self):
+        if self.fadama_report_id:
+            return 'fadama'
+        elif self.pbf_report_id:
+            return 'pbf'
+
     def __unicode__(self):
         return u'{0} on Report {1} by {2} on {3}'.format(self.comment_type.title(),
                 self.report.id, self.author, self.date.strftime('%Y-%m-%d %H:%M:%S'))
+
+
+class ReportCommentView(models.Model):
+    """Created when a user first views a ReportComment."""
+    user = models.ForeignKey(User)
+    report_comment = models.ForeignKey(ReportComment)
+    date = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'report_comment')
 
 
 from smscouchforms.signals import xform_saved_with_session
@@ -147,8 +171,8 @@ def fadama_report(form, data):
         data['for_this_site'] = False
         content['site_other'] = form.get('different_fug_or_fca')
         data['freeform'] = form.get('describe_other_loc_problem')
-
         data['satisfied'] = None
+        content['misc'] = 'misc'
     else:
         data['for_this_site'] = True
         data['satisfied'] = (form.get('project_phase2') == '1')

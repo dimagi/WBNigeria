@@ -1,0 +1,54 @@
+{% extends "dashboard/fadama/base.html" %}
+
+{% load url from future %}
+{% load pagination_tags %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="row-fluid">
+        <div class="span8">
+            <h2>Report Activity</h2>
+            {% with actions.comments as comments %}
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                    <tr><th>Action</th><th>User</th><th>Info</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    {% autopaginate comments %}            
+                    {% for comment in comments %}
+                        <tr>
+                            <td>{{ comment.comment_type|capfirst }} on <a href="{% url 'fadama_reports' %}#{{ comment.report.id }}">Report {{ comment.report.id }}</a></td>
+                            <td>{{ comment.author }}</td>
+                            <td>{{ comment.text }}</td>
+                            <td>{{ comment.date }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% paginate %}
+            {% endwith %}
+        </div>
+        <div class="span4">
+            <h2>Users</h2>
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                    <tr><th>Full Name</th>{% if national_user %}<th>Location</th>{% endif %}<th>Username</th><th>Last Login</th></tr>
+                </thead>
+                {% spaceless %}
+                <tbody>            
+                    {% for contact in actions.contacts %}
+                        {% with contact.user as user %}
+                        <tr>
+                            <td>{{ user.get_full_name }}</td>
+                            {% if national_user %}<td>{{ contact.location }}</td>{% endif %}
+                            <td>{{ user.username }}</td>
+                            <td>{% if user.last_login|date:"r" == user.date_joined|date:"r" %}Never{% else %}{{ user.last_login }}{% endif %}</td>
+                        </tr>
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+                {% endspaceless %}
+            </table>
+        </div>
+    </div>
+{% endblock content %}

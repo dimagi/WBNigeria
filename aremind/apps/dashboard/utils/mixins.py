@@ -6,6 +6,8 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required, permission_required
 
+from rapidsms.models import Contact
+
 from aremind.apps.dashboard.models import ReportComment
 from aremind.apps.dashboard.utils import shared as u
 
@@ -46,21 +48,26 @@ class AuditMixin(object):
     def dispatch(self, request, *args, **kwargs):
         return super(AuditMixin, self).dispatch(request, *args, **kwargs)
 
-    def get_observed_users(self):
-        "Return users overseen in the region/state."
+    def get_observed_contacts(self):
+        "Return contacts overseen in the region/state."
         supervisor = self.request.user
         try:
-            contact = supervisor.contact_set.all()[0]
+            self.contact = supervisor.contact_set.all()[0]
         except IndexError:
+            self.contact = None
             return []
         perm = Permission.objects.get(codename='%s_view' % self.dashboard)
-        users = User.objects.filter(Q(groups__permissions=perm) | Q(user_permissions=perm)).distinct()
-        if contact.location_id and contact.location.type.slug == 'state':
-            users = users.filter(contact__location=contact.location).distinct()
-        return users
+        contacts = Contact.objects.filter(
+            Q(user__groups__permissions=perm) | Q(user__user_permissions=perm)
+        ).distinct().select_related('user', 'location')
+        if self.contact.location_id and self.contact.location.type.slug == 'state':
+            contacts = contacts.filter(location=self.contact.location).distinct()
+        return contacts
 
     def get_user_actions(self, **kwargs):
-        "Get actions taken by observed users."
-        users = self.get_observed_users()
-        comments = ReportComment.objects.filter(author_user__in=users).order_by('-date')
-        return {'users': users, 'comments': comments}
+        "Get actions taken by observed contacts."
+        contacts = self.get_observed_contacts()
+        if contacts:
+            users = contacts.values_list('user', flat=True)
+            comments = ReportComment.objects.filter(author_user__in=users).order_by('-date')
+        return {'contacts': contacts, 'comments': comments}

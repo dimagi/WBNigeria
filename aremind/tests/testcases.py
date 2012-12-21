@@ -13,7 +13,7 @@ from rapidsms.contrib.locations.models import Location, LocationType
 from threadless_router.tests.scripted import TestScript
 
 from aremind.apps.groups.models import Group
-from aremind.notifications.idle_facilities import REPORT_TIMESTAMP_FORMAT
+from aremind.apps.dashboard.models import FadamaReport, PBFReport
 
 
 UNICODE_CHARS = [unichr(x) for x in xrange(1, 0xD7FF)]
@@ -39,21 +39,24 @@ class CreateDataTest(TestCase):
             output += c + u' '
         return output
 
-    def create_backend(self, data={}):
+    def create_backend(self, data=None):
+        data = data or {}
         defaults = {
             'name': self.random_string(12),
         }
         defaults.update(data)
         return Backend.objects.create(**defaults)
 
-    def create_contact(self, data={}):
+    def create_contact(self, data=None):
+        data = data or {}
         defaults = {
             'name': self.random_string(12),
         }
         defaults.update(data)
         return Contact.objects.create(**defaults)
 
-    def create_connection(self, data={}):
+    def create_connection(self, data=None):
+        data = data or {}
         defaults = {
             'identity': self.random_string(10),
         }
@@ -62,7 +65,8 @@ class CreateDataTest(TestCase):
             defaults['backend'] = self.create_backend()
         return Connection.objects.create(**defaults)
 
-    def create_group(self, data={}):
+    def create_group(self, data=None):
+        data = data or {}
         defaults = {
             'name': self.random_string(12),
         }
@@ -79,39 +83,25 @@ class CreateDataTest(TestCase):
         random_interval = random.randrange(seconds_range)
         return start + datetime.timedelta(seconds=random_interval)
 
-    def create_facility(self, data={}):
-        num_fugs = random.randrange(2, 10)
+    def _create_report(self, cls, **kwargs):
         defaults = {
-            'id': int(random.random() * MAX_FACILITY_ID),
-            'name': self.random_string(25),
-            'lat': random.random() * 180 - 90,
-            'long': random.random() * 180 - 90,
-            'state': self.random_string(3),
-            'fugs': [self._generate_fug() for fug in range(num_fugs)],
+            'timestamp': kwargs.get('timestamp', None) or datetime.datetime.now(),
+            'reporter': kwargs.get('reporter', None) or self.create_connection(),
+            'site': kwargs.get('site', None) or self.create_location(),
+            'proxy': False,
+            'can_contact': True,
+            'schema_version': 0,
+            'freeform': self.random_string(100),
+            'raw_report': self.random_string(100),
         }
-        defaults.update(data)
-        return defaults
+        defaults.update(kwargs)
+        return cls.objects.create(**defaults)
 
-    def create_report(self, data={}, timestamp=None):
-        if not timestamp:
-            end = datetime.datetime.now()
-            start = end.replace(year=end.year - 1)
-            timestamp = self.random_datetime(start, end)
-        defaults = {
-            'id': random.randint(1, MAX_REPORT_ID),
-            'message': self.random_string(25),
-            'timestamp': timestamp.strftime(REPORT_TIMESTAMP_FORMAT),
-            'month': datetime.datetime.strftime(timestamp, '%b %Y'),
-            '_month': datetime.datetime.strftime(timestamp, '%Y-%m'),
-            'info': self.random_string(25),
-            'proxy': random.choice([True, False]),
-            'thread': [],
-            'satisfied': random.choice([True, False]),
-            'facility': random.randint(1, MAX_FACILITY_ID),
-            'fug': self._generate_fug(),
-        }
-        defaults.update(data)
-        return defaults
+    def create_fadama_report(self, **kwargs):
+        self._create_report(FadamaReport, **kwargs)
+
+    def create_pbf_report(self, **kwargs):
+        self._create_report(PBFReport, **kwargs)
 
     def create_user(self, username=None, password=None, email=None):
         username = username or self.random_string(25)
@@ -141,11 +131,11 @@ class CreateDataTest(TestCase):
 
 
 class FlushTestScript(TestScript):
-    """ 
+    """
     To avoid an issue related to TestCases running after TransactionTestCases,
     extend this class instead of TestScript in RapidSMS. This issue may
     possibly be related to the use of the django-nose test runner in RapidSMS.
-    
+
     See this post and Karen's report here:
     http://groups.google.com/group/django-developers/browse_thread/thread/3fb1c04ac4923e90
     """

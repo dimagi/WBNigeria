@@ -261,6 +261,7 @@ REQUIRE_LOGIN_PATH = LOGIN_URL
 SOUTH_MIGRATION_MODULES = {
     'rapidsms': 'aremind.migrations.rapidsms',
     'locations': 'aremind.migrations.locations',
+    'alerts': 'aremind.migrations.alerts',
 }
 
 
@@ -475,6 +476,8 @@ COMMUNICATOR_TOO_OLD_WINDOW = timedelta(weeks=6)
 # rapidsms-alerts app.
 LOGISTICS_NOTIF_GENERATORS = (
     'aremind.notifications.idle_facilities.trigger_notifications',
+    'aremind.notifications.digests.fadama_digest_notifications',
+    'aremind.notifications.digests.pbf_digest_notifications',
 )
 LOGISTICS_ALERT_GENERATORS = (
     'aremind.notifications.recent.recent_fadama_activity',

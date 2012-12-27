@@ -122,3 +122,11 @@ def populate_user(row):
     c.user = u
     c.location = loc
     c.save()
+
+    backend = Backend.objects.get(name='httptester')
+
+    conn = Connection()
+    conn.backend = backend
+    conn.identity = row['identity']
+    conn.contact = c
+    conn.save()

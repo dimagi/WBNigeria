@@ -3,12 +3,19 @@ import json
 from django.http import HttpResponse
 from django.views import generic
 
+from aremind.apps.dashboard.models import PBFReportVisibility
 from aremind.apps.dashboard.utils import pbf as utils
 from aremind.apps.dashboard.utils import mixins
 from aremind.apps.dashboard.utils import shared as u
 
+
 class DashboardView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/pbf/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
+        context.update({'program': 'pbf'})
+        return context
 
 
 class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
@@ -28,11 +35,14 @@ class SingleReportView(mixins.LoginMixin, generic.TemplateView):
 class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
     def get_payload(self, site, user, **kwargs):
         state = self.get_user_state()
-        return {
+        data = {
             'facilities': utils.get_facilities(),
             'monthly': utils.detail_stats(site, self.request.user),
             'taggable_contacts': u.get_taggable_contacts('pbf', state, user),
         }
+        # Mark all of the reports as viewed by the current user.
+        PBFReportVisibility.objects.filter(user=self.request.user).delete()
+        return data
 
 
 class APIMainView(mixins.LoginMixin, mixins.APIMixin, generic.View):

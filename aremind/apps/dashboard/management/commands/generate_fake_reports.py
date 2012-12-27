@@ -10,7 +10,7 @@ from django.contrib.webdesign import lorem_ipsum
 from django.core.management.base import BaseCommand, CommandError
 
 from aremind.apps.dashboard import utils
-from aremind.apps.dashboard.models import *
+from aremind.apps.dashboard.models import FadamaReport, PBFReport
 from rapidsms.contrib.locations.models import Location
 
 def true_false(ratio=1.):

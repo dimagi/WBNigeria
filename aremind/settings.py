@@ -476,6 +476,10 @@ COMMUNICATOR_TOO_OLD_WINDOW = timedelta(weeks=6)
 LOGISTICS_NOTIF_GENERATORS = (
     'aremind.notifications.idle_facilities.trigger_notifications',
 )
+LOGISTICS_ALERT_GENERATORS = (
+    'aremind.notifications.recent.recent_fadama_activity',
+    'aremind.notifications.recent.recent_pbf_activity',
+)
 SYSTEM_USERNAME = "the_man"
 
 DECISION_TREE_FORMS = {

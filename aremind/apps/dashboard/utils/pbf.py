@@ -2,14 +2,17 @@ import json
 from datetime import datetime
 
 from django.conf import settings
+from django.db.models import get_model
 
-from aremind.apps.dashboard.models import PBFReport, ReportComment, ReportCommentView
 from aremind.apps.utils.functional import map_reduce
 import shared as u
 
 
 def load_reports(user=None):
     # TODO: filtering by state
+    PBFReport = get_model('dashboard', 'PBFReport')
+    ReportComment = get_model('dashboard', 'ReportComment')
+    ReportCommentView = get_model('dashboard', 'ReportCommentView')
 
     facilities = map_reduce(get_facilities(), lambda e: [(e['id'], e)], lambda v: v[0])
     reports = [u.extract_report(r) for r in PBFReport.objects.all().select_related()]

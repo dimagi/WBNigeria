@@ -3,6 +3,9 @@ from rapidsms.contrib.locations.models import Location
 from aremind.apps.utils.functional import map_reduce
 from datetime import datetime
 from rapidsms.models import Backend, Connection, Contact
+from django.db.models import Q
+from django.contrib.auth.models import User, Permission
+
 
 def extract_report(r):
     data = r.content
@@ -138,3 +141,12 @@ def get_taggable_contacts(program, state, user):
     by_state = [{'state': k, 'users': v} for k, v in by_state.iteritems()]
     by_state.sort(key=lambda e: 'zzzzz' if e['state'] == 'national' else e['state'])
     return by_state
+
+
+def get_users_by_program(program):
+    codename = '{0}_view'.format(program)
+    perm = Permission.objects.filter(content_type__app_label='dashboard', codename=codename)
+    superuser = Q(is_superuser=True)
+    group_perm = Q(groups__permissions=perm)
+    user_perm = Q(user_permissions=perm)
+    return User.objects.filter(superuser | group_perm | user_perm)

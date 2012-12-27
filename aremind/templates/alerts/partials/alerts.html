@@ -1,0 +1,15 @@
+{% load url from future %}
+{% for alert in alerts %}
+    <div class="alert alert-info" id="alert-{{ forloop.counter }}">
+        <p>
+            <span id="msg">{{ alert.text }}</span>
+            <br />
+            {% if alert.url %}<span id="detail">[<a id="url" href="{{ notif.url }}">details</a>]</span>{% endif %}
+        </p>
+        <span class="pull-right">
+            <a class="btn btn-primary dismiss" data-dismiss="alert" data-target="#alert-{{ forloop.counter }}" href="">
+                Dismiss <i class="icon-white icon-remove"></i>
+            </a>
+        </span>
+    </div>
+{% endfor %}

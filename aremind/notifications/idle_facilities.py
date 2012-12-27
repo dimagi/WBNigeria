@@ -2,122 +2,151 @@ import datetime
 
 from django.contrib.auth.models import User
 
+from rapidsms.contrib.locations.models import Location
+
 from alerts.models import Notification, NotificationType, NotificationVisibility
 
-from aremind.apps.dashboard.utils.fadama import load_reports, facilities_by_id
+from aremind.apps.dashboard.models import FadamaReport, PBFReport
+from aremind.apps.dashboard.utils.shared import get_users_by_program
 
 
-REPORT_TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S'  # 'timestamp' column of a report
-NOTIFICATION_DATE_FORMAT = '%d %B %Y'
-PERIOD_BEFORE_NOTIFICATION = datetime.timedelta(days=2)
-
-
-class IdleFacilityNotificationType(NotificationType):
+class IdleFacilitiesNotificationType(NotificationType):
     """Describes users to notify when a facility has been idle."""
-    escalation_levels = ['everyone']
+    escalation_levels = ['web_users']
 
     def users_for_escalation_level(self, esc_level):
-        return User.objects.all()
+        raise NotImplemented('Must be defined in subclass.')
 
     def auto_escalation_interval(self, esc_level):
         return None
 
     def escalation_level_name(self, esc_level):
-        return 'Everyone'
+        return esc_level
 
 
-def trigger_notifications():
+class IdleFacilitiesNotification(object):
     """
-    Generates Notifications for facilities which haven't sent in any reports 
-    for more than PERIOD_BEFORE_NOTIFICATION days.
+    Generates Notifications for facilities which haven't sent in any reports
+    for more than the specified number of days (default 15). Notifications for
+    each facility are generated according to the following rules:
 
-    Notifications for each facility are generated according to the following 
-    rules:
-
-        1) If no recent report exists from the facility and no Notification 
+        1) If no recent report exists from the facility and no Notification
         exists for the facility, a Notification object is created for the
         facility. Newly-generated Notifications are not saved; this is the job
         of the caller.
 
-        2) If no recent report exists from the facility but a Notification 
-        already exists, that Notification is updated and saved to ensure that 
+        2) If no recent report exists from the facility but a Notification
+        already exists, that Notification is updated and saved to ensure that
         it has the date of the last report.
 
         3) If a recent report exists from the facility, all related
         Notification and NotificationType objects are deleted.
-            
-    This method should be invoked by the trigger_alerts management command, 
-    which should be run periodically as through a cron job or Celery.
-    """ 
-    def _get_uid(facility):
-        """A unique way to identify a facility's notifications."""
-        return 'facility_{0}_idle'.format(str(facility['id']))
+    """
+    NOTIFICATION_DATE_FORMAT = '%d %B %Y'
 
-    def _get_notification_text(facility, last_heard):
+    def __init__(self, slug, report_type, locationtype_slugs, alert_type, period_before_notification=None):
+        self.slug = slug
+        self.report_type = report_type
+        self.locationtype_slugs = locationtype_slugs
+        self.alert_type = alert_type
+        self.period_before_notification = period_before_notification or datetime.timedelta(days=15)
+
+    def get_uid(self, facility_id):
+        """A unique way to identify a facility's notifications."""
+        return '{0}_facility_{1}_idle'.format(self.slug, facility_id)
+
+    def get_notification_text(self, facility_name, last_heard):
         """Message to the user when a facility has been idle recently."""
-        text = "No new reports have been received from {0}".format(facility['name'])
+        text = 'No new reports have been received from {0}'.format(facility_name)
         if not last_heard:
-            text += " ever."
+            text += ' ever.'
         else:
-            text += " since {0}.".format(last_heard.strftime(NOTIFICATION_DATE_FORMAT))
+            text += ' since {0}.'.format(last_heard.strftime(self.NOTIFICATION_DATE_FORMAT))
         return text
 
-    def _create_or_update_notification(facility, last_heard):
+    def create_or_update_notification(self, facility_id, facility_name, last_heard):
         """
         Creates a new idle Notification for the facility if one does not exist,
         or updates the existing Notification to ensure it has the most recent
         last_heard date.
         """
-        uid = _get_uid(facility)
+        uid = self.get_uid(facility_id)
+        text = self.get_notification_text(facility_name, last_heard)
         try:
-            existing = Notification.objects.get(alert_type=alert_type, uid=uid)
-
-        # Create a new Notification.
-        except Notification.DoesNotExist: 
-            text = _get_notification_text(facility, last_heard)
-            new = Notification(alert_type=alert_type, uid=uid, text=text)
+            existing = Notification.objects.get(alert_type=self.alert_type, uid=uid)
+        except Notification.DoesNotExist:
+            # Create a new Notification - no need to save as that is done by
+            # the alerts framework
+            new = Notification(alert_type=self.alert_type, uid=uid, text=text)
             return new
-        # This should not happen.
-        except Notification.MultipleObjectsReturned: 
-            raise
-        # Update existing Notification with most recent last_heard date.
-        else: 
-            text = _get_notification_text(facility, last_heard)
+        else:
+            # Update existing Notification with most recent last_heard date.
             existing.text = text
             existing.save()
             return existing
 
-    def _delete_existing_notification(facility):
+    def delete_existing_notification(self, facility_id):
         """Deletes any existing idle Notifications for the facility."""
-        uid = _get_uid(facility)
-        existing_notifs = Notification.objects.filter(alert_type=alert_type, uid=uid)
+        uid = self.get_uid(facility_id)
+        existing_notifs = Notification.objects.filter(alert_type=self.alert_type, uid=uid)
         ids = existing_notifs.values_list('id', flat=True)
         existing_visibility = NotificationVisibility.objects.filter(notif__id__in=ids)
         existing_notifs.delete()
         existing_visibility.delete()
 
-    
-    alert_type = 'aremind.notifications.idle_facilities.IdleFacilityNotificationType'
-    facilities = facilities_by_id()  # Loads example data.
-    reports = load_reports()  # Loads example data.
-    now = datetime.datetime.now()
+    def get_facilities(self):
+        """Maps {id: name}."""
+        return dict(Location.objects.filter(type__slug__in=self.locationtype_slugs).values_list('id', 'name'))
 
-    # Map facility id to most recent report dates.
-    recent_reports = dict(zip(facilities.keys(), [None for f in facilities.keys()])) 
-    for report in reports:
-        facility = report['facility']
-        try:
-            timestamp = datetime.datetime.strptime(report['timestamp'], REPORT_TIMESTAMP_FORMAT)
-        except ValueError: # Skip reports with bad date format.
-            continue
-        if recent_reports[facility] == None or timestamp > recent_reports[facility]:
-            recent_reports[facility] = timestamp
-    
-    # Create, update, or delete Notifications for each facility.
-    for facility_id in recent_reports.keys():
-        last_heard = recent_reports[facility_id]
-        facility = facilities[facility_id]
-        if not last_heard or now - last_heard > PERIOD_BEFORE_NOTIFICATION:
-            yield  _create_or_update_notification(facility, last_heard)
-        else:
-            _delete_existing_notification(facility)
+    def get_reports(self):
+        return self.report_type.objects.values('site', 'timestamp')
+
+    def __call__(self, *args, **kwargs):
+        facilities = self.get_facilities()
+        reports = self.get_reports()
+        now = datetime.datetime.now()
+
+        # Map facility id to most recent report dates.
+        count = len(facilities.keys())
+        recent_reports = dict(zip(facilities.keys(), [None for i in range(count)]))
+        for report in reports:
+            fid = report['site']
+            if (recent_reports[fid] == None) or (report['timestamp'] > recent_reports[fid]):
+                recent_reports[fid] = report['timestamp']
+
+        # Create, update, or delete Notifications for each facility.
+        for fid in recent_reports.keys():
+            last_heard = recent_reports[fid]
+            if not last_heard or now - last_heard > self.period_before_notification:
+                fname = facilities[fid]
+                yield self.create_or_update_notification(fid, fname, last_heard)
+            else:
+                self.delete_existing_notification(fid)
+
+
+#########################################################
+# Idle facilities notification for Fadama administrators.
+#########################################################
+
+
+class FadamaIdleFacilitiesNotificationType(IdleFacilitiesNotificationType):
+
+    def users_for_escalation_level(self, esc_level):
+        return get_users_by_program('fadama')
+
+
+fadama_idle_facilities = IdleFacilitiesNotification('fadama', FadamaReport, ['fca', 'fug'], 'aremind.notifications.idle_facilities.FadamaIdleFacilitiesNotificationType')
+
+
+######################################################
+# Idle facilities notification for PBF administrators.
+######################################################
+
+
+class PBFIdleFacilitiesNotificationType(IdleFacilitiesNotificationType):
+
+    def users_for_escalation_level(self, esc_level):
+        return get_users_by_program('pbf')
+
+
+pbf_idle_facilities = IdleFacilitiesNotification('pbf', PBFReport, ['clinic'], 'aremind.notifications.idle_facilities.PBFIdleFacilitiesNotificationType')

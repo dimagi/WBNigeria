@@ -1,4 +1,4 @@
-"username","program","supervisor","state","first name","last name","email","password","identity"
+"username","program","supervisor","state","first name","last name","email","password","phone"
 "worldbank","both","y","national","Albert","Smith",,123456,15551111111
 "fadama_natl","fadama","y","national","Barney","Jones",,123456,15552222222
 "fadama_natl2","fadama","y","national","Calvin","Brown",,123456,15553333333

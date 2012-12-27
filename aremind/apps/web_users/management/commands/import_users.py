@@ -50,7 +50,7 @@ def populate_user(row):
         if v == '':
             del row[k]
 
-    NON_REQUIRED_FIELDS = ['email', 'supervisor']
+    NON_REQUIRED_FIELDS = ['email', 'supervisor', 'phone']
 
     for k, v in row.iteritems():
         if v is None and k not in NON_REQUIRED_FIELDS:
@@ -125,8 +125,9 @@ def populate_user(row):
 
     backend = Backend.objects.get(name='httptester')
 
-    conn = Connection()
-    conn.backend = backend
-    conn.identity = row['identity']
-    conn.contact = c
-    conn.save()
+    if row.get('phone'):
+        conn = Connection()
+        conn.backend = backend
+        conn.identity = row['phone']
+        conn.contact = c
+        conn.save()

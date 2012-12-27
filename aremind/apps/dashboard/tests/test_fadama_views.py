@@ -1,7 +1,7 @@
 import datetime
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.core.urlresolvers import reverse
 
 from alerts.models import Notification, NotificationVisibility
@@ -17,10 +17,13 @@ class AddMessageTest(DashboardDataTest):
     "AJAX view for adding new staff notes or messaging beneficiaries."
 
     def setUp(self):
-        self.url = reverse('fadama_new_message')
+        self.url = reverse('new_message')
         self.user = User.objects.create_user(username='test', password='test', email=u'')
         self.client.login(username='test', password='test')
         self.report = self.create_feedback_report()
+
+        self.view_permission = Permission.objects.get(codename='fadama_view')
+        self.user.user_permissions.add(self.view_permission)
 
         self.country_type = self.create_location_type(name='country')
         self.state_type = self.create_location_type(name='state')
@@ -35,7 +38,7 @@ class AddMessageTest(DashboardDataTest):
 
     def _get_comment_data(self, **kwargs):
         defaults = {
-            'report': self.report.pk,
+            'fadama_report': self.report.pk,
             'comment_type': 'note',
             'author': 'test',
             'text': 'Test Note',
@@ -58,7 +61,7 @@ class AddMessageTest(DashboardDataTest):
             router.return_value = MockRouter
             response = self.client.post(self.url, data=data)
             self.assertEqual(response.status_code, 200)
-            comment = ReportComment.objects.filter(report=self.report)
+            comment = ReportComment.objects.filter(fadama_report=self.report)
             self.assertTrue(comment.exists(), "ReportComment should be created.")
 
     def test_staff_note_with_one_tag(self):
@@ -75,7 +78,7 @@ class AddMessageTest(DashboardDataTest):
         self.assertEquals(nv.user, self.state_contact.user)
 
     def test_staff_note_multiple_tags(self):
-        "Only one Notification should be created per ReportComment."
+        "One Notification should be created per ReportComment."
         data = self._get_comment_data(comment_type='note',
                 contact_tags = [self.state_contact.id, self.federal_contact.id])
         with patch('aremind.apps.dashboard.utils.fadama.Router') as router:
@@ -83,7 +86,7 @@ class AddMessageTest(DashboardDataTest):
             MockRouter = Mock()
             router.return_value = MockRouter
             response = self.client.post(self.url, data=data)
-        notif = Notification.objects.get()
+        self.assertEquals(Notification.objects.count(), 2)
         nv1 = NotificationVisibility.objects.get(user=self.state_contact.user)
         nv2 = NotificationVisibility.objects.get(user=self.federal_contact.user)
         self.assertEquals(NotificationVisibility.objects.count(), 2)
@@ -122,7 +125,7 @@ class AddMessageTest(DashboardDataTest):
             router.return_value = MockRouter
             response = self.client.post(self.url, data=data)
             self.assertEqual(response.status_code, 200)
-            comment = ReportComment.objects.filter(report=self.report)
+            comment = ReportComment.objects.filter(fadama_report=self.report)
             self.assertTrue(comment.exists(), "ReportComment should be created.")
 
     def test_beneficiary_message_sms(self):
@@ -163,6 +166,8 @@ class DismissNotificationTest(CreateDataTest):
         self.visibility = NotificationVisibility.objects.create(
             notif=self.notification, user=self.user, esc_level=self.notification.escalation_level
         )
+        self.view_permission = Permission.objects.get(codename='fadama_view')
+        self.user.user_permissions.add(self.view_permission)
 
     def create_notification(self, **kwargs):
         "Create a notification for testing purposes."

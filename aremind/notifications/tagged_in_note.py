@@ -30,6 +30,7 @@ def mk_tagged_alert(user, comment):
 
 def trigger_alerts(comment):
     for c in comment.contact_tags.all():
-        notif = mk_tagged_alert(c.user, comment)
-        msg = trigger(notif)
-        logging.debug(msg)
+        if c.user:
+            notif = mk_tagged_alert(c.user, comment)
+            msg = trigger(notif)
+            logging.debug(msg)

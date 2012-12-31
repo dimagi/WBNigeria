@@ -3,7 +3,11 @@
 
 {% block dashboard_navigation %}
     <ul class="nav">
-        <li><a class="brand" href="{% url 'pbf_dashboard' %}">Patient Feedback</a></li>
+        <li>
+            <a href="{% url 'pbf_dashboard' %}" style="padding-top: 0px;">
+                <img src="{{ STATIC_URL }}images/pbf_logo.png" height="75" />
+            </a>
+        </li>
         <li><a href="{% url 'pbf_dashboard' %}">Home</a></li>
         <li><a href="{% url 'pbf_reports' %}">All Reports</a></li>
         {% if perms.auth.supervisor %}

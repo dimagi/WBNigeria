@@ -21,8 +21,8 @@ class RecentActivity(object):
             if unviewed:
                 verb = 'has' if unviewed == 1 else 'have'
                 noun = 'report' if unviewed == 1 else 'reports'
-                msg = 'There {0} been {1} new {2} since you last viewed '\
-                      'the report log.'.format(verb, unviewed, noun)
+                msg = 'There {0} been <strong>{1} new {2}</strong> since you '\
+                      'last viewed the report log.'.format(verb, unviewed, noun)
                 yield Alert(msg)
 
 

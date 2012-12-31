@@ -96,3 +96,12 @@ class SupvervisorView(mixins.AuditMixin, generic.TemplateView):
         context['actions'] = self.get_user_actions()
         context['national_user'] = (not self.contact.location_id) or (self.contact.location.type.slug != 'state')
         return context
+
+
+class AllAlerts(generic.TemplateView):
+    template_name = 'dashboard/all_alerts.html'
+
+    def get_context_data(self, program, **kwargs):
+        return {
+            'program': program,
+        }

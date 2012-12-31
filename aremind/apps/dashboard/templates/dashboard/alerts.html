@@ -1,0 +1,47 @@
+{% load url from future %}
+{% load dashboard %}
+
+<script>
+    // Dismiss notifications.
+    $(document).ready(function() {
+        $('.btn.dismiss').bind('click', function(event) {
+            var href = $(this).attr('href');
+            if (href) {
+                $.post(href);
+            }
+        });
+    });
+</script>
+
+<p>
+    {% for alert in alerts %}
+        <div class="alert" id="alert-{{ forloop.counter }}">
+            <p class="msg">{{ alert.text|safe }}</p>
+            <span class="pull-right">
+                {% if alert.url %}
+                    <a class="btn btn-primary" href="{{ alert.url }}"><i class="icon-white icon-th-list"></i> Details</a>
+                {% endif %}
+                <a class="btn btn-primary dismiss" data-dismiss="alert" data-target="#alert-{{ forloop.counter }}" href=""><i class="icon-white icon-remove"></i> Dismiss</a>
+            </span>
+        </div>
+    {% endfor %}
+
+    {% for notif in notifs %}
+        <div class="alert alert-info" id="notif-{{ notif.id }}">
+            <p class="msg">{{ notif.text|safe }}</p>
+            <span style="font-style: italic;">{{ notif.created_on|days }}</span>
+            <span class="pull-right">
+                {% if notif.url %}
+                    <a class="btn btn-primary" href="{{ notif.url }}"><i class="icon-white icon-th-list"></i> Details</a>
+                {% endif %}
+                <a class="btn btn-primary dismiss" data-dismiss="alert" data-target="#notif-{{ notif.id }}" href="{% url 'fadama_dismiss_alert' notif.id %}"><i class="icon-white icon-remove"></i> Dismiss</a>
+            </span>
+        </div>
+    {% endfor %}
+
+    {% if not alerts and not notifs %}
+        You have no new alerts.
+    {% else %}
+        <a href="{% url 'all_alerts' program %}" class="pull-right btn btn-primary"><i class="icon-white icon-plus"></i> View All {{ total }} Alerts</a>
+    {% endif %}
+</p>

@@ -1,0 +1,14 @@
+{% extends "dashboard/pbf/base.html" %}
+{% load url from future %}
+
+{% block content %}
+    {{ block.super }}
+
+    <div id="alertpane" class="row-fluid scrollable">
+        <div class="span12">
+            <h2>All of Your Alerts</h2>
+            {% load dashboard %}
+            {% alerts request %}
+        </div>
+    </div>
+{% endblock content %}

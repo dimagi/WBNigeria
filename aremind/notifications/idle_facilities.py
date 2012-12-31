@@ -57,11 +57,11 @@ class IdleFacilitiesNotification(object):
 
     def get_notification_text(self, facility_name, last_heard):
         """Message to the user when a facility has been idle recently."""
-        text = 'No new reports have been received from {0}'.format(facility_name)
+        text = 'No new reports have been received from <strong>{0}</strong>'.format(facility_name)
         if not last_heard:
-            text += ' ever.'
+            text += ' <strong>ever</strong>.'
         else:
-            text += ' since {0}.'.format(last_heard.strftime(self.NOTIFICATION_DATE_FORMAT))
+            text += ' since <strong>{0}</strong>.'.format(last_heard.strftime(self.NOTIFICATION_DATE_FORMAT))
         return text
 
     def create_or_update_notification(self, facility_id, facility_name, last_heard):

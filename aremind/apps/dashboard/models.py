@@ -132,11 +132,18 @@ class ReportComment(models.Model):
     contact_tags = models.ManyToManyField(Contact, related_name='comment_tags',
             blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        if self.author_user:
+            self.author = self.author_user.get_full_name();
+        else:
+            self.author = ''
+        return super(ReportComment, self).save(*args, **kwargs)
+
     def json(self):
         return {
             'id': self.id,
             'text': self.text,
-            'date_fmt': self.date.strftime('%d/%m/%Y %H:%M'),
+            'date_fmt': self.date.strftime('%d/%m/%Y at %H:%M'),
             'author': self.author,
             'report_id': self.report.id,
             'type': self.comment_type,

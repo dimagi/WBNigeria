@@ -35,7 +35,7 @@ def load_reports(user=None):
         r['thread'] = [_get_json(c) for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
         r['month'] = ts.strftime('%b %Y')
         r['_month'] = ts.strftime('%Y-%m')
-        r['display_time'] = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S').strftime('%d/%m/%y %H:%M')
+        r['display_time'] = datetime.strptime(r['timestamp'], '%Y-%m-%dT%H:%M:%S').strftime('%d/%m/%y at %H:%M')
         r['site_name'] = facilities[r['facility']]['name'] if r['for_this_site'] else r['site_other']
         if r['waiting_time'] is not None:
             for thresh, label in wait_buckets:

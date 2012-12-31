@@ -12,7 +12,7 @@
                         <th data-bind="visible: is_metric_active('friendly')">Staff Friendly</th>
                         <th data-bind="visible: is_metric_active('drugavail')">Drugs Available</th>
                         <th data-bind="visible: is_metric_active('pricedisp')">Prices Displayed</th>
-			            <th>Free-form message</th>
+                        <th>Free-form message</th>
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: active_month() ? active_month().disp_logs() : []">
@@ -34,67 +34,82 @@
                         <td data-bind="yn: friendliness, visible: $root.is_metric_active('friendly'), pbf_category_color: 'friendly'"></td>
                         <td data-bind="yn: drugs_avail, visible: $root.is_metric_active('drugavail'), pbf_category_color: 'drugavail'"></td>
                         <td data-bind="yn: price_display, visible: $root.is_metric_active('pricedisp'), pbf_category_color: 'pricedisp'"></td>
-			            <td data-bind="text: message"></td>
+                        <td data-bind="text: message"></td>
                     </tr>
 
-                    <tr data-bind="visible: expanded">
+                    <tr data-bind="visible: expanded()">
                         <td colspan="10">
-                          <!--
-			              <div class="alert alert-info" style="min-height: 0;" data-bind="visible: other_recent">Note: there are <a target="_blank" data-bind="attr: { href: PER_CONTACT_URL_TEMPL.replace('xxx', contact()) }"><span data-bind="text: other_recent"></span> other recent reports</a> from this beneficiary</div>
-                          -->
-
-                            <div data-bind="foreach: thread">
-                                <p style="margin: .5em 6em; clear: both;">
-                                  <div style="float: left; width: 30em; text-align: right; margin-right: 3em; font-style: italic;">
-                                    <span style="font-weight: bold;" data-bind="text: display()[0]"></span>
-                                    <span data-bind="text: display()[1]"></span>
-                                    <span style="font-weight: bold;" data-bind="text: display()[2]"></span>
-                                    at
-                                    <span style="white-space: nowrap;" data-bind="text: date"></span>
-                                  </div>
-                                  <span style="font-size: 120%" data-bind="text: text"></span>
-				                  <img src="{{ STATIC_URL }}images/delete.png" data-bind="visible: type() == 'note', click: delete_note" />
-                                  <!--
-				                  <img src="{{ STATIC_URL }}images/alert.png" data-bind="visible: extra().ambiguous" title="This response may be about a different report! This phone number has submitted several reports and there are multiple open inquiries, so we can't be sure which inquiry they are responding to." data-bind="visible: true" />
-                                  -->
-				                  <div style="clear: both; margin-left: 35em;" data-bind="visible: tags().length">tagged: <span data-bind="text: tags().join(', ')"></span></div>
-                                </p>
+                            <!--
+                            <div class="alert alert-info" style="min-height: 0;" data-bind="visible: other_recent">
+                                Note: there are <a target="_blank" data-bind="attr: { href: PER_CONTACT_URL_TEMPL.replace('xxx', contact()) }"><span data-bind="text: other_recent"></span> other recent reports</a> from this beneficiary.
                             </div>
-                            <hr>
-                            <div style="margin-left: 15em; padding-top: 1em;">
-                              <form data-bind="attr: {id: 'message-form-' + id() }" class="form-inline" method="post" action="{% url new_message %}">
-                                <label>leave a note for other <b>PBF staff</b></label>
-                                <input type="text" data-bind="value: note, valueUpdate: 'afterkeydown'" style="width: 50em" maxlength="160"></input>
-                                <button type="submit" class="btn submit" data-bind="click: new_note">Save Note</button>
-				                <div style="vertical-align: top; margin-left: 4em;" data-bind="visible: note">
-				                  Tag other users on this note?
-				                  <select class="tags" multiple="yes" data-bind="foreach: $root.taggable_contacts(), selectedOptions: tagged_contacts">
-					                <optgroup data-bind="attr: {label: display_state}, foreach: users">
-					                  <option data-bind="value: id, text: name"></option>
-					                </optgroup>
-				                  </select>
-				                </div>
-
-                                <!--
-                                <p style="font-style: italic;">-or-</p>
-
-                                <label>send a message to the <b>beneficiary</b></label>
-                                <div class="input-prepend input-append">
-                                  <span class="add-on" data-bind="text: prepend_text, visible: contactable"></span>
-					              <input type="text" style="width: 42em" data-bind="disable: !contactable(), value: _inquiry, attr: {maxlength: max_characters}, valueUpdate: 'afterkeydown'">
-					              <span class="add-on" data-bind="text: chars_remaining, visible: (inquiry() || '').length > 0, css: { smslow: chars_remaining() <= 10 }"></span>
+                            -->
+                            <div style="display: inline;">
+                                {# Notes #}
+                                <div style="float: left; padding-left: 5%; padding-right: 5%; width: 40%;">
+                                    <h3 data-bind="visible: notes().length > 0, text: 'Notes'"></h3>
+                                    <div data-bind="foreach: notes()" style="margin-left: 30px;">
+                                        <div style="margin-bottom: 10px;">
+                                           <div style="margin-right: 3em; font-weight: bold;">
+                                               <img src="{{ STATIC_URL }}images/delete.png" data-bind="visible: type() == 'note', click: delete_note" />
+                                               <img src="{{ STATIC_URL }}images/alert.png" data-bind="visible: extra().ambiguous" title="This response may be about a different report! This phone number has submitted several reports and there are multiple open inquiries, so we can't be sure which inquiry they are responding to." data-bind="visible: true" />
+                                               <span style="font-weight: bold;" data-bind="text: display()[2]"></span> on <span data-bind="text: date"></span>:
+                                           </div>
+                                           <div style="font-size: 120%" data-bind="text: text"></div>
+                                           <div data-bind="visible: tags().length" style="font-style: italic;">tags: <span data-bind="text: tags().join(', ')"></span></div>
+                                       </div>
+                                    </div>
+                                    <h3>Add Note</h3>
+                                    <form data-bind="attr: {id: 'message-form-' + id() }" class="form-inline" method="post" action="{% url new_message %}">
+                                        <input type="text" data-bind="value: note, valueUpdate: 'afterkeydown'" style="width:100%;" maxlength="160"></input>
+                                        <div data-bind="visible: note">
+                                            Tag other users on this note?<br />
+                                            <select class="tags" multiple="yes" data-bind="foreach: $root.taggable_contacts(), selectedOptions: tagged_contacts">
+                                                <optgroup data-bind="attr: {label: display_state}, foreach: users">
+                                                    <option data-bind="value: id, text: name"></option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary" data-bind="click: new_note">
+                                           <i class="icon-white icon-plus"></i> Save
+                                        </button>
+                                    </form>
                                 </div>
-                                <button type="submit" class="btn submit" data-bind="disable: !contactable(), click: send_message">Send</button>
+
+                                {# Communicator #}
+                                <!--
+                                <div style="float: left; padding-left: 5%; padding-right: 5%; width: 40%; border-left: 1px solid #DDDDDD">
+                                    <h3 data-bind="visible: beneficiary_messages().length > 0, text: 'Contact with Beneficiary'"></h3>
+                                    <div data-bind="foreach: beneficiary_messages()" style="margin-left: 30px;">
+                                        <div style="margin-bottom: 10px;">
+                                            <div style="margin-right: 3em; font-weight: bold;">
+                                                <img src="{{ STATIC_URL }}images/alert.png" data-bind="visible: extra().ambiguous" title="This response may be about a different report! This phone number has submitted several reports and there are multiple open inquiries, so we can't be sure which inquiry they are responding to." data-bind="visible: true" />
+                                                <span style="font-weight: bold;" data-bind="text: display()[0]"></span> on <span style="white-space: nowrap;" data-bind="text: date"></span>:
+                                            </div>
+                                            <div style="font-size: 120%" data-bind="text: text"></div>
+                                        </div>
+                                    </div>
+
+                                    <h3>Send a Message to the Beneficiary</h3>
+                                    <form action="{% url new_message %}">
+                                        <div class="input-prepend input-append" style="padding:0px;">
+                                            <span class="add-on" data-bind="text: prepend_text"></span>
+                                            <input type="text" data-bind="value: _inquiry, attr: {maxlength: max_characters}, valueUpdate: 'afterkeydown'">
+                                            <span class="add-on" data-bind="text: chars_remaining(), css: {smslow: chars_remaining() <= 10}"><span>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary" data-bind="click: send_message">
+                                            <i class="icon-white icon-envelope"></i> Send
+                                        </button>
+                                    </form>
+                                </div>
                                 -->
-                              </form>
                             </div>
                         </td>
                     </tr>
-
                 </tbody>
             </table>
             <div style="font-style: italic; margin-top: 1.5em; margin-left: 4em;" data-bind="visible: !(active_month() ? active_month().disp_logs().length : true)">
-                There are no reports matching the current filters and time period
+                There are no reports matching the current filters and time period.
             </div>
         </div>
     </div>

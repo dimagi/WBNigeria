@@ -214,7 +214,6 @@ function PbfLogModel(data, root) {
     this.drugs_avail = ko.observable(data.drug_availability);
     this.price_display = ko.observable(data.price_display);
     this.message = ko.observable(data.message);
-
     this.thread = ko.observableArray($.map(data.thread, function(c) {
         return new CommModel(c, model);
     }));
@@ -238,6 +237,18 @@ function PbfLogModel(data, root) {
             this.mark_as_viewed();
         }
     };
+
+    this.notes = ko.computed(function() {
+        return ko.utils.arrayFilter(this.thread(), function(item) {
+            return item.type() === 'note';
+        });
+    }, this);
+
+    this.beneficiary_messages = ko.computed(function() {
+        return ko.utils.arrayFilter(this.thread(), function(item) {
+            return item.type() === 'inquiry' || item.type() === 'response';
+        });
+    }, this);
 
     this.note = ko.observable();
 
@@ -585,6 +596,18 @@ function FadamaLogModel(data, root) {
     this.other_recent = ko.observable(data.from_same.length);
     this.tagged_contacts = ko.observableArray();
 
+    this.notes = ko.computed(function() {
+        return ko.utils.arrayFilter(this.thread(), function(item) {
+            return item.type() == 'note';
+        });
+    }, this);
+
+    this.beneficiary_messages = ko.computed(function() {
+        return ko.utils.arrayFilter(this.thread(), function(item) {
+            return item.type() == 'response' || item.type() == 'inquiry';
+        });
+    }, this);
+
     this.root = root;
 
     this.expanded = ko.observable(false);
@@ -614,9 +637,9 @@ function FadamaLogModel(data, root) {
 	}, this);
     this.no_contact_message = ko.computed(function() {
 	    if (this.proxy()) {
-		return 'it is not possible to message the beneficiary because they reported through a proxy';
+		return 'It is not possible to message the beneficiary because they reported through a proxy.';
 	    } else if (!this.can_contact()) {
-		return 'the beneficiary does not wish to be contacted further';
+		return 'The beneficiary does not wish to be contacted further.';
 	    } else {
 		return null;
 	    }
@@ -721,8 +744,12 @@ function FadamaLogModel(data, root) {
         return TOTAL_CHARS - model.append_text().length - (model.prepend_text + ' ').length;
     });
 
+    this.chars_so_far = ko.computed(function() {
+        return (this.inquiry() || '').length;
+    }, this);
+
     this.chars_remaining = ko.computed(function() {
-        return this.max_characters() - (this.inquiry() || '').length;
+        return this.max_characters() - this.chars_so_far();
     }, this);
 }
 
@@ -739,11 +766,11 @@ function CommModel(data, thread) {
     var model = this;
     this.display = ko.computed(function() {
         if (model.type() == 'note') {
-            return ['note', 'left by', model.author()];
+            return ['Note', 'left by', $.trim(model.author()) || 'User'];
         } else if (model.type() == 'inquiry') {
-            return ['message to beneficiary', 'sent by', model.author()];
+            return ['Message to Beneficiary', 'sent by', model.author()];
         } else if (model.type() == 'response') {
-            return ['response', 'from', 'beneficiary'];
+            return ['Response from Beneficiary', 'from', 'beneficiary'];
         }
     });
 

@@ -93,7 +93,7 @@ def load_reports(user=None, state=None, anonymize=True):
         r['month'] = _ts(r).strftime('%b %Y')
         r['_month'] = _ts(r).strftime('%Y-%m')
         r['thread'] = [_get_json(c) for c in sorted(comments.get(r['id'], []), key=lambda c: c.date)]
-        r['display_time'] = _ts(r).strftime('%d/%m/%y %H:%M')
+        r['display_time'] = _ts(r).strftime('%d/%m/%y at %H:%M')
         r['site_name'] = facs[r['facility']]['name'] if r['for_this_site'] else r['site_other']
 
     reports_by_contact = map_reduce((r for r in reports if not r['proxy']), lambda r: [(r['contact'], r)])

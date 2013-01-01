@@ -135,7 +135,8 @@ class FadamaIdleFacilitiesNotificationType(IdleFacilitiesNotificationType):
         return get_users_by_program('fadama')
 
 
-fadama_idle_facilities = IdleFacilitiesNotification('fadama', FadamaReport, ['fca', 'fug'], 'aremind.notifications.idle_facilities.FadamaIdleFacilitiesNotificationType')
+fadama_idle_facilities = IdleFacilitiesNotification('fadama', FadamaReport, ['fca'],
+        'aremind.notifications.idle_facilities.FadamaIdleFacilitiesNotificationType')
 
 
 ######################################################
@@ -149,4 +150,5 @@ class PBFIdleFacilitiesNotificationType(IdleFacilitiesNotificationType):
         return get_users_by_program('pbf')
 
 
-pbf_idle_facilities = IdleFacilitiesNotification('pbf', PBFReport, ['clinic'], 'aremind.notifications.idle_facilities.PBFIdleFacilitiesNotificationType')
+pbf_idle_facilities = IdleFacilitiesNotification('pbf', PBFReport, ['clinic'],
+        'aremind.notifications.idle_facilities.PBFIdleFacilitiesNotificationType')

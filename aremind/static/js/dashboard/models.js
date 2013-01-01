@@ -598,13 +598,13 @@ function FadamaLogModel(data, root) {
 
     this.notes = ko.computed(function() {
         return ko.utils.arrayFilter(this.thread(), function(item) {
-            return item.type() == 'note';
+            return item.type() === 'note';
         });
     }, this);
 
     this.beneficiary_messages = ko.computed(function() {
         return ko.utils.arrayFilter(this.thread(), function(item) {
-            return item.type() == 'response' || item.type() == 'inquiry';
+            return item.type() === 'response' || item.type() === 'inquiry';
         });
     }, this);
 

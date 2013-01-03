@@ -30,6 +30,7 @@ def alerts(context, request, count=None):
         'alerts': alerts,
         'notifs': notifs,
         'total': total,
+        'count': count,
         'program': context.get('program', None),
     }
 

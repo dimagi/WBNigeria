@@ -61,5 +61,6 @@ def populate_site(row):
             context_data=json.dumps({
                     'site_id': str(row['id']),
                     'state_name': state.name,
+                    '_select_text_mode': 'none',
                 })
         ).save()

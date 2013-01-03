@@ -47,7 +47,9 @@
 			<itext>
 				<translation lang="en" default="">
 					<text id="intro-label">
-						<value>Are you in <output value="instance('session')/session/data/state_name" />? For yes, send "1". For no, send "2" to <output value="/data/reply_phone" /></value>
+						<value>Are you in <output value="instance('session')/session/data/state_name" />?
+For yes, send "1".
+For no, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="intro-yes-label">
 						<value>Yes</value>
@@ -56,10 +58,15 @@
 						<value>No</value>
 					</text>
 					<text id="confirm_satisfied-label">
-						<value>Are you satisfied with the services rendered to you at the clinic? If it's good, send "1". If you are not satisfied, send "2" to <output value="/data/reply_phone" /></value>
+						<value>Are you satisfied with the services rendered to you at the clinic?
+If it's good, send "1".
+If you are not satisfied, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="wait_time-label">
-						<value>How long did you wait to see a doctor? For less than 2 hours, send "1". For 2 to 4 hours, send "2". For more than 4 hours, send "3".</value>
+						<value>How long did you wait to see a doctor?
+For less than 2 hours, send "1".
+For 2 to 4 hours, send "2".
+For more than 4 hours, send "3".</value>
 					</text>
 					<text id="last_visit-week-label">
 						<value>Less than 2 hours</value>
@@ -83,13 +90,19 @@
 						<value>Your message has been received. Thank you!</value>
 					</text>
 					<text id="drugs_available-label">
-						<value>Were the medicines you needed available? For yes, send "1". For no, send "2".</value>
+						<value>Were the medicines you needed available?
+For yes, send "1".
+For no, send "2".</value>
 					</text>
 					<text id="drugs_prices-label">
-						<value>Were the prices of the medicines displayed? For yes, send "1". For no, send "2".</value>
+						<value>Were the prices of the medicines displayed?
+For yes, send "1".
+For no, send "2".</value>
 					</text>
 					<text id="friendly_staff-label">
-						<value>Were the clinic staff friendly? For yes, send "1". For no, send "2".</value>
+						<value>Were the clinic staff friendly?
+For yes, send "1".
+For no, send "2".</value>
 					</text>
 					<text id="other-label">
 						<value>Is there anything else you want to say?</value>
@@ -98,13 +111,17 @@
 						<value>Thank you. Your feedback has been well received.</value>
 					</text>
 					<text id="hygiene-label">
-						<value>Was the clinic and the equipment clean? For yes, send "1". For no, send "2".</value>
+						<value>Was the clinic and the equipment clean?
+For yes, send "1".
+For no, send "2".</value>
 					</text>
 					<text id="framing-label">
 						<value>You are invited to answer a few questions on your experience at the clinic. All messages are FREE! Do you wish to continue? Send "1" to continue.</value>
 					</text>
 					<text id="contact_later-label">
-						<value>Thank you for completing the questions. Can we contact you later at this number? Send "1" for yes and "2" for no.</value>
+						<value>Thank you for completing the questions. Can we contact you later at this number?
+Send "1" for yes.
+Send "2" for no.</value>
 					</text>
 					<text id="thanks_contact-label">
 						<value>Thank you! We will contact you in the future.</value>

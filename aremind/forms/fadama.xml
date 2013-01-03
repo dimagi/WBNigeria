@@ -61,10 +61,14 @@
 			<itext>
 				<translation lang="en" default="">
 					<text id="confirm_location-label">
-						<value>Do you belong to an FUG in <output value="instance('session')/session/data/state_name" />? For yes, send "1". For no, send "2" to <output value="/data/reply_phone" /></value>
+						<value>Do you belong to an FUG in <output value="instance('session')/session/data/state_name" />?
+For yes, send "1".
+For no, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="project_phase2-label">
-						<value>How is your project going? If it's good, send "1". If you are not satisfied, send "2" to <output value="/data/reply_phone" /></value>
+						<value>How is your project going?
+If it's good, send "1".
+If you are not satisfied, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="project_phase2_good-label">
 						<value>Can you write down what is good about your project? </value>
@@ -82,13 +86,23 @@
 						<value>You are invited to answer a few questions on your experience with Fadama. All messages are FREE! Do you wish to continue? Send "1" to continue.</value>
 					</text>
 					<text id="confirm_phase-label">
-						<value>Have you received the money from Fadama? If yes, send "1". If not yet, send "2" to <output value="/data/reply_phone" /></value>
+						<value>Have you received the money from Fadama?
+If yes, send "1".
+If not yet, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="project_phase2_bad-label">
-						<value>What is your MAIN problem? Is it with service providers? Send "1". People from Fadama or from your community? Send "2". Information? Send "3". Other? send "4"</value>
+						<value>What is your MAIN problem?
+Is it with service providers? Send "1".
+People from Fadama or from your community? Send "2".
+Information? Send "3".
+Other? send "4"</value>
 					</text>
 					<text id="project_phase2_bad_sp-label">
-						<value>If the project has not started, send "1". For delays, send "2". For stopped project, send "3". For substandard service, send "4". For other problems, send "5"</value>
+						<value>If the project has not started, send "1".
+For delays, send "2".
+For stopped project, send "3".
+For substandard service, send "4".
+For other problems, send "5"</value>
 					</text>
 					<text id="project_phase2_bad_sp_default-label">
 						<value>Thank you for sending your problem. Do you have anything else you want to say?</value>
@@ -97,31 +111,57 @@
 						<value>Can you specify the problem?</value>
 					</text>
 					<text id="project_phase2_bad_people-label">
-						<value>If you have problems with Fadama State Officials, send "1". With your community, send "2". With facilitators, send "3". With desk officers, send "4". For others, send "5"</value>
+						<value>If you have problems with Fadama State Officials, send "1".
+With your community, send "2".
+With facilitators, send "3".
+With desk officers, send "4".
+For others, send "5"</value>
 					</text>
 					<text id="project_phase2_bad_info-label">
-						<value>If you need input information, send "1". If  you need market information, send "2". If you need loans information, send "3". For other requests, send "4".</value>
+						<value>If you need input information, send "1".
+If you need market information, send "2".
+If you need loans information, send "3".
+For other requests, send "4".</value>
 					</text>
 					<text id="project_phase1_bad-label">
-						<value>What is your MAIN problem? Is it with your LDP? Send "1". With people? Send "2". Money? Send "3". Service providers? Send "4". Land? Send "5". Other? Send "6"</value>
+						<value>What is your MAIN problem?
+Is it with your LDP? Send "1".
+With people? Send "2".
+Money? Send "3".
+Service providers? Send "4".
+Land? Send "5".
+Other? Send "6"</value>
 					</text>
 					<text id="project_phase1_bad_ldp-label">
-						<value>For delays in reviewing your LDP, send "1". For other problems, send "2".</value>
+						<value>For delays in reviewing your LDP, send "1".
+For other problems, send "2".</value>
 					</text>
 					<text id="project_phase1_bad_people-label">
-						<value>If you have problems with Fadama State Officials, send "1". With your community, send "2". With facilitators, send "3". With desk officers, send "4". For others, send "5"</value>
+						<value>If you have problems with Fadama State Officials, send "1".
+With your community, send "2".
+With facilitators, send "3".
+With desk officers, send "4".
+For others, send "5"</value>
 					</text>
 					<text id="project_phase1_bad_money-label">
-						<value>If you have problems with your bank account opening, send "1". If you have a delayed funding, send "2". For other problems, send "3".</value>
+						<value>If you have problems with your bank account opening, send "1".
+If you have a delayed funding, send "2".
+For other problems, send "3".</value>
 					</text>
 					<text id="project_phase1_bad_sp-label">
-						<value>If you are not finding service providers, send "1". For other problems, send "2".</value>
+						<value>If you are not finding service providers, send "1".
+For other problems, send "2".</value>
 					</text>
 					<text id="project_phase1_bad_land-label">
-						<value>If you cannot find a land, send "1". If your land is not suitable, send "2". If someone claims ownership of the land, send "3". For others, send "4".</value>
+						<value>If you cannot find a land, send "1".
+If your land is not suitable, send "2".
+If someone claims ownership of the land, send "3".
+For others, send "4".</value>
 					</text>
 					<text id="contact-label">
-						<value>Thank you for completing the questions. Can we contact you later at this number? Send "1" for yes, send "2" for no.</value>
+						<value>Thank you for completing the questions. Can we contact you later at this number?
+Send "1" for yes,
+send "2" for no.</value>
 					</text>
 					<text id="contact_me-label">
 						<value>Thank you! We will contact you in the future.</value>

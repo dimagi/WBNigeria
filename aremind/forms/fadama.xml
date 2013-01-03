@@ -30,6 +30,7 @@
 					<contact_me />
 					<dont_contact_me />
                     <helpful_tip />
+                    <reply_phone>08165677415</reply_phone>
 				</data>
 			</instance>
 			<instance id="session" src="jr://instance/session" />
@@ -60,10 +61,10 @@
 			<itext>
 				<translation lang="en" default="">
 					<text id="confirm_location-label">
-						<value>Do you belong to an FUG in <output value="instance('session')/session/data/state_name" />? For yes, send "1". For no, send "2" to 08165677415</value>
+						<value>Do you belong to an FUG in <output value="instance('session')/session/data/state_name" />? For yes, send "1". For no, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="project_phase2-label">
-						<value>How is your project going? If it's good, send "1". If you are not satisfied, send "2" to 08165677415</value>
+						<value>How is your project going? If it's good, send "1". If you are not satisfied, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="project_phase2_good-label">
 						<value>Can you write down what is good about your project? </value>
@@ -81,7 +82,7 @@
 						<value>You are invited to answer a few questions on your experience with Fadama. All messages are FREE! Do you wish to continue? Send "1" to continue.</value>
 					</text>
 					<text id="confirm_phase-label">
-						<value>Have you received the money from Fadama? If yes, send "1". If not yet, send "2" to 0816 5677 415</value>
+						<value>Have you received the money from Fadama? If yes, send "1". If not yet, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="project_phase2_bad-label">
 						<value>What is your MAIN problem? Is it with service providers? Send "1". People from Fadama or from your community? Send "2". Information? Send "3". Other? send "4"</value>

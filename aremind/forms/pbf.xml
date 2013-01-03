@@ -23,6 +23,7 @@
 					<other_state_info />
 					<state_other_thanks />
                     <helpful_tip />
+                    <reply_phone>08165677415</reply_phone>
 				</data>
 			</instance>
 			<instance id="session" src="jr://instance/session" />
@@ -46,7 +47,7 @@
 			<itext>
 				<translation lang="en" default="">
 					<text id="intro-label">
-						<value>Are you in <output value="instance('session')/session/data/state_name" />? For yes, send "1". For no, send "2" to 08165677415</value>
+						<value>Are you in <output value="instance('session')/session/data/state_name" />? For yes, send "1". For no, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="intro-yes-label">
 						<value>Yes</value>
@@ -55,7 +56,7 @@
 						<value>No</value>
 					</text>
 					<text id="confirm_satisfied-label">
-						<value>Are you satisfied with the services rendered to you at the clinic? If it's good, send "1". If you are not satisfied, send "2" to 08165677415</value>
+						<value>Are you satisfied with the services rendered to you at the clinic? If it's good, send "1". If you are not satisfied, send "2" to <output value="/data/reply_phone" /></value>
 					</text>
 					<text id="wait_time-label">
 						<value>How long did you wait to see a doctor? For less than 2 hours, send "1". For 2 to 4 hours, send "2". For more than 4 hours, send "3".</value>

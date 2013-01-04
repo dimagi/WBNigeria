@@ -111,6 +111,13 @@ class IdleFacilitiesNotification(object):
         recent_reports = dict(zip(facilities.keys(), [None for i in range(count)]))
         for report in reports:
             fid = report['site']
+
+            # deal with FUG reports counting for parent FCA
+            while fid not in recent_reports and fid is not None:
+                fid = Location.objects.get(id=fid).parent_id
+            if fid is None:
+                continue
+
             if (recent_reports[fid] == None) or (report['timestamp'] > recent_reports[fid]):
                 recent_reports[fid] = report['timestamp']
 

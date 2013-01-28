@@ -108,7 +108,7 @@ class DigestNotification(object):
         return data
 
 
-@receiver(post_save, sender=NotificationVisibility)
+@receiver(post_save, sender=NotificationVisibility, '1y2c26anwcmcm')
 def send_activity_digest_sms(sender, instance, created, **kwargs):
     """
     Uses threadless_router to send the activity digest via SMS to

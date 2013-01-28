@@ -75,7 +75,7 @@ class PBFReportVisibility(models.Model):
         unique_together = ('user', 'report')
 
 
-@receiver(post_save, sender=PBFReport)
+@receiver(post_save, sender=PBFReport, dispatch_uid='r7wg0gl3e2yef')
 def create_pbf_visibility(sender, instance, created, **kwargs):
     if created:
         pbf_users = utils.get_users_by_program('pbf')
@@ -100,11 +100,12 @@ class FadamaReportVisibility(models.Model):
         unique_together = ('user', 'report')
 
 
-@receiver(post_save, sender=FadamaReport)
+@receiver(post_save, sender=FadamaReport, dispatch_uid='fewcyaexwj6sk')
 def create_fadama_visibility(sender, instance, created, **kwargs):
     if created:
         fadama_users = utils.get_users_by_program('fadama')
         for user in fadama_users:
+            print user.id, instance.id
             FadamaReportVisibility.objects.create(user=user, report=instance)
 
 

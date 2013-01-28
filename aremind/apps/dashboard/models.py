@@ -361,6 +361,9 @@ def on_flat_submit(sender, submission, xform, **args):
 def fadama_report_flat(form, data):
     data['schema_version'] = 1
 
+    if data['site'].type.slug not in ('fca', 'fug'):
+        raise ValueError('invalid site code')
+
     from utils.fadama import COMPLAINT_TYPES, COMPLAINT_SUBTYPES
     type = COMPLAINT_TYPES[form['complaint_type'] - 1]
     subtype = COMPLAINT_SUBTYPES[type][form['complaint_subtype'] - 1]
@@ -372,6 +375,9 @@ def fadama_report_flat(form, data):
 
 def pbf_report_flat(form, data):
     data['schema_version'] = 1
+
+    if data['site'].type.slug not in ('clinic'):
+        raise ValueError('invalid site code')
 
     content = {
         'waiting_time': form['waiting_time'],

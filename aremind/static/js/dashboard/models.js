@@ -296,7 +296,11 @@ function PbfLogModel(data, root) {
 
 function new_thread_msg(program, log, type, content) {
     // Don't submit empty comments
-    if (!content) return;
+    content = $.trim(content);
+    if (!content) {
+        return;
+    }
+
     var form = $('#message-form-' + log.id());
     var url = form.attr('action');
     $(':input', form).prop('disabled', true);

@@ -2573,7 +2573,7 @@ input[type="submit"].btn.btn-mini {
   padding: 5px 5px 6px;
 }
 .navbar .nav > li > a:hover {
-  background-color: transparent;
+  background-color: white;
   color: #ffffff;
   text-decoration: none;
 }
@@ -2693,7 +2693,7 @@ input[type="submit"].btn.btn-mini {
 .navbar .nav li.dropdown.open > .dropdown-toggle,
 .navbar .nav li.dropdown.active > .dropdown-toggle,
 .navbar .nav li.dropdown.open.active > .dropdown-toggle {
-  background-color: transparent;
+  background-color: white;
 }
 .navbar .nav li.dropdown.active > .dropdown-toggle:hover {
   color: #ffffff;
@@ -3320,7 +3320,7 @@ body #footer {
 body .navbar .navbar-inner {
   margin: 0px;
   padding: 0px;
-  background: transparent;
+  background: white;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;

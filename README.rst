@@ -90,6 +90,7 @@ Bootstrapping Data
     upload xforms in forms/ in 'Decision Tree XForms' tab
     python manage.py populate_sites
     python manage.py import_users apps/web_users/fixtures/user_import.sample.csv
+    python manage.py loaddata flatpages.json
 
 Generating Report Data
 ======================

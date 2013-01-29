@@ -105,7 +105,6 @@ def create_fadama_visibility(sender, instance, created, **kwargs):
     if created:
         fadama_users = utils.get_users_by_program('fadama')
         for user in fadama_users:
-            print user.id, instance.id
             FadamaReportVisibility.objects.create(user=user, report=instance)
 
 
@@ -221,7 +220,9 @@ def fadama_report(form, data):
         content['site_other'] = form.get('different_fug_or_fca')
         data['freeform'] = form.get('describe_other_loc_problem')
         data['satisfied'] = None
-        content['misc'] = 'misc'
+        
+        complaint_type = 'misc'
+        complaint_subtype = 'misc'
     else:
         data['for_this_site'] = True
         data['satisfied'] = (form.get('project_phase2') == '1')
@@ -277,7 +278,11 @@ def fadama_report(form, data):
             if form.get('project_phase2_bad_sp_other'):
                 data['freeform'] = form.get('project_phase2_bad_sp_other')
 
-        content[complaint_type] = complaint_subtype
+    from utils.fadama import COMPLAINT_TYPES, COMPLAINT_SUBTYPES
+    # validate that report actually contains usable data
+    if complaint_type not in COMPLAINT_TYPES or complaint_subtype not in COMPLAINT_SUBTYPES[complaint_type]:
+        return None
+    content[complaint_type] = complaint_subtype
 
     data['can_contact'] = (form.get('contact') == '1')
 
@@ -304,7 +309,7 @@ def pbf_report(form, data):
     else:
         data['for_this_site'] = True
         data['satisfied'] = (form.get('confirm_satisfied') == '1')
-        data['freeform'] = form.get('other')
+        data['freeform'] = '; '.join(filter(None, [form.get('satisfied_not_satisfied'), form.get('other')]))
 
         content['waiting_time'] = {
             'less_two': 0,

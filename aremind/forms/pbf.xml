@@ -30,13 +30,13 @@
 			<setvalue event="xforms-ready" ref="/data/site_id" value="instance('session')/session/data/site_id" />
 			<bind nodeset="/data/framing" type="xsd:string" />
 			<bind nodeset="/data/intro" relevant="/data/framing = 1" />
-			<bind nodeset="/data/confirm_satisfied" type="xsd:string" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/confirm_satisfied" relevant="/data/intro = 'yes'" />
 			<bind nodeset="/data/satisfied_not_satisfied" type="xsd:string" relevant="/data/confirm_satisfied = 2" />
 			<bind nodeset="/data/wait_time" relevant="/data/intro = 'yes'" />
-			<bind nodeset="/data/friendly_staff" type="xsd:string" relevant="/data/intro = 'yes'" />
-			<bind nodeset="/data/hygiene" type="xsd:string" relevant="/data/intro = 'yes'" />
-			<bind nodeset="/data/drugs_available" type="xsd:string" relevant="/data/intro = 'yes'" />
-			<bind nodeset="/data/drugs_prices" type="xsd:string" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/friendly_staff" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/hygiene" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/drugs_available" relevant="/data/intro = 'yes'" />
+			<bind nodeset="/data/drugs_prices" relevant="/data/intro = 'yes'" />
 			<bind nodeset="/data/other" type="xsd:string" relevant="/data/intro = 'yes'" />
 			<bind nodeset="/data/contact_later" type="xsd:string" relevant="/data/intro = 'yes'" />
 			<bind nodeset="/data/thanks_contact" type="xsd:string" relevant="/data/contact_later = 1" />
@@ -209,9 +209,17 @@ Send "2" for no.</value>
 				<value>no_other_fca</value>
 			</item>
 		</select1>
-		<input ref="/data/confirm_satisfied">
+		<select1 ref="/data/confirm_satisfied">
 			<label ref="jr:itext('confirm_satisfied-label')" />
-		</input>
+			<item>
+				<label>1</label>
+				<value>1</value>
+			</item>
+			<item>
+				<label>2</label>
+				<value>2</value>
+			</item>
+		</select1>
 		<input ref="/data/satisfied_not_satisfied">
 			<label ref="jr:itext('satisfied_not_satisfied-label')" />
 		</input>
@@ -230,18 +238,50 @@ Send "2" for no.</value>
 				<value>more_four</value>
 			</item>
 		</select1>
-		<input ref="/data/friendly_staff">
+		<select1 ref="/data/friendly_staff">
 			<label ref="jr:itext('friendly_staff-label')" />
-		</input>
-		<input ref="/data/hygiene">
+			<item>
+				<label>1</label>
+				<value>1</value>
+			</item>
+			<item>
+				<label>2</label>
+				<value>2</value>
+			</item>
+		</select1>
+		<select1 ref="/data/hygiene">
 			<label ref="jr:itext('hygiene-label')" />
-		</input>
-		<input ref="/data/drugs_available">
+			<item>
+				<label>1</label>
+				<value>1</value>
+			</item>
+			<item>
+				<label>2</label>
+				<value>2</value>
+			</item>
+		</select1>
+		<select1 ref="/data/drugs_available">
 			<label ref="jr:itext('drugs_available-label')" />
-		</input>
-		<input ref="/data/drugs_prices">
+			<item>
+				<label>1</label>
+				<value>1</value>
+			</item>
+			<item>
+				<label>2</label>
+				<value>2</value>
+			</item>
+		</select1>
+		<select1 ref="/data/drugs_prices">
 			<label ref="jr:itext('drugs_prices-label')" />
-		</input>
+			<item>
+				<label>1</label>
+				<value>1</value>
+			</item>
+			<item>
+				<label>2</label>
+				<value>2</value>
+			</item>
+		</select1>
 		<input ref="/data/other">
 			<label ref="jr:itext('other-label')" />
 		</input>

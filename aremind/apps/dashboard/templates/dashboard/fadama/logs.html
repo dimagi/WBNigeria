@@ -4,7 +4,7 @@
                 data-bind="visible: (active_month() ? active_month().any_logs_relevant($root) : true)">
                 <thead>
                     <tr>
-                        <th>Report #</th>
+                        <th colspan="2">Report #</th>
                         <th style="width: 12em;">FCA</th>
                         <th style="width: 12em;">FUG</th>
                         <th>Date &amp; Time</th>
@@ -17,13 +17,13 @@
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
                     <tr data-bind="visible: is_relevant($root), click: toggle, attr: { id: id, class: id() == window.location.hash.replace('#', '') ? 'highlight' : 'plain' }">
                         <td style="white-space: nowrap;">
-                            <div style="float: right;">
-                              <span data-bind="if: unread_comments().length > 0"><span data-bind="text: unread_comments().length" class="speech"></span></span>
-                              <span data-bind="if: unread_comments().length == 0 && thread().length > 0"><span style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span></span>
-                              <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (contactable() ? 'reply' : 'noreply') + '.png', title: no_contact_message }" />
-                            </div>
-                            <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (expanded() ? 'expanded' : 'collapsed') + '.png' }" />
-                            <span data-bind="text: id"></span>&nbsp;
+                          <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (expanded() ? 'expanded' : 'collapsed') + '.png' }" />
+                          <span data-bind="text: id"></span>
+                        </td>
+                        <td style="text-align: right; border-left: none; white-space: nowrap;">
+                          <span data-bind="if: unread_comments().length > 0"><span data-bind="text: unread_comments().length" class="speech"></span></span>
+                          <span data-bind="if: unread_comments().length == 0 && thread().length > 0"><span style="border: 1px grey solid; font-weight: bold;">&#x22ef;</span></span>
+                          <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (contactable() ? 'reply' : 'noreply') + '.png', title: no_contact_message }" />
                         </td>
                         <td data-bind="text: site"></td>
                         <td data-bind="style: { fontStyle: fug() ? 'normal' : 'italic' }, text: (fug() ? fug() : 'not specified')"></td>

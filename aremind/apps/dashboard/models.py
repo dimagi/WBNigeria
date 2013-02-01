@@ -328,10 +328,12 @@ def pbf_report(form, data):
     return report
 
 def flat_yn(val):
-    _val = val.lower()
-    if _val not in ('y', 'n'):
-        raise RuntimeError
-    return (_val == 'y')
+    return {
+        'y': True,
+        'n': False,
+        '1': True,
+        '2': False,
+    }[val.lower()]
 
 @receiver(xform_received, dispatch_uid='53qghbk38u3hl')
 def on_flat_submit(sender, submission, xform, **args):

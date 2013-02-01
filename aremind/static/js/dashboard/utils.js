@@ -56,7 +56,7 @@ pbf_categories = [
     {metric: 'friendly', field: 'staff_friendliness', caption: 'Staff Friendliness'},
     {metric: 'pricedisp', field: 'price_display', caption: 'Prices Displayed'},
     {metric: 'drugavail', field: 'drug_availability', caption: 'Drug Availability'},
-    {metric: 'clean', field: 'cleanliness', caption: 'Cleanliness & Hygiene'},
+    {metric: 'clean', field: 'cleanliness', caption: 'Cleanliness & Hygiene'}
 ];
 
 fadama_categories = [
@@ -66,7 +66,7 @@ fadama_categories = [
     {metric: 'info', field: 'info', caption: 'Lack of Information'},
     {metric: 'ldp', field: 'ldp', caption: 'LDP Approval'},
     {metric: 'financial', field: 'financial', caption: 'Financial Issues'},
-    {metric: 'misc', field: 'misc', caption: 'Misc. Feedback'},
+    {metric: 'misc', field: 'misc', caption: 'Misc. Feedback'}
 ];
 
 function get_fadama_caption(metric, value) {
@@ -113,7 +113,7 @@ function get_fadama_caption(metric, value) {
         },
         misc: {
             misc: '\u2014',
-        },
+        }
     }[metric][value];
 }
 
@@ -126,7 +126,7 @@ function get_fadama_ordering(metric) {
         info: ['market', 'input', 'credit', 'other'],
         ldp: ['delay', 'other'],
         financial: ['bank', 'delay', 'other'],
-        misc: ['misc'],
+        misc: ['misc']
     }[metric];
 }
 
@@ -162,7 +162,7 @@ function get_pbf_caption(metric, value) {
 
 function get_pbf_ordering(metric) {
     var order = {
-	wait: ['<2', '2-4', '>4'],
+        wait: ['<2', '2-4', '>4']
     }[metric];
     if (!order) {
 	order = ['True', 'False'];
@@ -172,23 +172,23 @@ function get_pbf_ordering(metric) {
 
 function get_pbf_metric_model_field(metric) {
     return {
-	satisf: 'satisfied',
-	wait: 'wait_bucket',
-	clean: 'cleanliness',
-	friendly: 'friendliness',
-	drugavail: 'drugs_avail',
-	pricedisp: 'price_display',
+        satisf: 'satisfied',
+        wait: 'wait_bucket',
+        clean: 'cleanliness',
+        friendly: 'friendliness',
+        drugavail: 'drugs_avail',
+	    pricedisp: 'price_display'
     }[metric];
 }
 
 function get_pbf_metric_ajax_field(metric) {
     return {
-	satisf: 'satisfied',
-	wait: 'wait_bucket',
-	clean: 'cleanliness',
-	friendly: 'staff_friendliness',
-	drugavail: 'drug_availability',
-	pricedisp: 'price_display',
+        satisf: 'satisfied',
+        wait: 'wait_bucket',
+  	    clean: 'cleanliness',
+	    friendly: 'staff_friendliness',
+	    drugavail: 'drug_availability',
+	    pricedisp: 'price_display'
     }[metric];
 }
 
@@ -199,7 +199,7 @@ function get_subcategory_color(cat, subcat, get_ordering) {
 		  '#fca', //f90
 		  '#aca', //192
 		  '#cac', //090
-		  '#ade', //09c
+		  '#ade' //09c
 		   ];
 
     if (subcat === true) {

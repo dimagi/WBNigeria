@@ -15,7 +15,7 @@
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
-                    <tr data-bind="visible: is_relevant($root), click: toggle, attr: { id: id, class: id() == window.location.hash.replace('#', '') ? 'highlight' : 'plain' }">
+                    <tr data-bind="visible: is_relevant($root), click: toggle">
                         <td style="white-space: nowrap;">
                           <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (expanded() ? 'expanded' : 'collapsed') + '.png' }" />
                           <span data-bind="text: id"></span>

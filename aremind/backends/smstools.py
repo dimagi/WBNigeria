@@ -7,10 +7,9 @@ class SmsToolsBackendView(KannelBackendView):
 
     http_method_names = ['get']
     form_class = KannelForm
-    backend_name = 'smstools'
 
     def get(self, *args, **kwargs):
-        kwargs['backend_name'] = 'smstools'
+        kwargs['backend_name'] = 'smstools-%s' % kwargs['network']
         return self.post(*args, **kwargs)
 
     def get_form_kwargs(self):

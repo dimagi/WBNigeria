@@ -31,7 +31,8 @@ urlpatterns = patterns('',
         {'template': 'aremind/not_implemented.html'}, name='settings'),
 
     # RapidSMS contrib app URLs
-    url(r"^backend/smstools/$", SmsToolsBackendView.as_view()),
+    url(r"^backend/(?P<network>\w+)/$", SmsToolsBackendView.as_view()),
+
     (r'^ajax/', include('rapidsms.contrib.ajax.urls')),
     (r'^export/', include('rapidsms.contrib.export.urls')),
     url(r'^httptester/$',

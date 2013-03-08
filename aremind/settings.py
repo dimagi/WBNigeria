@@ -283,17 +283,26 @@ PRIMARY_BACKEND = 'tropo'
 # if set, the message tester app will always use this backend
 TEST_MESSAGER_BACKEND = 'tropo'
 
+SMSTOOLS_URL = "http://127.0.0.1:8888"
 INSTALLED_BACKENDS = {
     "httptester": {
         "ENGINE": "threadless_router.backends.httptester.backend",
     },
-    "smstools": {
-        #"ENGINE": "rapidsms.backends.kannel",
+    "smstools-airtel": {
         "ENGINE": "threadless_router.backends.kannel.outgoing",
-        "sendsms_url": "http://127.0.0.1:8888",
-        #"port": "8887",
-        #"sendsms_params": {"smsc": "test"},
-    }
+        "sendsms_url": SMSTOOLS_URL,
+        "sendsms_params": {"modem": "airtel"},
+    },
+    "smstools-mtn": {
+        "ENGINE": "threadless_router.backends.kannel.outgoing",
+        "sendsms_url": SMSTOOLS_URL,
+        "sendsms_params": {"modem": "mtn"},
+    },
+    "smstools-etisalat": {
+        "ENGINE": "threadless_router.backends.kannel.outgoing",
+        "sendsms_url": SMSTOOLS_URL,
+        "sendsms_params": {"modem": "etisalat"},
+    },
 }
 
 DEFAULT_MESSAGE = "Message not understood. Please try again"

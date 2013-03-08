@@ -5,7 +5,7 @@ from datetime import datetime
 from rapidsms.models import Backend, Connection, Contact
 from django.db.models import Q
 from django.contrib.auth.models import User, Permission
-
+from django.conf import settings
 
 def extract_report(r):
     data = r.content
@@ -150,3 +150,23 @@ def get_users_by_program(program):
     group_perm = Q(groups__permissions=perm)
     user_perm = Q(user_permissions=perm)
     return User.objects.filter(superuser | group_perm | user_perm)
+
+
+
+
+
+
+def network_for_number(phone):
+    try:
+        backend = Connection.objects.get(identity=phone).backend.name
+        return settings.INSTALLED_BACKENDS[backend]['sendsms_params']['modem']
+    except Exception:
+        if phone.startswith('+'):
+            phone = phone[1:]
+
+        for prefix, network in settings.NETWORK_PREFIXES.iteritems():
+            if phone.startswith(prefix):
+                return network
+
+
+        

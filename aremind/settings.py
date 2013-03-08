@@ -518,3 +518,22 @@ DECISION_TREE_FORMS = {
 
 from datetime import timedelta
 SMSFORMS_POSTSESSION_LOCKOUT = timedelta(hours=24)
+
+NETWORK_PREFIXES = {
+    '234701': 'airtel',
+    '234703': 'mtn',
+    '234706': 'mtn',
+    '234708': 'airtel',
+    '234802': 'airtel',
+    '234803': 'mtn',
+    '234806': 'mtn',
+    '234808': 'airtel',
+    '234809': 'etisalat',
+    '234810': 'mtn',
+    '234812': 'airtel',
+    '234813': 'mtn',
+    '234814': 'mtn',
+    '234816': 'mtn',
+    '234817': 'etisalat',
+    '234818': 'etisalat',
+}

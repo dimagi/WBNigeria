@@ -283,7 +283,7 @@ PRIMARY_BACKEND = 'tropo'
 # if set, the message tester app will always use this backend
 TEST_MESSAGER_BACKEND = 'tropo'
 
-SMSTOOLS_URL = "http://127.0.0.1:8888"
+SMSTOOLS_URL = "http://127.0.0.1:8888/"
 INSTALLED_BACKENDS = {
     "httptester": {
         "ENGINE": "threadless_router.backends.httptester.backend",

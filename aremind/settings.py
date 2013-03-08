@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
     "aremind.apps.web_users",
+    "aremind.apps.reimbursement",
 
     "eav",
     "uni_form",

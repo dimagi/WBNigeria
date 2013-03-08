@@ -4,8 +4,17 @@ from aremind.apps.dashboard.views import fadama
 from aremind.apps.dashboard.views import pbf
 import aremind.apps.dashboard.views as shared
 
+from tastypie.api import Api
+from aremind.apps.dashboard.api import PBFReportResource, ReportCommentResource
+
+v1_api = Api(api_name='v1')
+v1_api.register(PBFReportResource())
+v1_api.register(ReportCommentResource())
+
 urlpatterns = patterns('',
     url(r'^$', shared.landing),
+
+    (r'^api/', include(v1_api.urls)),
 
     url(r'^pbf/$', pbf.DashboardView.as_view(), name='pbf_dashboard'),
     url(r'^pbf/reports/$', pbf.ReportView.as_view(), name='pbf_reports'),

@@ -66,6 +66,8 @@ INSTALLED_APPS = [
     "rosetta",
     "selectable",
     "gunicorn",
+    "tastypie",
+
     "smsforms",
     "alerts",
     "aremind.apps.wbn_registration",

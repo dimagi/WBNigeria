@@ -5,6 +5,8 @@ from django.views.generic.simple import direct_to_template
 
 from aremind.apps.dashboard.views import pbf
 from aremind.apps.dashboard.views import fadama
+#from threadless_router.backends.kannel.views import KannelBackendView
+from aremind.backends.smstools import SmsToolsBackendView
 
 admin.autodiscover()
 
@@ -29,11 +31,12 @@ urlpatterns = patterns('',
         {'template': 'aremind/not_implemented.html'}, name='settings'),
 
     # RapidSMS contrib app URLs
+    url(r"^backend/smstools/$", SmsToolsBackendView.as_view()),
     (r'^ajax/', include('rapidsms.contrib.ajax.urls')),
     (r'^export/', include('rapidsms.contrib.export.urls')),
     url(r'^httptester/$',
         'threadless_router.backends.httptester.views.generate_identity',
-        {'backend_name': 'httptester'}, name='httptester-index'),
+        {'backend_name': 'kannel'}, name='httptester-index'),
     (r'^httptester/', include('threadless_router.backends.httptester.urls')),
     (r'^locations/', include('rapidsms.contrib.locations.urls')),
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),

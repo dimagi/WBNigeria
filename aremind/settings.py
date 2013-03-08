@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     # the rapidsms contrib apps.
     # "rapidsms.contrib.export",
     "threadless_router.backends.httptester",
+    "threadless_router.backends.kannel",
     "rapidsms.contrib.locations",
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
@@ -284,6 +285,13 @@ INSTALLED_BACKENDS = {
     "httptester": {
         "ENGINE": "threadless_router.backends.httptester.backend",
     },
+    "smstools": {
+        #"ENGINE": "rapidsms.backends.kannel",
+        "ENGINE": "threadless_router.backends.kannel.outgoing",
+        "sendsms_url": "http://127.0.0.1:8888",
+        #"port": "8887",
+        #"sendsms_params": {"smsc": "test"},
+    }
 }
 
 DEFAULT_MESSAGE = "Message not understood. Please try again"
@@ -435,6 +443,12 @@ LOGGING = {
         'backend/httptester': {
                     'handlers': ['console'],
                     'level': 'INFO',
+                    'formatter': 'verbose'
+        #            'filters': ['special']
+        },
+        'backend/smstools': {
+                    'handlers': ['console'],
+                    'level': 'DEBUG',
                     'formatter': 'verbose'
         #            'filters': ['special']
         },

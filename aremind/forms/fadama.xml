@@ -30,7 +30,8 @@
 					<contact_me />
 					<dont_contact_me />
                     <helpful_tip />
-                    <reply_phone>08165677415</reply_phone>
+                    <reimburse />
+                    <reply_phone>this number</reply_phone>
 				</data>
 			</instance>
 			<instance id="session" src="jr://instance/session" />
@@ -83,7 +84,7 @@ If you are not satisfied, send "2" to <output value="/data/reply_phone" /></valu
 						<value>What problem do you have?</value>
 					</text>
 					<text id="framing-label">
-						<value>You are invited to answer a few questions on your experience with Fadama. All messages are FREE! Do you wish to continue? Send "1" to continue.</value>
+						<value>You are invited to answer a few questions on your experience with Fadama. All messages are reimbursed! Do you wish to continue? If yes, send "1".</value>
 					</text>
 					<text id="confirm_phase-label">
 						<value>Have you received the money from Fadama?
@@ -168,6 +169,9 @@ send "2" for no.</value>
 					</text>
 					<text id="dont_contact_me-label">
 						<value>Thank you! Your feedback has been well received.</value>
+					</text>
+					<text id="reimburse">
+						<value>The cost of the messages you sent should be reimbursed to you within 24 hours.</value>
 					</text>
 
                     <text id="helpful-tip-1">
@@ -279,6 +283,9 @@ send "2" for no.</value>
 		</trigger>
         <trigger ref="/data/helpful_tip">
             <label><output value="jr:itext(concat('helpful-tip-', int(random() * 11) + 1))" /></label>
+        </trigger>
+        <trigger ref="/data/reimburse">
+            <label ref="jr:itext('reimburse')" />
         </trigger>
 	</h:body>
 </h:html>

@@ -23,7 +23,8 @@
 					<other_state_info />
 					<state_other_thanks />
                     <helpful_tip />
-                    <reply_phone>08165677415</reply_phone>
+                    <reimburse />
+                    <reply_phone>this number</reply_phone>
 				</data>
 			</instance>
 			<instance id="session" src="jr://instance/session" />
@@ -116,7 +117,7 @@ For yes, send "1".
 For no, send "2".</value>
 					</text>
 					<text id="framing-label">
-						<value>You are invited to answer a few questions on your experience at the clinic. All messages are FREE! Do you wish to continue? Send "1" to continue.</value>
+						<value>You are invited to answer a few questions on your experience at the clinic. All messages are reimbursed! Do you wish to continue? If yes, send "1".</value>
 					</text>
 					<text id="contact_later-label">
 						<value>Thank you for completing the questions. Can we contact you later at this number?
@@ -125,6 +126,9 @@ Send "2" for no.</value>
 					</text>
 					<text id="thanks_contact-label">
 						<value>Thank you! We will contact you in the future.</value>
+					</text>
+					<text id="reimburse">
+						<value>The cost of the messages you sent should be reimbursed to you within 24 hours.</value>
 					</text>
 
                     <text id="helpful-tip-1">
@@ -305,6 +309,9 @@ Send "2" for no.</value>
 		</trigger>
         <trigger ref="/data/helpful_tip">
             <label><output value="jr:itext(concat('helpful-tip-', int(random() * 21) + 1))" /></label>
+        </trigger>
+        <trigger ref="/data/reimburse">
+            <label ref="jr:itext('reimburse')" />
         </trigger>
 	</h:body>
 </h:html>

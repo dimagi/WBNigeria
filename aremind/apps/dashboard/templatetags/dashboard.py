@@ -20,7 +20,7 @@ def alerts(context, request, count=None):
     """
     gens = get_alert_generators('alert', request=request, context=context)
     alerts = list(itertools.chain(*(g for g in gens if g is not None)))
-    notifs = Notification.objects.filter(is_open=True, visible_to__user=request.user)
+    notifs = Notification.objects.filter(is_open=True, visible_to__user=request.user).order_by('-created_on')
     total = len(alerts) + len(notifs)
 
     if count:

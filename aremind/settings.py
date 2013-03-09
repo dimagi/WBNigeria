@@ -179,7 +179,7 @@ STATICFILES_DIRS = (
 # at top left for every tab
 LOGO_LEFT_URL = '%simages/blank.png' % STATIC_URL
 LOGO_RIGHT_URL = '%simages/blank.png' % STATIC_URL
-SITE_TITLE = "World Bank ICT4A"
+SITE_TITLE = "MyVoice Nigeria"
 BASE_TEMPLATE = "layout.html"
 
 # this is required for the django.contrib.sites tests to run, but also

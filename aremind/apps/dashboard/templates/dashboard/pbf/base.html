@@ -18,7 +18,7 @@
 
     <ul class="nav pull-right">
         <li><img style="cursor: pointer;" alt="Print" src="{{ STATIC_URL }}images/print.gif" onclick="window.print();"></li>
-        <li><a href="#">Welcome back {{ request.user }}</a></li>
+        <li><a href="#">Welcome back, {{ request.user.first_name }}!</a></li>
         <li><a href="{% url 'auth_password_change' %}">Change Password</a></li>
         <li><a href="{% url 'rapidsms_logout' %}">Logout</a></li>
     </ul>

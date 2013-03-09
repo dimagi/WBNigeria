@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "aremind.apps.test_messager",
     "aremind.apps.default_connection",
     "aremind.apps.web_users",
+    "aremind.apps.reimbursement",
 
     "eav",
     "uni_form",
@@ -537,3 +538,10 @@ NETWORK_PREFIXES = {
     '234817': 'etisalat',
     '234818': 'etisalat',
 }
+
+REIMBURSED_BACKENDS = ['smstools-mtn', 'smstools-airtel', 'smstools-etisalat']
+NETWORK_PINS = {
+    'mtn': '0205',
+    'airtel': '3217',
+    'etisalat': ''
+    }

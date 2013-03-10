@@ -157,16 +157,17 @@ def get_users_by_program(program):
 
 
 def network_for_number(phone):
-    try:
-        backend = Connection.objects.get(identity=phone).backend.name
-        return settings.INSTALLED_BACKENDS[backend]['sendsms_params']['modem']
-    except Exception:
-        if phone.startswith('+'):
-            phone = phone[1:]
+    #import pdb;pdb.set_trace()
+    #try:
+    #    backend = Connection.objects.get(identity=phone).backend.name
+    #    return settings.INSTALLED_BACKENDS[backend]['sendsms_params']['modem']
+    #except Exception:
+    if phone.startswith('+'):
+        phone = phone[1:]
 
-        for prefix, network in settings.NETWORK_PREFIXES.iteritems():
-            if phone.startswith(prefix):
-                return network
+    for prefix, network in settings.NETWORK_PREFIXES.iteritems():
+        if phone.startswith(prefix):
+            return network
 
 
-        
+

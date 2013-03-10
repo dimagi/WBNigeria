@@ -545,3 +545,8 @@ NETWORK_PINS = {
     'airtel': '3217',
     'etisalat': ''
     }
+MINIMUM_TRANSFERS = {
+    'mtn': 50,
+    'airtel': 50,
+    'etisalat': 50
+    }

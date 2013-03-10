@@ -19,12 +19,26 @@ MTN_MESSAGE_LIST = [
         {
             'message': 'Transfer %(number)s %(amount)s %(pin)s',
             'response': 'You are sending',
+            'errors': {
+                'Sorry, you still have an open transaction': 'Yes'
+                }
         },
         {
             'message': 'Yes',
             'response': 'You transferred',
         }
     ]
+
+ETISALAT_MESSAGE_LIST = [
+        {
+            'message': 'Credit %(number)s with %(amount)s'
+        }
+    ]
+MTN_MSG_RESPONSE = {
+        'You are sending': 'Yes',
+        'Sorry, you still have an open transaction': 'Yes',
+        #'You transferred': '',
+        }
 
 
 class Batch(models.Model):
@@ -58,6 +72,7 @@ class Reimbursement(models.Model):
     amount = models.PositiveIntegerField()
     network = models.PositiveIntegerField(choices=NETWORKS)
     status = models.PositiveIntegerField(choices=REIMBURSEMENT_STATUSES, default=PENDING)
+    last_message = models.TextField(blank=True)
 
     def __unicode__(self):
         return self.number
@@ -77,12 +92,16 @@ class Reimbursement(models.Model):
         elif self.network == self.MTN:
             return MTN_MESSAGE_LIST[0].get('message')
         else:
-            return ''
+            return ETISALAT_MESSAGE_LIST[0].get('message')
+
+    def add_message(self, txt, direction='Incoming'):
+        self.last_message += '\n%s: %s'%(direction, txt)
+        super(Reimbursement, self).save()
 
 REIMBURSEMENT_NUMBERS = {
-    'mtn': 's777',
-    'airtel': 's432',
-    'etisalat': 's232',
+    'mtn': '777',
+    'airtel': '432',
+    'etisalat': '2348172160308',
     }
 
 REIMBURSEMENT_RATES = {

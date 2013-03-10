@@ -7,8 +7,7 @@ from rapidsms.apps.base import AppBase
 from rapidsms.messages import OutgoingMessage
 from rapidsms.models import Backend, Connection
 
-from aremind.apps.reimbursement.models import Reimbursement, NAME_NETWORK_MAP, REIMBURSEMENT_NUMBERS
-import logging
+from aremind.apps.reimbursement.models import Reimbursement, NAME_NETWORK_MAP, REIMBURSEMENT_NUMBERS, AIRTEL_MESSAGE_LIST, MTN_MSG_RESPONSE
 
 
 class ReimburseApp(AppBase):
@@ -23,9 +22,46 @@ class ReimburseApp(AppBase):
         #msg_parts = msg.text.split()
         #self.send_queued_messages()
         backend = msg.connection.backend
-        logging.debug('msg: %s'%msg.text)
+        if backend.name in settings.REIMBURSED_BACKENDS:
+            network_name = backend.name.split('-')[1]
+            network_id = NAME_NETWORK_MAP.get(network_name)
+            if msg.connection.identity == REIMBURSEMENT_NUMBERS.get(network_name):
+                try:
+                    current = Reimbursement.objects.get(
+                        status=Reimbursement.IN_PROGRESS,
+                        network=network_id)
+                except Reimbursement.DoesNotExist:
+                    pass
+                else:
+                    status = getattr(self, 'handle_%s'%network_name)(msg, current)
+                    current.status = status
+                    current.add_message(msg.text)
+                    current.save()
+                return True #we always handle network credit transfer messages
+        return False
+
+    def handle_mtn(self, msg, current):
         #import pdb;pdb.set_trace()
-        return True
+        msg_text = msg.text
+        connection = msg.connection
+        for key, val in MTN_MSG_RESPONSE.items():
+            if msg_text.startswith(key):
+                out_msg = OutgoingMessage(connection=connection, template=val)
+                self.router.outgoing(out_msg)
+                return Reimbursement.IN_PROGRESS
+        if msg_text.startswith('You transferred'):
+            return Reimbursement.COMPLETED
+        else:
+            return Reimbursement.ERROR
+
+    def handle_airtel(self, msg, current):
+        if msg.text.startswith(AIRTEL_MESSAGE_LIST[0]['response']):
+            return Reimbursement.COMPLETED
+        else:
+            return Reimbursement.ERROR
+
+    def handle_etisalat(self, msg, current):
+        return Reimbursement.IN_PROGRESS
 
     def send_queued_messages(self):
         '''

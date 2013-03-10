@@ -1,3 +1,11 @@
+<style>
+
+#reports-table .log-row {
+  cursor: pointer;
+}
+
+</style>
+
     <div class="row-fluid">
         <div class="span12">
             <table id="reports-table" class="table table-bordered table-striped table-condensed"
@@ -15,7 +23,7 @@
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: active_month() ? active_month().logs() : []">
-                    <tr data-bind="visible: is_relevant($root), click: toggle">
+                    <tr class="log-row" data-bind="visible: is_relevant($root), click: toggle">
                         <td style="white-space: nowrap;">
                           <img data-bind="attr: { src: '{{ STATIC_URL }}images/' + (expanded() ? 'expanded' : 'collapsed') + '.png' }" />
                           <span data-bind="text: id"></span>

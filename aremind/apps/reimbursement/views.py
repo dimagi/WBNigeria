@@ -100,12 +100,13 @@ def reimburse():
             continue
         else:
             #we should have no more than one pending transaction per number
-            pending = reimbursements.filter(network=network, status=Reimbursement.PENDING)
-            if pending:
-                reimburse = pending[0]
+            for reimburse in reimbursements.filter(network=network, status=Reimbursement.PENDING):
+            #if pending:
+                #reimburse = pending
 
                 network_name = network_name_map.get(network)
                 if reimburse.amount < settings.MINIMUM_TRANSFERS.get(network_name):
+                    logging.error("%s is less than minimum"%reimburse.amount)
                     continue#ignore if amount is not up to min for network
                 backend_name = reimburse.get_backend()
                 backend, _ = Backend.objects.get_or_create(name=backend_name)
@@ -115,6 +116,7 @@ def reimburse():
                         'amount': reimburse.amount,
                         'pin': settings.NETWORK_PINS.get(network_name)
                         }
+                logging.info("message to send is %s"%text)
                 to_number = REIMBURSEMENT_NUMBERS.get(network_name)
                 if len(to_number) < 11:#If it is a short-code, prefix with 's'
                     to_number = 's%s'%to_number

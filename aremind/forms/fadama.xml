@@ -62,7 +62,7 @@
 			<itext>
 				<translation lang="en" default="">
 					<text id="confirm_location-label">
-						<value>Do you belong to an FUG in <output value="instance('session')/session/data/state_name" />?
+						<value>Are you from <output value="instance('session')/session/data/site_name" />?
 For yes, send "1".
 For no, send "2" to <output value="/data/reply_phone" /></value>
 					</text>

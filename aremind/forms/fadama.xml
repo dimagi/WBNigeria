@@ -87,7 +87,7 @@ If you are not satisfied, send "2" to <output value="/data/reply_phone" /></valu
 						<value>You are invited to answer a few questions on your experience with Fadama. All messages are reimbursed! Do you wish to continue? If yes, send "1".</value>
 					</text>
 					<text id="confirm_phase-label">
-						<value>Have you received the money from Fadama?
+						<value>Has your project received money from Fadama?
 If yes, send "1".
 If not yet, send "2" to <output value="/data/reply_phone" /></value>
 					</text>

@@ -68,7 +68,9 @@ INSTALLED_APPS = [
     "gunicorn",
     "tastypie",
 
+    "rapidsms_xforms",
     "smsforms",
+
     "alerts",
     "aremind.apps.wbn_registration",
     "aremind.apps.groups",
@@ -84,7 +86,6 @@ INSTALLED_APPS = [
     "eav",
     "uni_form",
     "django_digest",
-    "rapidsms_xforms",
 
 
     # the rapidsms contrib apps.

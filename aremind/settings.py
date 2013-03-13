@@ -550,3 +550,8 @@ MINIMUM_TRANSFERS = {
     'airtel': 50,
     'etisalat': 50
     }
+REIMBURSEMENT_RATES = {
+    'mtn': 4,
+    'airtel': 4,
+    'etisalat': 4,
+}

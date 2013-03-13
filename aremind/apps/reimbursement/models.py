@@ -98,6 +98,12 @@ class Reimbursement(models.Model):
         self.last_message += '\n%s: %s'%(direction, txt)
         super(Reimbursement, self).save()
 
+class ReimbursementLog(models.Model):
+    phone = models.CharField(max_length=25)
+    amount = models.IntegerField()
+    reimbursed_on = models.DateTimeField()
+
+
 REIMBURSEMENT_NUMBERS = {
     'mtn': '777',
     'airtel': '432',

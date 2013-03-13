@@ -1,0 +1,113 @@
+{% extends "dashboard/base.html" %}
+{% load url from future %}
+
+{% block dashboard_navigation %}
+    <ul class="nav pull-right">
+        <li><img style="cursor: pointer;" alt="Print" src="{{ STATIC_URL }}images/print.gif" onclick="window.print();"></li>
+        <li><a href="#">Welcome back, {{ request.user.first_name }}!</a></li>
+        <li><a href="{% url 'auth_password_change' %}">Change Password</a></li>
+        <li><a href="{% url 'rapidsms_logout' %}">Logout</a></li>
+    </ul>
+{% endblock dashboard_navigation %}
+
+{% block javascripts %}
+{{ block.super }}
+
+<script type="text/javascript">
+
+if (!window.console) {
+  window.console = {
+    log: function () { }
+  };
+}
+
+var data = {{ data|safe }};
+
+$(document).ready(function() {
+  var model = new ReimbursementViewModel();
+  ko.applyBindings(model);
+  model.load(data);
+});
+
+function ReimbursementViewModel() {
+  this.phones = ko.observableArray();
+
+  this.load = function(data) {
+    this.phones($.map(data, function(e) {
+      return new PhoneEntryModel(e);
+    }));
+  }
+}
+
+function PhoneEntryModel(data) {
+  this.number = ko.observable(data.number);
+  this.disp_number = ko.observable(data.disp_number);
+  this.network = ko.observable(data.network);
+  this.total_spent = ko.observable(data.total_spent);
+  this.total_reimbursed = ko.observable(data.total_reimbursed);
+  this.most_recent = ko.observable(data.most_recent);
+  this.earliest_unreimbursed = ko.observable(data.earliest_unreimbursed);
+
+  this.total_due = ko.computed(function() {
+    return this.total_spent() - this.total_reimbursed();
+  }, this);
+}
+
+</script>
+
+{% endblock javascripts %}
+
+{% block content %}
+    {{ block.super }}
+
+<h1>Reimbursement Dashboard</h1>
+
+<link type="text/css" rel="stylesheet" href="/static/css/aremind.css" />
+<style>
+
+.due {
+  color: #c00;
+  font-weight: bold;
+}
+
+.overreimb {
+  font-style: italic;
+  font-weight: bold;
+  font-size: 80%;
+}
+
+</style>
+
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Phone #</th>
+      <th>Network</th>
+      <th>Total Spent</th>
+      <th>Total Reimbursed</th>
+      <th>Reimbursement Due</th>
+      <th>Unreimbursed since&hellip;</th>
+      <th>Last Message at</th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: phones">
+    <tr>
+      <td>
+        <a href="#" class="btn btn-primary" data-bind="attr: { href: '/dashboard/reimbursement/' + number() + '/' }">Log Reimbursement</a>
+      </td>
+      <td data-bind="text: disp_number"></td>
+      <td data-bind="text: network"></td>
+      <td data-bind="text: total_spent"></td>
+      <td data-bind="text: total_reimbursed"></td>
+      <td>
+        <span data-bind="visible: total_due() >= 0, text: total_due, css: { due: total_due() > 0 }"></span>
+        <span data-bind="visible: total_due() < 0" style="color: grey;">(<span data-bind="text: -total_due()"></span>) <span class="overreimb">over-reimbursed</span></span>
+      </td>
+      <td data-bind="text: earliest_unreimbursed() || 'n/a'"></td>
+      <td data-bind="text: most_recent"></td>
+    </tr>
+  </tbody>
+</table>
+
+{% endblock content %}

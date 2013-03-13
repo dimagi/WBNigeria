@@ -40,5 +40,9 @@ urlpatterns = patterns('',
     url(r'^dismiss/(?P<notification_id>\d+)/$', shared.DismissNotification.as_view(), name='fadama_dismiss_alert'),
     url(r'^(?P<program>pbf|fadama)/all_alerts/$', shared.AllAlerts.as_view(), name='all_alerts'),
     url(r'^view_comments/$', shared.view_comments, name='view_comments'),
+
+    url(r'^reimbursement/$', shared.reimbursement),
+    url(r'^reimbursement/(?P<number>[0-9+]+)/$', shared.reimbursement_detail),
+    url(r'^reimbursement/delete/$', shared.reimbursement_delete),
 )
 

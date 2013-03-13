@@ -1,4 +1,5 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.views import generic
 from aremind.apps.dashboard import forms
@@ -11,6 +12,15 @@ from aremind.apps.dashboard.views import fadama
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 import json
+
+from apps.utils.functional import map_reduce
+from rapidsms.contrib.messagelog.models import Message
+from apps.dashboard.utils.shared import network_for_number
+from django.conf import settings
+from apps.reimbursement.models import ReimbursementLog
+import math
+from datetime import datetime, date
+
 
 def landing(request):
     return render(request, 'dashboard/base.html', {'shownav': True})
@@ -105,3 +115,98 @@ class AllAlerts(generic.TemplateView):
         return {
             'program': program,
         }
+
+def disp_number(number):
+    disp_number = number
+    if disp_number.startswith('+'):
+        disp_number = disp_number[1:]
+    if disp_number.startswith('234'):
+        disp_number = '0' + disp_number[3:]
+    return disp_number
+
+def reimbursement(request):
+    messages = Message.objects.filter(direction='I').select_related()
+    by_number = map_reduce(messages, lambda m: [(m.connection.identity, m)], lambda v: sorted(v, key=lambda e: e.date))
+    reimbursements = map_reduce(ReimbursementLog.objects.all(), lambda e: [(e.phone, e.amount)], sum)
+
+    def mk_entry(number, messages):
+        entry = {
+            'number': number,
+            'disp_number': disp_number(number),
+            'network': network_for_number(number),
+            'total_reimbursed': reimbursements.get(number, 0),
+            'most_recent': messages[-1].date.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+        if not entry['network']:
+            return None
+
+        cost_per_sms = settings.REIMBURSEMENT_RATES[entry['network']]
+
+        entry['total_spent'] = cost_per_sms * len(messages)
+
+        owed = entry['total_spent'] - entry['total_reimbursed']
+        entry['earliest_unreimbursed'] = None
+        if owed > 0:
+            num_unreimbursed = int(math.ceil(owed / float(cost_per_sms)))
+            entry['earliest_unreimbursed'] = messages[-num_unreimbursed].date.strftime('%Y-%m-%d %H:%M:%S')
+
+        return entry
+
+    def sort_key(entry):
+        owed = entry['total_spent'] - entry['total_reimbursed']
+        if owed > 0:
+            return (False, entry['earliest_unreimbursed'])
+        else:
+            return (True, entry['number'])
+
+    data = sorted(filter(None, [mk_entry(k, v) for k, v in by_number.iteritems()]), key=sort_key)
+    return render(request, 'dashboard/reimbursement.html', {
+            'data': json.dumps(data),
+        })
+
+def reimbursement_detail(request, number):
+    reimbursements = ReimbursementLog.objects.filter(phone=number).order_by('-reimbursed_on')
+    num_messages = Message.objects.filter(connection__identity=number, direction='I').count()
+    owed = settings.REIMBURSEMENT_RATES[network_for_number(number)] * num_messages - sum([r.amount for r in reimbursements])
+
+    from django import forms
+    from django.contrib.admin.widgets import AdminDateWidget
+    class ReimbursementForm(forms.Form):
+        amount = forms.IntegerField()
+        when = forms.DateField(widget=AdminDateWidget, required=False)
+
+        def clean_amount(self):
+            data = self.cleaned_data['amount']
+            if data <= 0:
+                raise forms.ValidationError('can\'t be 0 or negative')
+            return data
+
+    if request.method == 'POST':
+        form = ReimbursementForm(request.POST)
+        if form.is_valid():
+            entry_date = form.cleaned_data['when']
+            entry = ReimbursementLog(
+                phone=number,
+                amount=form.cleaned_data['amount'],
+                reimbursed_on=datetime.now() if (not entry_date or entry_date == date.today()) else entry_date,
+            )
+            entry.save()
+            return HttpResponseRedirect('/dashboard/reimbursement/')
+    else:
+        form = ReimbursementForm()
+
+    return render(request, 'dashboard/reimbursement_detail.html', {
+            'number': disp_number(number),
+            'network': network_for_number(number),
+            'owed': owed,
+            'over': owed < 0,
+            'over_amt': -owed,
+            'history': reimbursements,
+            'form': form,
+        })
+
+def reimbursement_delete(request):
+    log = ReimbursementLog.objects.get(id=request.POST.get('id'))
+    phone = log.phone
+    log.delete()
+    return HttpResponseRedirect(reverse(reimbursement_detail, kwargs={'number': phone}))

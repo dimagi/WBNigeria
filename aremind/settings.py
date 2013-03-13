@@ -306,7 +306,7 @@ INSTALLED_BACKENDS = {
     },
 }
 
-DEFAULT_MESSAGE = "Message not understood. Please try again"
+DEFAULT_MESSAGE = "Please enter your location code so MyVoice can help you."
 
 #RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog","djcelery"]
 

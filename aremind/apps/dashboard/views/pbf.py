@@ -21,6 +21,11 @@ class DashboardView(mixins.LoginMixin, generic.TemplateView):
 class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
     template_name = 'dashboard/pbf/reports.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(ReportView, self).get_context_data(**kwargs)
+        context['facilities'] = json.dumps(utils.get_facilities())
+        return context
+
 
 class SingleReportView(mixins.LoginMixin, generic.TemplateView):
     template_name = 'dashboard/pbf/single_log.html'

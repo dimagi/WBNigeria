@@ -11,10 +11,12 @@
     }
 
     NOTE_DELETE_URL = '/dashboard/message/del/'; {# '{% url 'del_message' %}'; url tag doesn't want to resolve?? #}
+    FACILITIES = {{ facilities|safe }};
 
     $(document).ready(function() {
         var model = new PBFDetailViewModel();
         ko.applyBindings(model);
+        model.load({facilities: FACILITIES, init: true});
 
         // Attach an event listener to map div
         // Specifically, this solves the problem when the maps container

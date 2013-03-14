@@ -401,10 +401,17 @@ function FadamaDetailViewModel() {
             this.facilities(facs);
 
             var default_facility = this.facility_by_id(DEFAULT_SITE);
+            this.sentinel = true;
             if (default_facility) {
                 this.active_metric('satisf');
                 this.active_facility(default_facility);
+            } else {
+                this.on_facility_change(null);
             }
+        }
+
+        if (data.init) {
+            return;
         }
 
         this.taggable_contacts($.map(data.taggable_contacts, function(e) {
@@ -476,10 +483,15 @@ function FadamaDetailViewModel() {
     };
 
     var model = this;
-    this._facility_reload = ko.computed(function() {
-        var fac = model.active_facility();
-        model.ajax_load(fac != null && fac.id() != -1 ? fac.id() : null);
-    });
+    this.active_facility.subscribe(function(fac) { model.on_facility_change(fac); });
+
+    this.on_facility_change = function(fac) {
+        if (!this.sentinel) {
+            return;
+        }
+
+        this.ajax_load(fac != null && fac.id() != -1 ? fac.id() : null);
+    };
 
     this.facility_by_id = function(id) {
         var f = null;
@@ -556,8 +568,6 @@ function PBFLogsForContactModel(data, taggables) {
     $.each(data, function(i, e) {
             e.from_same = [];
         });
-
-    console.log(data);
 
     this.active_month = ko.observable(new PbfMonthlyDetailModel({logs: data}, this));
 

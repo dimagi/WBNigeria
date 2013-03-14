@@ -15,6 +15,7 @@
     FC_PREFIX = '{{ fadama_communicator_prefix }}';
     NOTE_DELETE_URL = '{% url 'del_message' %}';
     PER_CONTACT_URL_TEMPL = '{% url 'fadama_contact_detail' 'xxx' %}';
+    FACILITIES = {{ facilities|safe }};
 
     $(document).ready(function() {
         detail_report_init();
@@ -23,6 +24,7 @@
     function detail_report_init() {
         var model = new FadamaDetailViewModel();
         ko.applyBindings(model);
+        model.load({facilities: FACILITIES, init: true});
 
         // Attach an event listener to map div
         // Specifically, this solves the problem when the maps container

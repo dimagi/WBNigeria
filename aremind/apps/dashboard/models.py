@@ -51,6 +51,16 @@ class FeedbackReport(models.Model):
     def content(self, value):
         self.data = json.dumps(value) if value is not None else None
 
+    def __unicode__(self):
+        try:
+            return 'from %s at %s regarding %s' % (
+                self.reporter.identity,
+                self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                self.site
+            )
+        except Exception, e:
+            return 'error %s %s' % (type(e), str(e))
+
     class Meta:
         abstract = True
 

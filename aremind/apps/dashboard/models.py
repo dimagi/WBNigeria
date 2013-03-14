@@ -51,12 +51,21 @@ class FeedbackReport(models.Model):
     def content(self, value):
         self.data = json.dumps(value) if value is not None else None
 
+    @property
+    def format(self):
+        if self.raw_report:
+            if any(self.raw_report.lower().startswith(k) for k in ('cn', 'f3')):
+                return 'flat'
+            elif len(self.raw_report) >= 32:
+                return 'interactive'
+
     def __unicode__(self):
         try:
-            return 'from %s at %s regarding %s' % (
+            return 'from %s at %s regarding %s (%s)' % (
                 self.reporter.identity,
                 self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-                self.site
+                self.site,
+                self.format or '??',
             )
         except Exception, e:
             return 'error %s %s' % (type(e), str(e))

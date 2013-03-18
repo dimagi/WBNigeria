@@ -20,6 +20,10 @@ class LoginMixin(object):
 
 
 class ReportMixin(object):
+    def get_user_state(self):
+        """return state for logged-in user, None for national user (or mis-configured)"""
+        return u.get_user_state(self.request.user)
+
     def get_context_data(self, **kwargs):
         context = super(ReportMixin, self).get_context_data(**kwargs)
         context['default_site'] = kwargs.get('site')

@@ -28,6 +28,7 @@ class ReportView(mixins.LoginMixin, mixins.ReportMixin, generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ReportView, self).get_context_data(**kwargs)
         context['fadama_communicator_prefix'] = utils.communicator_prefix()
+        context['facilities'] = json.dumps(facility_info(self))
         return context
 
 
@@ -53,11 +54,15 @@ class SingleReportView(mixins.LoginMixin, generic.TemplateView):
         }
 
 
+def facility_info(view):
+    state = view.get_user_state()
+    return [f for f in utils.get_facilities() if state is None or f['state'] == state]
+
 class APIDetailView(mixins.LoginMixin, mixins.APIMixin, generic.View):
     def get_payload(self, site, user, **kwargs):
         state = self.get_user_state()
         data = {
-            'facilities': [f for f in utils.get_facilities() if state is None or f['state'] == state],
+            'facilities': facility_info(self),
             'monthly': utils.detail_stats(site, self.request.user, state),
             'taggable_contacts': u.get_taggable_contacts('fadama', state, user),
         }

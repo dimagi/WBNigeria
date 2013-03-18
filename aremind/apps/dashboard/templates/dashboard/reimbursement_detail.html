@@ -1,0 +1,91 @@
+{% extends "dashboard/base.html" %}
+{% load url from future %}
+
+{% block dashboard_navigation %}
+    <ul class="nav pull-right">
+        <li><img style="cursor: pointer;" alt="Print" src="{{ STATIC_URL }}images/print.gif" onclick="window.print();"></li>
+        <li><a href="#">Welcome back, {{ request.user.first_name }}!</a></li>
+        <li><a href="{% url 'auth_password_change' %}">Change Password</a></li>
+        <li><a href="{% url 'rapidsms_logout' %}">Logout</a></li>
+    </ul>
+{% endblock dashboard_navigation %}
+
+{% block javascripts %}
+{{ block.super }}
+
+<script type="text/javascript">
+
+$(function() {
+  $('#id_when').datepicker({dateFormat: 'yy-mm-dd'});
+
+  $('.del').submit(function() {
+    return confirm('Delete this reimbursement entry?')
+  });
+});
+
+</script>
+
+{% endblock javascripts %}
+
+{% block content %}
+    {{ block.super }}
+
+<h1>Reimbursement for {{ number }} ({{ network }})</h1>
+
+<p style="width: 30em;">Reimburse the necessary amount to this number using your phone. Once the reimbursement is complete, log it on this page. If the amount owed is less than the minimum reimbursement amount allowed by the network, reimburse the minimum allowed amount.</p>
+
+<div style="margin-top: 20px; font-size: 120%;">
+{% if not over %}
+<p>Currently owed: <b>{{ owed }}</b></p>
+{% else %}
+<p>Currently over-reimbursed by <b>{{ over_amt }}</b></p>
+{% endif %}
+</div>
+
+<hr />
+
+<form method="post">
+{{ form }}
+<div><input class="btn btn-primary" type="submit" /></div>
+{% csrf_token %}
+</form>
+
+<hr />
+<h3>Reimbursement History</h3>
+
+<div style="max-width: 450px;">
+
+{% if history %}
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr>
+      <th>Amount</th>
+      <th>Date</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+{% for h in history %}
+    <tr>
+      <td>{{ h.amount }}</td>
+      <td style="white-space: nowrap;">{{ h.reimbursed_on }}</td>
+      <td>
+        <form action="/dashboard/reimbursement/delete/" class="del" method="post">
+          <input type="hidden" name="id" value="{{ h.id }}" />
+          <input class="btn btn-danger" type="submit" value="Delete" />
+          {% csrf_token %}
+        </form>
+      </td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% else %}
+
+<i>none yet</i>
+
+{% endif %}
+
+</div>
+
+{% endblock content %}

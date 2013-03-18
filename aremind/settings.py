@@ -68,7 +68,9 @@ INSTALLED_APPS = [
     "gunicorn",
     "tastypie",
 
+    "rapidsms_xforms",
     "smsforms",
+
     "alerts",
     "aremind.apps.wbn_registration",
     "aremind.apps.groups",
@@ -84,7 +86,6 @@ INSTALLED_APPS = [
     "eav",
     "uni_form",
     "django_digest",
-    "rapidsms_xforms",
 
 
     # the rapidsms contrib apps.
@@ -306,7 +307,7 @@ INSTALLED_BACKENDS = {
     },
 }
 
-DEFAULT_MESSAGE = "Message not understood. Please try again"
+DEFAULT_MESSAGE = "Please enter your location code so MyVoice can help you."
 
 #RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog","djcelery"]
 
@@ -550,3 +551,8 @@ MINIMUM_TRANSFERS = {
     'airtel': 50,
     'etisalat': 50
     }
+REIMBURSEMENT_RATES = {
+    'mtn': 4,
+    'airtel': 4,
+    'etisalat': 4,
+}

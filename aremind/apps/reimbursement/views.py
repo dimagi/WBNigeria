@@ -1,5 +1,5 @@
 #import calendar
-import datetime
+#import datetime
 from collections import defaultdict
 import logging
 
@@ -13,7 +13,7 @@ from rapidsms.messages.outgoing import OutgoingMessage
 from threadless_router.router import Router
 #from rapidsms.router import router
 
-from aremind.apps.reimbursement.models import Batch, Reimbursement, REIMBURSEMENT_RATES, NAME_NETWORK_MAP, REIMBURSEMENT_NUMBERS
+from aremind.apps.reimbursement.models import Batch, ReimbursementRecord, Subscriber, REIMBURSEMENT_RATES, NAME_NETWORK_MAP, REIMBURSEMENT_NUMBERS
 from aremind.apps.dashboard.utils.shared import network_for_number
 
 
@@ -56,28 +56,28 @@ def next_batch():
 
     total_messages = sum([v for k,v in msg_counter.items()])
 
-    new_batch = Batch.objects.create(last_time=max_date)
+    Batch.objects.create(last_time=max_date)
+
     for number, msg_count in msg_counter.items():
         logging.info('number: %s, msg_count: %s'%(number, msg_count))
         number = '234%s' % number
-        #import pdb;pdb.set_trace()
         network = network_for_number(number)
         #import pdb;pdb.set_trace()
         if network and len(number) == 13:#using the full 2348... format of 13 digits
             try:
-                reimbursement = Reimbursement.objects.get(
-                        number=number,
-                        status=Reimbursement.PENDING,
-                        )
-            except Reimbursement.DoesNotExist:
-                Reimbursement.objects.create(
-                    batch=new_batch,
+                subscriber = Subscriber.objects.get(number=number)
+                #reimbursement = Reimbursement.objects.get(
+                #        number=number,
+                #        status=Reimbursement.PENDING,
+                #        )
+            except Subscriber.DoesNotExist:
+                Subscriber.objects.create(
                     number=number,
-                    amount=REIMBURSEMENT_RATES[network]*msg_count,
+                    balance=REIMBURSEMENT_RATES[network]*msg_count,
                     network=NAME_NETWORK_MAP[network])
             else:
-                reimbursement.amount += REIMBURSEMENT_RATES[network]*msg_count
-                reimbursement.save()
+                subscriber.balance += REIMBURSEMENT_RATES[network]*msg_count
+                subscriber.save()
     return total_messages
 
 def reimburse():
@@ -86,50 +86,83 @@ def reimburse():
     '''
     counter = 0
     network_name_map = dict([(v, k) for k, v in NAME_NETWORK_MAP.items()])
-    reimbursements = Reimbursement.objects.exclude(
-            status__in=(Reimbursement.COMPLETED, Reimbursement.ERROR)
-            ).order_by('batch')
+    reimbursements = ReimbursementRecord.objects.exclude(
+            status__in=(ReimbursementRecord.COMPLETED, ReimbursementRecord.ERROR)
+            )
 
     #import pdb;pdb.set_trace()
-    for network, _ in Reimbursement.NETWORKS:
-        #print 'network: %s'%network
+    for network, _ in Subscriber.NETWORKS:
+        print 'network: %s'%network
         if reimbursements.filter(
                 status__in=(
-                    Reimbursement.IN_PROGRESS, Reimbursement.QUEUED),
-                network=network):
+                    ReimbursementRecord.IN_PROGRESS, ReimbursementRecord.QUEUED),
+                subscriber__network=network):
             continue
         else:
-            #we should have no more than one pending transaction per number
-            for reimburse in reimbursements.filter(network=network, status=Reimbursement.PENDING):
-            #if pending:
-                #reimburse = pending
+            #there is no reimbursement in progress for "network"
+            subscribers = Subscriber.objects.filter(balance__gt=0, network=network)
+            if subscribers:
+                subscriber = subscribers[0]
+            else:
+                continue
 
-                network_name = network_name_map.get(network)
-                if reimburse.amount < settings.MINIMUM_TRANSFERS.get(network_name):
-                    logging.error("%s is less than minimum"%reimburse.amount)
-                    continue#ignore if amount is not up to min for network
-                backend_name = reimburse.get_backend()
-                backend, _ = Backend.objects.get_or_create(name=backend_name)
-
-                text = reimburse.first_message % {
-                        'number': '0%s'%reimburse.number[-10:],
-                        'amount': reimburse.amount,
-                        'pin': settings.NETWORK_PINS.get(network_name)
-                        }
-                logging.info("message to send is %s"%text)
-                to_number = REIMBURSEMENT_NUMBERS.get(network_name)
-                if len(to_number) < 11:#If it is a short-code, prefix with 's'
-                    to_number = 's%s'%to_number
-                connection, _ = Connection.objects.get_or_create(
-                        backend=backend, identity=to_number)
-                msg = OutgoingMessage(connection=connection, template=text)
-                try:
-                    msg.send()
-                except:
-                    router = Router()
-                    #router.start()
-                    router.outgoing(msg)
-                reimburse.status = Reimbursement.IN_PROGRESS
-                reimburse.save()
-                counter += 1
+            network_name = network_name_map.get(network)
+            _amount = max(subscriber.balance, settings.MINIMUM_TRANSFERS.get(network_name))
+            backend_name = subscriber.get_backend()
+            backend, _ = Backend.objects.get_or_create(name=backend_name)
+            text = subscriber.first_message % {
+                    'number': '0%s'%subscriber.number[-10:],
+                    'amount': _amount,
+                    'pin': settings.NETWORK_PINS.get(network_name)
+                    }
+            logging.info('message to send is %s'%text)
+            to_number = REIMBURSEMENT_NUMBERS.get(network_name)
+            if len(to_number) < 11:#If it is a short-code, prefix with 's'
+                to_number = 's%s'%to_number
+            connection, _ = Connection.objects.get_or_create(
+                    backend=backend, identity=to_number)
+            msg = OutgoingMessage(connection=connection, template=text)
+            try:
+                msg.send()
+            except:
+                router = Router()
+                #router.start()
+                router.outgoing(msg)
+            ReimbursementRecord.objects.create(
+                subscriber=subscriber,
+                amount=_amount,
+                status=ReimbursementRecord.IN_PROGRESS)
+            counter += 1
     return counter
+
+#            for reimburse in reimbursements.filter(
+#                    subscriber__network=network, status=ReimbursementRecord.PENDING):
+#                network_name = network_name_map.get(network)
+#                if reimburse.amount < settings.MINIMUM_TRANSFERS.get(network_name):
+#                    logging.error("%s is less than minimum"%reimburse.amount)
+#                    continue#ignore if amount is not up to min for network
+#                backend_name = reimburse.get_backend()
+#                backend, _ = Backend.objects.get_or_create(name=backend_name)
+#
+#                text = reimburse.first_message % {
+#                        'number': '0%s'%reimburse.number[-10:],
+#                        'amount': reimburse.amount,
+#                        'pin': settings.NETWORK_PINS.get(network_name)
+#                        }
+#                logging.info("message to send is %s"%text)
+#                to_number = REIMBURSEMENT_NUMBERS.get(network_name)
+#                if len(to_number) < 11:#If it is a short-code, prefix with 's'
+#                    to_number = 's%s'%to_number
+#                connection, _ = Connection.objects.get_or_create(
+#                        backend=backend, identity=to_number)
+#                msg = OutgoingMessage(connection=connection, template=text)
+#                try:
+#                    msg.send()
+#                except:
+#                    router = Router()
+#                    #router.start()
+#                    router.outgoing(msg)
+#                reimburse.status = Reimbursement.IN_PROGRESS
+#                reimburse.save()
+#                counter += 1
+#    return counter

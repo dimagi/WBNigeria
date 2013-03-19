@@ -54,6 +54,65 @@ class Batch(models.Model):
     def count(self):
         return self.reimbursements.count()
 
+class Subscriber(models.Model):
+    MTN = 0
+    AIRTEL = 1
+    ETISALAT = 2
+    NETWORKS = list(enumerate(('MTN', 'Airtel', 'Etisalat')))
+
+    number = models.CharField(max_length=20)
+    network = models.PositiveIntegerField(choices=NETWORKS)
+    balance = models.IntegerField()
+
+    def __unicode__(self):
+        return self.number
+
+    def get_backend(self):
+        if self.network == self.MTN:
+            return 'smstools-mtn'
+        elif self.network == self.AIRTEL:
+            return 'smstools-airtel'
+        elif self.network == self.ETISALAT:
+            return 'smstools-etisalat'
+
+    @property
+    def first_message(self):
+        if self.network == self.AIRTEL:
+            return AIRTEL_MESSAGE_LIST[0].get('message')
+        elif self.network == self.MTN:
+            return MTN_MESSAGE_LIST[0].get('message')
+        else:
+            return ETISALAT_MESSAGE_LIST[0].get('message')
+
+class ReimbursementRecord(models.Model):
+    PENDING = 0
+    QUEUED = 1
+    IN_PROGRESS = 2
+    COMPLETED = 3
+    ERROR = 4
+    REIMBURSEMENT_STATUSES = enumerate(('Pending', 'Queued', 'In Progress', 'Completed', 'Error'))
+
+    subscriber = models.ForeignKey(Subscriber)
+    amount = models.PositiveIntegerField()
+    status = models.PositiveIntegerField(choices=REIMBURSEMENT_STATUSES, default=PENDING)
+    messages = models.TextField(blank=True)
+    completed_on = models.DateTimeField(null=True, blank=True)
+
+    def __unicode__(self):
+        return unicode(self.subscriber)
+
+    def get_backend(self):
+        return self.subscriber.get_backend()
+
+    @property
+    def first_message(self):
+        return self.subscriber.first_message
+
+    def add_message(self, txt, direction='Incoming'):
+        self.messages += '\n%s: %s'%(direction, txt)
+        super(ReimbursementRecord, self).save()
+
+
 class Reimbursement(models.Model):
     MTN = 0
     AIRTEL = 1

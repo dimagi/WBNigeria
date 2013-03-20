@@ -5,7 +5,7 @@ from django.conf import settings
 
 from rapidsms.apps.base import AppBase
 from rapidsms.messages import OutgoingMessage
-#from rapidsms.models import Connection
+from rapidsms.models import Connection
 from datetime import datetime
 
 from aremind.apps.reimbursement.models import ReimbursementRecord, ReimbursementLog, NAME_NETWORK_MAP, REIMBURSEMENT_NUMBERS, AIRTEL_MESSAGE_LIST, MTN_MSG_RESPONSE
@@ -46,7 +46,11 @@ class ReimburseApp(AppBase):
                             phone=current.subscriber.number,
                             amount=current.amount,
                             reimbursed_on=datetime.now())
-                        notice = OutgoingMessage(connection=msg.connection, template=settings.REIMBURSEMENT_NOTICE)
+
+                        sub_no = '+234%s'%current.subscriber.number[-10:]
+                        conn = Connection.objects.get(identity=sub_no)
+                        notice = OutgoingMessage(connection=conn,
+                            template=settings.REIMBURSEMENT_NOTICE)
                         self.router.outgoing(notice)
 
                     current.save()

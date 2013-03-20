@@ -112,6 +112,10 @@ class ReimbursementRecord(models.Model):
         self.messages += '\n%s: %s'%(direction, txt)
         super(ReimbursementRecord, self).save()
 
+    @property
+    def network(self):
+        return self.subscriber.get_network_display()
+
 
 class Reimbursement(models.Model):
     MTN = 0

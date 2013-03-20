@@ -13,7 +13,7 @@ class SubscriberAdmin(admin.ModelAdmin):
     list_display = ('number', 'network', 'balance')
 
 class ReimbursementRecordAdmin(admin.ModelAdmin):
-    list_display = ('subscriber', 'amount', 'status', 'completed_on')
+    list_display = ('subscriber', 'network', 'amount', 'status', 'completed_on')
 
 admin.site.register(Batch, BatchAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)

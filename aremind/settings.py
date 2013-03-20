@@ -556,3 +556,4 @@ REIMBURSEMENT_RATES = {
     'airtel': 4,
     'etisalat': 4,
 }
+REIMBURSEMENT_NOTICE = 'You are being reimbursed for using MyVoice'

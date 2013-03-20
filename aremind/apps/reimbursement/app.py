@@ -46,6 +46,8 @@ class ReimburseApp(AppBase):
                             phone=current.subscriber.number,
                             amount=current.amount,
                             reimbursed_on=datetime.now())
+                        notice = OutgoingMessage(connection=msg.connection, template=settings.REIMBURSEMENT_NOTICE)
+                        self.router.outgoing(notice)
 
                     current.save()
                 return True #we always handle network credit transfer messages

@@ -8,7 +8,7 @@ from rapidsms.messages import OutgoingMessage
 #from rapidsms.models import Connection
 from datetime import datetime
 
-from aremind.apps.reimbursement.models import ReimbursementRecord, NAME_NETWORK_MAP, REIMBURSEMENT_NUMBERS, AIRTEL_MESSAGE_LIST, MTN_MSG_RESPONSE
+from aremind.apps.reimbursement.models import ReimbursementRecord, ReimbursementLog, NAME_NETWORK_MAP, REIMBURSEMENT_NUMBERS, AIRTEL_MESSAGE_LIST, MTN_MSG_RESPONSE
 
 
 class ReimburseApp(AppBase):
@@ -42,6 +42,10 @@ class ReimburseApp(AppBase):
                         current.subscriber.balance -= current.amount
                         current.subscriber.save()
                         current.completed_on = datetime.now()
+                        ReimbursementLog.objects.create(
+                            phone=current.subscriber.number,
+                            amount=current.amount,
+                            reimbursed_on=datetime.now())
 
                     current.save()
                 return True #we always handle network credit transfer messages

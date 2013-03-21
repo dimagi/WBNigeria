@@ -48,10 +48,13 @@ class ReimburseApp(AppBase):
                             reimbursed_on=datetime.now())
 
                         sub_no = '+234%s'%current.subscriber.number[-10:]
-                        conn = Connection.objects.get(identity=sub_no)
-                        notice = OutgoingMessage(connection=conn,
-                            template=settings.REIMBURSEMENT_NOTICE)
-                        self.router.outgoing(notice)
+                        try:
+                            conn = Connection.objects.get(identity=sub_no, backend=backend)
+                            notice = OutgoingMessage(connection=conn,
+                                template=settings.REIMBURSEMENT_NOTICE)
+                            self.router.outgoing(notice)
+                        except Exception, exc:
+                            self.error(str(exc))
 
                     current.save()
                 return True #we always handle network credit transfer messages

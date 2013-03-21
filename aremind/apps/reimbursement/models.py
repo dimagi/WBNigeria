@@ -184,3 +184,7 @@ NAME_NETWORK_MAP = {
     'airtel': Reimbursement.AIRTEL,
     'etisalat': Reimbursement.ETISALAT
     }
+
+def get_backend_name(network_name):
+    if network_name in NAME_NETWORK_MAP:
+        return 'smstools-%s'%network_name

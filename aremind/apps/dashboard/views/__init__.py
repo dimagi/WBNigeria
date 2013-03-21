@@ -15,11 +15,14 @@ import json
 
 from apps.utils.functional import map_reduce
 from rapidsms.contrib.messagelog.models import Message
+from rapidsms.models import Backend, Connection
+from rapidsms.messages.outgoing import OutgoingMessage
 from apps.dashboard.utils.shared import network_for_number
 from django.conf import settings
-from apps.reimbursement.models import ReimbursementLog
+from apps.reimbursement.models import ReimbursementLog, get_backend_name
 import math
 from datetime import datetime, date
+from threadless_router.router import Router
 
 
 def landing(request):
@@ -191,6 +194,21 @@ def reimbursement_detail(request, number):
                 reimbursed_on=datetime.now() if (not entry_date or entry_date == date.today()) else entry_date,
             )
             entry.save()
+
+            #import pdb;pdb.set_trace()
+            network_name = network_for_number(number)
+            backend_name = get_backend_name(network_name)
+            backend, _ = Backend.objects.get_or_create(name=backend_name)
+            try:
+                conn = Connection.objects.get(identity=number, backend=backend)
+            except Exception:
+                #log somewhere?
+                pass
+            else:
+                notice = OutgoingMessage(connection=conn, template=settings.REIMBURSEMENT_NOTICE)
+                router = Router()
+                router.outgoing(notice)
+
             return HttpResponseRedirect('/dashboard/reimbursement/')
     else:
         form = ReimbursementForm()

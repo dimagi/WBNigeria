@@ -135,34 +135,3 @@ def reimburse():
             counter += 1
     return counter
 
-#            for reimburse in reimbursements.filter(
-#                    subscriber__network=network, status=ReimbursementRecord.PENDING):
-#                network_name = network_name_map.get(network)
-#                if reimburse.amount < settings.MINIMUM_TRANSFERS.get(network_name):
-#                    logging.error("%s is less than minimum"%reimburse.amount)
-#                    continue#ignore if amount is not up to min for network
-#                backend_name = reimburse.get_backend()
-#                backend, _ = Backend.objects.get_or_create(name=backend_name)
-#
-#                text = reimburse.first_message % {
-#                        'number': '0%s'%reimburse.number[-10:],
-#                        'amount': reimburse.amount,
-#                        'pin': settings.NETWORK_PINS.get(network_name)
-#                        }
-#                logging.info("message to send is %s"%text)
-#                to_number = REIMBURSEMENT_NUMBERS.get(network_name)
-#                if len(to_number) < 11:#If it is a short-code, prefix with 's'
-#                    to_number = 's%s'%to_number
-#                connection, _ = Connection.objects.get_or_create(
-#                        backend=backend, identity=to_number)
-#                msg = OutgoingMessage(connection=connection, template=text)
-#                try:
-#                    msg.send()
-#                except:
-#                    router = Router()
-#                    #router.start()
-#                    router.outgoing(msg)
-#                reimburse.status = Reimbursement.IN_PROGRESS
-#                reimburse.save()
-#                counter += 1
-#    return counter

@@ -2,6 +2,7 @@
 #import datetime
 from collections import defaultdict
 import logging
+from datetime import datetime, timedelta
 
 from django.db.models.aggregates import Max
 from django.conf import settings
@@ -80,6 +81,17 @@ def next_batch():
                 subscriber.save()
     return total_messages
 
+def qualify(subscribers, min_time):
+    qualifiers = []
+    for sub in subscribers:
+        number = '+234%s'%sub.number[-10:]
+        last_time = Message.objects.filter(
+                connection__identity=number,
+                direction='I').aggregate(Max('date'))['date__max']
+        if last_time < datetime.now() - timedelta(minutes=min_time):
+            qualifiers.append(sub)
+    return qualifiers
+
 def reimburse():
     '''
     Start reimbursement process, entailing interaction with special numbers
@@ -101,8 +113,10 @@ def reimburse():
         else:
             #there is no reimbursement in progress for "network"
             subscribers = Subscriber.objects.filter(balance__gt=0, network=network)
-            if subscribers:
-                subscriber = subscribers[0]
+            min_time = settings.REIMBURSEMENT_MIN_TIME
+            qualified = qualify(subscribers, min_time)
+            if qualified:
+                subscriber = qualified[0]
             else:
                 continue
 

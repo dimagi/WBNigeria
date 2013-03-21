@@ -557,3 +557,4 @@ REIMBURSEMENT_RATES = {
     'etisalat': 4,
 }
 REIMBURSEMENT_NOTICE = 'You are being reimbursed for using MyVoice'
+REIMBURSEMENT_MIN_TIME = 15#In minutes

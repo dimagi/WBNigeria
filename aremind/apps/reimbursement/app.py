@@ -43,7 +43,7 @@ class ReimburseApp(AppBase):
                         current.subscriber.save()
                         current.completed_on = datetime.now()
                         ReimbursementLog.objects.create(
-                            phone=current.subscriber.number,
+                                phone='+234%s'%current.subscriber.number[-10:],
                             amount=current.amount,
                             reimbursed_on=datetime.now())
 

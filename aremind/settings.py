@@ -556,5 +556,5 @@ REIMBURSEMENT_RATES = {
     'airtel': 4,
     'etisalat': 4,
 }
-REIMBURSEMENT_NOTICE = 'You are being reimbursed for using MyVoice'
+REIMBURSEMENT_NOTICE = 'You have received a top-up refund from MyVoice. Thank you for sharing your opinion with MyVoice!'
 REIMBURSEMENT_MIN_TIME = 15#In minutes

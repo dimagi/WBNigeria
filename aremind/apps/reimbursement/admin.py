@@ -11,6 +11,7 @@ class ReimbursementAdmin(admin.ModelAdmin):
 
 class SubscriberAdmin(admin.ModelAdmin):
     list_display = ('number', 'network', 'balance')
+    search_fields = ('number',)
 
 class ReimbursementRecordAdmin(admin.ModelAdmin):
     list_display = ('subscriber', 'network', 'amount', 'status', 'completed_on')

@@ -39,7 +39,8 @@ class ReimburseApp(AppBase):
                     current.add_message(msg.text)
 
                     if status == ReimbursementRecord.COMPLETED:
-                        current.subscriber.balance -= current.amount
+                        bal = current.subscriber.balance - current.amount
+                        current.subscriber.balance = max(bal, 0)
                         current.subscriber.save()
                         current.completed_on = datetime.now()
                         ReimbursementLog.objects.create(

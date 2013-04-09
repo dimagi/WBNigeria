@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from aremind.apps.reimbursement.models import Batch, Reimbursement, Subscriber, ReimbursementRecord
+from aremind.apps.reimbursement.models import Batch, Reimbursement, Subscriber, ReimbursementRecord, ReimbursementLog
+from datetime import datetime
 
 
 class BatchAdmin(admin.ModelAdmin):
@@ -15,6 +16,16 @@ class SubscriberAdmin(admin.ModelAdmin):
 
 class ReimbursementRecordAdmin(admin.ModelAdmin):
     list_display = ('subscriber', 'network', 'amount', 'status', 'completed_on')
+
+    def save_model(self, request, obj, form, change):
+        obj.completed_on = datetime.now()
+        obj.messages = 'Manual reimbursement by %s'%request.user.username
+        obj.save()
+        if not change:
+            ReimbursementLog.objects.create(
+                    phone='+234%s'%obj.subscriber.number[-10:],
+                    amount=obj.amount,
+                    reimbursed_on=datetime.now())
 
 admin.site.register(Batch, BatchAdmin)
 admin.site.register(Reimbursement, ReimbursementAdmin)

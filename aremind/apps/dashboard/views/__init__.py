@@ -19,7 +19,7 @@ from rapidsms.models import Backend, Connection
 from rapidsms.messages.outgoing import OutgoingMessage
 from apps.dashboard.utils.shared import network_for_number
 from django.conf import settings
-from apps.reimbursement.models import ReimbursementLog, get_backend_name
+from apps.reimbursement.models import ReimbursementLog, Subscriber, get_backend_name, NAME_NETWORK_MAP
 import math
 from datetime import datetime, date
 from threadless_router.router import Router
@@ -195,8 +195,19 @@ def reimbursement_detail(request, number):
             )
             entry.save()
 
-            #import pdb;pdb.set_trace()
             network_name = network_for_number(number)
+            network = NAME_NETWORK_MAP.get(network_name)
+            try:
+                subscriber = Subscriber.objects.get(
+                        number=number[-13:], network=network)
+            except Subscriber.DoesNotExist:
+                pass
+            else:
+                balance = subscriber.balance - form.cleaned_data['amount']
+                subscriber.balance = max(balance, 0)
+                subscriber.save()
+
+            #import pdb;pdb.set_trace()
             backend_name = get_backend_name(network_name)
             backend, _ = Backend.objects.get_or_create(name=backend_name)
             try:

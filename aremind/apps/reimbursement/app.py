@@ -37,11 +37,12 @@ class ReimburseApp(AppBase):
                     status = getattr(self, 'handle_%s'%network_name)(msg, current)
                     current.status = status
                     current.add_message(msg.text)
+                    current.completed_on = datetime.now()
 
                     if status == ReimbursementRecord.COMPLETED:
                         current.subscriber.balance -= current.amount
                         current.subscriber.save()
-                        current.completed_on = datetime.now()
+                        #current.completed_on = datetime.now()
                         ReimbursementLog.objects.create(
                                 phone='+234%s'%current.subscriber.number[-10:],
                             amount=current.amount,

@@ -557,4 +557,4 @@ REIMBURSEMENT_RATES = {
     'etisalat': 4,
 }
 REIMBURSEMENT_NOTICE = 'You have received a top-up refund from MyVoice. Thank you for sharing your opinion with MyVoice!'
-REIMBURSEMENT_MIN_TIME = 15#In minutes
+REIMBURSEMENT_MIN_TIME = 12*60#In minutes

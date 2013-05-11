@@ -16,16 +16,14 @@ class Command(LabelCommand):
         all_connections = Connection.objects.all()
         success = []
         failed = []
+        router = Router()
         for conn in all_connections:
             try:
-                router = Router()
-                if router.outgoing(OutgoingMessage(conn, message)):
-                    success.append(conn)
-                else:
-                    failed.append(conn)
-            except Exception:
+                router.outgoing(OutgoingMessage(conn, message))
+                success.append(conn)
+            except Exception, e:
+                print "failed to send to %s because %s" % (conn, e)
                 failed.append(conn)
 
         print "sent to %s connections. %s failed." % (len(success), len(failed))
-        if failed:
-            print "\n".join([conn for conn in failed])
+

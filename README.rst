@@ -56,16 +56,16 @@ Developer Setup
 
     ./bootstrap.py
 
+#. Update the submodules::
+
+    git submodule init
+    git submodule update
+
 #. Create local settings file and initialize a development database::
 
     cp localsettings.py.example localsettings.py
     createdb wbnigeria
     ./manage.py syncdb
-
-#. Update the submodules::
-
-    git submodule init
-    git submodule update
 
 #. In a terminal, start the Django development server::
 

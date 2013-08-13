@@ -30,15 +30,17 @@ urlpatterns = patterns('',
     url(r'^settings/$', direct_to_template,
         {'template': 'aremind/not_implemented.html'}, name='settings'),
 
-    # RapidSMS contrib app URLs
     url(r"^backend/(?P<network>\w+)/$", SmsToolsBackendView.as_view()),
 
+    # RapidSMS contrib app URLs
+    url(r"^backend/(?P<network>\w+)/$", SmsToolsBackendView.as_view()),
     (r'^ajax/', include('rapidsms.contrib.ajax.urls')),
     (r'^export/', include('rapidsms.contrib.export.urls')),
     url(r'^httptester/$',
         'threadless_router.backends.httptester.views.generate_identity',
         {'backend_name': 'kannel'}, name='httptester-index'),
     (r'^httptester/', include('threadless_router.backends.httptester.urls')),
+    (r'^kannel/', include('threadless_router.backends.kannel.urls')),
     (r'^locations/', include('rapidsms.contrib.locations.urls')),
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),

@@ -7,9 +7,10 @@ lxml==2.3
 twilio==2.0.6
 tropo-webapi-python==0.1.1
 django-sorting==0.1
-psycopg2==2.4.1
+psycopg2==2.5.1
 django-rosetta==0.6.0
 django-celery==2.2.4
+django-taggit==0.9.3
 django-tastypie==0.9.12
 celery==2.2.7
 python-twitter==0.8.2
